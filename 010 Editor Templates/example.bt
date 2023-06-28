@@ -1,0 +1,44 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Person {
+    char name[50];
+    ubyte age;
+    float height;
+};
+
+struct Flags {
+    ubyte flag1 : 1;
+    ubyte flag2 : 2;
+    ubyte flag3 : 3;
+    ubyte flag4 : 2;
+};
+
+byte a1;
+ubyte a2;
+int16 b1;
+uint16 b2;
+int32 c1;
+uint32 c2;
+int64 d1;
+uint64 d2;
+
+hfloat x;
+float y;
+double z;
+
+uint32 arr1[16];
+char arr2[16];
+
+struct Person p1;
+struct Flags f1;
