@@ -1,0 +1,3 @@
+local uint16 x = 256;
+local uint16 y = 256;
+ubyte z[x*y];

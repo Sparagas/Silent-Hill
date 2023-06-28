@@ -1,0 +1,29 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+char magic[4];
+uint width;
+uint height;
+uint size;
+uint layer1TileCount;
+uint layer0TileCount;
+uint bgLayerWH;
+uint tilesCanvasWH;
+
+uint palLayer0[16];
+uint palLayer1[16];
+uint palBG[16];
+
+ubyte bgData[128 * 128 / 2];
+uint indexesLayer1[0x2000];
+uint indexesLayer0[0x800];
+ubyte tilesCanvas[512 * 512 / 2];

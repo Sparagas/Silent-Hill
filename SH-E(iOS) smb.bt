@@ -1,0 +1,23 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Chunk
+{
+    byte chunk_id;
+    byte rotation;
+};
+
+uint16 instance_count;
+ubyte x;
+ubyte y;
+struct Chunk chunks[x*y];

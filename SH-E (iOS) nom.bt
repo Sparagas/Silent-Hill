@@ -1,0 +1,41 @@
+#include "vector.bt"
+
+struct Mesh
+{
+    char mesh_name[16];
+    uint32 index_count;
+    uint16 index[index_count];
+    uint32 position_count;
+    vec_3D_float3 position[position_count];
+    char unk0[4];
+    uint32 color_index_count;
+    
+    if (color_index_count != 0)
+    {
+        uint16 color_index[color_index_count];
+        uint32 color_count;
+        vec_CL_float4 color[color_count];
+    };
+	char unk1[2];
+	char unk2[48];
+	vec_3D_float3 scale;
+	vec_3D_float3 rotate;
+	vec_3D_float3 translate;
+	vec_CL_float4 unk3;
+	vec_CL_float4 unk4;
+    vec_CL_float4 unk5;
+	vec_CL_float4 unk6;
+	char unk7[4];
+    char texture_name[20];
+    
+    if (texture_name[0] != 0)
+    {
+        uint16 texcoord_index[index_count];
+        uint32 texcoord_count;
+        vec_2D_float2 texcoord[texcoord_count];
+    };
+};
+
+char magic[4];
+uint32 mesh_count;
+Mesh mesh[mesh_count] <optimize=false>;

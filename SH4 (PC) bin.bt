@@ -1,0 +1,173 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+//------------------------------------------------
+// simple structures (this is defining - not reading)
+//------------------------------------------------
+
+typedef struct ModelHead {        // struct sgEMRenderModelTop
+    uint32 type_id;               // unsigned int type_id;
+    uint32 version;               // unsigned int version;
+    uint32 to_normal_group;       // unsigned int to_normal_groupet;
+    uint32 to_overdraw_group;     // unsigned int overdraw_group_offset;
+    uint32 to_trans_group;        // unsigned int transparency_group_offset;
+    uint32 to_matrix_rts;         // unsigned int matrices_offset;
+    uint32 num_matrix_rts;        // unsigned int n_matrices;
+    uint32 unk_additional_data;   // unsigned int additional_data;
+    uint32 reserved_08;           // unsigned int reserved_08;
+    uint32 reserved_09;           // unsigned int reserved_09;
+    uint32 reserved_0a;           // unsigned int reserved_0a;
+    uint32 reserved_0b;           // unsigned int reserved_0b;
+    uint32 reserved_0c;           // unsigned int reserved_0c;
+    uint32 reserved_0d;           // unsigned int reserved_0d;
+    uint32 reserved_0e;           // unsigned int reserved_0e;
+    uint32 reserved_0f;           // unsigned int reserved_0f;
+} ModelHead_t;
+
+typedef struct MatrixRTS {
+    float matrix_rts[16];
+} MatrixRTS_t;
+
+typedef struct RGBA {
+    float R;
+    float G;
+    float B;
+    float A;
+} RGBA_t;
+
+typedef struct PosTexCoord {
+    float x;
+    float y;
+    float z;
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+    float u;
+    float v;
+} PosTexCoord_t;
+
+typedef struct MeshHead {
+    uint32 to_next;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    RGBA_t unk_rgba[2];
+    ubyte unk96[96];
+    uint32 num_face;
+    uint32 num_pos;
+    ubyte unk80[80];
+    uint32 size_face_88;
+    uint32 unk;
+    uint16 buf_face[mesh_head.num_face];
+    PosTexCoord_t buf_pos_texcoord[mesh_head.num_pos];
+} MeshHead_t;
+
+typedef struct ImgHead {
+    uint16 num_img;
+    uint16 num_pal_group;
+    uint32 unk0[3];
+} ImgHead_t;
+
+typedef struct ImgMiniHead {
+    uint32 w;
+    uint32 h;
+    uint16 unk;
+    uint16 unk;
+    uint32 unk;
+} ImgMiniHead_t;
+
+typedef struct PalHead {
+    uint16 unk;
+    uint16 unk;
+    uint32 num_pal;
+    uint32 unk;
+    uint32 size_maybe;
+} PalHead_t;
+
+typedef struct DXTHead {
+    ubyte temp[112];
+} DXTHead_t;
+
+//------------------------------------------------
+// complex structures
+//------------------------------------------------
+
+typedef struct ModelBlock {
+    ModelHead_t model_head;
+    FSeek(model_head.to_matrix_rts + local_ofs);
+    MatrixRTS_t matrix_RTS[model_head.num_matrix_rts];
+
+    FSeek(model_head.to_normal_group + local_ofs);
+    uint32 num_mesh;
+    uint32 to_mesh[num_mesh];
+
+    local_ofs = model_head.to_normal_group + block[i];
+    for (j = 0; j < num_mesh; j++) {
+        FSeek(to_mesh[j] + local_ofs);
+        MeshHead_t mesh_head;
+    };
+} ModelBlock_t;
+
+typedef struct ImgBlock {
+    ImgHead_t img_head;
+    uint32 to_img[img_head.num_img];
+    uint32 to_pal_group[img_head.num_pal_group];
+    for (j = 0; j < img_head.num_img; j++) {
+        FSeek(to_img[j] + block[i]);
+        ImgMiniHead_t img_mini_head;
+    };
+    for (j = 0; j < img_head.num_pal_group; j++) {
+        FSeek(to_pal_group[j] + block[i]);
+        PalHead_t pal_head;
+        };
+    DXTHead DXT_head;
+} ImgBlock_t;
+
+//------------------------------------------------
+// local variables (used for parsing, and are not part of file format)
+//------------------------------------------------
+
+local uint32 local_ofs;
+local uint32 i;
+local uint32 j;
+local uint16 temp0;
+local uint16 temp1;
+
+//------------------------------------------------
+// parsing sequance (the acutal reading of a file)
+//------------------------------------------------
+
+uint32 num_block;
+uint32 block[num_block];
+
+for (i = 0; i < num_block; i++) {
+    local_ofs = block[i];
+    FSeek(block[i]);
+    temp0 = ReadUShort();
+    FSeek(block[i]+2);
+    temp1 = ReadUShort();
+    FSeek(block[i]);
+
+    if (temp0 == 0x0001 && temp1 == 0xFC03) { // world mesh block
+        ModelBlock_t model_block;
+    } else if (temp0 == temp1) { // texture block
+        ImgBlock_t img_block;
+    } else {
+        uint32 unk_block;
+    };
+}

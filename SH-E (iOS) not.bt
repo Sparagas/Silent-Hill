@@ -1,0 +1,120 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct RGB
+{
+    ubyte r;
+    ubyte g;
+    ubyte b;
+};
+
+struct RGBA
+{
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+};
+
+struct RGB565
+{
+    uint16 r : 5;
+    uint16 g : 6;
+    uint16 b : 5;
+};
+
+struct RGBA4444
+{
+    uint16 r : 4;
+    uint16 g : 4;
+    uint16 b : 4;
+    uint16 a : 4;
+};
+
+struct RGBA5551
+{
+    uint16 r : 5;
+    uint16 g : 5;
+    uint16 b : 5;
+    uint16 a : 1;
+};
+
+struct Index44
+{
+    ubyte index0 : 4;
+    ubyte index1 : 4;
+};
+
+char magic[4];
+ubyte col_mode_flg;
+ubyte img_bpp;
+ubyte num_index;
+ubyte pal_bpp;
+uint16 img_w;
+uint16 img_h;
+
+if(num_index == 0)
+{
+    if(col_mode_flg == 0)
+    {
+        struct RGB rgb[img_w * img_h];
+    }
+    else if(col_mode_flg == 1)
+    {
+        struct RGBA rgba[img_w * img_h];
+    }
+    else if(col_mode_flg == 2)
+    {
+        struct RGB565 rgb565[img_w * img_h];
+    }
+    else if(col_mode_flg == 3)
+    {
+        struct RGBA4444 rgba4444[img_w * img_h];
+    }
+    else if(col_mode_flg == 4)
+    {
+        struct RGBA5551 rgba5551[img_w * img_h];
+    };
+}
+else
+{
+    if(col_mode_flg == 0)
+    {
+        struct RGB rgb[num_index + 1];
+    }
+    else if(col_mode_flg == 1)
+    {
+        struct RGBA rgba[num_index + 1];
+    }
+    else if(col_mode_flg == 2)
+    {
+        struct RGB565 rgb565[num_index + 1];
+    }
+    else if(col_mode_flg == 3)
+    {
+        struct RGBA4444 rgba4444[num_index + 1];
+    }
+    else if(col_mode_flg == 4)
+    {
+        struct RGBA5551 rgba5551[num_index + 1];
+    };
+
+    if(img_bpp == 4)
+    {
+        struct Index44 index44[img_w * img_h / 2];
+    }
+    else if(img_bpp == 8)
+    {   local uint32 tmp_w = img_w; local uint32 tmp_h = img_h; // bug
+        ubyte index8[tmp_w * tmp_h];
+    };
+};

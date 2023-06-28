@@ -1,0 +1,77 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct ImgIndexHead        // sh2gfw_TEX_HEAD
+{
+    uint32 tex_id;         // texture_no
+    uint16 unk_x;          // x
+    uint16 unk_y;          // y
+    uint16 width;          // w
+    uint16 height;         // h
+    ubyte unk_color;       // color
+    ubyte len_pad;         // padbyte
+    uint16 unk_importance; // importance
+    uint32 body_size;      // datasize
+    uint32 all_size;       // allsize
+    ubyte unk_sendpsm;     // sendpsm
+    ubyte unk_drawpsm;     // drawpsm
+    ubyte unk_bitshift;    // bitshift
+    ubyte unk_tagpoint;    // tagpoint
+    ubyte unk_bitw;        // bitw
+    ubyte unk_bith;        // bith
+    uint16 unk_check;      // check
+    char unk_giftag[16];   // ???? Q_WORDDATA giftag; ????
+};
+
+struct ImgPalHead             // sh2gfw_CLUTS_HEAD
+{
+    uint32 body_size;         // clutssize
+    uint32 unk_GSREGS_offs;   // toGSREGS
+    uint32 unk_Raw_clut_offs; // toRawClut
+    ubyte pal_count;          // clutamount
+    ubyte unk_transcluts;     // transcluts
+    ubyte unk_clw;            // clw
+    ubyte unk_clh;            // clh
+    ubyte unk_fmt[16];        // fmt[16]
+    ubyte unk_trans[16];      // transparency[16]
+};
+
+struct PalPart
+{
+    ubyte pal_0[64];
+    ubyte pal_1[64];
+    ubyte pal_2[64];
+    ubyte pal_3[64];
+};
+
+struct PalPage
+{
+    struct PalPart pal_part[4];
+};
+
+//------------------------------------------------
+
+struct ImgIndexHead img_index_head;
+
+if(img_index_head.len_pad != 0)
+{
+    ubyte pad[img_index_head.len_pad];
+};
+
+ubyte index[img_index_head.body_size];
+
+if(img_index_head.unk_color != 24)
+{
+    struct ImgPalHead img_pal_head;
+    struct PalPage pal_page[img_pal_head.pal_count];
+};
