@@ -1,0 +1,136 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: SH4 Scene Data
+//   Authors: Hunter Stanton, roocker666
+//   Purpose: A 010 Editor template for Silent Hill 4 scene data in the Silent Hill 4 executable. Intended for PC but might apply to Xbox and PS2.
+//------------------------------------------------
+
+enum<short> EntryTypes
+{
+    // TODO: Figure out all these types
+    // types for SFX triggers, doors, load zones, and etc. are likely somewhere here
+	SceneNum = 0,
+	ObjType = 1,
+	SetExecutor = 2,
+	SetConstructor = 3,
+	SetDestructor = 4,
+	SetRender = 5,
+	SetAllFuncs = 6,
+	SetEnemy = 7,
+	SetXYZW = 8,
+	SetRotation = 9,
+	SetID1234 = 10,
+	Unknown = 11,
+	Unknown2 = 12,
+	Unknown3 = 13,
+	Unknown4 = 14,
+	Unknown5 = 15,
+	Unknown6 = 16,
+	Unknown7 = 17,
+	Unknown8 = 18,
+	Unknown9 = 19,
+	Unknown10 = 20,
+	Unknown11 = 21,
+	Unknown12 = 22,
+	Unknown13 = 23,
+	SetEventDriver = 24,
+	Unknown14 = 25,
+	Unknown15 = 26,
+	Unknown16 = 27,
+    End = -3856
+};
+
+enum<int> EntrySubTypes
+{
+    AnotherWorldNormalObj = 1,
+    ObjDontMove = 3,
+    EventHit = 4,
+    Phenom = 6,
+    TextEvent = 7,
+    EventHit3 = 8,
+    ItemEvent = 9,
+    EventCamera = 11,
+};
+
+typedef struct Position
+{
+    float x;
+    float y;
+    float z;
+    float w;
+} Position;
+
+typedef struct SceneEntry
+{
+    EntryTypes type;
+    short numValues;
+
+    switch(type)
+    {
+        case ObjType:
+            EntrySubTypes type;
+            break;
+        case SetExecutor:
+            int executor <format=hex>;
+            break;
+        case SetConstructor:
+            int constructor <format=hex>;
+            break;
+        case SetDestructor:
+            int destructor <format=hex>;
+            break;
+        case SetRender:
+            int render <format=hex>;
+            break;
+        case SetAllFuncs:
+            int executor <format=hex>;
+            int constructor <format=hex>;
+            int destructor <format=hex>;
+            int render <format=hex>;
+            break;
+        case SetEventDriver:
+            int driver <format=hex>;
+            break;
+        case SetXYZW:
+            Position pos;
+            break;
+        case SetRotation:
+            float rot;
+            break;
+        default:
+            int values[numValues];
+    }
+} sceneEntry;
+
+typedef struct Object
+{
+    SceneEntry firstEntry;
+    while(ReadShort() != 1 && ReadShort() != 0)
+    {
+        if(ReadShort() == -3856)
+        {
+            return;
+        }
+        SceneEntry entry;
+    }
+    return;
+} object;
+
+typedef struct SceneDef
+{
+    SceneEntry firstEntry;
+    while(ReadShort() != 0)
+    {
+        Object entries;
+    }
+} sceneDef;
+
+struct SceneData {
+    // read the scene data like how the game does
+    // it loops reading until it encounters the value 0xF0F0 which is the ending marker
+    while(1==1)
+    {
+     SceneDef scene;
+    }
+} sceneData;
