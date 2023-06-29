@@ -1,0 +1,179 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: SH4 Mesh
+//   Authors: Hunter Stanton
+//   Purpose: A binary template for Silent Hill 4 PC meshes (aka Model3)
+//------------------------------------------------
+
+typedef struct FuncData
+{
+short skeleton_no;
+short func_id;
+} funcData;
+
+typedef struct Float3
+{
+    float x;
+    float y;
+    float z;
+} float3;
+
+typedef struct Box
+{
+	float x;
+	float y;
+	float z;
+int unk;
+} box;
+
+typedef struct ClusterNode
+{
+	short i;
+	short j;
+	short k;
+} clusterNode;
+
+typedef struct Quaternion
+{
+	float x;
+	float y;
+	float z;
+	float w;
+} Quaternion;
+
+typedef struct FourByFourMatrix
+{
+	Quaternion quaternion[4];
+} fourByFourMatrix;
+
+typedef enum ChunkIDs
+{
+    Mesh = 4294901763,
+} chunkIDs;
+
+typedef enum MeshRevision
+{
+    SilentHill4 = 4,
+} meshRevisions;
+
+typedef struct Vertex
+{
+    Float3 position;
+    Float3 normals;
+    short texCoordU;
+    short texCoordV;
+    float shaderSelect[4];
+    float weights[4];
+} vertex;
+
+typedef struct Part
+{
+	unsigned int size;
+	unsigned int type;
+	unsigned int packet_offset <format=hex>;
+	unsigned int packet_qwc;
+	unsigned int xtop;
+	unsigned int n_cluster_data;
+	unsigned int cluster_data_offset <format=hex>;
+	unsigned int n_skeletons;
+	unsigned int skeletons_offset <format=hex>;
+	unsigned int n_skeleton_pairs;
+	unsigned int skeleton_pairs_offset <format=hex>;
+	unsigned int data_skeletons_offset <format=hex>;
+	unsigned int data_skeleton_pairs_offset <format=hex>;
+	unsigned int n_textures;
+	unsigned int text_pos_indices_offset <format=hex>;
+	unsigned int texture_params_offset <format=hex>;
+	unsigned char shading_type;
+	unsigned char specular_pos;
+	unsigned char equipment_id;
+	unsigned char hoge[1];
+	unsigned char backclip;
+	unsigned char envmap_param;
+	unsigned char reserved[2];
+	float phong_param_a;
+	float phong_param_b;
+	float blinn_param;
+	unsigned int padding[3];
+	float diffuse[4];
+	float ambient[4];
+	float specular[4];
+
+    short skeletons[n_skeletons];
+    short skeletons_pairs[n_skeleton_pairs];
+    short textures[n_skeletons + n_skeleton_pairs];
+
+    int pad[2];
+    int unk;
+    int unk2;
+    int unk3;
+    int unk4;
+
+    byte unk5[0x4c];
+	FSeek(FTell() + 0x10);
+
+    int triStripCount;
+    int vertexCount;
+    int vertexSize;
+
+    FSeek(FTell() + 0x10);
+
+    Vertex vertices[vertexCount];
+} part;
+
+struct Model3 {
+	ChunkIDs id;
+	MeshRevision revision;
+	unsigned int initial_matrices_offset <format=hex>;
+	unsigned int n_skeletons;
+	unsigned int skeleton_structure_offset <format=hex>;
+	unsigned int n_skeleton_pairs;
+	unsigned int skeleton_pairs_offset <format=hex>;
+	unsigned int default_pcms_offset <format=hex>;
+	unsigned int n_vu1_parts;
+	unsigned int vu1_parts_offset <format=hex>;
+	unsigned int n_vu0_parts;
+	unsigned int vu0_parts_offset <format=hex>;
+	unsigned int n_texture_blocks;
+	unsigned int texture_blocks_offset <format=hex>;
+	unsigned int n_text_poses;
+	unsigned int text_poses_offset <format=hex>;
+	unsigned int text_pos_params_offset <format=hex>;
+	unsigned int n_cluster_nodes;
+	unsigned int cluster_nodes_offset <format=hex>;
+	unsigned int n_clusters;
+	unsigned int clusters_offset <format=hex>;
+	unsigned int n_func_data;
+	unsigned int func_data_offset <format=hex>;
+	unsigned int hit_offset <format=hex>;
+	unsigned int box_offset <format=hex>;
+	unsigned int flag;
+	unsigned int relative_matrices_offset <format=hex>;
+	unsigned int relative_transes_offset <format=hex>;
+	unsigned int hits_offset <format=hex>;
+	unsigned int reserved_1d;
+	unsigned int tanmparams;
+	unsigned int textureextras;
+
+	FSeek(initial_matrices_offset);
+
+	FourByFourMatrix skeletons[n_skeletons];
+
+	FSeek(default_pcms_offset);
+
+	FourByFourMatrix skeletonPairs[n_skeleton_pairs];
+
+	FSeek(cluster_nodes_offset);
+
+	ClusterNode cluster_nodes[n_cluster_nodes];
+
+	FSeek(box_offset);
+
+	Box boxes[8];
+
+	FSeek(vu1_parts_offset);
+
+	Part parts[n_vu1_parts];
+
+} model3;
