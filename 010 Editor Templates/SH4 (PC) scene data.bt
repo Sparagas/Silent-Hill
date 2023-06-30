@@ -30,8 +30,8 @@ enum<short> EntryTypes
 	Unknown7 = 17,
 	Unknown8 = 18,
 	Unknown9 = 19,
-	Unknown10 = 20,
-	Unknown11 = 21,
+	UnknownTwoFloats = 20,
+	UnknownThreeFloats = 21,
 	Unknown12 = 22,
 	Unknown13 = 23,
 	SetEventDriver = 24,
@@ -60,6 +60,30 @@ typedef struct Position
     float z;
     float w;
 } Position;
+
+enum EnemyType
+{
+	ENEMY_KIND_NOTHING,
+	ENEMY_KIND_CELL,
+	ENEMY_KIND_MUSH,
+	ENEMY_KIND_BUZZ,
+	ENEMY_KIND_MM,
+	ENEMY_KIND_WALLMAN,
+	ENEMY_KIND_WHEEL,
+	ENEMY_KIND_JINMEN,
+	ENEMY_KIND_TWINS,
+	ENEMY_KIND_HIL,
+	ENEMY_KIND_HYENA,
+	ENEMY_KIND_MULTI,
+	ENEMY_KIND_PICKGIRL,
+	ENEMY_KIND_FLAMES,
+	ENEMY_KIND_FAT,
+	ENEMY_KIND_SCRATCH,
+	ENEMY_KIND_KILLER,
+	ENEMY_KIND_NURSE,
+	ENEMY_KIND_SAMPLE,
+	ENEMY_KIND_MAX,
+};
 
 typedef struct SceneEntry
 {
@@ -97,6 +121,18 @@ typedef struct SceneEntry
             break;
         case SetRotation:
             float rot;
+            break;
+        case UnknownThreeFloats:
+            float x;
+            float y;
+            float z;
+            break;
+        case SetEnemy:
+            EnemyType type;
+            break;
+        case UnknownTwoFloats:
+            float x;
+            float y;
             break;
         default:
             int values[numValues];
