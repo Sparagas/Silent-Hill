@@ -1,0 +1,184 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: SH4 Mesh
+//   Authors: Hunter Stanton
+//   Version: 
+//   Purpose: A binary template for Silent Hill 4 PC meshes (aka Model3)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct FuncData
+{
+    int16 skeleton_no;
+    int16 func_id;
+} funcData;
+
+typedef struct Float3
+{
+    float x;
+    float y;
+    float z;
+} float3;
+
+typedef struct Box
+{
+    float x;
+    float y;
+    float z;
+int unk;
+} box;
+
+typedef struct ClusterNode
+{
+    short i;
+    short j;
+    short k;
+} clusterNode;
+
+typedef struct Quaternion
+{
+    float x;
+    float y;
+    float z;
+    float w;
+} Quaternion;
+
+typedef struct FourByFourMatrix
+{
+    Quaternion quaternion[4];
+} fourByFourMatrix;
+
+typedef enum ChunkIDs
+{
+    Mesh = 4294901763,
+} chunkIDs;
+
+typedef enum MeshRevision
+{
+    SilentHill4 = 4,
+} meshRevisions;
+
+typedef struct Vertex
+{
+    Float3 position;
+    Float3 normals;
+    int16 texCoordU;
+    int16 texCoordV;
+    float shaderSelect[4];
+    float weights[4];
+} vertex;
+
+typedef struct Part
+{
+    uint32 size;
+    uint32 type;
+    uint32 packet_offset <format=hex>;
+    uint32 packet_qwc;
+    uint32 xtop;
+    uint32 n_cluster_data;
+    uint32 cluster_data_offset <format=hex>;
+    uint32 n_skeletons;
+    uint32 skeletons_offset <format=hex>;
+    uint32 n_skeleton_pairs;
+    uint32 skeleton_pairs_offset <format=hex>;
+    uint32 data_skeletons_offset <format=hex>;
+    uint32 data_skeleton_pairs_offset <format=hex>;
+    uint32 n_textures;
+    uint32 text_pos_indices_offset <format=hex>;
+    uint32 texture_params_offset <format=hex>;
+    ubyte shading_type;
+    ubyte specular_pos;
+    ubyte equipment_id;
+    ubyte hoge[1];
+    ubyte backclip;
+    ubyte envmap_param;
+    ubyte reserved[2];
+    float phong_param_a;
+    float phong_param_b;
+    float blinn_param;
+    uint32 padding[3];
+    float diffuse[4];
+    float ambient[4];
+    float specular[4];
+
+    int16 skeletons[n_skeletons];
+    int16 skeletons_pairs[n_skeleton_pairs];
+    int16 textures[n_skeletons + n_skeleton_pairs];
+
+    uint32 pad[2];
+    uint32 unk;
+    uint32 unk2;
+    uint32 unk3;
+    uint32 unk4;
+
+    ubyte unk5[0x4c];
+    FSeek(FTell() + 0x10);
+
+    uint32 triStripCount;
+    uint32 vertexCount;
+    uint32 vertexSize;
+
+    FSeek(FTell() + 0x10);
+
+    Vertex vertices[vertexCount];
+} part;
+
+struct Model3 {
+    ChunkIDs id;
+    MeshRevision revision;
+    uint32 initial_matrices_offset <format=hex>;
+    uint32 n_skeletons;
+    uint32 skeleton_structure_offset <format=hex>;
+    uint32 n_skeleton_pairs;
+    uint32 skeleton_pairs_offset <format=hex>;
+    uint32 default_pcms_offset <format=hex>;
+    uint32 n_vu1_parts;
+    uint32 vu1_parts_offset <format=hex>;
+    uint32 n_vu0_parts;
+    uint32 vu0_parts_offset <format=hex>;
+    uint32 n_texture_blocks;
+    uint32 texture_blocks_offset <format=hex>;
+    uint32 n_text_poses;
+    uint32 text_poses_offset <format=hex>;
+    uint32 text_pos_params_offset <format=hex>;
+    uint32 n_cluster_nodes;
+    uint32 cluster_nodes_offset <format=hex>;
+    uint32 n_clusters;
+    uint32 clusters_offset <format=hex>;
+    uint32 n_func_data;
+    uint32 func_data_offset <format=hex>;
+    uint32 hit_offset <format=hex>;
+    uint32 box_offset <format=hex>;
+    uint32 flag;
+    uint32 relative_matrices_offset <format=hex>;
+    uint32 relative_transes_offset <format=hex>;
+    uint32 hits_offset <format=hex>;
+    uint32 reserved_1d;
+    uint32 tanmparams;
+    uint32 textureextras;
+
+    FSeek(initial_matrices_offset);
+
+    FourByFourMatrix skeletons[n_skeletons];
+
+    FSeek(default_pcms_offset);
+
+    FourByFourMatrix skeletonPairs[n_skeleton_pairs];
+
+    FSeek(cluster_nodes_offset);
+
+    ClusterNode cluster_nodes[n_cluster_nodes];
+
+    FSeek(box_offset);
+
+    Box boxes[8];
+
+    FSeek(vu1_parts_offset);
+
+    Part parts[n_vu1_parts];
+
+} model3;

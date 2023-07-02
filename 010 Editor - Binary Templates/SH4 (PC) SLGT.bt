@@ -1,0 +1,69 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: SH4 (PC) SLGT.bt
+//   Authors: Hunter Stanton (hun10sta)
+//   Version: 
+//   Purpose: A binary template for Silent Hill 4 SLGT chunks (lighting for a scene)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+enum sgLightType
+{
+    SG_LIGHT_NONE,
+    SG_LIGHT_AMBIENT,
+    SG_LIGHT_DIRECTIONAL,
+    SG_LIGHT_POINT,
+    SG_LIGHT_SPOT,
+    SG_LIGHT_REFLECT_DIRECTIONAL,
+    SG_LIGHT_REFLECT_POINT
+};
+
+typedef struct Position
+{
+    float x;
+    float y;
+    float z;
+    float w;
+} position;
+
+typedef struct LightFlag
+{
+        ubyte value : 4; // not sure what this is really, could indicate whether or not the light is supposed to affect models and etc.
+        ubyte glow_value : 4;
+} lightFlag;
+
+typedef struct Light
+{
+    sgLightType kind;
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    LightFlag light_flag;
+    float intensity;
+    float scale;
+    Position pos;
+    Position direction;
+    float cone_angle;
+    float penumbra_angle;
+    float shadow_length;
+    float unk; // possible this is just padding or something
+} light;
+
+struct SLGT
+{
+    char type[4]; // always SLGT, game checks for this byte sequence or it wont load the lights
+    if(type == "SLGT")
+    {
+        uint32 version;
+        uint32 light_num;
+        uint32 padding;
+
+        Light lights[light_num];
+    } else {
+        Warning("Not a SLGT file, can not continue");
+    }
+} slgt;

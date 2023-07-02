@@ -1,0 +1,142 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Header {
+    ubyte magic;
+    ubyte version;
+    ubyte pad;
+    ubyte num_tex;
+    uint32 off_tex_list;
+    uint32 num_obj;
+    uint32 off_obj_list;
+    uint32 off_obj_ord;
+} header;
+
+
+FSeek(header.off_tex_list);
+struct TexList {
+    char tex_name[8];
+    uint32 unkn_0;
+    uint32 unkn_1;
+    uint32 unkn_2;
+    uint32 unkn_3;
+} tex_list[header.num_tex];
+
+
+FSeek(header.off_obj_list);
+struct ObjList {
+    char obj_name[8];
+    ubyte num_meshes;
+    ubyte vert_shift;
+    ubyte norm_shift;
+    ubyte pad;
+    uint32 off_obj_data;
+} obj_list[header.num_obj];
+
+
+//struct PADDING {
+//    byte pad;
+//} padding[header.num_obj];
+
+
+FSeek(header.off_obj_ord);
+struct ObjOrder {
+    ubyte obj_num;
+} obj_order[header.num_obj];
+
+
+FSeek(obj_list.off_obj_data);
+struct OBJF {
+local uint32 i;
+for (i = 0; i < header.num_obj; i++ ) {
+FSeek(obj_list[i].off_obj_data);
+struct OBJ {
+
+
+    FSeek(obj_list[i].off_obj_data);
+    struct ObjHeader {
+        ubyte num_prim;
+        ubyte num_vert;
+        ubyte num_norm;
+        ubyte num_unkn;
+        uint32 off_prim;
+        uint32 off_pos_XY;
+        uint32 off_pos_Z;
+        uint32 off_norm;
+        uint32 off_unkn;
+    } obj_header[obj_list[i].num_meshes];
+    
+
+    FSeek(obj_header.off_prim);
+    struct OBJDATAF {
+    local uint32 j;
+    for (j = 0; j < obj_list[i].num_meshes; j++ ) {
+	FSeek(obj_header[j].off_prim);
+    struct OBJDATA {
+
+    
+        FSeek(obj_header[j].off_prim);
+        struct Primitives {
+            ubyte U1;
+            ubyte V1;
+            uint16 bits;
+            ubyte U2;
+            ubyte V2;
+            uint16 bits;
+            ubyte U3;
+            ubyte V3;
+            ubyte U4;
+            ubyte V4;
+            ubyte face_1;
+            ubyte face_2;
+            ubyte face_3;
+            ubyte face_4;
+            ubyte unkn1;
+            ubyte unkn2;
+            ubyte unkn3;
+            ubyte unkn4;
+        } primitive[obj_header[j].num_prim];
+        
+        
+        FSeek(obj_header[j].off_pos_XY);
+        struct PosXY {
+            int16 px;
+            int16 py;
+        } pos_xy[obj_header[j].num_vert];
+
+        
+        FSeek(obj_header[j].off_pos_Z);
+        struct PosZ {
+            int16 pz;
+        } pos_z[obj_header[j].num_vert];
+ 
+       
+        FSeek(obj_header[j].off_norm);
+        struct Norm {
+            byte nx;
+            byte ny;
+            byte nz;
+            byte num_n;
+        } norm[obj_header[j].num_norm];
+
+        
+        FSeek(obj_header[j].off_unkn);
+        struct Unkn {
+            ubyte unkn_index;
+        } unkn[obj_header[j].num_unkn];
+
+   
+    } obj_data; }; } obj_data_folder;
+
+
+} obj; }; } obj_folder;

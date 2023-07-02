@@ -1,0 +1,54 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "vector.bt"
+
+struct Mesh
+{
+    char mesh_name[16];
+    uint32 num_index;
+    uint16 index[num_index];
+    uint32 num_position;
+    vec_3D_float3 position[num_position];
+    char unk0[4];
+    uint32 num_color_index;
+    
+    if (num_color_index != 0)
+    {
+        uint16 color_index[num_color_index];
+        uint32 num_color;
+        vec_CL_float4 color[num_color];
+    };
+    char unk1[2];
+    char unk2[48];
+    vec_3D_float3 scale;
+    vec_3D_float3 rotate;
+    vec_3D_float3 translate;
+    vec_CL_float4 unk3;
+    vec_CL_float4 unk4;
+    vec_CL_float4 unk5;
+    vec_CL_float4 unk6;
+    char unk7[4];
+    char texture_name[20];
+    
+    if (texture_name[0] != 0)
+    {
+        uint16 texcoord_index[num_index];
+        uint32 texcoord_count;
+        vec_2D_float2 texcoord[texcoord_count];
+    };
+};
+
+char magic[4];
+uint32 mesh_count;
+Mesh mesh[mesh_count] <optimize=false>;

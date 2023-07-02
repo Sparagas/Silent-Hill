@@ -1,0 +1,297 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: SH4 Animation
+//   Authors: Hunter Stanton
+//   Version: 
+//   Purpose: A binary template for Silent Hill 4 animations (aka sgAnime). Intended for PC but might apply to Xbox and PS2.
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+enum <uint16> AnimKeyTypes
+{
+    // names taken from PS2 debug data
+    None = 0,
+    RotQuatLinearInterp = 1,
+    RotQuatBoehmInterp = 2,
+    RotQuatSquadInterp = 3,
+    PositionLinearInterp = 4,
+    PositionHermiteInterp = 5,
+    PositionBezierInterp = 6,
+    PositionCardinalInterp = 7,
+    FloatLinearInterp = 8,
+    FloatCardinalInterp = 9,
+    ScaleLinearInterp = 10,
+    ScaleCardinalInterp = 11,
+    FloatVectorStepInterp = 12,
+    RotQuatS15LinearInterp = 13,
+    RotQuatS15BoehmInterp = 14,
+    RotQuatS15SquadInterp = 15,
+    PositionS4LinearInterp = 16,
+    PositionS4HermiteInterp = 17,
+    PositionS4BezierInterp = 18,
+    PositionS4CardinalInterp = 19,
+    ScaleS12LinearInterp = 20,
+    ScaleS12CardinalInterp = 21
+};
+
+typedef struct Connect
+{
+    ubyte bone_no;
+    byte parent_no;
+} connect;
+
+typedef struct IKChain
+{
+    ubyte handle_no;
+    byte ikhandle_type;
+    byte start_no;
+    byte effector_no;
+} ikChain;
+
+
+typedef struct ConnectsAndChains
+{
+    uint32 type_id;
+    int16 num_connects;
+    int16 num_ik_chains;
+    uint32 connects_offset;
+    uint32 ik_chains_offset;
+    Connect connects[num_connects];
+    IKChain ikChains[num_ik_chains];
+} connectsAndChains;
+
+typedef struct Position
+{
+    float x;
+    float y;
+    float z;
+    float w;
+} position;
+
+typedef struct ShortPosition
+{
+    int16 x;
+    int16 y;
+    int16 z;
+    int16 w;
+} shortPosition;
+
+typedef struct XYZWKey
+{
+    Position pos;
+} xyzwKey;
+
+typedef struct XYZWHermiteKey
+{
+    Position pos;
+    Position Ts;
+    Position Td;
+} xyzwHermiteKey;
+
+typedef struct XYZWBezierKey
+{
+    Position pos;
+    Position in_knot;
+    Position out_knot;
+} xyzwBezierKey;
+
+typedef struct XYZWCardinalKey
+{
+    Position pos;
+    Position Tsd;
+} xyzwCardinalKey;
+
+typedef struct XYZWShortKey
+{
+    ShortPosition pos;
+} xyzwShortKey;
+
+typedef struct XYZWShortHermiteKey
+{
+    ShortPosition pos;
+    ShortPosition Ts;
+    ShortPosition Td;
+} xyzwShortHermiteKey;
+
+typedef struct XYZWShortBezierKey
+{
+    ShortPosition pos;
+    ShortPosition in_knot;
+    ShortPosition out_knot;
+} xyzwShortBezierKey;
+
+typedef struct XYZWShortCardinalKey
+{
+    ShortPosition pos;
+    ShortPosition Tsd;
+} xyzwShortCardinalKey;
+
+typedef struct QuatLinearKey
+{
+    float q[4];
+} quatLinearKey;
+
+typedef struct QuatBoehmKey
+{
+    float q[4];
+    float Tq[4];
+} quatBoehmKey;
+
+typedef struct QuatSquadKey
+{
+    float q[4];
+    float Ts[4];
+    float Td[4];
+} quatSquadKey;
+
+typedef struct QuatS15LinearKey
+{
+    int16 q[4];
+} quatS15LinearKey;
+
+typedef struct QuatS15BoehmKey
+{
+    int16 q[4];
+    int16 Tq[4];
+} quatS15BoehmKey;
+
+typedef struct QuatS15SquadKey
+{
+    int16 q[4];
+    int16 Ts[4];
+    int16 Td[4];
+} quatS15SquadKey;
+
+typedef struct AnimKey
+{
+    local uint32 pos = FTell();
+
+    AnimKeyTypes key_type;
+    uint16 reserved;
+    int16 nb_keys;
+    byte skeleton_no;
+    ubyte relative;
+    uint32 time_table_offset;
+    uint32 keys_offset;
+
+    FSeek(pos + time_table_offset);
+    uint16 times[nb_keys];
+
+    FSeek(pos + keys_offset);
+
+    switch(key_type)
+    {
+    case RotQuatLinearInterp:
+        QuatLinearKey keys[nb_keys];
+        break;
+    case RotQuatSquadInterp:
+        QuatSquadKey keys[nb_keys];
+        break;
+    case RotQuatBoehmInterp:
+        QuatBoehmKey keys[nb_keys];
+        break;
+    case RotQuatS15LinearInterp:
+        QuatS15LinearKey keys[nb_keys];
+        break;
+    case RotQuatS15SquadInterp:
+        QuatS15SquadKey keys[nb_keys];
+        break;
+    case RotQuatS15BoehmInterp:
+        QuatS15BoehmKey keys[nb_keys];
+        break;
+    case PositionLinearInterp:
+        XYZWKey keys[nb_keys];
+        break;
+    case PositionHermiteInterp:
+        XYZWHermiteKey keys[nb_keys];
+        break;
+    case PositionBezierInterp:
+        XYZWBezierKey keys[nb_keys];
+        break;
+    case PositionCardinalInterp:
+        XYZWCardinalKey keys[nb_keys];
+        break;
+    case PositionS4LinearInterp:
+        XYZWShortKey keys[nb_keys];
+        break;
+    case PositionS4HermiteInterp:
+        XYZWShortHermiteKey keys[nb_keys];
+        break;
+    case PositionS4BezierInterp:
+        XYZWShortBezierKey keys[nb_keys];
+        break;
+    case PositionS4CardinalInterp:
+        XYZWShortCardinalKey keys[nb_keys];
+        break;
+    case ScaleLinearInterp:
+        XYZWKey keys[nb_keys];
+        break;
+    case ScaleCardinalInterp:
+        XYZWCardinalKey keys[nb_keys];
+        break;
+    default:
+        Warning("Unknown animation type: " + key_type);
+        break;
+    }
+} animKey;
+
+typedef struct AnimKeyFrame
+{
+    uint32 type_id;
+    int16 n_data;
+    int16 relative;
+
+    local uint32 numKeys = 0;
+
+    while(ReadInt() != 0)
+    {
+        numKeys++;
+        FSkip(4);
+    }
+
+    FSkip(4);
+
+    AnimKey keys[numKeys] <optimize=false>;
+} animKeyFrame;
+
+
+struct SGAnime {
+    uint32 type_id;
+    int16 total_time;
+    int16 loop;
+    uint32 reserved_a;
+    uint32 reserved_b;
+    local uint32 numData = 0;
+    local uint32 pos = FTell();
+    while(ReadInt() != 0)
+    {
+        numData++;
+        FSkip(4);
+    }
+    FSkip(4);
+
+    FSeek(pos);
+    uint32 offsets[numData];
+    local uint32 i=0;
+
+    for(i = 0; i < numData; i++)
+    {
+        FSeek(offsets[i]);
+        switch(ReadInt())
+        {
+        case 4278255619:
+            ConnectsAndChains cnc;
+            break;
+        case 4278255618:
+            AnimKeyFrame keyFrames;
+            break;
+        default:
+            break;
+        }
+    }
+} sgAnime;

@@ -1,0 +1,38 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Header
+{
+    char magic[4];
+    ubyte unk0[4];
+    uint32 unk1;
+    uint32 data_size;
+};
+
+struct Names
+{
+    uint16 unkn;
+    uint32 len;
+    char name[len];
+};
+
+struct Header EIFF;
+struct Header PGPC;
+
+FSeek(PGPC.data_size + 32);
+struct Header DPND;
+uint32 count;
+local int i;
+for (i = 0; i < count; i++) {
+    struct Names name;
+};

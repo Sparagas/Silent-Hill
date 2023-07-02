@@ -1,0 +1,39 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+local uint64 file_size;
+file_size = FileSize();
+
+local uint64 num_sec;
+num_sec = file_size / 2352;
+
+typed struct SubHeader {
+    ubyte file_number_0;
+    ubyte channel_number_0;
+    ubyte submode_flags_0;
+    ubyte code_info_0;
+    ubyte file_number_1;
+    ubyte channel_number_1;
+    ubyte submode_flags_1;
+    ubyte code_info_1;
+} SubHeader_t;
+
+struct Sec {
+    ubyte sync[12];
+    ubyte minute;
+    ubyte second;
+    ubyte frame;
+    ubyte mode;
+	SubHeader_t sub_header
+    ubyte todo[2328];
+} sec[num_sec];

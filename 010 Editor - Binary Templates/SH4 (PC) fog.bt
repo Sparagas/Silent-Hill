@@ -1,0 +1,24 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: SH4 (PC) fog.bt
+//   Authors: Hunter Stanton (hun10sta)
+//   Version: 
+//   Purpose: A binary template for Silent Hill 4 fog chunks. These chunks cannot be labeled automatically by sh4bin due to not having a magic number
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Fog
+{
+    float near;
+    float far;
+    ubyte r; // note: black fog is impossible, colors close to or equal to 0 will just be "no fog"
+    ubyte g;
+    ubyte b;
+    ubyte a;
+    ubyte near_power;
+    ubyte far_power;
+} fog;
