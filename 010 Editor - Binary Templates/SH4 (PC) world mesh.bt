@@ -11,18 +11,28 @@
 //   History: 
 //------------------------------------------------
 
-typedef struct Vector4
-{
-    float x;
-    float y;
-    float z;
-    float w;
-} Vector4;
+typedef struct ModelHead3 {       // struct sgEMRenderModelTop
+                                  // unsigned int type_id;
+                                  // unsigned int version;
+    uint32 to_normal_group;       // unsigned int to_normal_groupet;
+    uint32 to_overdraw_group;     // unsigned int overdraw_group_offset;
+    uint32 to_trans_group;        // unsigned int transparency_group_offset;
+    uint32 to_matrix_rts;         // unsigned int matrices_offset;
+    uint32 num_matrix_rts;        // unsigned int n_matrices; // I am not sure this is really used anymore, even in very complex scenes only one matrix is present and the values are always [[1.0 0 0 0] [0 1.0 0 0] [0 0 1.0 0] [0 0 0 1.0]]
+    uint32 unk_additional_data;   // unsigned int additional_data;
+    uint32 reserved_08;           // unsigned int reserved_08;
+    uint32 reserved_09;           // unsigned int reserved_09;
+    uint32 reserved_0a;           // unsigned int reserved_0a;
+    uint32 reserved_0b;           // unsigned int reserved_0b;
+    uint32 reserved_0c;           // unsigned int reserved_0c;
+    uint32 reserved_0d;           // unsigned int reserved_0d;
+    uint32 reserved_0e;           // unsigned int reserved_0e;
+    uint32 reserved_0f;           // unsigned int reserved_0f;
+} ModelHead3_t;
 
-typedef struct FourByFourMatrix
-{
-    Vector4 vector[4];
-} fourByFourMatrix;
+typedef struct MatrixRTS {
+    float matrix_rts[16];
+} MatrixRTS_t;
 
 typedef struct DrawBlockParams
 {
@@ -44,28 +54,26 @@ typedef struct DrawBlockParams
     */
 } drawBlockParams;
 
-typedef struct Vertex
+typedef struct VertPosColUV
 {
     float x;
     float y;
     float z;
-    
     ubyte b;
     ubyte g;
     ubyte r;
     ubyte a;
-
     float u;
     float v;
-};
+} VertPosColUV;
 
-typedef struct Part
+typedef struct WrldPart
 {   
     local uint64 start = FTell();
-    ubyte unk[0x20];
+    ubyte unk[32];
     uint32 n_faces;
     uint32 n_vertices;
-    ubyte unk2[0x40];
+    ubyte unk2[64];
     uint32 unk3;
     uint32 unk4;
     uint32 unk5;
@@ -76,13 +84,13 @@ typedef struct Part
     FSeek(start + faces_offset);
     uint16 faces[n_faces];
 
-    Vertex vertices[n_vertices];
-};
+    VertPosColUV vert_pos_col_uv[n_vertices];
+} WrldPart;
 
 typedef struct BoundingBox
 {
-    float bmin[4] <bgcolor=cGreen>;
-    float bmax[4] <bgcolor=cGreen>; 
+    float bmin[4]; //<bgcolor=cGreen>;
+    float bmax[4]; //<bgcolor=cGreen>; 
 };
 
 // assuming it is split like this because of 
@@ -105,13 +113,13 @@ typedef struct DrawBlock
     uint32 pad1;
 
     FSeek(start + bounding_box_offset);
-    BoundingBox box;
+    BoundingBox bounding_box;
 
     FSeek(start + params_offset);
     DrawBlockParams params;
 
     FSeek(start + parts_offset);
-    Part part;
+    WrldPart wrld_part;
 } drawBlock;
 
 typedef struct DrawGroup
@@ -127,7 +135,7 @@ typedef struct DrawGroup
         for( i = 0; i < num_mesh; i++ )
         {
             FSeek(start + to_mesh[i]);
-            DrawBlock block;
+            DrawBlock draw_block;
         }
     }
 } drawGroup;
@@ -139,24 +147,9 @@ enum Version
     Final = 3 // what is actually used in Silent Hill 4's final version
 };
 
-typedef struct ModelHead3 {       // struct sgEMRenderModelTop
-                                  // unsigned int type_id;
-                                  // unsigned int version;
-    uint32 to_normal_group;       // unsigned int to_normal_groupet;
-    uint32 to_overdraw_group;     // unsigned int overdraw_group_offset;
-    uint32 to_trans_group;        // unsigned int transparency_group_offset;
-    uint32 to_matrix_rts;         // unsigned int matrices_offset;
-    uint32 num_matrix_rts;        // unsigned int n_matrices; // I am not sure this is really used anymore, even in very complex scenes only one matrix is present and the values are always [[1.0 0 0 0] [0 1.0 0 0] [0 0 1.0 0] [0 0 0 1.0]]
-    uint32 unk_additional_data;   // unsigned int additional_data;
-    uint32 reserved_08;           // unsigned int reserved_08;
-    uint32 reserved_09;           // unsigned int reserved_09;
-    uint32 reserved_0a;           // unsigned int reserved_0a;
-    uint32 reserved_0b;           // unsigned int reserved_0b;
-    uint32 reserved_0c;           // unsigned int reserved_0c;
-    uint32 reserved_0d;           // unsigned int reserved_0d;
-    uint32 reserved_0e;           // unsigned int reserved_0e;
-    uint32 reserved_0f;           // unsigned int reserved_0f;
-} ModelHead3_t;
+//------------------------------------------------
+// parsing sequance (the acutal reading of a file)
+//------------------------------------------------
 
 struct WorldModel { // SGEMRenderModel
     local int start = FTell();
@@ -171,7 +164,7 @@ struct WorldModel { // SGEMRenderModel
         ModelHead3_t model_head3;
 
         FSeek(start + model_head3.to_matrix_rts);
-        FourByFourMatrix matrices[model_head3.num_matrix_rts];
+        MatrixRTS_t matrix_rts[model_head3.num_matrix_rts];
 
         if(model_head3.to_normal_group != 0)
         {
@@ -187,4 +180,4 @@ struct WorldModel { // SGEMRenderModel
     } else {
         Warning("Error: Template does not support non-final versioned world meshes");
     }
-} world_model;
+} world_model_block;

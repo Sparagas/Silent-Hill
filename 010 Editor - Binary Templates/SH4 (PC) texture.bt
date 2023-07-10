@@ -1,0 +1,67 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+//------------------------------------------------
+// simple structures (this is defining - not reading)
+//------------------------------------------------
+
+typedef struct ImgHead {
+    uint16 num_img;
+    uint16 num_pal_group;
+    uint32 unk0[3];
+} ImgHead_t;
+
+typedef struct ImgMiniHead {
+    uint32 w;
+    uint32 h;
+    uint16 unk;
+    uint16 unk;
+    uint32 unk;
+} ImgMiniHead_t;
+
+typedef struct PalHead {
+    uint16 unk;
+    uint16 unk;
+    uint32 num_pal;
+    uint32 unk;
+    uint32 size_maybe;
+} PalHead_t;
+
+typedef struct DXTHead {
+    ubyte temp[112];
+} DXTHead_t;
+
+//------------------------------------------------
+// complex structures
+//------------------------------------------------
+
+typedef struct ImgBlock {
+    ImgHead_t img_head;
+    uint32 to_img[img_head.num_img];
+    uint32 to_pal_group[img_head.num_pal_group];
+    for (j = 0; j < img_head.num_img; j++) {
+        FSeek(to_img[j] + block[i]);
+        ImgMiniHead_t img_mini_head;
+    };
+    for (j = 0; j < img_head.num_pal_group; j++) {
+        FSeek(to_pal_group[j] + block[i]);
+        PalHead_t pal_head;
+        };
+    DXTHead DXT_head;
+} ImgBlock_t;
+
+//------------------------------------------------
+// parsing sequance (the acutal reading of a file)
+//------------------------------------------------
+
+ImgBlock_t img_block;

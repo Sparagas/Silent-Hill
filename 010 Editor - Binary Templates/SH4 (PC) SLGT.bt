@@ -66,4 +66,4 @@ struct SLGT
     } else {
         Warning("Not a SLGT file, can not continue");
     }
-} slgt;
+} slgt_block;

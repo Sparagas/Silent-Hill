@@ -28,13 +28,13 @@ typedef struct Edge
     byte d;
 } edge;
 
-typedef struct Vertex
+typedef struct VertPosUnk
 {
     float x;
     float y;
     float z;
     uint32 unknown; // ?? no clue what this is supposed to be
-} vertex;
+} VertPosUnk;
 
 typedef struct Mesh
 {
@@ -60,7 +60,7 @@ typedef struct Mesh
     Polygon polygons[n_polygons];
 
     FSeek(start + vertices_offset);
-    Vertex vertices[n_vertices];
+    VertPosUnk vert_pos_unk[n_vertices];
 
     FSeek(start + bones_offset);
     int16 bones[16]; // there can be more than 16 bones in a mesh, but for shadow meshes each part is limited to 16 bones
@@ -86,4 +86,4 @@ struct SGSVModel
         FSeek(offsets[i]);
         Mesh meshPart;
     }
-} sgSVModel;
+} shadow_model_block;

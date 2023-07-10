@@ -54,7 +54,7 @@ typedef struct FourByFourMatrix
 
 typedef enum ChunkIDs
 {
-    Mesh = 4294901763,
+    ChrMesh = 4294901763,
 } chunkIDs;
 
 typedef enum MeshRevision
@@ -72,7 +72,7 @@ typedef struct Vertex
     float weights[4];
 } vertex;
 
-typedef struct Part
+typedef struct ChrPart
 {
     uint32 size;
     uint32 type;
@@ -125,7 +125,7 @@ typedef struct Part
     FSeek(FTell() + 0x10);
 
     Vertex vertices[vertexCount];
-} part;
+} ChrPart;
 
 struct Model3 {
     ChunkIDs id;
@@ -179,6 +179,6 @@ struct Model3 {
 
     FSeek(vu1_parts_offset);
 
-    Part parts[n_vu1_parts];
+    //ChrPart chr_parts[n_vu1_parts] <optimize = false>; // need to debug
 
-} model3;
+} char_model_block;

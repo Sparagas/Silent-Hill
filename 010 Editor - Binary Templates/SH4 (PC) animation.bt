@@ -19,10 +19,10 @@ enum <uint16> AnimKeyTypes
     RotQuatLinearInterp = 1,
     RotQuatBoehmInterp = 2,
     RotQuatSquadInterp = 3,
-    PositionLinearInterp = 4,
-    PositionHermiteInterp = 5,
-    PositionBezierInterp = 6,
-    PositionCardinalInterp = 7,
+    AnmPositionLinearInterp = 4,
+    AnmPositionHermiteInterp = 5,
+    AnmPositionBezierInterp = 6,
+    AnmPositionCardinalInterp = 7,
     FloatLinearInterp = 8,
     FloatCardinalInterp = 9,
     ScaleLinearInterp = 10,
@@ -31,10 +31,10 @@ enum <uint16> AnimKeyTypes
     RotQuatS15LinearInterp = 13,
     RotQuatS15BoehmInterp = 14,
     RotQuatS15SquadInterp = 15,
-    PositionS4LinearInterp = 16,
-    PositionS4HermiteInterp = 17,
-    PositionS4BezierInterp = 18,
-    PositionS4CardinalInterp = 19,
+    AnmPositionS4LinearInterp = 16,
+    AnmPositionS4HermiteInterp = 17,
+    AnmPositionS4BezierInterp = 18,
+    AnmPositionS4CardinalInterp = 19,
     ScaleS12LinearInterp = 20,
     ScaleS12CardinalInterp = 21
 };
@@ -65,70 +65,70 @@ typedef struct ConnectsAndChains
     IKChain ikChains[num_ik_chains];
 } connectsAndChains;
 
-typedef struct Position
+typedef struct AnmPosition
 {
     float x;
     float y;
     float z;
     float w;
-} position;
+} AnmPosition;
 
-typedef struct ShortPosition
+typedef struct ShortAnmPosition
 {
     int16 x;
     int16 y;
     int16 z;
     int16 w;
-} shortPosition;
+} shortAnmPosition;
 
 typedef struct XYZWKey
 {
-    Position pos;
+    AnmPosition pos;
 } xyzwKey;
 
 typedef struct XYZWHermiteKey
 {
-    Position pos;
-    Position Ts;
-    Position Td;
+    AnmPosition pos;
+    AnmPosition Ts;
+    AnmPosition Td;
 } xyzwHermiteKey;
 
 typedef struct XYZWBezierKey
 {
-    Position pos;
-    Position in_knot;
-    Position out_knot;
+    AnmPosition pos;
+    AnmPosition in_knot;
+    AnmPosition out_knot;
 } xyzwBezierKey;
 
 typedef struct XYZWCardinalKey
 {
-    Position pos;
-    Position Tsd;
+    AnmPosition pos;
+    AnmPosition Tsd;
 } xyzwCardinalKey;
 
 typedef struct XYZWShortKey
 {
-    ShortPosition pos;
+    ShortAnmPosition pos;
 } xyzwShortKey;
 
 typedef struct XYZWShortHermiteKey
 {
-    ShortPosition pos;
-    ShortPosition Ts;
-    ShortPosition Td;
+    ShortAnmPosition pos;
+    ShortAnmPosition Ts;
+    ShortAnmPosition Td;
 } xyzwShortHermiteKey;
 
 typedef struct XYZWShortBezierKey
 {
-    ShortPosition pos;
-    ShortPosition in_knot;
-    ShortPosition out_knot;
+    ShortAnmPosition pos;
+    ShortAnmPosition in_knot;
+    ShortAnmPosition out_knot;
 } xyzwShortBezierKey;
 
 typedef struct XYZWShortCardinalKey
 {
-    ShortPosition pos;
-    ShortPosition Tsd;
+    ShortAnmPosition pos;
+    ShortAnmPosition Tsd;
 } xyzwShortCardinalKey;
 
 typedef struct QuatLinearKey
@@ -204,28 +204,28 @@ typedef struct AnimKey
     case RotQuatS15BoehmInterp:
         QuatS15BoehmKey keys[nb_keys];
         break;
-    case PositionLinearInterp:
+    case AnmPositionLinearInterp:
         XYZWKey keys[nb_keys];
         break;
-    case PositionHermiteInterp:
+    case AnmPositionHermiteInterp:
         XYZWHermiteKey keys[nb_keys];
         break;
-    case PositionBezierInterp:
+    case AnmPositionBezierInterp:
         XYZWBezierKey keys[nb_keys];
         break;
-    case PositionCardinalInterp:
+    case AnmPositionCardinalInterp:
         XYZWCardinalKey keys[nb_keys];
         break;
-    case PositionS4LinearInterp:
+    case AnmPositionS4LinearInterp:
         XYZWShortKey keys[nb_keys];
         break;
-    case PositionS4HermiteInterp:
+    case AnmPositionS4HermiteInterp:
         XYZWShortHermiteKey keys[nb_keys];
         break;
-    case PositionS4BezierInterp:
+    case AnmPositionS4BezierInterp:
         XYZWShortBezierKey keys[nb_keys];
         break;
-    case PositionS4CardinalInterp:
+    case AnmPositionS4CardinalInterp:
         XYZWShortCardinalKey keys[nb_keys];
         break;
     case ScaleLinearInterp:
@@ -294,4 +294,4 @@ struct SGAnime {
             break;
         }
     }
-} sgAnime;
+} animation_block;
