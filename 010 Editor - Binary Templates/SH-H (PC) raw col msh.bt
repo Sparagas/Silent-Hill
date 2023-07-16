@@ -11,9 +11,8 @@
 //   History: 
 //------------------------------------------------
 
-uint32 unk;
+uint32 magic;
 uint32 num_vbuf;
 float vbuf[num_vbuf];
 uint32 num_fbuf;
 uint16 fbuf[num_fbuf];
-

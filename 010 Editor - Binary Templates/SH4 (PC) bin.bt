@@ -58,5 +58,5 @@ for (i = 0; i < num_block; i++) {
         #include "SH4 (PC) world mesh.bt"
     } else {
         uint32 unk_block;
-    };
+    }
 }
