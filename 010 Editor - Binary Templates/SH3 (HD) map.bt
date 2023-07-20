@@ -1,0 +1,14 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: map
+//  ID Bytes: FF FF FF FF
+//   History: 
+//------------------------------------------------
+BigEndian();
+#include "SH3 (PS2) map.bt"

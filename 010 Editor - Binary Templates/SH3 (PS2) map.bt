@@ -1,0 +1,202 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: map
+//  ID Bytes: FF FF FF FF
+//   History: 
+//------------------------------------------------
+
+uint32 magic;
+uint32 pad;
+uint32 pad;
+uint32 unk_ofs;
+
+uint32 unk_ofs;
+uint32 pad;
+uint32 unk;
+uint32 unk_mesh_group_ofs0;
+
+uint32 unk_mesh_group_ofs1;
+uint32 unk_mesh_group_ofs2;
+uint32 pad;
+uint32 pad;
+
+struct Unknown {
+uint32 unk;
+uint32 unk;
+uint32 unk;
+uint32 pad;
+
+uint16 unk;
+uint16 unk;
+uint16 unk;
+uint16 unk;
+uint32 pad;
+uint32 pad;
+
+uint32 unk;
+uint32 unk;
+uint32 unk;
+uint32 unk;
+
+uint32 unk;
+uint32 pad;
+uint32 pad;
+uint32 pad;
+float matrix[16];
+};
+
+struct Head {
+    uint32 next_ofs;
+    uint32 data_start_ofs;
+    uint32 total_size;
+    uint32 pad;
+};
+
+struct MeshGroup {
+    struct MeshGroupH mesh_group_h;
+    struct MeshGroupB mesh_group_b;
+};
+
+struct MeshGroupH {
+    struct Head head;
+
+    uint32 unk;
+    uint32 arr_id;
+    uint16 num_mesh;
+    uint16 unk;
+    uint32 unk;
+
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+};
+
+struct MeshGroupB {
+    struct Mesh mesh;
+    local int i;
+    for (i=0; mesh[i].mesh_h.head.next_ofs > 0; i++) {
+        FSeek(mesh[i].mesh_h.head.next_ofs);
+        struct Mesh mesh;
+    }
+};
+
+struct Mesh {
+    struct MeshH mesh_h;
+    struct MeshB mesh_b;
+};
+
+struct MeshH {
+    struct Head head;
+
+    uint16 clut_index;
+    uint16 unk;
+    uint16 unk;
+    uint16 flag;
+    uint32 unk;
+    uint32 unk;
+
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+};
+
+struct MeshB {
+    struct SubMesh sub_mesh;
+    local int i;
+    for (i=0; sub_mesh[i].sub_mesh_h.head.next_ofs > 0; i++) {
+        FSeek(sub_mesh[i].sub_mesh_h.head.next_ofs);
+        struct SubMesh sub_mesh;
+    }
+};
+
+struct SubMesh {
+    struct SubMeshH sub_mesh_h;
+    struct SubMeshB sub_mesh_b;
+};
+
+struct SubMeshH {
+    struct Head head;
+
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+
+    float unk;
+    float unk;
+    float unk;
+    float unk;
+};
+
+struct SubMeshB {
+    struct Shape shape;
+    local int i = 0;
+    for (i=0; shape[i].shape_h.head.next_ofs > 0; i++) {
+        FSeek(shape[i].shape_h.head.next_ofs);
+        struct Shape shape;
+    }
+};
+
+struct Shape {
+    struct ShapeH shape_h;
+    struct ShapeB shape_b[shape_h.num_vertex];
+};
+
+struct ShapeH {
+    struct Head head;
+
+    uint32 num_vertex;
+    uint32 transform_index;
+    uint32 unk;
+    uint16 unk;
+    uint16 unk;
+
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+
+    uint32 pad[4];
+};
+
+struct ShapeB {
+    int16 vpos[3];
+    int16 vn_vcol_x;
+    int16 flag;
+    int16 vn_vcol[2];
+    int16 unk;
+};
+
+struct MeshBlock {
+    struct MeshGroup mesh_group;
+    local int i;
+    for (i=0; mesh_group[i].mesh_group_h.head.next_ofs > 0; i++) {
+        FSeek(mesh_group[i].mesh_group_h.head.next_ofs);
+        struct MeshGroup mesh_group;
+    }
+};
+
+//----------------------------
+
+struct Unknown unknown;
+
+if (unk_mesh_group_ofs0 > 0) {
+    FSeek(unk_mesh_group_ofs0);
+    struct MeshGroup mesh_group0;
+}
+if (unk_mesh_group_ofs1 > 0) {
+    FSeek(unk_mesh_group_ofs1);
+    struct MeshGroup mesh_group1;
+}
+if (unk_mesh_group_ofs2 > 0) {
+    FSeek(unk_mesh_group_ofs2);
+    struct MeshGroup mesh_group2;
+}
