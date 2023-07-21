@@ -170,9 +170,11 @@ struct ShapeH {
 struct ShapeB {
     int16 vpos[3];
     int16 vn_vcol_x;
-    int16 flag;
+    ubyte tri_flag;
+    byte uv_u;
+    byte pad;
+    byte uv_v;
     int16 vn_vcol[2];
-    int16 unk;
 };
 
 struct MeshBlock {
