@@ -195,7 +195,12 @@ def LoadModel(data, mdlList):
     mesh_group_ofs0 = bs.readUInt()
     mesh_group_ofs1 = bs.readUInt()
     mesh_group_ofs2 = bs.readUInt()
-
+    bs.seek(176)
+    bbox = bs.readBytes(128)
+    rapi.rpgBindPositionBuffer(bbox, noesis.RPGEODATA_FLOAT, 16)
+    rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, 8, noesis.RPGEO_POINTS)
+    bbox = rapi.rpgConstructModel()
+    
 
     if mesh_group_ofs0 > 0:
         bs.seek(mesh_group_ofs0)
@@ -212,4 +217,5 @@ def LoadModel(data, mdlList):
     mdl = rapi.rpgConstructModel()
     # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0','')]))
     mdlList.append(mdl)
+    mdlList.append(bbox)
     return 1

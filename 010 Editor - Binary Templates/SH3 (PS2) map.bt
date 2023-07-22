@@ -48,7 +48,13 @@ uint32 unk;
 uint32 pad;
 uint32 pad;
 uint32 pad;
-float matrix[16];
+};
+
+struct Float4 {
+    float x;
+    float y;
+    float z;
+    float pad;
 };
 
 struct Head {
@@ -189,6 +195,8 @@ struct MeshBlock {
 //----------------------------
 
 struct Unknown unknown;
+float matrix_col[16];
+struct Float4 bbox[8];
 
 if (unk_mesh_group_ofs0 > 0) {
     FSeek(unk_mesh_group_ofs0);
