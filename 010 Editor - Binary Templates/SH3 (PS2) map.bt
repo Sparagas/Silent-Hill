@@ -200,13 +200,13 @@ struct Float4 bbox[8];
 
 if (unk_mesh_group_ofs0 > 0) {
     FSeek(unk_mesh_group_ofs0);
-    struct MeshGroup mesh_group0;
+    struct MeshBlock mesh_group0;
 }
 if (unk_mesh_group_ofs1 > 0) {
     FSeek(unk_mesh_group_ofs1);
-    struct MeshGroup mesh_group1;
+    struct MeshBlock mesh_group1;
 }
 if (unk_mesh_group_ofs2 > 0) {
     FSeek(unk_mesh_group_ofs2);
-    struct MeshGroup mesh_group2;
+    struct MeshBlock mesh_group2;
 }

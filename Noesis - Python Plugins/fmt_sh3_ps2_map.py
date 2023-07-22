@@ -191,6 +191,14 @@ def LoadModel(data, mdlList):
             self.uv_v = bs.readBytes(1)
             self.vn_vcol = bs.readBytes(2*2)
 
+    class MeshBlock:
+        def __init__(self):
+            self.mesh_group = MeshGroup()
+            while self.mesh_group.mesh_group_h.head.next_ofs > 0:
+                bs.seek(self.mesh_group.mesh_group_h.head.next_ofs)
+                self.mesh_group = MeshGroup()
+
+
     bs.seek(7*4)
     mesh_group_ofs0 = bs.readUInt()
     mesh_group_ofs1 = bs.readUInt()
@@ -204,8 +212,8 @@ def LoadModel(data, mdlList):
 
     if mesh_group_ofs0 > 0:
         bs.seek(mesh_group_ofs0)
-        mesh_group0 = MeshGroup()
-
+        mesh_group0 = MeshBlock()
+    '''
     if mesh_group_ofs1 > 0:
         bs.seek(mesh_group_ofs1)
         mesh_group1 = MeshGroup()
@@ -213,7 +221,7 @@ def LoadModel(data, mdlList):
     if mesh_group_ofs2 > 0:
         bs.seek(mesh_group_ofs2)
         mesh_group2 = MeshGroup()
-        
+    '''      
     mdl = rapi.rpgConstructModel()
     # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0','')]))
     mdlList.append(mdl)
