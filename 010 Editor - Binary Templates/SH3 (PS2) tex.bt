@@ -1,0 +1,34 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+int32 magic;
+uint32 ver;
+uint32 ofs_or_size;
+uint32 total_size;
+uint32 pad;
+uint32 num_tex;
+uint32 pad;
+uint32 pad;
+
+int32 magic;
+uint32 ver;
+uint16 img_w;
+uint16 img_h;
+ubyte bpp;
+ubyte unk;
+uint16 pad;
+uint32 img_size;
+uint32 ofs_pal;
+uint64 unk_00_13_01_00_09_09_99_99;
+
+FSeek(ofs_pal);
+uint32 TODO;

@@ -1,16 +1,26 @@
+# Authors:
+# Laurynas Zubavičius (Sparagas)
+# Rodolfo Nuñez (roocker666)
+#
+# Buffer reading idea:
+# Murugo - https://github.com/Murugo/Misc-Game-Research/blob/main/PS2/Silent%20Hill%202%2B3/Blender/addons/io_sh2_sh3/import_map.py
+
 from inc_noesis import *
+
 
 def registerNoesisTypes():
     handle = noesis.register("Silent Hill 3 (PS2)", ".map")
     noesis.setHandlerTypeCheck(handle, CheckType)
     noesis.setHandlerLoadModel(handle, LoadModel)
-    noesis.logPopup()
+    # noesis.logPopup()
     return 1
+
 
 def CheckType(data):
     if data[:4] != b'\xff\xff\xff\xff':
         return 0
     return 1
+
 
 def LoadModel(data, mdlList):
     bs = NoeBitStream(data)
@@ -120,14 +130,14 @@ def LoadModel(data, mdlList):
 
     class Shape:
         def __init__(self):
-            #self.vbuf = bytearray()
-            #self.uvbuf = bytearray()
+            # self.vbuf = bytearray()
+            # self.uvbuf = bytearray()
             self.shape_h = ShapeH()
             vbuf = b''
             ibuf = b''
             vnbuf = b''
             uvbuf = b''
-            vcolbuf =  b''
+            vcolbuf = b''
             reverse = False
             for i in range(self.shape_h.num_vertex):
                 vbuf += bs.readBytes(6)
@@ -148,18 +158,18 @@ def LoadModel(data, mdlList):
             rapi.rpgBindNormalBuffer(vnbuf, noesis.RPGEODATA_FLOAT, 12)
             rapi.rpgBindUV1Buffer(uvbuf, noesis.RPGEODATA_FLOAT, 12)
             rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_FLOAT, 12, 3)
-            rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf)//2, noesis.RPGEO_TRIANGLE)
-            #for _ in range(self.shape_h.num_vertex):
-                #self.shape_b = ShapeB()
-                #self.vbuf.extend(self.shape_b.vpos)
-                #self.uvbuf.extend(self.shape_b.uv_u)
-                #self.uvbuf.extend(self.shape_b.uv_v)
-            
-            #rapi.rpgBindPositionBuffer(self.vbuf, noesis.RPGEODATA_SHORT, 6)
-            #rapi.rpgBindUV1Buffer(self.uvbuf, noesis.RPGEODATA_BYTE, 2)
-            #rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_BYTE, 3, 3)
-            #rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, self.shape_h.num_vertex, noesis.RPGEO_POINTS) # for point cloud
-            #rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, self.shape_h.num_vertex, noesis.RPGEO_TRIANGLE_STRIP) # for triangles
+            rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf) // 2, noesis.RPGEO_TRIANGLE)
+            # for _ in range(self.shape_h.num_vertex):
+            # self.shape_b = ShapeB()
+            # self.vbuf.extend(self.shape_b.vpos)
+            # self.uvbuf.extend(self.shape_b.uv_u)
+            # self.uvbuf.extend(self.shape_b.uv_v)
+
+            # rapi.rpgBindPositionBuffer(self.vbuf, noesis.RPGEODATA_SHORT, 6)
+            # rapi.rpgBindUV1Buffer(self.uvbuf, noesis.RPGEODATA_BYTE, 2)
+            # rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_BYTE, 3, 3)
+            # rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, self.shape_h.num_vertex, noesis.RPGEO_POINTS) # for point cloud
+            # rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, self.shape_h.num_vertex, noesis.RPGEO_TRIANGLE_STRIP) # for triangles
 
     class ShapeH:
         def __init__(self):
@@ -183,13 +193,13 @@ def LoadModel(data, mdlList):
 
     class ShapeB:
         def __init__(self):
-            self.vpos = bs.readBytes(3*2)
+            self.vpos = bs.readBytes(3 * 2)
             self.vn_vcol_x = bs.readBytes(2)
             self.tri_flag = bs.readUByte()
             self.uv_u = bs.readBytes(1)
             self.pad = bs.readByte()
             self.uv_v = bs.readBytes(1)
-            self.vn_vcol = bs.readBytes(2*2)
+            self.vn_vcol = bs.readBytes(2 * 2)
 
     class MeshBlock:
         def __init__(self):
@@ -198,8 +208,7 @@ def LoadModel(data, mdlList):
                 bs.seek(self.mesh_group.mesh_group_h.head.next_ofs)
                 self.mesh_group = MeshGroup()
 
-
-    bs.seek(7*4)
+    bs.seek(7 * 4)
     mesh_group_ofs0 = bs.readUInt()
     mesh_group_ofs1 = bs.readUInt()
     mesh_group_ofs2 = bs.readUInt()
@@ -208,7 +217,6 @@ def LoadModel(data, mdlList):
     rapi.rpgBindPositionBuffer(bbox, noesis.RPGEODATA_FLOAT, 16)
     rapi.rpgCommitTriangles(None, noesis.RPGEODATA_UINT, 8, noesis.RPGEO_POINTS)
     bbox = rapi.rpgConstructModel()
-    
 
     if mesh_group_ofs0 > 0:
         bs.seek(mesh_group_ofs0)
@@ -221,7 +229,7 @@ def LoadModel(data, mdlList):
     if mesh_group_ofs2 > 0:
         bs.seek(mesh_group_ofs2)
         mesh_group2 = MeshGroup()
-    '''      
+    '''
     mdl = rapi.rpgConstructModel()
     # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0','')]))
     mdlList.append(mdl)

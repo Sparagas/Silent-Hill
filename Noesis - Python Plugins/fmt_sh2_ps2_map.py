@@ -15,13 +15,15 @@ def registerNoesisTypes():
     handle = noesis.register("Silent Hill 2 (PS2)", ".map")
     noesis.setHandlerTypeCheck(handle, CheckType)
     noesis.setHandlerLoadModel(handle, LoadModel)
-    noesis.logPopup()
+    # noesis.logPopup()
     return 1
 
+
 def CheckType(data):
-    if data[:4] != b'wwww': 
+    if data[:4] != b'wwww':
         return 0
     return 1
+
 
 def LoadModel(data, mdlList):
     bs = NoeBitStream(data)
@@ -35,10 +37,10 @@ def LoadModel(data, mdlList):
 
     class FileHead:
         def __init__(self):
-            self. magic = bs.readBytes(4)
+            self.magic = bs.readBytes(4)
             self.global_block_offs = bs.readUInt()
             self.local_block_offs = bs.readUInt()
-            self.unk_raw_block_data_parms_offs = bs.readUInt()         
+            self.unk_raw_block_data_parms_offs = bs.readUInt()
             self.local_tex_index_offs = array(bs.readUInt, 3)
             self.local_tex_pal_offs = array(bs.readUInt, 3)
             self.local_tex_count = bs.readUInt()
@@ -46,14 +48,12 @@ def LoadModel(data, mdlList):
             self.trans_tex_count = bs.readUByte()
             self.unk_div_flg = bs.readUByte()
             self.unk_padc = bs.readUByte()
-    
-    
+
     class UnkRawBlockDataParms:
         def __init__(self):
             self.matrix_TRS_maybe = array(bs.readFloat, 12)
             self.unk = array(bs.readFloat, 12)
-    
-    
+
     class GlobalBlockHead:
         def __init__(self):
             self.unk_gsregsamount = bs.readUInt()
@@ -61,15 +61,13 @@ def LoadModel(data, mdlList):
             self.unk_gtexnum = bs.readUByte()
             self.unk_gtransnum = bs.readUByte()
             self.pad = array(bs.readUByte, 6)
-    
-    
+
     class LocalBlockHead:
         def __init__(self):
             self.unk_gsregsamount = array(bs.readUShort, 3)
             self.unk_transamount = array(bs.readUShort, 3)
             self.main_mesh_count = bs.readUShort()
             self.pad = array(bs.readUByte, 2)
-
 
     class MainMeshHead:
         def __init__(self):
@@ -82,7 +80,6 @@ def LoadModel(data, mdlList):
             self.unk_tr_flg = bs.readUByte()
             self.unk_fmt = array(bs.readUByte, 16)
             self.unk_trans = array(bs.readUByte, 16)
-
 
     class SubMeshHead:
         def __init__(self):
@@ -126,19 +123,18 @@ def LoadModel(data, mdlList):
             self.vn_vcol_y = bs.readUShort()
             self.vn_vcol_z = bs.readUShort()
 
-
     file_head = FileHead()
     bs.seek(file_head.unk_raw_block_data_parms_offs)
     unk_raw_block_data_parms = UnkRawBlockDataParms()
-    
+
     if file_head.global_block_offs:
-    
+
         bs.seek(file_head.global_block_offs)
         global_block_head = GlobalBlockHead()
         main_mesh_head = MainMeshHead()
-        
+
         for s in range(main_mesh_head.sub_mesh_count):
-        
+
             sub_mesh_head = SubMeshHead()
 
             rapi.rpgSetName('global_{}'.format(s))
@@ -146,30 +142,30 @@ def LoadModel(data, mdlList):
             ibuf = b''
             vnbuf = b''
             uvbuf = b''
-            vcolbuf =  b''
+            vcolbuf = b''
             reverse = False
-            
+
             # vert_attr = array(VertAttr, sub_mesh_head.vert_count)
-            
+
             for i in range(sub_mesh_head.vert_count):
-            
-                #vp_x = bs.readUShort()
-                #vp_y = bs.readUShort()
-                #vp_z = bs.readUShort()
+
+                # vp_x = bs.readUShort()
+                # vp_y = bs.readUShort()
+                # vp_z = bs.readUShort()
                 vbuf += bs.readBytes(6)
                 vn_vcol_x = bs.readUShort()
-                vt_u = bs.readUShort() # uv_flag[]
-                vt_v = bs.readUShort() # uv_flag[]
+                vt_u = bs.readUShort()  # uv_flag[]
+                vt_v = bs.readUShort()  # uv_flag[]
                 vn_vcol_y = bs.readUShort()
                 vn_vcol_z = bs.readUShort()
 
                 uv_flag = [vt_u, vt_v]
                 vn_vcol = (vn_vcol_x, vn_vcol_y, vn_vcol_z)
-                
+
                 uvbuf += NoeVec3([uv_flag[0] / 0x8000, 1.0 - uv_flag[1] / 0x8000, 0]).toBytes()
                 vnbuf += NoeVec3([(v & ~0x3F) / -0x8000 for v in vn_vcol]).normalize().toBytes()
                 vcolbuf += NoeVec3([(v & 0x3F) / 0x20 for v in vn_vcol]).toBytes()
-                
+
                 flag = uv_flag[0] & 0x1
                 if not flag:
                     if reverse:
@@ -181,30 +177,30 @@ def LoadModel(data, mdlList):
             rapi.rpgBindNormalBuffer(vnbuf, noesis.RPGEODATA_FLOAT, 12)
             rapi.rpgBindUV1Buffer(uvbuf, noesis.RPGEODATA_FLOAT, 12)
             rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_FLOAT, 12, 3)
-            rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf)//2, noesis.RPGEO_TRIANGLE)
-    
+            rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf) // 2, noesis.RPGEO_TRIANGLE)
+
             mdl = rapi.rpgConstructModel()
             bs.seek(sub_mesh_head.next_submesh_offs)
 
     if file_head.local_block_offs:
-    
+
         bs.seek(file_head.local_block_offs)
         local_block_head = LocalBlockHead()
-        
+
         for i in range(local_block_head.main_mesh_count):
-        
+
             main_mesh_head = MainMeshHead()
-            
+
             next_submesh_offs = bs.getOffset()
             for j in range(main_mesh_head.sub_mesh_count):
                 sub_mesh_head = SubMeshHead()
-        
-                rapi.rpgSetName('local_{}_{}'.format(i,j))
+
+                rapi.rpgSetName('local_{}_{}'.format(i, j))
                 vbuf = b''
                 ibuf = b''
                 vnbuf = b''
                 uvbuf = b''
-                vcolbuf =  b''
+                vcolbuf = b''
                 reverse = False
                 for i in range(sub_mesh_head.vert_count):
                     vbuf += bs.readBytes(6)
@@ -225,8 +221,8 @@ def LoadModel(data, mdlList):
                 rapi.rpgBindNormalBuffer(vnbuf, noesis.RPGEODATA_FLOAT, 12)
                 rapi.rpgBindUV1Buffer(uvbuf, noesis.RPGEODATA_FLOAT, 12)
                 rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_FLOAT, 12, 3)
-                rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf)//2, noesis.RPGEO_TRIANGLE)
-        
+                rapi.rpgCommitTriangles(ibuf, noesis.RPGEODATA_USHORT, len(ibuf) // 2, noesis.RPGEO_TRIANGLE)
+
                 mdl = rapi.rpgConstructModel()
                 bs.seek(sub_mesh_head.next_submesh_offs)
             bs.seek(main_mesh_head.next_mesh_offs)
