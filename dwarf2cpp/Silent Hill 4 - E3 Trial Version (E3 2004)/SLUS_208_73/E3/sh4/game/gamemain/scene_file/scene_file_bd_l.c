@@ -1,0 +1,65 @@
+
+
+typedef int type_0[8];
+typedef int type_1[5];
+typedef int type_2[4];
+typedef int type_3[3];
+typedef int type_4[14];
+typedef int type_5[4];
+typedef int type_6[4];
+typedef int type_7[5];
+typedef int type_8[3];
+typedef int type_9[4];
+typedef int type_10[4];
+typedef int type_11[3];
+typedef int type_12[7];
+typedef int type_13[2];
+typedef int type_14[2];
+typedef int type_15[3];
+typedef int type_16[2];
+typedef int type_17[7];
+typedef int type_18[7];
+typedef int type_19[2];
+typedef int type_20[2];
+typedef int type_21[4];
+typedef int type_22[3];
+typedef int* type_23[30];
+typedef int type_24[6];
+typedef int type_25[9];
+typedef int type_26[5];
+typedef int type_27[4];
+typedef int type_28[3];
+typedef int type_29[2];
+
+int stage_file[14];
+int _01[3];
+int _02[5];
+int _03[5];
+int _04[7];
+int _05[2];
+int _06[4];
+int _07[4];
+int _08[4];
+int _09[2];
+int _10[6];
+int _11[4];
+int _12[2];
+int _13[4];
+int _14[3];
+int _15[2];
+int _16[8];
+int _17[3];
+int _18[3];
+int _19[3];
+int _20[2];
+int _21[9];
+int _22[4];
+int _23[7];
+int _24[3];
+int _25[4];
+int _26[2];
+int _27[5];
+int _28[7];
+int* scene_files_bd_l[30];
+
+

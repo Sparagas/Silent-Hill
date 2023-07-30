@@ -1,0 +1,288 @@
+typedef union fsFileIndex;
+typedef struct _anon0;
+typedef union fsFile;
+typedef struct FilesBgBlock;
+typedef struct fsCdFile;
+typedef struct fsMgcFile;
+typedef struct fsMgfFile;
+typedef struct fsHdFile;
+typedef struct fsMgpFile;
+typedef struct _anon1;
+
+
+typedef FilesBgBlock type_0[1];
+typedef FilesBgBlock type_1[1];
+typedef FilesBgBlock type_2[1];
+typedef FilesBgBlock type_3[1];
+typedef FilesBgBlock type_4[1];
+typedef FilesBgBlock type_5[1];
+typedef FilesBgBlock type_6[1];
+typedef FilesBgBlock type_7[1];
+typedef FilesBgBlock type_8[1];
+typedef FilesBgBlock type_9[1];
+typedef FilesBgBlock type_10[1];
+typedef FilesBgBlock type_11[1];
+typedef FilesBgBlock type_12[1];
+typedef FilesBgBlock type_13[1];
+typedef FilesBgBlock type_14[1];
+typedef FilesBgBlock type_15[1];
+typedef FilesBgBlock type_16[1];
+typedef FilesBgBlock type_17[1];
+typedef FilesBgBlock type_18[1];
+typedef FilesBgBlock type_19[1];
+typedef FilesBgBlock type_20[1];
+typedef FilesBgBlock type_21[1];
+typedef FilesBgBlock type_22[1];
+typedef FilesBgBlock type_23[1];
+typedef FilesBgBlock type_24[1];
+typedef FilesBgBlock type_25[1];
+typedef FilesBgBlock type_26[1];
+typedef FilesBgBlock type_27[1];
+typedef FilesBgBlock type_28[1];
+typedef FilesBgBlock type_29[1];
+typedef FilesBgBlock type_30[1];
+typedef FilesBgBlock type_31[1];
+typedef FilesBgBlock type_32[1];
+typedef FilesBgBlock type_33[1];
+typedef FilesBgBlock type_34[1];
+typedef FilesBgBlock type_35[1];
+typedef FilesBgBlock type_36[1];
+typedef FilesBgBlock type_37[1];
+typedef FilesBgBlock type_38[1];
+typedef FilesBgBlock type_39[1];
+typedef FilesBgBlock type_40[1];
+typedef FilesBgBlock type_41[1];
+typedef FilesBgBlock type_42[1];
+typedef FilesBgBlock type_43[1];
+typedef FilesBgBlock type_44[1];
+typedef FilesBgBlock type_45[1];
+typedef FilesBgBlock type_46[1];
+typedef FilesBgBlock type_47[1];
+typedef FilesBgBlock type_48[1];
+typedef FilesBgBlock type_49[1];
+typedef FilesBgBlock type_50[1];
+typedef FilesBgBlock type_51[1];
+typedef FilesBgBlock type_52[1];
+typedef FilesBgBlock type_53[1];
+typedef FilesBgBlock type_54[1];
+typedef FilesBgBlock type_55[1];
+typedef FilesBgBlock type_56[1];
+typedef FilesBgBlock type_57[1];
+typedef FilesBgBlock type_58[1];
+typedef FilesBgBlock type_59[1];
+typedef FilesBgBlock type_60[1];
+typedef FilesBgBlock* type_61[81];
+typedef FilesBgBlock type_62[1];
+typedef FilesBgBlock type_63[1];
+typedef FilesBgBlock type_64[1];
+typedef FilesBgBlock type_65[1];
+typedef FilesBgBlock type_66[1];
+typedef FilesBgBlock type_67[1];
+typedef FilesBgBlock type_68[1];
+typedef FilesBgBlock type_69[1];
+typedef FilesBgBlock type_70[1];
+typedef FilesBgBlock type_71[1];
+typedef FilesBgBlock type_72[1];
+typedef FilesBgBlock type_73[1];
+typedef FilesBgBlock type_74[1];
+typedef int type_75[1];
+typedef FilesBgBlock type_76[1];
+typedef FilesBgBlock type_77[1];
+typedef FilesBgBlock type_78[1];
+typedef FilesBgBlock type_79[1];
+typedef FilesBgBlock type_80[1];
+typedef FilesBgBlock type_81[1];
+typedef FilesBgBlock type_82[1];
+
+union fsFileIndex
+{
+	_anon0 index;
+	unsigned long pack;
+};
+
+struct _anon0
+{
+	fsFile* fp;
+	char* name;
+};
+
+union fsFile
+{
+	_anon1 check;
+	<unknown fundamental type (0xa510)> pack;
+	fsCdFile cd;
+	fsHdFile hd;
+	fsMgcFile mgc;
+	fsMgfFile mgf;
+	fsMgpFile mgp;
+};
+
+struct FilesBgBlock
+{
+	fsFileIndex* map;
+	fsFileIndex* cld;
+	fsFileIndex* cam;
+	fsFileIndex* kg2;
+	fsFileIndex* tex;
+	fsFileIndex* ex0;
+	fsFileIndex* ex1;
+	fsFileIndex* ex2;
+};
+
+struct fsCdFile
+{
+	struct
+	{
+		int type : 8;
+		int number : 24;
+	};
+	char* name;
+	int lsn;
+	int size;
+};
+
+struct fsMgcFile
+{
+	struct
+	{
+		int type : 8;
+		int padding : 24;
+	};
+	fsFile* parent;
+	char* start;
+	char* end;
+};
+
+struct fsMgfFile
+{
+	struct
+	{
+		int type : 8;
+		int padding : 24;
+	};
+	fsFile* parent;
+	int offset;
+	int size;
+};
+
+struct fsHdFile
+{
+	struct
+	{
+		int type : 8;
+		int padding : 24;
+	};
+	char* name;
+	int offset;
+	int size;
+};
+
+struct fsMgpFile
+{
+	struct
+	{
+		int type : 8;
+		int padding : 24;
+	};
+	fsFile* file;
+	fsMgcFile* start;
+	fsMgcFile* end;
+};
+
+struct _anon1
+{
+	struct
+	{
+		int type : 8;
+		int number : 24;
+	};
+	int pad0;
+	int pad1;
+	int pad2;
+};
+
+FilesBgBlock bg_bid_cb00[1];
+FilesBgBlock bg_bid_cb01[1];
+FilesBgBlock bg_bid_cb02[1];
+FilesBgBlock bg_bid_cb03[1];
+FilesBgBlock bg_bid_cb04[1];
+FilesBgBlock bg_bid_cb05[1];
+FilesBgBlock bg_bid_cb06[1];
+FilesBgBlock bg_bid_cb07[1];
+FilesBgBlock bg_bid_cb08[1];
+FilesBgBlock bg_bid_cb09[1];
+FilesBgBlock bg_bid_cb10[1];
+FilesBgBlock bg_bid_cb11[1];
+FilesBgBlock bg_bid_cb12[1];
+FilesBgBlock bg_bid_cb13[1];
+FilesBgBlock bg_bid_cb14[1];
+FilesBgBlock bg_bid_cb15[1];
+FilesBgBlock bg_bid_cb16[1];
+FilesBgBlock bg_bid_cb17[1];
+FilesBgBlock bg_bid_cb18[1];
+FilesBgBlock bg_bid_cb19[1];
+FilesBgBlock bg_bid_cb20[1];
+FilesBgBlock bg_bid_cb21[1];
+FilesBgBlock bg_bid_cb22[1];
+FilesBgBlock bg_bid_cb23[1];
+FilesBgBlock bg_bid_cb24[1];
+FilesBgBlock bg_bid_cb25[1];
+FilesBgBlock bg_bid_cb26[1];
+FilesBgBlock bg_bid_cb27[1];
+FilesBgBlock bg_bid_cb28[1];
+FilesBgBlock bg_bid_cb29[1];
+FilesBgBlock bg_bid_cb30[1];
+FilesBgBlock bg_bid_cb31[1];
+FilesBgBlock bg_bid_cb32[1];
+FilesBgBlock bg_bid_cb33[1];
+FilesBgBlock bg_bid_cb34[1];
+FilesBgBlock bg_bid_cb35[1];
+FilesBgBlock bg_bid_cb36[1];
+FilesBgBlock bg_bid_cb37[1];
+FilesBgBlock bg_bid_cb38[1];
+FilesBgBlock bg_bid_cb39[1];
+FilesBgBlock bg_bid_cb40[1];
+FilesBgBlock bg_bid_cb41[1];
+FilesBgBlock bg_bid_cb42[1];
+FilesBgBlock bg_bid_cb43[1];
+FilesBgBlock bg_bid_cb44[1];
+FilesBgBlock bg_bid_cb45[1];
+FilesBgBlock bg_bid_cb46[1];
+FilesBgBlock bg_bid_cb47[1];
+FilesBgBlock bg_bid_cb48[1];
+FilesBgBlock bg_bid_cb49[1];
+FilesBgBlock bg_bid_cb50[1];
+FilesBgBlock bg_bid_cb51[1];
+FilesBgBlock bg_bid_cb52[1];
+FilesBgBlock bg_bid_cb53[1];
+FilesBgBlock bg_bid_cb54[1];
+FilesBgBlock bg_bid_cb55[1];
+FilesBgBlock bg_bid_cb56[1];
+FilesBgBlock bg_bid_cb57[1];
+FilesBgBlock bg_bid_cb58[1];
+FilesBgBlock bg_bid_cb59[1];
+FilesBgBlock bg_bid_cb60[1];
+FilesBgBlock bg_bid_cb61[1];
+FilesBgBlock bg_bid_cb62[1];
+FilesBgBlock bg_bid_cb63[1];
+FilesBgBlock bg_bid_cb64[1];
+FilesBgBlock bg_bid_cb65[1];
+FilesBgBlock bg_bid_cb66[1];
+FilesBgBlock bg_bid_cb67[1];
+FilesBgBlock bg_bid_cb68[1];
+FilesBgBlock bg_bid_cb69[1];
+FilesBgBlock bg_bid_cb70[1];
+FilesBgBlock bg_bid_cb71[1];
+FilesBgBlock bg_bid_cb72[1];
+FilesBgBlock bg_bid_cb73[1];
+FilesBgBlock bg_bid_cb74[1];
+FilesBgBlock bg_bid_cb75[1];
+FilesBgBlock bg_bid_cb76[1];
+FilesBgBlock bg_bid_cb77[1];
+FilesBgBlock bg_bid_cb78[1];
+FilesBgBlock bg_bid_cb79[1];
+FilesBgBlock bg_bid_cb80[1];
+int FilesBgBlockMax_cb[1];
+FilesBgBlock* FilesBgBlockList_cb[81];
+
+
