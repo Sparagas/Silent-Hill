@@ -46,7 +46,7 @@
 ---
 # Dublicate table
 ## Silent Hill (1) (Sony - PlayStation)
-No-Intro | Hidden Palace
+Redump | Hidden Palace
 --- | ---
 Silent Hill (Australia) (Demo)
 Silent Hill (Germany) (Demo)
