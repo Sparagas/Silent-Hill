@@ -11,21 +11,6 @@
 //   History: 
 //------------------------------------------------
 
-uint32 magic;
-uint32 pad;
-uint32 pad;
-uint32 unk_ofs;
-
-uint32 unk_ofs;
-uint32 pad;
-uint32 unk;
-uint32 unk_mesh_group_ofs0;
-
-uint32 unk_mesh_group_ofs1;
-uint32 unk_mesh_group_ofs2;
-uint32 pad;
-uint32 pad;
-
 struct Unknown {
 uint32 unk;
 uint32 unk;
@@ -193,6 +178,21 @@ struct MeshBlock {
 };
 
 //----------------------------
+
+uint32 magic <format=hex>;
+uint32 pad;
+uint32 pad;
+uint32 unk_ofs;
+
+uint32 unk_ofs;
+uint32 pad;
+uint32 unk;
+uint32 unk_mesh_group_ofs0;
+
+uint32 unk_mesh_group_ofs1;
+uint32 unk_mesh_group_ofs2;
+uint32 pad;
+uint32 pad;
 
 struct Unknown unknown;
 float matrix_col[16];

@@ -11,28 +11,28 @@
 //   History: 
 //------------------------------------------------
 
-struct FileHeader {
-    uint32 magicByte;
+struct FileHead {
+    uint32 magicByte <format=hex>;
     uint32 fileLength;
     uint32 subFileCount;
     uint32 unused;
 };
 
-struct SubFileHeader {
+struct SubFileHead {
     uint32 subFileType;
     uint32 subFileLength;
     uint32 unused;
     uint32 unused;
 };
 
-struct TextureGroupSubFileHeader {
-    uint32 magicByte;
+struct TextureGroupSubFileHead {
+    uint32 magicByte <format=hex>;
     uint32 unused;
     uint32 unused;
     uint32 unknown;
 };
 
-struct BC_TextureHeader {
+struct BC_TextureHead {
     uint32 textureId;
     uint16 width;
     uint16 height;
@@ -46,7 +46,7 @@ struct BC_TextureHeader {
     uint32 unused;
 };
 
-struct SpriteHeader {
+struct SpriteHead {
     uint32 spriteId;
     uint16 x;
     uint16 y;
@@ -54,26 +54,26 @@ struct SpriteHeader {
     uint16 height;
     uint32 format;
     uint32 pixelDataLength;
-    uint32 pixelHeaderAndDataLength;
+    uint32 pixelHeadAndDataLength;
     uint32 unused;
     uint32 unknown;
 };
 
-struct FileHeader fileHeader;
-struct SubFileHeader subFileHeader;
-struct TextureGroupSubFileHeader textureGroupSubFileHeader;
-struct BC_TextureHeader BCtextureheader;
+struct FileHead file_head;
+struct SubFileHead sub_file_head;
+struct TextureGroupSubFileHead texture_group_sub_file_head;
+struct BC_TextureHead BC_texture_head;
 
 local uint32 i;
-for(i = 0; i < BCtextureheader.spriteCount; i++) {
+for(i = 0; i < BC_texture_head.spriteCount; i++) {
     struct Sprite {
-        struct SpriteHeader spriteHeader;
-        byte pixels[spriteHeader.pixelDataLength];
-    }sprite[BCtextureheader.spriteCount] <optimize=false>;
+        struct SpriteHead spriteHead;
+        byte pixels[spriteHead.pixelDataLength];
+    }sprite[BC_texture_head.spriteCount] <optimize=false>;
 };
 
 
-//struct SpriteHeader spriteHeader2;
-//byte pixels2[spriteHeader2.pixelDataLength];
+//struct SpriteHead spriteHead2;
+//byte pixels2[spriteHead2.pixelDataLength];
 
 //local uint32 * pI = &i;

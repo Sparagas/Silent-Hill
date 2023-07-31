@@ -17,6 +17,8 @@ def registerNoesisTypes():
 
 
 def CheckType(data):
+    if len(data) < 4:
+        return 0
     if data[:4] != b'\xff\xff\xff\xff':
         return 0
     return 1

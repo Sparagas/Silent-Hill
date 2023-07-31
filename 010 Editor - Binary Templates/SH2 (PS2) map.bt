@@ -15,91 +15,115 @@
 // simple structures (this is defining - not reading)
 //------------------------------------------------
 
-struct FileHead                           // sh2gfw_BLOCK_HEAD
+struct FileHead                      // sh2gfw_BLOCK_HEAD
 {
-    char magic[4];                        // block_id
-    uint32 global_block_offs;             // toGlobaldef
-    uint32 local_block_offs;              // toLocaldef
-    uint32 unk_raw_block_data_parms_offs; // toRawblockdataParms
-    uint32 local_tex_index_offs[3];       // toLocalTex[3]
-    uint32 local_tex_pal_offs[3];         // toLocalcluts[3]
-    uint32 local_tex_count;               // texnum
-    ubyte global_tex_count;               // globaltexnum
-    ubyte trans_tex_count;                // transtexnum
-    ubyte unk_div_flg;                    // divflg
-    ubyte unk_padc;                       // padc
+    char   magic[4];                 // block_id
+    uint32 ofs_global_block;         // toGlobaldef
+    uint32 ofs_local_block;          // toLocaldef
+    uint32 ofs_raw_block_data_parms; // toRawblockdataParms
+    uint32 ofs_local_tex_index[3];   // toLocalTex[3]
+    uint32 ofs_local_tex_pal[3];     // toLocalcluts[3]
+    uint32 num_local_tex;            // texnum
+    ubyte  num_global_tex;           // globaltexnum
+    ubyte  num_trans_tex;            // transtexnum
+    ubyte  unk_div_flg;              // divflg
+    ubyte  pad;                      // padc
 };
 
-struct UnkRawBlockDataParms
+struct RawBlockDataParms
 {
-    float matrix_TRS_maybe[12];
-    float unk[20];
+    float  matrix_col[16];
+    struct Float4 bbox[4];
+};
+
+struct Float4 {
+    float x;
+    float y;
+    float z;
+    float w;
 };
 
 struct GlobalBlockHead       // sh2gfw_BLOCKGLOBAL_HEAD
 {
     uint32 unk_gsregsamount; // gsregsamount
     uint32 unk_transamount;  // transamount
-    ubyte unk_gtexnum;       // gtexnum
-    ubyte unk_gtransnum;     // gtransnum
-    ubyte pad[6];            // pads / pad2
+    ubyte  unk_gtexnum;      // gtexnum
+    ubyte  unk_gtransnum;    // gtransnum
+    ubyte  pad[6];           // pads / pad2
 };
 
 struct LocalBlockHead           // sh2gfw_BLOCKLOCAL_HEAD
 {
     uint16 unk_gsregsamount[3]; // gsregsamount[3]
     uint16 unk_transamount[3];  // transamount[3]
-    uint16 main_mesh_count;     // ltexnum
-    ubyte pad[2];               // pads
+    ubyte  num_mesh;            // ltexnum
+    ubyte  pad[3];              // pads
 };
 
-struct MainMeshHead        // sh2gfw_GSREGS_HEAD
+struct Mesh
 {
-    uint32 mesh_size;      // clutssize
-    uint32 next_mesh_offs; // toNextDATA
-    uint32 tex_data_offs;  // toTexHead
-    ubyte sub_mesh_count;  // clutamount
-    ubyte trans_count;     // transamount
-    ubyte unk_eop_flg;     // eop_flg
-    ubyte unk_tr_flg;      // tr_flg
-    ubyte unk_fmt[16];     // fmt[16]
-    ubyte unk_trans[16];   // ransparency[16]
+    struct MeshHead mesh_head;
+    struct MeshBody mesh_body;
 };
 
-struct SubMeshHead            // sh2gfw_GIFTAG_HEAD
+struct MeshHead       // sh2gfw_GSREGS_HEAD
 {
-    uint16 unk_gsregs_count;  // gsregs_amount
-    ubyte unk_trans_flg;      // trans_flg
-    ubyte unk_eop_flg;        // eop_flg
-    uint32 next_submesh_offs; // toNextGIFHEAD
-    uint16 sub_mesh_index;    // id
-    ubyte unk_tcc;            // tcc
-    ubyte unk_tfx;            // tfx
-    ubyte unk_abe;            // abe
-    ubyte pad[3];             // pad1 / pad2 / pad3
+    uint32 len_mesh;      // clutslen
+    uint32 ofs_next_mesh; // toNextDATA
+    uint32 ofs_tex_data;  // toTexHead
+    ubyte  num_vert;      // clutamount
+    ubyte  num_trans;     // transamount
+    ubyte  unk_eop_flg;   // eop_flg
+    ubyte  unk_tr_flg;    // tr_flg
+    ubyte  unk_fmt[16];   // fmt[16]
+    ubyte  unk_trans[16]; // ransparency[16]
+};
+
+struct MeshBody
+{
+    local int i;
+    for (i=0; i<mesh_head.num_vert; i++)
+    {
+        struct Vert vert;
+        if (vert.vert_head.ofs_next_vert > 0)
+            FSeek(vert.vert_head.ofs_next_vert);
+    };
+};
+
+struct VertHead            // sh2gfw_GIFTAG_HEAD
+{
+    uint16 num_unk_gsregs; // gsregs_amount
+    ubyte  unk_trans_flg;  // trans_flg
+    ubyte  unk_eop_flg;    // eop_flg
+    uint32 ofs_next_vert;  // toNextGIFHEAD
+    uint16 vert_index;     // id
+    ubyte  unk_tcc;        // tcc
+    ubyte  unk_tfx;        // tfx
+    ubyte  unk_abe;        // abe
+    ubyte  pad[3];         // pad1 / pad2 / pad3
     //it ends here in debug
-    float unkF;
-    float unkF;
+    float  unkF;
+    float  unkF;
     uint32 unk;
     uint32 unk;
 
     uint32 unk;
-    ubyte unk;
-    ubyte unk;
-    ubyte unk;
-    ubyte unk;
-    uint32 size_plus144;
+    ubyte  unk;
+    ubyte  unk;
+    ubyte  unk;
+    ubyte  unk;
+    uint32 len_plus144;
     uint32 unk;
-    uint16 vert_count;
+    uint16 num_vert;
     uint16 unk;
-    uint32 size_plus112;
+    uint32 len_plus112;
     uint32 unk;
     uint16 unk;
     uint16 unk;
-    char pad_zero[96];
+    char   pad_0[96];
 };
 
-struct VertAttr
+struct VertBody
 {
     int16 vp_x;
     int16 vp_y;
@@ -118,32 +142,32 @@ struct ImgIndexHead        // sh2gfw_TEX_HEAD
     uint16 unk_y;          // y
     uint16 width;          // w
     uint16 height;         // h
-    ubyte unk_color;       // color
-    ubyte len_pad;         // padbyte
+    ubyte  unk_color;      // color
+    ubyte  len_pad;        // padbyte
     uint16 unk_importance; // importance
-    uint32 body_size;      // datasize
-    uint32 all_size;       // allsize
-    ubyte unk_sendpsm;     // sendpsm
-    ubyte unk_drawpsm;     // drawpsm
-    ubyte unk_bitshift;    // bitshift
-    ubyte unk_tagpoint;    // tagpoint
-    ubyte unk_bitw;        // bitw
-    ubyte unk_bith;        // bith
+    uint32 body_len;       // datalen
+    uint32 all_len;        // alllen
+    ubyte  unk_sendpsm;    // sendpsm
+    ubyte  unk_drawpsm;    // drawpsm
+    ubyte  unk_bitshift;   // bitshift
+    ubyte  unk_tagpoint;   // tagpoint
+    ubyte  unk_bitw;       // bitw
+    ubyte  unk_bith;       // bith
     uint16 unk_check;      // check
-    char unk_giftag[16];   // ???? Q_WORDDATA giftag; ????
+    char   unk_giftag[16]; // ???? Q_WORDDATA giftag; ????
 };
 
-struct ImgPalHead             // sh2gfw_CLUTS_HEAD
+struct ImgPalHead            // sh2gfw_CLUTS_HEAD
 {
-    uint32 body_size;         // clutssize
-    uint32 unk_GSREGS_offs;   // toGSREGS
-    uint32 unk_Raw_clut_offs; // toRawClut
-    ubyte pal_count;          // clutamount
-    ubyte unk_transcluts;     // transcluts
-    ubyte unk_clw;            // clw
-    ubyte unk_clh;            // clh
-    ubyte unk_fmt[16];        // fmt[16]
-    ubyte unk_trans[16];      // transparency[16]
+    uint32 body_len;         // clutslen
+    uint32 unk_GSREGS_ofs;   // toGSREGS
+    uint32 unk_Raw_clut_ofs; // toRawClut
+    ubyte  pal_num;          // clutamount
+    ubyte  unk_transcluts;   // transcluts
+    ubyte  unk_clw;          // clw
+    ubyte  unk_clh;          // clh
+    ubyte  unk_fmt[16];      // fmt[16]
+    ubyte  unk_trans[16];    // transparency[16]
 };
 
 struct RGBA
@@ -158,36 +182,25 @@ struct RGBA
 // complex structures (this is defining - not reading)
 //------------------------------------------------
 
-struct SubMesh
+struct Vert
 {
-    struct SubMeshHead S_M_H;
-    struct VertAttr V_A[S_M_H.vert_count];
+    struct VertHead vert_head;
+    struct VertBody vert_body[vert_head.num_vert];
 };
 
 struct ImgIndex
 {
     struct ImgIndexHead img_index_head;
     ubyte pad[img_index_head.len_pad];
-    ubyte img_index_body[img_index_head.body_size];
+    ubyte img_index_body[img_index_head.body_len];
 };
 
 struct ImgPal
 {
     struct ImgPalHead img_pal_head;
-    struct PalPage pal_page[img_pal_head.pal_count];
+    struct PalPage pal_page[img_pal_head.pal_num];
 
 };
-
-//------------------------------------------------
-// local variables (used for parsing, and are not part of file format)
-//------------------------------------------------
-
-local ubyte i;
-local ubyte j;
-
-//------------------------------------------------
-// parsing sequance (the acutal reading of a file)
-//------------------------------------------------
 
 struct PalPart
 {
@@ -202,51 +215,50 @@ struct PalPage
     struct PalPart pal_part[4];
 };
 
-struct FileHead F_H;
-FSeek(F_H.unk_raw_block_data_parms_offs);
-struct UnkRawBlockDataParms U_R_B_D_P;
+//------------------------------------------------
+// local variables (used for parsing, and are not part of file format)
+//------------------------------------------------
 
-if (F_H.global_block_offs != 0)
+local ubyte i;
+
+//------------------------------------------------
+// parsing sequance (the acutal reading of a file)
+//------------------------------------------------
+
+struct FileHead file_head;
+FSeek(file_head.ofs_raw_block_data_parms);
+struct RawBlockDataParms raw_block_data_parms;
+
+if (file_head.ofs_global_block != 0)
 {
-    FSeek(F_H.global_block_offs);
-    struct GlobalBlockHead G_B_H;
-    struct MainMeshHead M_M_H;
-    
-    for (i=0; i<M_M_H.sub_mesh_count; i++)
+    FSeek(file_head.ofs_global_block);
+    struct GlobalBlockHead global_block_head;
+    struct Mesh mesh;
+};
+
+if (file_head.ofs_local_block != 0)
+{
+    FSeek(file_head.ofs_local_block);
+    struct LocalBlockHead local_block_head;
+    for (i=0; i<local_block_head.num_mesh; i++)
     {
-        struct SubMesh S_M;
-        FSeek(S_M.S_M_H.next_submesh_offs);
+        struct Mesh mesh;
+        FSeek(mesh.mesh_head.ofs_next_mesh);
     };
 };
 
-if (F_H.local_block_offs != 0)
-{
-    FSeek(F_H.local_block_offs);
-    struct LocalBlockHead L_B_H;
-    for (i=0; i<L_B_H.main_mesh_count; i++)
-    {
-        struct MainMeshHead M_M_H;  
-        for (j=0; j<M_M_H.sub_mesh_count; j++)
-        {
-            struct SubMesh S_M;
-            FSeek(S_M.S_M_H.next_submesh_offs);
-        };
-        FSeek(M_M_H.next_mesh_offs);
-    };
-};
-
-for (i=0; i<F_H.local_tex_count; i++)
+for (i=0; i<file_head.num_local_tex; i++)
 {
 
-    if (F_H.local_tex_index_offs[i] != 0)
+    if (file_head.ofs_local_tex_index[i] != 0)
     {
-        FSeek(F_H.local_tex_index_offs[i]);
-        struct ImgIndex I_I;
+        FSeek(file_head.ofs_local_tex_index[i]);
+        struct ImgIndex img_index;
     };
     
-    if (F_H.local_tex_pal_offs[i] != 0)
+    if (file_head.ofs_local_tex_pal[i] != 0)
     {
-        FSeek(F_H.local_tex_pal_offs[i]);
-        struct ImgPal I_P;
+        FSeek(file_head.ofs_local_tex_pal[i]);
+        struct ImgPal img_pal;
     };
 };
