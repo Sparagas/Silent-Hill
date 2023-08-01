@@ -11,6 +11,8 @@
 //   History: 
 //------------------------------------------------
 
+local int IsLittleEndian = IsLittleEndian();
+
 //------------------------------------------------
 // simple structures (this is defining - not reading)
 //------------------------------------------------
@@ -60,13 +62,23 @@ struct LocalBlockHead           // sh2gfw_BLOCKLOCAL_HEAD
     ubyte  pad[3];              // pads
 };
 
+struct LocalBlockBody
+{
+    for (i=0; i<local_block_head.num_mesh; i++)
+    {
+        struct Mesh mesh;
+        if (mesh.mesh_head.ofs_next_mesh > 0)
+            FSeek(mesh.mesh_head.ofs_next_mesh);
+    };
+};
+
 struct Mesh
 {
     struct MeshHead mesh_head;
     struct MeshBody mesh_body;
 };
 
-struct MeshHead       // sh2gfw_GSREGS_HEAD
+struct MeshHead           // sh2gfw_GSREGS_HEAD
 {
     uint32 len_mesh;      // clutslen
     uint32 ofs_next_mesh; // toNextDATA
@@ -88,6 +100,16 @@ struct MeshBody
         if (vert.vert_head.ofs_next_vert > 0)
             FSeek(vert.vert_head.ofs_next_vert);
     };
+};
+
+struct Vert
+{
+    struct VertHead vert_head;
+    LittleEndian();
+    struct VertBody vert_body[vert_head.num_vert];
+    if (IsLittleEndian == 0)
+		BigEndian();
+
 };
 
 struct VertHead            // sh2gfw_GIFTAG_HEAD
@@ -182,17 +204,11 @@ struct RGBA
 // complex structures (this is defining - not reading)
 //------------------------------------------------
 
-struct Vert
-{
-    struct VertHead vert_head;
-    struct VertBody vert_body[vert_head.num_vert];
-};
-
 struct ImgIndex
 {
     struct ImgIndexHead img_index_head;
-    ubyte pad[img_index_head.len_pad];
-    ubyte img_index_body[img_index_head.body_len];
+    ubyte  pad[img_index_head.len_pad];
+    ubyte  img_index_body[img_index_head.body_len];
 };
 
 struct ImgPal
@@ -233,18 +249,14 @@ if (file_head.ofs_global_block != 0)
 {
     FSeek(file_head.ofs_global_block);
     struct GlobalBlockHead global_block_head;
-    struct Mesh mesh;
+    struct Mesh global_mesh;
 };
 
 if (file_head.ofs_local_block != 0)
 {
     FSeek(file_head.ofs_local_block);
     struct LocalBlockHead local_block_head;
-    for (i=0; i<local_block_head.num_mesh; i++)
-    {
-        struct Mesh mesh;
-        FSeek(mesh.mesh_head.ofs_next_mesh);
-    };
+    struct LocalBlockBody local_block_body;
 };
 
 for (i=0; i<file_head.num_local_tex; i++)

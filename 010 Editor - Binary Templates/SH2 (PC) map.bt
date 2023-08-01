@@ -19,10 +19,16 @@ struct FileHead {
 };
 
 struct SubFileHead {
-    uint32 subFileType;
+    enum subFileType sub_file_type;
     uint32 subFileLength;
     uint32 unused;
     uint32 unused;
+};
+
+enum subFileType
+{
+    geometry = 1,
+    texture_group
 };
 
 struct TextureGroupSubFileHead {
@@ -40,7 +46,7 @@ struct BC_TextureHead {
     uint16 height2;
     uint32 spriteCount;
     uint16 unknown;
-    uint16 textureId2;
+    uint16 unknown2;
     uint32 unused;
     uint32 unused;
     uint32 unused;
@@ -59,21 +65,48 @@ struct SpriteHead {
     uint32 unknown;
 };
 
-struct FileHead file_head;
-struct SubFileHead sub_file_head;
-struct TextureGroupSubFileHead texture_group_sub_file_head;
-struct BC_TextureHead BC_texture_head;
-
-local uint32 i;
-for(i = 0; i < BC_texture_head.spriteCount; i++) {
-    struct Sprite {
-        struct SpriteHead spriteHead;
+struct Sprite {
+    struct SpriteHead spriteHead;
+    if (spriteHead.pixelDataLength > 0)
         byte pixels[spriteHead.pixelDataLength];
-    }sprite[BC_texture_head.spriteCount] <optimize=false>;
 };
 
+struct BCTexture {
+    struct BC_TextureHead BC_texture_head;
+    struct Sprite sprite[BC_texture_head.spriteCount] <optimize=false>;
+};
 
-//struct SpriteHead spriteHead2;
-//byte pixels2[spriteHead2.pixelDataLength];
+struct TextureGroupSubFile {
+    struct TextureGroupSubFileHead texture_group_sub_file_head;
+    local int tmp;
+    while (tmp = ReadInt())
+        struct BCTexture BC_texture;
+    uint32 pad[4]; 
+};
 
-//local uint32 * pI = &i;
+//------------------------------------------------
+
+struct GeometryGroupSubFileHead {
+    uint32 magicByte <format=hex>;
+    uint32 geometryCount;
+    uint32 geometrySize;
+    uint32 materialCount;
+};
+
+//------------------------------------------------
+
+struct FileBody {
+    struct SubFileHead sub_file_head;
+    switch (sub_file_head.sub_file_type) {
+        case 1 :
+            struct GeometryGroupSubFileHead geometry_group_sub_file_head;
+            break;
+        case 2 :
+            struct TextureGroupSubFile texture_group_sub_file;
+            break;
+    };
+};
+
+struct FileHead file_head;
+struct FileBody file_body[file_head.subFileCount] <optimize=false>;
+
