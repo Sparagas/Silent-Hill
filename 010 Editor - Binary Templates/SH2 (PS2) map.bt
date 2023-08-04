@@ -258,7 +258,7 @@ if (file_head.ofs_local_block != 0)
     struct LocalBlockHead local_block_head;
     struct LocalBlockBody local_block_body;
 };
-
+LittleEndian();
 for (i=0; i<file_head.num_local_tex; i++)
 {
 
