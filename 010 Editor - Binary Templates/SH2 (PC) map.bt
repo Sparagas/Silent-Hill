@@ -93,6 +93,57 @@ struct GeometryGroupSubFileHead {
     uint32 materialCount;
 };
 
+struct GeometryHead {
+    OffsetSetStart(FTell());
+    uint32 geometryId;
+    uint32 meshGroupSize;
+    uint32 offsetToOpaqueGroup;
+    uint32 offsetToTransparentGroup;
+    uint32 offsetToDecals;
+};
+
+struct MapDecalGroupHead {
+    OffsetSetStart(FTell());
+    uint32 decalCount;
+    uint32 decalOffsets[decalCount];
+};
+
+struct MapDecalHead {
+    OffsetClear();
+    OffsetSetStart(FTell());
+    struct VPosF4 boundingBoxA;
+    struct VPosF4 boundingBoxB;
+    uint32 offsetToVertexSectionHeader;
+    uint32 offsetToIndices;
+    uint32 indicesLength;
+    uint32 decalCount;
+};
+
+struct VPosF4 {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct SubDecal {
+    uint32 materialIndex;
+    uint32 sectionId;
+    uint32 stripLength;
+    uint32 stripCount;
+};
+
+struct VertexSectionsHeader {
+    uint32 verticesLength;
+    uint32 vertexSectionCount;
+};
+
+struct VertexSectionHeader {
+    uint32 sectionStarts;
+    uint32 vertexSize;
+    uint32 sectionLength;
+};
+
 //------------------------------------------------
 
 struct FileBody {
@@ -100,6 +151,25 @@ struct FileBody {
     switch (sub_file_head.sub_file_type) {
         case 1 :
             struct GeometryGroupSubFileHead geometry_group_sub_file_head;
+            struct GeometryHead geometry_head;
+            if (geometry_head.offsetToOpaqueGroup > 0) {
+                FSeek(geometry_head.offsetToOpaqueGroup);
+                uint32 TODO; // TODO
+            }
+            if (geometry_head.offsetToTransparentGroup > 0) {
+                FSeek(offsetToTransparentGroup);
+                uint32 TODO; // TODO
+            }
+            if (geometry_head.offsetToDecals > 0) {
+                FSeek(geometry_head.offsetToDecals);
+                struct MapDecalGroupHead map_decal_group_head;
+                struct MapDecalHead map_decal_head;
+                struct SubDecal sub_decal[map_decal_head.decalCount];
+                FSeek(map_decal_head.offsetToVertexSectionHeader);
+                struct VertexSectionsHeader vertex_sections_header;
+                struct VertexSectionHeader vertex_section_header[vertex_sections_header.vertexSectionCount];
+                uint32 TODO[vertex_section_header.sectionLength / 4]; // TODO
+            }
             break;
         case 2 :
             struct TextureGroupSubFile texture_group_sub_file;
@@ -109,4 +179,3 @@ struct FileBody {
 
 struct FileHead file_head;
 struct FileBody file_body[file_head.subFileCount] <optimize=false>;
-
