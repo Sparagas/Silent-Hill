@@ -1,0 +1,36 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+// CD mode 1 binary template
+struct SECTOR {
+    // Sync pattern
+    char sync [12] <bgcolor=cLtGray>;
+    // Header
+    struct HEADER {
+        // Minute of start address
+        uchar minute;
+        // Second of start address
+        uchar second;
+        // Frame of start address
+        uchar frame;
+        // Mode (should be 1)
+        uchar mode;
+    } header <bgcolor=cLtGray>;
+    // Data
+    char data [2048] <bgcolor=cLtYellow>;
+    // Error detection code
+    int edc <bgcolor=cLtGray>;
+    // Reserved
+    char reserved [8] <bgcolor=cLtGray>;
+    // Error correction code
+    char ecc [276] <bgcolor=cLtGray>;
+} sector [FileSize() / 2352];
