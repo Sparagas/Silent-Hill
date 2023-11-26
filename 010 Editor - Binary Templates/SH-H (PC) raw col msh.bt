@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -12,7 +12,8 @@
 //------------------------------------------------
 
 uint32 magic;
+Assert(magic == 7009, "Not Silent Hill: Homecoming colision file");
 uint32 num_vbuf;
-float vbuf[num_vbuf];
+float  vbuf[num_vbuf];
 uint32 num_fbuf;
 uint16 fbuf[num_fbuf];

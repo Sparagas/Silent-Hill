@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -11,28 +11,27 @@
 //   History: 
 //------------------------------------------------
 
-struct Header
-{
-    char magic[4];
-    ubyte unk0[4];
+struct Header {
+    char   magic[4];
+    ubyte  unk0[4];
     uint32 unk1;
     uint32 data_size;
 };
 
-struct Names
-{
-    uint16 unkn;
-    uint32 len;
-    char name[len];
-};
+//------------------------------------------------
 
 struct Header EIFF;
+Assert(EIFF.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
 struct Header PGPC;
-
-FSeek(PGPC.data_size + 32);
+ubyte  TODO[PGPC.data_size];
 struct Header DPND;
+Assert(DPND.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
 uint32 count;
 local int i;
 for (i = 0; i < count; i++) {
-    struct Names name;
-};
+    struct Names {
+        uint16 unkn;
+        uint32 len;
+        char   name[len];
+    } name;
+}

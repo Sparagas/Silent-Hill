@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -11,26 +11,24 @@
 //   History: 
 //------------------------------------------------
 
-struct Header
-{
-    char magic[4];
+struct Header {
+    char  magic[4];
+    Assert(magic == "SYT", "Not Silent Hill: Homecoming SYT file");
     ubyte unk0[4];
     ubyte unk1[4];
     ubyte unk2[4];
-};
+} header;
 
-struct Header header;
-
-ubyte unk0[4];
-ubyte unk1[4];
-ubyte unk2[4];
+ubyte  unk0[4];
+ubyte  unk1[4];
+ubyte  unk2[4];
 uint32 tex_width;
 uint32 tex_height;
 uint32 unk3;
 uint32 unk4;
 uint32 unk5;
 uint32 unk6;
-char tex_name[32];
+char   tex_name[32];
 uint32 tex_width_2;
 uint32 tex_height_2;
-char unk7[36];
+char   unk7[36];
