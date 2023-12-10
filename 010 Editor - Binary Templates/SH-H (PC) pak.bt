@@ -11,15 +11,6 @@
 //   History: 
 //------------------------------------------------
 
-struct MiniEntry {
-    char   name[64];
-    uint32 ofs;
-    uint32 size;
-    uint32 unk;
-};
-
-//------------------------------------------------
-
 struct Header {
     char   magic[4];
     Assert(magic == "PAK_", "Not Silent Hill: Homecoming PAK_ file");
@@ -28,13 +19,22 @@ struct Header {
     ubyte  unk1[4];
 } header;
 
-struct Entry {
-    char   name[64];
-    uint32 indexFlag;
-    time_t timestamp;
-    uint32 ofs;
-    uint32 size;
-    int16  fileIndex;
-    uint16 unk0;
-    uint32 unk1;
-} entry[header.num_files];
+if (FileNameGetBase(GetFileName()) == "SHADERS.PAK" || FileNameGetBase(GetFileName()) == "SHADERSL.PAK") {
+    struct MiniEntry {
+        char   name[64];
+        uint32 ofs;
+        uint32 size;
+        uint32 unk;
+    } entry[header.num_files];
+} else {
+    struct Entry {
+        char   name[64];
+        uint32 indexFlag;
+        time_t timestamp;
+        uint32 ofs;
+        uint32 size;
+        int16  fileIndex;
+        uint16 unk0;
+        uint32 unk1;
+    } entry[header.num_files];
+}

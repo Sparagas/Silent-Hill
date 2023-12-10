@@ -1,0 +1,23 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Entry {
+    uint32 len;
+    char   name[len];
+};
+
+//------------------------------------------------
+
+struct Head PTMC_hdr;
+ubyte  TODO[PGPC_hdr.data_size];
+// struct Entry entry[8] <optimize=false>;

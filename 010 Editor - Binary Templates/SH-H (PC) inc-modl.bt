@@ -1,0 +1,127 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+struct SubHead {
+    uint32 offset;
+    ubyte  unk_00[4];
+    uint32 size;
+    uint32 unk0;
+    uint32 unk1;
+};
+
+struct BufInfo_Data {
+    uint32 num_unk;
+    uint32 faces_buf_size_2;
+    ubyte  unk0;
+    ubyte  faces_buf_u16_or_u32;
+    uint16 faces_buf_list_or_strip;
+    uint32 verts_buf_size_2;
+    ubyte  verts_buf_byte_mode;
+    ubyte  unk1[3];
+    uint32 UVs_buf_size_2;
+    ubyte  UVs_buf_byte_mode;
+    ubyte  unk2;
+};
+
+struct FacesU32List {
+    uint32 tri_id_0;
+    uint32 tri_id_1;
+    uint32 tri_id_2;
+};
+
+struct FacesU16List {
+    uint16 tri_id_0;
+    uint16 tri_id_1;
+    uint16 tri_id_2;
+};
+
+struct Verts {
+    float vert_x;
+    float vert_y;
+    float vert_z;
+    ubyte unk0[4];
+    ubyte unk1[4];
+    ubyte unk2[4];
+};
+
+struct UVs {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  u;
+    float  v;
+    uint32 unk0; // uncomment if it is with additional uint32s
+    uint32 unk1; // uncomment if it is with additional uint32s
+    uint32 unk2; // uncomment if it is with additional uint32s
+    uint32 unk3; // uncomment if it is with additional uint32s
+    uint32 unk4; // uncomment if it is with additional uint32s
+    uint32 unk5; // uncomment if it is with additional uint32s
+};
+
+//------------------------------------------------
+
+
+struct Head MODL_hdr;
+struct MODL_DAT {
+    uint32 unk0;
+    ubyte  unk1[16];
+    uint32 unk2;
+    ubyte  unk_FF[4];
+    uint32 unk_6;
+    uint32 unk_20;
+    uint32 n_mesh;
+    uint32 unk_720;
+    struct SubHead unk0_head;
+    struct SubHead unk_tex_head;
+    struct SubHead buf_info_head;
+    struct SubHead faces_head;
+    struct SubHead verts_head;
+    struct SubHead uvs_head;
+
+    FSeek(unk0_head.offset);
+    ubyte  unk0_data[unk0_head.size];
+
+    FSeek(unk_tex_head.offset);
+    ubyte  unk_tex_data[unk_tex_head.size];
+
+    FSeek(buf_info_head.offset);
+    struct BufInfo_Data buf_info_d;
+
+    FSeek(faces_head.offset);
+    struct Faces_dat {
+        if (buf_info_d.faces_buf_u16_or_u32 == 0 && buf_info_d.faces_buf_list_or_strip == 0)
+            struct FacesU32List faces_u32_list[faces_head.size / 12];
+
+        if (buf_info_d.faces_buf_u16_or_u32 == 1 && buf_info_d.faces_buf_list_or_strip == 0)
+            struct FacesU16List faces_u16_list[faces_head.size / 6];
+
+        if (buf_info_d.faces_buf_u16_or_u32 == 0 && buf_info_d.faces_buf_list_or_strip == 1)
+            uint32 faces_u32_strip[faces_head.size / 4];
+
+        if (buf_info_d.faces_buf_u16_or_u32 == 1 && buf_info_d.faces_buf_list_or_strip == 1)
+            uint16 faces_u16_strip[faces_head.size / 2];
+    } faces_dat;
+
+    FSeek(verts_head.offset);
+    struct Verts verts_d[verts_head.size / 24];
+
+    FSeek(uvs_head.offset);
+    ubyte  uvs_data[uvs_head.size];
+    // struct UVs uvs_d[uvs_head.size / 12]; // sometimes this without additional uint32s
+    // struct UVs uvs_d[uvs_head.size / 20]; // sometimes this with additional uint32s
+    // struct UVs uvs_d[uvs_head.size / 36]; // sometimes this with additional uint32s
+
+FSeek(MODL_hdr.data_size + 32);
+} MODL_dat;
