@@ -19,5 +19,9 @@ struct Entry {
 //------------------------------------------------
 
 struct Head PTMC_hdr;
-ubyte  TODO[PGPC_hdr.data_size];
+ubyte  TODO[PTMC_hdr.data_size];
 // struct Entry entry[8] <optimize=false>;
+
+struct Head DPND_hdr;
+Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+struct DPND_DAT DPND_dat;

@@ -11,9 +11,17 @@
 //   History: 
 //------------------------------------------------
 
-struct Head PGPC_hdr;
-ubyte  TODO[PGPC_hdr.data_size];
+struct Head LVLP_hdr;
+ubyte  TODO[LVLP_hdr.data_size];
 
+struct Head INST_hdr;
+Assert(INST_hdr.magic == "INST", "Not Silent Hill: Homecoming INST file");
+ubyte  INST_dat[INST_hdr.data_size];
+
+struct Head PATH_hdr;
+Assert(PATH_hdr.magic == "PATH", "Not Silent Hill: Homecoming PATH file");
+
+// it is wrong here
 struct Head DPND_hdr;
 Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
 struct DPND_DAT DPND_dat;

@@ -123,5 +123,9 @@ struct MODL_DAT {
     // struct UVs uvs_d[uvs_head.size / 20]; // sometimes this with additional uint32s
     // struct UVs uvs_d[uvs_head.size / 36]; // sometimes this with additional uint32s
 
-FSeek(MODL_hdr.data_size + 32);
+    FSeek(MODL_hdr.data_size + 32);
 } MODL_dat;
+
+struct Head DPND_hdr;
+Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+struct DPND_DAT DPND_dat;

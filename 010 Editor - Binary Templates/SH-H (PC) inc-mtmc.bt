@@ -11,8 +11,8 @@
 //   History: 
 //------------------------------------------------
 
-struct Head PGPC_hdr;
-ubyte  TODO[PGPC_hdr.data_size];
+struct Head MTMC_hdr;
+ubyte  TODO[MTMC_hdr.data_size];
 
 struct Head DPND_hdr;
 Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
