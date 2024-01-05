@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -11,110 +11,43 @@
 //   History: 
 //------------------------------------------------
 
-struct RGB
-{
-    ubyte r;
-    ubyte g;
-    ubyte b;
+#include "color.bt"
+
+
+void clr_mode( uint64 size ) {
+    switch (clr_mode_flg) {
+        case 0 : RGB      rgb[size];      break ;
+        case 1 : RGBA     rgba[size];     break ;
+        case 2 : RGB565   rgb565[size];   break ;
+        case 3 : RGBA4444 rgba4444[size]; break ;
+        case 4 : RGBA5551 rgba5551[size]; break ;
+    }
 };
 
-struct RGBA
-{
-    ubyte r;
-    ubyte g;
-    ubyte b;
-    ubyte a;
-};
+char   magic[4];
+Assert(magic == "NOT_", "Not Silent Hill: The Escape .not file");
 
-struct RGB565
-{
-    uint16 r : 5;
-    uint16 g : 6;
-    uint16 b : 5;
-};
+enum <ubyte> Clr_Mode_Flg {
+    rgb,
+    rgba,
+    rgb565,
+    rgba4444,
+    rgba5551
+} clr_mode_flg;
 
-struct RGBA4444
-{
-    uint16 r : 4;
-    uint16 g : 4;
-    uint16 b : 4;
-    uint16 a : 4;
-};
-
-struct RGBA5551
-{
-    uint16 r : 5;
-    uint16 g : 5;
-    uint16 b : 5;
-    uint16 a : 1;
-};
-
-struct Index44
-{
-    ubyte index0 : 4;
-    ubyte index1 : 4;
-};
-
-char magic[4];
-ubyte col_mode_flg;
-ubyte img_bpp;
-ubyte num_index;
-ubyte pal_bpp;
+ubyte  img_bpp;
+ubyte  num_index;
+ubyte  pal_bpp;
 uint16 img_w;
 uint16 img_h;
 
-if(num_index == 0)
-{
-    if(col_mode_flg == 0)
-    {
-        struct RGB rgb[img_w * img_h];
-    }
-    else if(col_mode_flg == 1)
-    {
-        struct RGBA rgba[img_w * img_h];
-    }
-    else if(col_mode_flg == 2)
-    {
-        struct RGB565 rgb565[img_w * img_h];
-    }
-    else if(col_mode_flg == 3)
-    {
-        struct RGBA4444 rgba4444[img_w * img_h];
-    }
-    else if(col_mode_flg == 4)
-    {
-        struct RGBA5551 rgba5551[img_w * img_h];
-    };
-}
-else
-{
-    if(col_mode_flg == 0)
-    {
-        struct RGB rgb[num_index + 1];
-    }
-    else if(col_mode_flg == 1)
-    {
-        struct RGBA rgba[num_index + 1];
-    }
-    else if(col_mode_flg == 2)
-    {
-        struct RGB565 rgb565[num_index + 1];
-    }
-    else if(col_mode_flg == 3)
-    {
-        struct RGBA4444 rgba4444[num_index + 1];
-    }
-    else if(col_mode_flg == 4)
-    {
-        struct RGBA5551 rgba5551[num_index + 1];
-    };
+if (num_index == 0)
+    clr_mode(img_w * img_h);
+else {
+    clr_mode(num_index + 1);
 
-    if(img_bpp == 4)
-    {
-        struct Index44 index44[img_w * img_h / 2];
-    }
-    else if(img_bpp == 8)
-    {   local uint32 tmp_w = img_w; local uint32 tmp_h = img_h; // bug
-        ubyte index8[tmp_w * tmp_h];
-    };
-};
+    if (img_bpp == 4)
+        Index44 index44[img_w * img_h / 2];
+    else if (img_bpp == 8)
+        ubyte index8[( uint64 ) img_w * img_h]; // need to cast to bigger integer to not overflow
+}

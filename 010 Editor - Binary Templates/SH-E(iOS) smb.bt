@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -11,13 +11,11 @@
 //   History: 
 //------------------------------------------------
 
-struct Chunk
-{
-    byte chunk_id;
-    byte rotation;
-};
+uint16 room_count;
+ubyte  x;
+ubyte  y;
 
-uint16 instance_count;
-ubyte x;
-ubyte y;
-struct Chunk chunks[x*y];
+struct Chunk {
+    byte   chunk_id;
+    byte   rotation;
+} chunks[x * y];

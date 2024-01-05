@@ -1,0 +1,50 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct RGB {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+};
+
+struct RGBA {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+};
+
+struct RGB565 {
+    uint16 b : 5;
+    uint16 g : 6;
+    uint16 r : 5;
+};
+
+struct RGBA4444 {
+    uint16 a : 4;
+    uint16 b : 4;
+    uint16 g : 4;
+    uint16 r : 4;
+};
+
+struct RGBA5551 {
+    uint16 a : 1;
+    uint16 b : 5;
+    uint16 g : 5;
+    uint16 r : 5;
+};
+
+struct Index44 {
+    ubyte  i1 : 4;
+    ubyte  i0 : 4;
+};

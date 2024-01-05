@@ -1,62 +1,66 @@
-struct vec_3D_float4
-{
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct f32x4_geo {
     float x;
     float y;
     float z;
 	float w;
 };
 
-struct vec_3D_float3
-{
+struct f32x3_geo {
     float x;
     float y;
     float z;
 };
 
-struct vec_3D_float2
-{
+struct f32x2_geo {
     float x;
     float y;
 };
 
-struct vec_2D_float4
-{
+struct f32x4_tex {
     float s;
     float t;
     float p;
 	float q;
 };
 
-struct vec_2D_float3
-{
+struct f32x3_tex {
     float s;
     float t;
     float p;
 };
 
-struct vec_2D_float2
-{
+struct f32x2_tex {
     float s;
     float t;
 };
 
-struct vec_CL_float4
-{
+struct f32x4_clr {
     float r;
     float g;
     float b;
 	float a;
 };
 
-struct vec_CL_float3
-{
+struct f32x3_clr {
     float r;
     float g;
     float b;
 };
 
-struct vec_CL_float2
-{
+struct f32x2_clr {
     float r;
     float g;
 };
