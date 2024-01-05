@@ -5,7 +5,7 @@ This is a place for:
 * tools for modifying and extracting data
 
 ## Silent Hill series Demo list
-[Silent Hill series Demo list](../tree/docs/Demo%20list.md)
+[Silent Hill series Demo list](../main/docs/Demo%20list.md)
 
 ## Silent Hill series Tools list
-[Silent Hill series Tools list](../tree/docs/tools%20list)
+[Silent Hill series Tools list](../main/docs/tools%20list)
