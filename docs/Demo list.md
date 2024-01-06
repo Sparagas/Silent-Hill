@@ -55,15 +55,15 @@ Silent Hill: Downpour (Jun 3, 2011 14.07 prototype)<br>Silent Hill - Downpour (J
 Silent Hill: Downpour (Jun 12, 2011 prototype)<br>Silent Hill - Downpour (Jun 12, 2011 prototype)
 Silent Hill: Downpour (Jun 28, 2011 prototype)<br>Silent Hill - Downpour (Jun 28, 2011 prototype)
 Silent Hill: Downpour (Jul 11, 2011 prototype)<br>Silent Hill - Downpour (Jul 11, 2011 prototype)
-Silent Hill: Downpour (Jul 13, 2011 prototype)<br>Silent Hill - Downpour (Jul 13, 2011 prototype)|[X360] Silent Hill - Downpour [2011-07-13] (PDB) <br> ***only executables and no assets***
+Silent Hill: Downpour (Jul 13, 2011 prototype)<br>Silent Hill - Downpour (Jul 13, 2011 prototype)|[X360] Silent Hill - Downpour [2011-07-13] (PDB) <br>***only executables and no assets***
 Silent Hill: Downpour (Jul 28, 2011 prototype)<br>Silent Hill - Downpour (Jul 28, 2011 prototype)
 Silent Hill: Downpour (Aug 3, 2011 prototype)<br>Silent Hill - Downpour (Aug 3, 2011 prototype)
 Silent Hill: Downpour (Aug 4, 2011 prototype)<br>Silent Hill - Downpour (Aug 4, 2011 prototype)
 Silent Hill: Downpour (Aug 12, 2011 prototype)<br>Silent Hill - Downpour (Aug 12, 2011 prototype)
 ## Silent Hill: Downpour<br>(Sony - PlayStation 3)
-Hidden Palace|
----|
-Silent Hill: Downpour (Jan 31, 2012 prototype)<br>Silent Hill-Downpour-2012-01-31
+Redump|Hidden Palace
+---|---
+Silent Hill - Downpour (USA) (Beta) (2012-01-31)|Silent Hill: Downpour (Jan 31, 2012 prototype)<br>Silent Hill-Downpour-2012-01-31<br>***has unnecessary dumping files and readme***
 ## Silent Hill: HD Collection<br>Silent Hill: HD Edition<br>(Microsoft - Xbox 360)
 Hidden Palace| 
 ---|
