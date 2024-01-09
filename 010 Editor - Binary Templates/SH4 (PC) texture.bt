@@ -35,7 +35,7 @@ struct PalHdr {
     uint16 num_tex;
     uint32 num_pal;
     uint32 unk;
-    uint32 size_maybe;
+    uint32 DXT_hdr_ofs;
 };
 
 struct DXTHdr {
@@ -62,14 +62,19 @@ struct ImgBlock {
         FSeek(img_hdr_ofs[i]);
         ImgHdr img_hdr;
     };
+    
     for (i = 0; i < num_hdr.num_pal; i++) {
         FSeek(pal_hdr_ofs[i]);
         PalHdr pal_hdr;
     };
-    OffsetSetStart(FTell());
-    DXTHdr DXT_hdr[num_hdr.num_pal]; // unknown number
-    
+    OffsetSetStart(pal_hdr_ofs[0]);
     local uint16 j;
+    for (i = 0; i < num_hdr.num_pal; i++) {
+        FSeek(pal_hdr[i].DXT_hdr_ofs + 16 * i); // hack
+        for (j = 0; j < pal_hdr[i].num_pal; j++)
+            DXTHdr DXT_hdr;
+    };
+    // OffsetSetStart(pal_hdr[0].unk[0]);  // need fixing
     for (i = 0; i < num_hdr.num_pal; i++) {
         for (j = 0; j < 7; j++) {
             if (DXT_hdr[i].img_dat_ofs[j] > 0) {
