@@ -15,54 +15,54 @@
 // simple structures (this is defining - not reading)
 //------------------------------------------------
 
-typedef struct ImgHead {
+struct ImgHead {
     uint16 num_img;
     uint16 num_pal_group;
     uint32 unk0[3];
-} ImgHead_t;
+};
 
-typedef struct ImgMiniHead {
+struct ImgMiniHead {
     uint32 w;
     uint32 h;
     uint16 unk;
     uint16 unk;
     uint32 unk;
-} ImgMiniHead_t;
+};
 
-typedef struct PalHead {
+struct PalHead {
     uint16 unk;
     uint16 unk;
     uint32 num_pal;
     uint32 unk;
     uint32 size_maybe;
-} PalHead_t;
+};
 
-typedef struct DXTHead {
+struct DXTHead {
     ubyte temp[112];
-} DXTHead_t;
+};
 
 //------------------------------------------------
 // complex structures
 //------------------------------------------------
 
-typedef struct ImgBlock {
-    ImgHead_t img_head;
+struct ImgBlock {
+    ImgHead img_head;
     uint32 to_img[img_head.num_img];
     uint32 to_pal_group[img_head.num_pal_group];
     local uint16 i;
     for (i = 0; i < img_head.num_img; i++) {
-        FSeek(to_img[i] + block[i]);
-        ImgMiniHead_t img_mini_head;
+        FSeek(to_img[i]);
+        ImgMiniHead img_mini_head;
     };
     for (i = 0; i < img_head.num_pal_group; i++) {
-        FSeek(to_pal_group[i] + block[i]);
-        PalHead_t pal_head;
+        FSeek(to_pal_group[i]);
+        PalHead pal_head;
         };
     DXTHead DXT_head;
-} ImgBlock_t;
+};
 
 //------------------------------------------------
 // parsing sequance (the acutal reading of a file)
 //------------------------------------------------
 
-ImgBlock_t img_block;
+ImgBlock img_block;
