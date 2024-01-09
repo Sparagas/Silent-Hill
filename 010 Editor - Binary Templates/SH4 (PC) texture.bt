@@ -15,13 +15,13 @@
 // simple structures (this is defining - not reading)
 //------------------------------------------------
 
-struct ImgHead {
+struct NumHdr {
     uint16 num_img;
     uint16 num_pal_group;
     uint32 unk0[3];
 };
 
-struct ImgMiniHead {
+struct ImgHdr {
     uint32 w;
     uint32 h;
     uint16 unk;
@@ -29,16 +29,16 @@ struct ImgMiniHead {
     uint32 unk;
 };
 
-struct PalHead {
+struct PalHdr {
     uint16 unk;
-    uint16 unk;
+    uint16 num_tex;
     uint32 num_pal;
     uint32 unk;
     uint32 size_maybe;
 };
 
-struct DXTHead {
-    ubyte temp[112];
+struct DXTHdr {
+    ubyte TODO[112];
 };
 
 //------------------------------------------------
@@ -46,19 +46,19 @@ struct DXTHead {
 //------------------------------------------------
 
 struct ImgBlock {
-    ImgHead img_head;
-    uint32 to_img[img_head.num_img];
-    uint32 to_pal_group[img_head.num_pal_group];
+    NumHdr num_hdr;
+    uint32 img_hdr_ofs[num_hdr.num_img];
+    uint32 pal_hdr_ofs[num_hdr.num_pal_group];
     local uint16 i;
-    for (i = 0; i < img_head.num_img; i++) {
-        FSeek(to_img[i]);
-        ImgMiniHead img_mini_head;
+    for (i = 0; i < num_hdr.num_img; i++) {
+        FSeek(img_hdr_ofs[i]);
+        ImgHdr img_hdr;
     };
-    for (i = 0; i < img_head.num_pal_group; i++) {
-        FSeek(to_pal_group[i]);
-        PalHead pal_head;
-        };
-    DXTHead DXT_head;
+    for (i = 0; i < num_hdr.num_pal_group; i++) {
+        FSeek(pal_hdr_ofs[i]);
+        PalHdr pal_hdr;
+    };
+    DXTHdr DXT_hdr; // unk num
 };
 
 //------------------------------------------------
