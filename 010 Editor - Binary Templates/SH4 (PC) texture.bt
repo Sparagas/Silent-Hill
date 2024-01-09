@@ -49,12 +49,13 @@ typedef struct ImgBlock {
     ImgHead_t img_head;
     uint32 to_img[img_head.num_img];
     uint32 to_pal_group[img_head.num_pal_group];
-    for (j = 0; j < img_head.num_img; j++) {
-        FSeek(to_img[j] + block[i]);
+    local uint16 i;
+    for (i = 0; i < img_head.num_img; i++) {
+        FSeek(to_img[i] + block[i]);
         ImgMiniHead_t img_mini_head;
     };
-    for (j = 0; j < img_head.num_pal_group; j++) {
-        FSeek(to_pal_group[j] + block[i]);
+    for (i = 0; i < img_head.num_pal_group; i++) {
+        FSeek(to_pal_group[i] + block[i]);
         PalHead_t pal_head;
         };
     DXTHead DXT_head;

@@ -14,13 +14,13 @@
 #include "color.bt"
 
 
-void clr_mode( uint64 size ) {
+void clr_mode(uint64 size) {
     switch (clr_mode_flg) {
-        case 0 : RGB      rgb[size];      break ;
-        case 1 : RGBA     rgba[size];     break ;
-        case 2 : RGB565   rgb565[size];   break ;
-        case 3 : RGBA4444 rgba4444[size]; break ;
-        case 4 : RGBA5551 rgba5551[size]; break ;
+        case 0 : RGB      rgb[size];      break;
+        case 1 : RGBA     rgba[size];     break;
+        case 2 : RGB565   rgb565[size];   break;
+        case 3 : RGBA4444 rgba4444[size]; break;
+        case 4 : RGBA5551 rgba5551[size]; break;
     }
 };
 
@@ -49,5 +49,5 @@ else {
     if (img_bpp == 4)
         Index44 index44[img_w * img_h / 2];
     else if (img_bpp == 8)
-        ubyte index8[( uint64 ) img_w * img_h]; // need to cast to bigger integer to not overflow
+        ubyte index8[(uint64) img_w * img_h]; // need to cast to bigger integer to not overflow
 }

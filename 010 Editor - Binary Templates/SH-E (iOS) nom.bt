@@ -16,7 +16,7 @@
 
 char   magic[4];
 Assert(magic == "NOM_", "Not Silent Hill: The Escape .nom file");
-uint32 mesh_count;
+uint32 num_mesh;
 
 struct Mesh {
     char   mesh_name[16];
@@ -46,7 +46,7 @@ struct Mesh {
     
     if (texture_name[0] != 0) {
         uint16 texcoord_index[num_index];
-        uint32 texcoord_count;
-        f32x2_tex texcoord[texcoord_count];
+        uint32 num_texcoord;
+        f32x2_tex texcoord[num_texcoord];
     }
-} mesh[mesh_count] < optimize = false >;
+} mesh[num_mesh] <optimize = false>;
