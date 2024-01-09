@@ -17,14 +17,15 @@
 
 struct NumHdr {
     uint16 num_img;
-    uint16 num_pal_group;
+    uint16 num_pal;
     uint32 unk0[3];
 };
 
 struct ImgHdr {
     uint32 w;
     uint32 h;
-    uint16 unk;
+    ubyte  unk;
+    ubyte  unk;
     uint16 unk;
     uint32 unk;
 };
@@ -38,7 +39,14 @@ struct PalHdr {
 };
 
 struct DXTHdr {
-    ubyte TODO[112];
+    ubyte  unk0[32];
+    uint32 w;
+    uint32 h;
+    ubyte  type[4];
+    uint32 num_mipmap; // including original image
+    ubyte  unk1[32];
+    uint32 img_dat_ofs[7]; // counting from DXTHdr list
+    uint32 unk2;
 };
 
 //------------------------------------------------
@@ -48,17 +56,28 @@ struct DXTHdr {
 struct ImgBlock {
     NumHdr num_hdr;
     uint32 img_hdr_ofs[num_hdr.num_img];
-    uint32 pal_hdr_ofs[num_hdr.num_pal_group];
+    uint32 pal_hdr_ofs[num_hdr.num_pal];
     local uint16 i;
     for (i = 0; i < num_hdr.num_img; i++) {
         FSeek(img_hdr_ofs[i]);
         ImgHdr img_hdr;
     };
-    for (i = 0; i < num_hdr.num_pal_group; i++) {
+    for (i = 0; i < num_hdr.num_pal; i++) {
         FSeek(pal_hdr_ofs[i]);
         PalHdr pal_hdr;
     };
-    DXTHdr DXT_hdr; // unk num
+    OffsetSetStart(FTell());
+    DXTHdr DXT_hdr[num_hdr.num_pal]; // unknown number
+    
+    local uint16 j;
+    for (i = 0; i < num_hdr.num_pal; i++) {
+        for (j = 0; j < 7; j++) {
+            if (DXT_hdr[i].img_dat_ofs[j] > 0) {
+                FSeek(DXT_hdr[i].img_dat_ofs[j]);
+                uint32 img_start_TODO;
+            }
+        };
+    };
 };
 
 //------------------------------------------------
