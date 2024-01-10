@@ -16,8 +16,7 @@
 //------------------------------------------------
 
 local uint32 local_ofs;
-local uint32 i;
-local uint32 j;
+local uint32 k;
 local uint16 temp0;
 local uint16 temp1;
 
@@ -26,20 +25,26 @@ local uint16 temp1;
 //------------------------------------------------
 
 uint32 num_block;
-uint32 block[num_block];
+uint32 block_ofs[num_block];
 
-for (i = 0; i < num_block; i++) {
-    local_ofs = block[i];
-    FSeek(block[i]);
+for (k = 0; k < num_block; k++) {
+    local_ofs = block_ofs[k];
+    FSeek(block_ofs[k]);
     temp0 = ReadUShort();
-    FSeek(block[i]+2);
+    FSeek(block_ofs[k]+2);
     temp1 = ReadUShort();
-    FSeek(block[i]);
+    FSeek(block_ofs[k]);
 
     if (temp0 == temp1) { // texture block
-        #include "SH4 (PC) texture.bt"
+        OffsetSetStart(FTell());
+        struct ImgBlock {
+            #include "SH4 (PC) texture.bt"
+        } img_block;
+        OffsetClear();
+
     } else if (temp0 == 0x7000 && temp1 == 0x0FC0) { // shadow mesh block
-        #include "SH4 (PC) shadow mesh.bt"
+        //#include "SH4 (PC) shadow mesh.bt"
+        uint32 shadow_mesh_block;
     } else if (temp0 == 0xFF11) { // world collision mesh block
         uint32 world_collision_mesh_block;
     } else if (temp0 == 0x0003) { // character mesh block

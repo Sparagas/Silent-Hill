@@ -11,82 +11,68 @@
 //   History: 
 //------------------------------------------------
 
-//------------------------------------------------
-// simple structures (this is defining - not reading)
-//------------------------------------------------
+uint16 num_img0;
+uint16 num_img1;
+Assert(num_img0 == num_img1, "num_img0 is not equal to num_img1");
+uint32 unk_0[3];
+uint32 img_hdr0_ofs[num_img0];
+uint32 img_hdr1_ofs[num_img0];
 
-struct NumHdr {
-    uint16 num_img;
-    uint16 num_pal;
-    uint32 unk0[3];
+local uint16 i;
+for (i = 0; i < num_img0; i++) {
+    FSeek(img_hdr0_ofs[i]);
+    struct ImgHdr0 {
+        uint32 w;
+        uint32 h;
+        ubyte  unk_flag0;
+        ubyte  unk_flag1;
+        uint16 unk_flag2;
+        uint32 unk_0;
+    } img_hdr0;
 };
 
-struct ImgHdr {
-    uint32 w;
-    uint32 h;
-    ubyte  unk;
-    ubyte  unk;
-    uint16 unk;
-    uint32 unk;
+for (i = 0; i < num_img0; i++) {
+    FSeek(img_hdr1_ofs[i]);
+    struct ImgHdr1 {
+        uint16 unk_0;
+        uint16 num_img_grp;
+        uint32 num_img;
+        uint32 unk_0;
+        uint32 img_hdr2_ofs;
+    } img_hdr1;
 };
 
-struct PalHdr {
-    uint16 unk;
-    uint16 num_tex;
-    uint32 num_pal;
-    uint32 unk;
-    uint32 DXT_hdr_ofs;
+OffsetSetStart(OffsetGetStart() + img_hdr1_ofs[0]);
+local uint16 j;
+for (i = 0; i < num_img0; i++) {
+    FSeek(img_hdr1[i].img_hdr2_ofs + 16 * i); // counting from img_hdr0[i]
+    for (j = 0; j < img_hdr1[i].num_img; j++)
+        struct ImgHdr2 {
+            ubyte  unk_0[32];
+            uint32 w;
+            uint32 h;
+            enum ImgFrm {
+                RGBA = 21,
+                DXT1 = 827611204,
+                DXT3 = 861165636,
+                DXT5 = 894720068
+            } img_frm;
+            uint32 num_mipmap;         // including original image
+            uint32 mipmap_size[7];
+            uint32 num_mipmap_dat_ofs;
+            uint32 mipmap_dat_ofs[7];  // counting from DXTHdr list
+            uint32 unk_ofs;
+        } img_hdr2;
 };
 
-struct DXTHdr {
-    ubyte  unk0[32];
-    uint32 w;
-    uint32 h;
-    ubyte  type[4];
-    uint32 num_mipmap; // including original image
-    ubyte  unk1[32];
-    uint32 img_dat_ofs[7]; // counting from DXTHdr list
-    uint32 unk2;
-};
-
-//------------------------------------------------
-// complex structures
-//------------------------------------------------
-
-struct ImgBlock {
-    NumHdr num_hdr;
-    uint32 img_hdr_ofs[num_hdr.num_img];
-    uint32 pal_hdr_ofs[num_hdr.num_pal];
-    local uint16 i;
-    for (i = 0; i < num_hdr.num_img; i++) {
-        FSeek(img_hdr_ofs[i]);
-        ImgHdr img_hdr;
-    };
-    
-    for (i = 0; i < num_hdr.num_pal; i++) {
-        FSeek(pal_hdr_ofs[i]);
-        PalHdr pal_hdr;
-    };
-    OffsetSetStart(pal_hdr_ofs[0]);
-    local uint16 j;
-    for (i = 0; i < num_hdr.num_pal; i++) {
-        FSeek(pal_hdr[i].DXT_hdr_ofs + 16 * i); // hack
-        for (j = 0; j < pal_hdr[i].num_pal; j++)
-            DXTHdr DXT_hdr;
-    };
-    // OffsetSetStart(pal_hdr[0].unk[0]);  // need fixing
-    for (i = 0; i < num_hdr.num_pal; i++) {
-        for (j = 0; j < 7; j++) {
-            if (DXT_hdr[i].img_dat_ofs[j] > 0) {
-                FSeek(DXT_hdr[i].img_dat_ofs[j]);
-                uint32 img_start_TODO;
-            }
-        };
+OffsetSetStart(OffsetGetStart() + img_hdr1[0].img_hdr2_ofs);
+for (i = 0; i < num_img0; i++) {
+    for (j = 0; j < 7; j++) {
+        if (img_hdr2[i].mipmap_dat_ofs[j] > 0) {
+            FSeek(img_hdr2[i].mipmap_dat_ofs[j] + 112 * i);  // counting from img_hdr1[i]
+            struct ImgDat {
+                ubyte img_dat[img_hdr2[i].mipmap_size[j]];
+            } img_dat;
+        }
     };
 };
-
-//------------------------------------------------
-// parsing sequance (the acutal reading of a file)
-//------------------------------------------------
-
-ImgBlock img_block;
