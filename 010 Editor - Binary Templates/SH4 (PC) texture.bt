@@ -18,60 +18,86 @@ uint32 unk_0[3];
 uint32 img_hdr0_ofs[num_img0];
 uint32 img_hdr1_ofs[num_img0];
 
+FSeek(img_hdr0_ofs[0]);
 local uint16 i;
-for (i = 0; i < num_img0; i++) {
-    FSeek(img_hdr0_ofs[i]);
-    struct ImgHdr0 {
-        uint32 w;
-        uint32 h;
-        ubyte  unk_flag0;
-        ubyte  unk_flag1;
-        uint16 unk_flag2;
-        uint32 unk_0;
-    } img_hdr0;
-};
+struct ImgHdr0Grp {
+    for (i = 0; i < num_img0; i++) {
+        FSeek(img_hdr0_ofs[i]);
+        struct ImgHdr0 {
+            uint32 w;
+            uint32 h;
+            ubyte  unk_flag0;
+            ubyte  unk_flag1;
+            uint16 unk_flag2;
+            uint32 nonpc_ofs;
+        } img_hdr0;
+    };
+} img_hdr0_grp;
 
+struct ImgHdr1Grp {
+    for (i = 0; i < num_img0; i++) {
+        FSeek(img_hdr1_ofs[i]);
+        struct ImgHdr1 {
+            uint16 unk_0;
+            uint16 num_img_grp;
+            uint32 num_img;
+            uint32 unk_0;
+            uint32 img_hdr2_ofs;
+        } img_hdr1;
+    };
+} img_hdr1_grp;
+
+OffsetSetStart(OffsetGetStart() + img_hdr0_ofs[0]);
 for (i = 0; i < num_img0; i++) {
-    FSeek(img_hdr1_ofs[i]);
-    struct ImgHdr1 {
-        uint16 unk_0;
-        uint16 num_img_grp;
-        uint32 num_img;
-        uint32 unk_0;
-        uint32 img_hdr2_ofs;
-    } img_hdr1;
-};
+    if (0 < img_hdr0_grp.img_hdr0[i].nonpc_ofs) {
+        FSeek(img_hdr0_grp.img_hdr0[i].nonpc_ofs + 16 * i); // counting from ...
+        struct NonPcHdr {
+            uint32 img_id;
+            uint32 img_dat_ofs;
+            uint32 unk0_0;
+            uint32 unk1;
+            uint32 unk2_0[4];
+            uint32 w;
+            uint32 h;
+            uint32 unk3;
+            uint32 img_dat_ofs;
+        } nonpc_hdr;
+    };
+}
+OffsetSetStart(OffsetGetStart() - img_hdr0_ofs[0]);
 
 OffsetSetStart(OffsetGetStart() + img_hdr1_ofs[0]);
 local uint16 j;
-for (i = 0; i < num_img0; i++) {
-    FSeek(img_hdr1[i].img_hdr2_ofs + 16 * i); // counting from img_hdr0[i]
-    for (j = 0; j < img_hdr1[i].num_img; j++)
-        struct ImgHdr2 {
-            ubyte  unk_0[32];
-            uint32 w;
-            uint32 h;
-            enum ImgFrm {
-                RGBA = 21,
-                DXT1 = 827611204,
-                DXT3 = 861165636,
-                DXT5 = 894720068
-            } img_frm;
-            uint32 num_mipmap;         // including original image
-            uint32 mipmap_size[7];
-            uint32 num_mipmap_dat_ofs;
-            uint32 mipmap_dat_ofs[7];  // counting from DXTHdr list
-            uint32 unk_ofs;
-        } img_hdr2;
-};
+struct ImgHdr2Grp {
+    for (i = 0; i < num_img0; i++) {
+        FSeek(img_hdr1_grp.img_hdr1[i].img_hdr2_ofs + 16 * i); // counting from img_hdr0[i]
+        for (j = 0; j < img_hdr1_grp.img_hdr1[i].num_img; j++)
+            struct ImgHdr2 {
+                ubyte  unk_0[32];
+                uint32 w;
+                uint32 h;
+                enum ImgFrm {
+                    RGBA = 21,
+                    DXT1 = 827611204,
+                    DXT3 = 861165636,
+                    DXT5 = 894720068
+                } img_frm;
+                uint32 num_mipmap;         // including original image
+                uint32 mipmap_size[7];
+                uint32 num_mipmap_dat_ofs;
+                uint32 mipmap_dat_ofs[7];  // counting from DXTHdr list
+                uint32 unk_ofs;
+            } img_hdr2;
+    };
+} img_hdr2_grp;
 
-OffsetSetStart(OffsetGetStart() + img_hdr1[0].img_hdr2_ofs);
+OffsetSetStart(OffsetGetStart() + img_hdr1_grp.img_hdr1[0].img_hdr2_ofs);
 for (i = 0; i < num_img0; i++) {
     for (j = 0; j < 7; j++) {
-        if (img_hdr2[i].mipmap_dat_ofs[j] > 0) {
-            FSeek(img_hdr2[i].mipmap_dat_ofs[j] + 112 * i);  // counting from img_hdr1[i]
+        if (img_hdr2_grp.img_hdr2[i].mipmap_dat_ofs[j] > 0) {
+            FSeek(img_hdr2_grp.img_hdr2[i].mipmap_dat_ofs[j] + 112 * i);  // counting from img_hdr1[i]
             struct ImgDat {
-                ubyte img_dat[img_hdr2[i].mipmap_size[j]];
+                ubyte img_dat[img_hdr2_grp.img_hdr2[i].mipmap_size[j]];
             } img_dat;
         }
     };
