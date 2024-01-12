@@ -1,14 +1,17 @@
+# Author:
+# Laurynas Zubavičius (Sparagas)
+
 from inc_noesis import *
 
 
 def registerNoesisTypes():
-	handle = noesis.register("Silent Hill: The Escape",".not")
-	noesis.setHandlerTypeCheck(handle, noepyCheckType)
-	noesis.setHandlerLoadRGBA(handle, noepyLoadRGBA)
-	return 1
+    handle = noesis.register("Silent Hill: The Escape (iOS)", ".not")
+    noesis.setHandlerTypeCheck(handle, check_type)
+    noesis.setHandlerLoadRGBA(handle, load_rgba)
+    return 1
 
 
-def noepyCheckType(data):
+def check_type(data):
     if len(data) < 4:
         return 0
     if data[:4] != b'NOT_':
@@ -16,7 +19,7 @@ def noepyCheckType(data):
     return 1
 
 
-def noepyLoadRGBA(data, texList):
+def load_rgba(data, tex_list):
 
     def clr_mode():
         if clr_mode_flg == 0:
@@ -30,8 +33,8 @@ def noepyLoadRGBA(data, texList):
         elif clr_mode_flg == 4:
             return "a1b5g5r5"
 
-    bs = NoeBitStream(data)	
     ctx = rapi.rpgCreateContext()
+    bs = NoeBitStream(data)
     bs.seek(4)
     clr_mode_flg = bs.readUByte()
     img_bpp = bs.readUByte()
@@ -47,11 +50,15 @@ def noepyLoadRGBA(data, texList):
         pal_buf = bs.readBytes((num_index + 1) * pal_bpp // 8)
         if img_bpp == 4:
             img_buf = bs.readBytes(img_w * img_h // 2)
+            img_buf = noesis.nybbleSwap(img_buf)
         elif img_bpp == 8:
             img_buf = bs.readBytes(img_w * img_h)
+        else:
+            return 0
         img_buf = rapi.imageDecodeRawPal(img_buf, pal_buf, img_w, img_h, img_bpp, clr_mode())
 
     img_buf = rapi.imageFlipRGBA32(img_buf, img_w, img_h, 0, 1)
-    texture = NoeTexture(rapi.getInputName() , img_w, img_h, img_buf, noesis.NOESISTEX_RGBA32)
-    texList.append(texture)
+    img_buf = NoeTexture(rapi.getInputName(), img_w, img_h, img_buf, noesis.NOESISTEX_RGBA32)
+    img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+    tex_list.append(img_buf)
     return 1
