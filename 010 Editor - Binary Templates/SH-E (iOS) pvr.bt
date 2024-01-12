@@ -1,0 +1,21 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: SH-E (iOS) pvr.bt
+//    Author: Laurynas Zubavičius (Sparagas)
+//   Version: 1
+//   Purpose: Silent Hill: The Escape (iOS)
+//  Category: Image
+// File Mask: *.pvr
+//  ID Bytes: 50 56 52 34 //PVR4
+//   History: 
+//   1     2024-01-13 Laurynas: Initial release
+//------------------------------------------------
+
+char  magic[4];
+Assert(magic == "PVR4", "Not Silent Hill: The Escape .pvr file");
+ubyte unk_0;
+ubyte dim_pwr;
+ubyte unk_0;
+ubyte unk_0;
+ubyte img_dat[Pow(2, dim_pwr) * Pow(2, dim_pwr) / 2];

@@ -1,13 +1,13 @@
 //------------------------------------------------
 //--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
-//  ID Bytes: 
+//      File: SH-E (iOS) not.bt
+//    Author: Laurynas Zubavičius (Sparagas)
+//   Version: 1
+//   Purpose: Silent Hill: The Escape (iOS)
+//  Category: Image
+// File Mask: *.not
+//  ID Bytes: 4E 4F 54 5F //NOT_
 //   History: 
 //------------------------------------------------
 
