@@ -1,0 +1,96 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "color.bt"
+
+
+uint16 num_img[2];
+Assert(num_img[0] == num_img[1], "num_img[0] is not equal to num_img[1]");
+uint32 unk_0[3];
+uint32 img_idx_ofs[num_img[0]];
+uint32 img_pal_ofs[num_img[0]];
+
+FSeek(img_idx_ofs[0]);
+local uint16 i;
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(img_idx_ofs[i]);
+        struct {
+            uint32 w;
+            uint32 h;
+            enum <ubyte> {
+                idx_8b_256 = 19,
+                idx_4b_16  = 20
+            } idx_fmt;
+            ubyte  swz_flg;
+            uint16 unk_flg;
+            uint32 ofs;
+        } hdr;
+    }
+} img_idx;
+
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(img_pal_ofs[i]);
+        struct {
+            uint16 unk_0;
+            uint16 num_img;
+            uint32 num_pal;
+            uint32 unk_0;
+            uint32 ofs;
+        } hdr;
+    };
+} img_pal;
+
+OffsetSetStart(OffsetGetStart() + img_idx_ofs[0]);
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(img_idx.hdr[i].ofs + 16 * i); // counting from ...
+        struct {
+            uint32 img_id;
+            uint32 img_dat_ofs;
+            uint32 unk0_0;
+            uint32 unk1;
+            uint32 unk2_0[4];
+            uint32 w;
+            uint32 h;
+            uint32 unk3;
+            uint32 img_dat_ofs;
+        } hdr;
+    }
+} xbox;
+OffsetSetStart(OffsetGetStart() - img_idx_ofs[0]);
+
+OffsetSetStart(OffsetGetStart() + img_pal_ofs[0]);
+local uint16 j;
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(img_pal.hdr[i].ofs + 16 * i); // counting from img_hdr0[i]
+        for (j = 0; j < img_pal.hdr[i].num_pal; j++) {
+            struct {
+                uint32 img_id;
+                uint32 img_dat_ofs;
+                uint32 unk0_0;
+                uint32 unk1;
+                uint32 unk2_0[4];
+                uint32 w;
+                uint32 h;
+                uint32 unk3;
+                uint32 img_dat_ofs;
+            } hdr;
+        }
+    };
+} xbox;
+
+OffsetSetStart(OffsetGetStart() - img_pal_ofs[0] + img_idx_ofs[0] + img_idx.hdr[0].ofs);
+int TODO;

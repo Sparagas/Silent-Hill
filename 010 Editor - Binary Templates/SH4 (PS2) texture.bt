@@ -52,7 +52,6 @@ struct ImgPalHdrGrp {
     };
 } img_pal_hdr_grp;
 
-
 OffsetSetStart(OffsetGetStart() + img_idx_hdr_ofs[0]);
 struct {
     for (i = 0; i < num_img[0]; i++) {
