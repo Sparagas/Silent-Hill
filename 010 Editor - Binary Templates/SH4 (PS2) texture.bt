@@ -1,88 +1,52 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
-//   Authors: 
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
 //   Version: 
-//   Purpose: 
+//   Purpose: Silent Hill 4: The Room (Sony - PlayStation 2)
 //  Category: 
 // File Mask: 
 //  ID Bytes: 
 //   History: 
 //------------------------------------------------
 
+#include "SH4 texture.bt"
 #include "color.bt"
 
 
-uint16 num_img[2];
-Assert(num_img[0] == num_img[1], "num_img[0] is not equal to num_img[1]");
-uint32 unk_0[3];
-uint32 img_idx_hdr_ofs[num_img[0]];
-uint32 img_pal_hdr_ofs[num_img[0]];
-
-FSeek(img_idx_hdr_ofs[0]);
-local uint16 i;
-struct ImgIndxHdrGrp {
-    for (i = 0; i < num_img[0]; i++) {
-        FSeek(img_idx_hdr_ofs[i]);
-        struct ImgIdxHdr {
-            uint32 w;
-            uint32 h;
-            enum <ubyte> {
-                idx_8b_256 = 19,
-                idx_4b_16  = 20
-            } idx_fmt;
-            ubyte  swz_flag;
-            uint16 unk_flag;
-            uint32 img_idx_ofs;
-        } img_idx_hdr;
-    };
-} img_idx_hdr_grp;
-
-struct ImgPalHdrGrp {
-    for (i = 0; i < num_img[0]; i++) {
-        FSeek(img_pal_hdr_ofs[i]);
-        struct ImgPalHdr {
-            uint16 unk_0;
-            uint16 num_img;
-            uint32 num_pal;
-            uint32 unk_0;
-            uint32 img_pal_ofs;
-        } img_pal_hdr;
-    };
-} img_pal_hdr_grp;
-
-OffsetSetStart(OffsetGetStart() + img_idx_hdr_ofs[0]);
+OffsetSetStart(OffsetGetStart() + ofs_idx_hdr[0]);
+FSeek(ps2_idx.hdr[0].ofs);
 struct {
     for (i = 0; i < num_img[0]; i++) {
-        FSeek(img_idx_hdr_grp.img_idx_hdr[i].img_idx_ofs + 16 * i);
+        FSeek(ps2_idx.hdr[i].ofs + 16 * i);
         struct {
-            if (img_idx_hdr_grp.img_idx_hdr[i].idx_fmt == idx_8b_256)
-                ubyte idx_8b_256[img_idx_hdr_grp.img_idx_hdr[i].w * img_idx_hdr_grp.img_idx_hdr[i].h];
-            else if (img_idx_hdr_grp.img_idx_hdr[i].idx_fmt == idx_4b_16)
-                ubyte idx_4b_16[img_idx_hdr_grp.img_idx_hdr[i].w * img_idx_hdr_grp.img_idx_hdr[i].h / 2];
-        } img_idx_dat;
+            if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
+                ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
+            else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
+                ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h / 2];
+        } dat;
     }
-} img_idx_dat_grp;
+} idx_dat;
+OffsetSetStart(OffsetGetStart() - ofs_idx_hdr[0]);
 
-OffsetSetStart(OffsetGetStart() - img_idx_hdr_ofs[0]);
-
-OffsetSetStart(OffsetGetStart() + img_pal_hdr_ofs[0]);
+OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0]);
+FSeek(ps2_pal.hdr[0].ofs);
 local uint16 j;
 struct {
     for (i = 0; i < num_img[0]; i++) {
-        FSeek(img_pal_hdr_grp.img_pal_hdr[i].img_pal_ofs + 16 * i); // counting from img_idx_hdr[i]
-        for (j = 0; j < img_pal_hdr_grp.img_pal_hdr[i].num_img; j++) {
-            if (img_idx_hdr_grp.img_idx_hdr[i].idx_fmt == idx_8b_256)
+        FSeek(ps2_pal.hdr[i].ofs + 16 * i); // counting from hdr[i]
+        for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
+            if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
                 struct {
                     RGBA rgba[256];
-                } img_pal_dat;
-            else if (img_idx_hdr_grp.img_idx_hdr[i].idx_fmt == idx_4b_16)
+                } dat;
+            else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
                 struct {
                     RGBA   rgba_pt1[8]; //
                     uint32 pad[8];      // weird, should be 16, but there are zeroes in the midddle
                     RGBA   rgba_pt2[8]; //
-                } img_pal_dat;
+                } dat;
         }
     }
-} img_pal_dat_grp;
+} pal_dat;

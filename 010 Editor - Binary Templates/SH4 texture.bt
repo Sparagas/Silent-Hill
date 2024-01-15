@@ -1,0 +1,51 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 
+//   Purpose: Silent Hill 4: The Room
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+uint16 num_img[2];
+Assert(num_img[0] == num_img[1], "num_img[0] is not equal to num_img[1]");
+uint32 unk_0[3];
+uint32 ofs_idx_hdr[num_img[0]];
+uint32 ofs_pal_hdr[num_img[0]];
+
+FSeek(ofs_idx_hdr[0]);
+local uint16 i;
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(ofs_idx_hdr[i]);
+        struct {
+            uint32 w;
+            uint32 h;
+            enum <ubyte> {
+                idx_8b_256 = 19,
+                idx_4b_16  = 20
+            } idx_fmt;
+            ubyte  swz_flg;
+            uint16 unk_flg;
+            uint32 ofs;
+        } hdr;
+    }
+} ps2_idx;
+
+FSeek(ofs_pal_hdr[0]);
+struct {
+    for (i = 0; i < num_img[0]; i++) {
+        FSeek(ofs_pal_hdr[i]);
+        struct {
+            uint16 unk_0;
+            uint16 num_img;
+            uint32 num_pal;
+            uint32 unk_0;
+            uint32 ofs;
+        } hdr;
+    }
+} ps2_pal;
