@@ -15,9 +15,10 @@
 
 
 OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0]);
-local uint16 j;
 struct {
-    for (i = 0; i < num_img[0]; i++) {
+    local uint16 i;
+    local uint32 j;
+    for (i = 0; i < num_img; i++) {
         FSeek(ps2_pal.hdr[i].ofs + 16 * i); // counting from hdr[i]
         for (j = 0; j < ps2_pal.hdr[i].num_pal; j++)
             struct {
@@ -34,7 +35,7 @@ struct {
                 uint32 len_mipmap[7];
                 uint32 num_ofs_mipmap_dat;
                 uint32 ofs_mipmap_dat[7];  // counting from DXTHdr list
-                uint32 unk_ofs;
+                uint32 unk;
             } hdr;
     }
 } img_hdr;
@@ -42,7 +43,9 @@ struct {
 OffsetSetStart(OffsetGetStart() + ps2_pal.hdr[0].ofs);
 FSeek(img_hdr.hdr[0].ofs_mipmap_dat[0]);
 struct {
-    for (i = 0; i < num_img[0]; i++) {
+    local uint16 i;
+    local ubyte  j;
+    for (i = 0; i < num_img; i++) {
         for (j = 0; j < 7; j++) {
             if (img_hdr.hdr[i].ofs_mipmap_dat[j] > 0) {
                 FSeek(img_hdr.hdr[i].ofs_mipmap_dat[j] + 112 * i);  // counting from hdr[i]

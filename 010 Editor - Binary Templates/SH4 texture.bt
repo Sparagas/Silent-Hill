@@ -11,16 +11,17 @@
 //   History: 
 //------------------------------------------------
 
-uint16 num_img[2];
+uint16 num_img;
+uint16 num_img;
 Assert(num_img[0] == num_img[1], "num_img[0] is not equal to num_img[1]");
 uint32 unk_0[3];
-uint32 ofs_idx_hdr[num_img[0]];
-uint32 ofs_pal_hdr[num_img[0]];
+uint32 ofs_idx_hdr[num_img];
+uint32 ofs_pal_hdr[num_img];
 
 FSeek(ofs_idx_hdr[0]);
-local uint16 i;
-struct {
-    for (i = 0; i < num_img[0]; i++) {
+struct Ps2Idx {
+    local uint16 i;
+    for (i = 0; i < num_img; i++) {
         FSeek(ofs_idx_hdr[i]);
         struct {
             uint32 w;
@@ -38,11 +39,12 @@ struct {
 
 FSeek(ofs_pal_hdr[0]);
 struct {
-    for (i = 0; i < num_img[0]; i++) {
+    local uint16 i;
+    for (i = 0; i < num_img; i++) {
         FSeek(ofs_pal_hdr[i]);
         struct {
             uint16 unk_0;
-            uint16 num_img;
+            uint16 unk_1;
             uint32 num_pal;
             uint32 unk_0;
             uint32 ofs;
