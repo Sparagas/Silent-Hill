@@ -46,8 +46,9 @@ struct {
             else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
                 struct {
                     RGBA   rgba_pt1[8]; //
-                    uint32 pad[8];      // weird, should be 16, but there are zeroes in the midddle
+                    uint32 pad0[8];     // weird, should be 16, but there are zeroes in the midddle
                     RGBA   rgba_pt2[8]; //
+                    uint32 pad1[248];
                 } dat;
         }
     }

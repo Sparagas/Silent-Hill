@@ -67,11 +67,8 @@ struct {
     for (i = 0; i < num_img; i++) {
         FSeek(idx_hdr.hdr[i].ofs_idx_dat + 48 * i);
         struct {
-            if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
-                ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
-            else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
-                ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h / 2];
-        } dat; // wrong size
+            ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
+        } dat;
     }
 } idx_dat;
 OffsetSetStart(OffsetGetStart() - ofs_idx_hdr[0] - ps2_idx.hdr[0].ofs);
@@ -82,13 +79,10 @@ struct {
     local uint16 i;
     for (i = 0; i < num_img; i++) {
         FSeek(pal_hdr.hdr[i].ofs_pal_dat + 48 * i);
-        if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
+        for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
             struct {
                 RGBA rgba[256];
             } dat;
-            else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
-            struct {
-                RGBA rgba[16];
-            } dat; // wrong size
+        }
     }
 } pal_dat;
