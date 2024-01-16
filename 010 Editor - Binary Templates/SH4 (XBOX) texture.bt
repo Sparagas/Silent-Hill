@@ -78,8 +78,9 @@ FSeek(pal_hdr.hdr[0].ofs_pal_dat);
 struct {
     local uint16 i;
     for (i = 0; i < num_img; i++) {
-        FSeek(pal_hdr.hdr[i].ofs_pal_dat + 48 * i);
+        
         for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
+            FSeek(pal_hdr.hdr[i + j].ofs_pal_dat + 48 * (i + j));
             struct {
                 RGBA rgba[256];
             } dat;
