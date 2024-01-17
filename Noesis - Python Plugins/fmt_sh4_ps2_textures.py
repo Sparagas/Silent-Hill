@@ -20,7 +20,6 @@ def check_type(data):
 
 
 def load_rgba(data, tex_list):
-    # ctx = rapi.rpgCreateContext()
     bs = NoeBitStream(data)
     num_img = bs.readUShort()
     bs.seek(14, NOESEEK_REL)
@@ -39,7 +38,6 @@ def load_rgba(data, tex_list):
             self.swz_flg = bs.readUByte()
             bs.seek(2, NOESEEK_REL)
             self.ofs = bs.readUInt()
-    # ps2_idx = [Ps2Idx() for _ in range(num_img)]
     ps2_idx = [Ps2Idx()] * num_img
     for i in range(num_img):
         bs.seek(ofs_idx_hdr[i])
@@ -51,7 +49,6 @@ def load_rgba(data, tex_list):
             self.num_pal = bs.readUInt()
             bs.seek(4, NOESEEK_REL)
             self.ofs = bs.readUInt()
-    # ps2_pal = [Ps2Pal() for _ in range(num_img)]
     ps2_pal = [Ps2Pal()] * num_img
     for i in range(num_img):
         bs.seek(ofs_pal_hdr[i])
@@ -67,22 +64,27 @@ def load_rgba(data, tex_list):
 
     pal_buf = [0] * num_img
     for i in range(num_img):
+        bs.seek(ofs_pal_hdr[i] + ps2_pal[i].ofs)
+        pal_buf[i] = [0] * ps2_pal[i].num_pal
         for j in range(ps2_pal[i].num_pal):
-            bs.seek(ofs_pal_hdr[i] + ps2_pal[i].ofs)
             if ps2_idx[i].idx_fmt == 8:
-                pal_buf[i] = bs.readBytes(4 * 256)
+                pal_buf[i][j] = bs.readBytes(4 * 256)
             elif ps2_idx[i].idx_fmt == 4:
                 pal_buf_pt1 = bs.readBytes(4 * 8)
                 bs.seek(4 * 8, NOESEEK_REL)
                 pal_buf_pt2 = bs.readBytes(4 * 8)
-                pal_buf[i] = pal_buf_pt1 + pal_buf_pt2
+                pal_buf[i][j] = pal_buf_pt1 + pal_buf_pt2
 
     for i in range(num_img):
         if ps2_idx[i].swz_flg == 0:
             idx_buf[i] = rapi.imageUntwiddlePS2(idx_buf[i], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt)
-        img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
-        img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), ps2_idx[i].w, ps2_idx[i].h)
-        img_buf = NoeTexture(rapi.getInputName() + '_' + str(i), ps2_idx[i].w, ps2_idx[i].h, img_buf, noesis.NOESISTEX_RGBA32)
-        img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(img_buf)
+        for j in range(ps2_pal[i].num_pal):
+            if ps2_idx[i].idx_fmt == 4:
+                img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i][j], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt, 'r8g8b8a8')
+            elif ps2_idx[i].idx_fmt == 8:
+                img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i][j], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
+            img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), ps2_idx[i].w, ps2_idx[i].h)
+            img_buf = NoeTexture(rapi.getInputName() + '_' + str(i) + '_' + str(j), ps2_idx[i].w, ps2_idx[i].h, img_buf, noesis.NOESISTEX_RGBA32)
+            img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+            tex_list.append(img_buf)
     return 1

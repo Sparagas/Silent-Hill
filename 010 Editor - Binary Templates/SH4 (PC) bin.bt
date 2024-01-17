@@ -25,15 +25,15 @@ local uint16 temp1;
 //------------------------------------------------
 
 uint32 num_block;
-uint32 block_ofs[num_block];
+uint32 ofs_block[num_block];
 
 for (k = 0; k < num_block; k++) {
-    local_ofs = block_ofs[k];
-    FSeek(block_ofs[k]);
+    local_ofs = ofs_block[k];
+    FSeek(ofs_block[k]);
     temp0 = ReadUShort();
-    FSeek(block_ofs[k]+2);
+    FSeek(ofs_block[k]+2);
     temp1 = ReadUShort();
-    FSeek(block_ofs[k]);
+    FSeek(ofs_block[k]);
 
     if (temp0 == temp1) { // texture block
         OffsetSetStart(FTell());
