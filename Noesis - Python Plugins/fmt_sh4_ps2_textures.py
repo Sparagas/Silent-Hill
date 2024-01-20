@@ -71,7 +71,7 @@ def load_rgba(data, tex_list):
                 pal_buf[i][j] = bs.readBytes(4 * 256)
         elif ps2_idx[i].idx_fmt == 4:
             pal_buf[i] = [0] * ps2_pal[i].num_pal * 16
-            for j in range(0, 16, 2):
+            for j in range(0, ps2_pal[i].num_pal * 16, 2):
                 pal_buf_pt1 = bs.readBytes(4 * 8)
                 bs.seek(4 * 8, NOESEEK_REL)
                 pal_buf_pt2 = bs.readBytes(4 * 8)
@@ -95,9 +95,10 @@ def load_rgba(data, tex_list):
 
         elif ps2_idx[i].idx_fmt == 4:
             for j in range(ps2_pal[i].num_pal * 16):
-                img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i][j], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt, 'r8g8b8a8')
-                img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), ps2_idx[i].w, ps2_idx[i].h)
-                img_buf = NoeTexture(rapi.getInputName() + '_' + str(i) + '_' + str(j), ps2_idx[i].w, ps2_idx[i].h, img_buf, noesis.NOESISTEX_RGBA32)
-                img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-                tex_list.append(img_buf)
+                if pal_buf[i][j][:8] != b'\x00\x00\x00\x00\x00\x00\x00\x00':
+                    img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i][j], ps2_idx[i].w, ps2_idx[i].h, ps2_idx[i].idx_fmt, 'r8g8b8a8')
+                    img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), ps2_idx[i].w, ps2_idx[i].h)
+                    img_buf = NoeTexture(rapi.getInputName() + '_' + str(i) + '_' + str(j), ps2_idx[i].w, ps2_idx[i].h, img_buf, noesis.NOESISTEX_RGBA32)
+                    img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+                    tex_list.append(img_buf)
     return 1
