@@ -31,7 +31,7 @@ struct Ps2Idx {
                 idx_4b_16  = 20
             } idx_fmt;
             ubyte  swz_flg;
-            uint16 unk_flg;
+            uint16 unk_256;
             uint32 ofs;
         } hdr;
     }
