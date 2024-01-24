@@ -1,6 +1,37 @@
 ## Xentax wiki
 
 ## Xentax forums
+* [silent hill 2](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=546)
+* [Silent Hill 3 - PICT](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=1689)
+* [Silent Hill Origins - ARC archive](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=2845)
+* [Silent Hill PSX](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=3091)
+* [Silent Hill:Homecoming pak files?](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=3233)
+* [Silent Hill 2 model](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=3464)
+* [Silent Hill 4 BIN Files](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=4147)
+* [Silent Hill Origins - files .TXD / .CMI](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=4180)
+* [Silent Hill: Shattered Memories *.arc](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=4245)
+* [Silent HIll SHattered Memories Font File.](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=4889)
+* [Silent Hill 3 (PC) .ARC File  Extracting](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=7460)
+* [Silent Hill 3 MFA Files](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=7808)
+* [[XBOX360] Silent Hill Downpour (localization files *.xxx)](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=8563)
+* [Silent Hill 2 [PS2] .mgf](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=8625)
+* [(Xbox360) Silent Hill HD Collection .XMA Audio Files](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=8654)
+* [Decompress Silent Hill 3 (HD Collection Xbox 360) .SH3 save](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=8731)
+* [Silent Hill Downpour (.xxx files & .LocalizationTable)](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=9364)
+* [[PSX] Silent Hill](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=9960)
+* [Silent Hill: Shattered Memories font FILE search?](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=10010)
+* [[PSX] Silent Hill - Tools](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=10313)
+* [Silent Hill .KDT (PS1)](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=10793)
+* [PSX Silent Hill Model Format Help](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=10812)
+* [Silent Hill HD .DDS](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=10994)
+* [Silent Hill 4 .BIN Files PS2 Version](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=11043)
+* [Silent Hill 3 PC .000 file](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=11257)
+* [Silent Hill Shattered Memories DFF Models (Renderware)](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=12496)
+* [Silent Hill 3 HD Collection .tex Files - TextureFile Xbox360](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=12729)
+* [Ripping Silent Hill levels [PC]](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=13636)
+* [Silent Hill Origins PS2 SH.ARC](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=13658)
+* [Silent hill orgins translate.](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=14487)
+* 
 
 ## Zenhax forums
 * [Silent Hill: Shattered Memories textures .txd (Wii)](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=3107)
@@ -26,3 +57,4 @@
 * [Silent Hill 2 PS2 map files - meshes](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=17374)
 * [Silent Hill 2 Director's Cut .TEX PS2](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=18186)
 * [Silent Hill 3 'TEX' Files](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=18369)
+* [Mortal Kombat Deadly Alliance .ssf files](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=2265)
