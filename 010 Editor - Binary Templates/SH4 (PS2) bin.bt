@@ -37,7 +37,7 @@ for (k = 0; k < num_block; k++) {
 
     if (temp0 == temp1) { // texture block
         OffsetSetStart(FTell());
-        struct ImgBlock {
+        struct {
             #include "SH4 (PS2) texture.bt"
         } img_block;
         OffsetClear();

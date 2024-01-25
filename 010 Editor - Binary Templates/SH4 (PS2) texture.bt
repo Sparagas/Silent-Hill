@@ -15,12 +15,11 @@
 #include "color.bt"
 
 
-OffsetSetStart(OffsetGetStart() + ofs_idx_hdr[0]);
-FSeek(ps2_idx.hdr[0].ofs);
+FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs);
 struct {
     local uint16 i;
     for (i = 0; i < num_img; i++) {
-        FSeek(ps2_idx.hdr[i].ofs + 16 * i);
+		FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs);
         struct (Ps2Idx &ps2) {
             if (ps2.hdr[i].idx_fmt == idx_8b_256)
                 ubyte idx_8b_256[ps2.hdr[i].w * ps2.hdr[i].h];
@@ -29,15 +28,13 @@ struct {
         } dat(ps2_idx);
     }
 } idx_dat;
-OffsetSetStart(OffsetGetStart() - ofs_idx_hdr[0]);
 
-OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0]);
-FSeek(ps2_pal.hdr[0].ofs);
+FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs);
 struct {
     local uint16 i;
     local uint32 j;
     for (i = 0; i < num_img; i++) {
-        FSeek(ps2_pal.hdr[i].ofs + 16 * i); // counting from hdr[i]
+		FSeek(ofs_pal_hdr[i] + ps2_pal.hdr[i].ofs);
         for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
             if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
                 struct {
