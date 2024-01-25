@@ -41,7 +41,6 @@ for (k = 0; k < num_block; k++) {
             #include "SH4 (PS2) texture.bt"
         } img_block;
         OffsetClear();
-
     } else if (temp0 == 0x7000 && temp1 == 0x0FC0) { // shadow mesh block
         //#include "SH4 (PC) shadow mesh.bt"
         uint32 shadow_mesh_block;

@@ -4,7 +4,7 @@
 //      File: 
 //   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
 //   Version: 
-//   Purpose: Silent Hill 4: The Room (Micorosft - Xbox)
+//   Purpose: Silent Hill 4: The Room (Microsft - Xbox)
 //  Category: 
 // File Mask: 
 //  ID Bytes: 
@@ -15,12 +15,11 @@
 #include "color.bt"
 
 
-OffsetSetStart(OffsetGetStart() + ofs_idx_hdr[0]);
-FSeek(ps2_idx.hdr[0].ofs);
+FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs);
 struct {
     local uint16 i;
     for (i = 0; i < num_img; i++) {
-        FSeek(ps2_idx.hdr[i].ofs + 16 * i); // counting from ...
+        FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs);
         struct {
             uint16 unk_1;
             uint16 unk_4;
@@ -36,16 +35,13 @@ struct {
         } hdr;
     }
 } idx_hdr;
-OffsetSetStart(OffsetGetStart() - ofs_idx_hdr[0]);
 
-OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0]);
-FSeek(ps2_pal.hdr[0].ofs);
-local uint16 j;
+FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs);
 struct {
     local uint16 i;
     local uint32 j;
     for (i = 0; i < num_img; i++) {
-        FSeek(ps2_pal.hdr[i].ofs + 16 * i); // counting from img_hdr0[i]
+        FSeek(ofs_pal_hdr[i] + ps2_pal.hdr[i].ofs);
         for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
             struct {
                 uint16 unk_1;
@@ -58,29 +54,25 @@ struct {
         }
     }
 } pal_hdr;
-OffsetSetStart(OffsetGetStart() - ofs_pal_hdr[0]);
 
-OffsetSetStart(OffsetGetStart() + ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs);
-FSeek(idx_hdr.hdr[0].ofs_idx_dat);
+FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs + idx_hdr.hdr[0].ofs_idx_dat);
 struct {
     local uint16 i;
     for (i = 0; i < num_img; i++) {
-        FSeek(idx_hdr.hdr[i].ofs_idx_dat + 48 * i);
+        FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs + idx_hdr.hdr[i].ofs_idx_dat);
         struct {
-            ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
+            ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
         } dat;
     }
 } idx_dat;
-OffsetSetStart(OffsetGetStart() - ofs_idx_hdr[0] - ps2_idx.hdr[0].ofs);
 
-OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs);
-FSeek(pal_hdr.hdr[0].ofs_pal_dat);
+FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs + pal_hdr.hdr[0].ofs_pal_dat);
 struct {
     local uint16 i;
+    local uint16 j;
     for (i = 0; i < num_img; i++) {
-        
         for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
-            FSeek(pal_hdr.hdr[i + j].ofs_pal_dat + 48 * (i + j));
+            FSeek(ofs_pal_hdr[i + j] + ps2_pal.hdr[i + j].ofs + pal_hdr.hdr[i + j].ofs_pal_dat);
             struct {
                 RGBA rgba[256];
             } dat;
