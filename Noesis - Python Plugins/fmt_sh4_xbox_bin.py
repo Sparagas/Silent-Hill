@@ -104,10 +104,7 @@ def load_rgba(data, tex_list):
             for i in range(num_img):
                 for j in range(ps2_pal[i].num_pal):
                     img_buf = rapi.imageDecodeRawPal(idx_buf[i], pal_buf[i][j], idx_hdr[i].w, idx_hdr[i].h, 8, 'b8g8r8a8')
-                    # img_buf = rapi.imageUntile360Raw(img_buf, idx_hdr[i].w, idx_hdr[i].h, 4)
-                    # img_buf = rapi.imageUntileBlockLinearGOB(img_buf, idx_hdr[i].w, idx_hdr[i].h, 4)
-                    # img_buf = rapi.imageUntileBlockLinearGOB(img_buf, idx_hdr[i].w, idx_hdr[i].h, 4, 4)
-                    # img_buf = rapi.imageUntilePICA200Raw(img_buf, idx_hdr[i].w, idx_hdr[i].h, 4)
+                    img_buf = rapi.imageFromMortonOrder(img_buf, idx_hdr[i].w, idx_hdr[i].h, 4)
                     img_buf = NoeTexture(rapi.getInputName() + '_' + str(i) + '_' + str(j), idx_hdr[i].w, idx_hdr[i].h, img_buf, noesis.NOESISTEX_RGBA32)
                     img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
                     tex_list.append(img_buf)
