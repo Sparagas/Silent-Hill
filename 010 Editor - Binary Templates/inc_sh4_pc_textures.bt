@@ -1,0 +1,57 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 
+//   Purpose: Silent Hill 4: The Room (Microsft - Windows)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+void sh4_pc_textures() {
+    OffsetSetStart(OffsetGetStart() + ofs_pal_hdr[0]);
+    struct {
+        local uint16 i;
+        local uint32 j;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ps2_pal.hdr[i].ofs + 16 * i); // counting from hdr[i]
+            for (j = 0; j < ps2_pal.hdr[i].num_pal; j++)
+                struct {
+                    ubyte  unk_0[32];
+                    uint32 w;
+                    uint32 h;
+                    enum {
+                        RGBa = 21,
+                        DXT1 = 827611204,
+                        DXT3 = 861165636,
+                        DXT5 = 894720068
+                    } img_fmt;
+                    uint32 num_mipmap;         // including original image
+                    uint32 len_mipmap[7];
+                    uint32 num_ofs_mipmap_dat;
+                    uint32 ofs_mipmap_dat[7];  // counting from DXTHdr list
+                    uint32 unk;
+                } hdr;
+        }
+    } img_hdr;
+
+    OffsetSetStart(OffsetGetStart() + ps2_pal.hdr[0].ofs);
+    FSeek(img_hdr.hdr[0].ofs_mipmap_dat[0]);
+    struct {
+        local uint16 i;
+        local ubyte  j;
+        for (i = 0; i < num_img; i++) {
+            for (j = 0; j < 7; j++) {
+                if (img_hdr.hdr[i].ofs_mipmap_dat[j] > 0) {
+                    FSeek(img_hdr.hdr[i].ofs_mipmap_dat[j] + 112 * i);  // counting from hdr[i]
+                    struct ImgDat {
+                        ubyte img_dat[img_hdr.hdr[i].len_mipmap[j]];
+                    } img_dat;
+                }
+            }
+        }
+    } img_dat;
+};

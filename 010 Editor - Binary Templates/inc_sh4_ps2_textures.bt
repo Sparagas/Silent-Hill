@@ -1,0 +1,52 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 
+//   Purpose: Silent Hill 4: The Room (Sony - PlayStation 2)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+void sh4_ps2_textures() {
+    FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs);
+    struct {
+        local uint16 i;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs);
+            struct {
+                if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
+                    ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2.hdr[i].h];
+                else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
+                    ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h / 2];
+            } dat;
+        }
+    } idx_dat;
+
+    FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs);
+    struct {
+        local uint16 i;
+        local uint32 j;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ofs_pal_hdr[i] + ps2_pal.hdr[i].ofs);
+            for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
+                if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
+                    struct {
+                        RGBA rgba[256];
+                    } dat;
+                else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
+                    struct {
+                        struct {
+                            RGBA rgba1_pt1[8];
+                            RGBA rgba2_pt1[8];
+                            RGBA rgba1_pt2[8];
+                            RGBA rgba2_pt2[8];
+                        } rgba[8];
+                    } dat;
+            }
+        }
+    } pal_dat;
+};

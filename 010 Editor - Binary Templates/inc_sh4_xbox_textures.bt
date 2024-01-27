@@ -1,0 +1,79 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: 
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 
+//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+void sh4_xbox_textures() {
+    FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs);
+    struct {
+        local uint16 i;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs);
+            struct {
+                uint16 unk_1;
+                uint16 unk_4;
+                uint32 ofs_idx_dat;
+                uint32 unk0_0;
+                uint32 unk;
+                uint32 unk1_0[4];
+                uint32 w;
+                uint32 h;
+                uint32 unk_11;
+                uint32 ofs_idx_dat;
+                Assert(ofs_idx_dat[0] == ofs_idx_dat[1], "ofs_idx_dat[0] is not equal to ofs_idx_dat[1]");
+            } hdr;
+        }
+    } idx_hdr;
+
+    FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs);
+    struct {
+        local uint16 i;
+        local uint32 j;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ofs_pal_hdr[i] + ps2_pal.hdr[i].ofs);
+            for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
+                struct {
+                    uint16 unk_1;
+                    uint16 unk_3;
+                    uint32 ofs_pal_dat;
+                    uint32 unk_0[9];
+                    uint32 ofs_pal_dat;
+                    Assert(ofs_pal_dat[0] == ofs_pal_dat[1], "ofs_pal_dat[0] is not equal to ofs_pal_dat[1]");
+                } hdr;
+            }
+        }
+    } pal_hdr;
+
+    FSeek(ofs_idx_hdr[0] + ps2_idx.hdr[0].ofs + idx_hdr.hdr[0].ofs_idx_dat);
+    struct {
+        local uint16 i;
+        for (i = 0; i < num_img; i++) {
+            FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs + idx_hdr.hdr[i].ofs_idx_dat);
+            struct {
+                ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
+            } dat;
+        }
+    } idx_dat;
+
+    FSeek(ofs_pal_hdr[0] + ps2_pal.hdr[0].ofs + pal_hdr.hdr[0].ofs_pal_dat);
+    struct {
+        local uint16 i;
+        local uint16 j;
+        for (i = 0; i < num_img; i++) {
+            for (j = 0; j < ps2_pal.hdr[i].num_pal; j++) {
+                FSeek(ofs_pal_hdr[i + j] + ps2_pal.hdr[i + j].ofs + pal_hdr.hdr[i + j].ofs_pal_dat);
+                struct {
+                    RGBA rgba[256];
+                } dat;
+            }
+        }
+    } pal_dat;
+};

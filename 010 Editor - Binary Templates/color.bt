@@ -11,6 +11,8 @@
 //   History: 
 //------------------------------------------------
 
+#ifndef COLOR
+#define COLOR
 struct RGB {
     ubyte  r;
     ubyte  g;
@@ -48,3 +50,4 @@ struct Index44 {
     ubyte  i1 : 4;
     ubyte  i0 : 4;
 };
+#endif
