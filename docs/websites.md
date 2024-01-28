@@ -1,4 +1,4 @@
-## Xentax wiki
+## wiki.xentax.com
 * [GRAFs/S](https://web.archive.org/web/20220626145809/http://wiki.xentax.com/index.php/GRAFs/S)
 ### Silent Hill (1)
 * [Playstation TMD](https://web.archive.org/web/20211203103751/https://wiki.xentax.com/index.php/Playstation_TMD)
@@ -30,7 +30,7 @@
 * [Silent Hill: Orphan](https://web.archive.org/web/20201021065219/http://wiki.xentax.com/index.php/Silent_Hill:_Orphan)
 * [Silent Hill: Orphan LAN](https://wiki.xentax.com/index.php/Silent_Hill:_Orphan_LAN)
 * [GRAF:Silent Hill: Orphan BIN](https://web.archive.org/web/20211019090746/https://wiki.xentax.com/index.php/GRAF:Silent_Hill:_Orphan_BIN)
-## Xentax forums
+## forum.xentax.com
 * [silent hill 2](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=546)
 * [Silent Hill 3 - PICT](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=1689)
 * [Silent Hill Origins - ARC archive](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=2845)
@@ -90,7 +90,7 @@
 * [Ported PS2 Silent Hill 2 text files (mes), need to do is find the font](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=25384)
 * [Ghostbusters The Video Game (2009) POD5 Files](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=25718)
 * [Silent Hill 2 PS2 map files - meshes](https://web.archive.org/web/20230000000000fw_/https://forum.xentax.com/viewtopic.php?t=25765)
-## Zenhax forums
+## www.zenhax.com
 * [Silent Hill: Shattered Memories textures .txd (Wii)](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=3107)
 * [Silent Hill 3 (PS2) - .AFS](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=3290)
 * [Silent Hill Downpour PS3 &amp; XBOX360](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=3785)
@@ -115,3 +115,5 @@
 * [Silent Hill 2 Director's Cut .TEX PS2](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=18186)
 * [Silent Hill 3 'TEX' Files](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=18369)
 * [Mortal Kombat Deadly Alliance .ssf files](https://web.archive.org/web/20230000000000fw_/https://www.zenhax.com/viewtopic.php?t=2265)
+## old.zenhax.com
+* [Silent Hill: Shattered Memories (audio .fsb files)](http://old.zenhax.com/silent-hill-shattered-memories-audio-fsb-files-t1559.html)
