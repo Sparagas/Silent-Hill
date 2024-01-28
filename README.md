@@ -12,3 +12,6 @@ This is a place for:
 
 ## Silent Hill series Tools list
 [Silent Hill series Tools list](docs/tools%20list)
+
+## Websites with Silent Hill information
+[Websites with Silent Hill information](docs/websites)
