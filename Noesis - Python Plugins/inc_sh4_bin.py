@@ -11,7 +11,7 @@ from inc_noesis import *
 
 from inc_sh4_ps2_textures import *
 from inc_sh4_xbox_textures import *
-# from inc_sh4_pc_textures import *
+from inc_sh4_pc_textures import *
 
 def sh4_bin(data, tex_list, platform):
     bin = NoeBitStream(data)
