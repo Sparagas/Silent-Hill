@@ -16,7 +16,7 @@ void sh4_ps2_textures() {
             FSeek(ofs_idx_hdr[i] + ps2_idx.hdr[i].ofs);
             struct {
                 if (ps2_idx.hdr[i].idx_fmt == idx_8b_256)
-                    ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2.hdr[i].h];
+                    ubyte idx_8b_256[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h];
                 else if (ps2_idx.hdr[i].idx_fmt == idx_4b_16)
                     ubyte idx_4b_16[ps2_idx.hdr[i].w * ps2_idx.hdr[i].h / 2];
             } dat;

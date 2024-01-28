@@ -74,7 +74,13 @@ void sh4_bin() {
 
         // SLGT file block
         else if (temp[0] == 0x4C53) {
-            #include "SH4 (PC) SLGT.bt"
+            if (platform == "PS2")
+                uint32 TODO_slgt_block;
+            else if (platform == "Xbox")
+                uint32 TODO_slgt_block;
+            else if (platform == "PC") {
+                #include "SH4 (PC) SLGT.bt"
+            }
         }
         // animation block
         else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
@@ -83,7 +89,13 @@ void sh4_bin() {
 
         // world mesh block
         else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
-            #include "SH4 (PC) world mesh.bt"
+            if (platform == "PS2")
+                uint32 TODO_world_mesh_block;
+            else if (platform == "Xbox")
+                uint32 TODO_world_mesh_block;
+            else if (platform == "PC") {
+                #include "SH4 (PC) world mesh.bt"
+            }
         }
         else
             uint32 unk_block;
