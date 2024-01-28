@@ -18,3 +18,4 @@ In other words - some are tools, but all can be viewed as documentation.
 * [Silent Hill: Book of Memories](https://github.com/stars/Sparagas/lists/silent-hill-book-of-memories)
 * [Silent Hill Mobile series](https://github.com/stars/Sparagas/lists/silent-hill-mobile-series)
 * [Play Novel: Silent Hill](https://github.com/stars/Sparagas/lists/play-novel-silent-hill)
+* [Dead by Daylight](https://github.com/stars/Sparagas/lists/dead-by-daylight)
