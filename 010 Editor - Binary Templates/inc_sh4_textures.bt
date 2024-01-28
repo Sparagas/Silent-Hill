@@ -1,14 +1,11 @@
 //------------------------------------------------
 //--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
-//   Version: 
+//      File: inc_sh4_textures.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
 //   Purpose: Silent Hill 4: The Room
-//  Category: 
-// File Mask: 
-//  ID Bytes: 
-//   History: 
+//  Category: Include file
 //------------------------------------------------
 
 void sh4_textures() {

@@ -1,17 +1,15 @@
 //------------------------------------------------
 //--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
+//      File: she_ios_sob.bt
+//    Author: Laurynas Zubavičius (Sparagas)
+//   Purpose: Silent Hill: The Escape (Apple - iOS)
 //  Category: 
-// File Mask: 
+// File Mask: *.sob
 //  ID Bytes: 
-//   History: 
 //------------------------------------------------
 
-uint32 count;
+uint32 num_entry;
 uint32 unk;
 
 struct Entry {
@@ -25,4 +23,4 @@ struct Entry {
 	float  rotate_deg_z;
     ubyte  unk[12];
     ubyte  unk_64;
-} entry[count];
+} entry[num_entry];

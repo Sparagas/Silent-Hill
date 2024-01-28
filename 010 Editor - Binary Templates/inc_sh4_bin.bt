@@ -1,14 +1,11 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
-//  ID Bytes: 
-//   History: 
+//      File: inc_sh4_bin.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
+//   Purpose: Silent Hill 4: The Room
+//  Category: Include file
 //------------------------------------------------
 
 #include "color.bt"
@@ -19,67 +16,76 @@
 
 
 void sh4_bin() {
-//------------------------------------------------
-// local variables (used for parsing, and are not part of file format)
-//------------------------------------------------
-
-    local uint32 local_ofs;
-    local uint32 k;
-    local uint16 temp[2];
-
-    //------------------------------------------------
-    // parsing sequance (the acutal reading of a file)
-    //------------------------------------------------
 
     uint32 num_block;
     uint32 ofs_block[num_block];
 
-    for (k = 0; k < num_block; k++) {
-        local_ofs = ofs_block[k];
-        FSeek(ofs_block[k]);
+    local uint32 local_ofs;
+    local uint16 temp[2];
+    local uint32 i;
+    for (i = 0; i < num_block; i++) {
+        local_ofs = ofs_block[i];
+        FSeek(ofs_block[i]);
         temp[0] = ReadUShort();
-        FSeek(ofs_block[k]+2);
+        FSeek(ofs_block[i]+2);
         temp[1] = ReadUShort();
-        FSeek(ofs_block[k]);
+        FSeek(ofs_block[i]);
 
-        if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
+        if (temp[0] == 0x0000 && temp[1] == 0x0000)
+            ubyte TODO_empty_block;
+        else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
             uint32 unk_ffffffff;
 
-        else if (temp[0] == temp[1]) { // texture block
+        // texture block
+        else if (temp[0] == temp[1]) {
             OffsetSetStart(FTell());
             struct {
                 sh4_textures();
-                if (platform == "PS2") {
+                if (platform == "PS2")
                     sh4_ps2_textures();
-                } else if (platform == "Xbox") {
+                else if (platform == "Xbox")
                     sh4_xbox_textures();
-                } else if (platform == "PC") {
+                else if (platform == "PC")
                     sh4_pc_textures();
-                }
             } img_block;
             OffsetClear();
         }
-        else if (temp[0] == 0x7000 && temp[1] == 0x0FC0) { // shadow mesh block
+        // shadow mesh block
+        else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
             //#include "SH4 (PC) shadow mesh.bt"
-            uint32 shadow_mesh_block;
-        } else if (temp[0] == 0xFF11) { // world collision mesh block
-            uint32 world_collision_mesh_block;
-        } else if (temp[0] == 0x0003) { // character mesh block
+            uint32 TODO_shadow_mesh_block;
+
+        // world collision mesh block
+        else if (temp[0] == 0xFF11)
+            uint32 TODO_world_collision_mesh_block;
+
+        // character mesh block
+        else if (temp[0] == 0x0003)
             //#include "SH4 (PC) character mesh.bt" //need to debug
-            uint32 character_mesh_block;
-        } else if (temp[0] == 0x8581) { // SDB file block
-            uint32 SDB_file_block;
-        } else if (temp[0] == 0x4554) { // Monster ID list
-            uint32 Monster_id_list;
-        } else if (temp[0] == 0x4C53) { // SLGT file block
+            uint32 TODO_character_mesh_block;
+
+        // SDB file block
+        else if (temp[0] == 0x8581)
+            uint32 TODO_SDB_file_block;
+
+        // Monster ID list
+        else if (temp[0] == 0x4554)
+            uint32 TODO_Monster_id_list;
+
+        // SLGT file block
+        else if (temp[0] == 0x4C53) {
             #include "SH4 (PC) SLGT.bt"
-        } else if (temp[0] == 0x0001 && temp[1] == 0xFF01) { // animation block
-            //#include "SH4 (PC) animation.bt" //need to debug
-            uint32 animation_block;
-        } else if (temp[0] == 0x0001 && temp[1] == 0xFC03) { // world mesh block
-            #include "SH4 (PC) world mesh.bt"
-        } else {
-            uint32 unk_block;
         }
+        // animation block
+        else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
+            //#include "SH4 (PC) animation.bt" //need to debug
+            uint32 TODO_animation_block;
+
+        // world mesh block
+        else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
+            #include "SH4 (PC) world mesh.bt"
+        }
+        else
+            uint32 unk_block;
     }
 };

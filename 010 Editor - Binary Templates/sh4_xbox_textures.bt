@@ -1,14 +1,13 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
+//      File: sh4_xbox_textures.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
+//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
+//  Category: Image
+// File Mask: *.textures
 //  ID Bytes: 
-//   History: 
 //------------------------------------------------
 
 #include "color.bt"

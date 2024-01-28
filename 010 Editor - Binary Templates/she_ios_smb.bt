@@ -1,14 +1,12 @@
 //------------------------------------------------
 //--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
+//      File: she_ios_smb.bt
+//    Author: Laurynas Zubavičius (Sparagas)
+//   Purpose: Silent Hill: The Escape (Apple - iOS)
 //  Category: 
-// File Mask: 
+// File Mask: *.smb
 //  ID Bytes: 
-//   History: 
 //------------------------------------------------
 
 uint16 room_count;

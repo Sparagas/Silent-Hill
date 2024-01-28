@@ -1,14 +1,12 @@
 //------------------------------------------------
 //--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
+//      File: she_ios_nom.bt
+//    Author: Laurynas Zubavičius (Sparagas)
+//   Purpose: Silent Hill: The Escape (Apple - iOS)
 //  Category: 
-// File Mask: 
-//  ID Bytes: 
-//   History: 
+// File Mask: *.nom
+//  ID Bytes: 4E 4F 4D 5F //NOM_
 //------------------------------------------------
 
 #include "vector.bt"

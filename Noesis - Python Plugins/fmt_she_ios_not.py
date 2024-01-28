@@ -1,5 +1,12 @@
-# Author:
-# Laurynas Zubavičius (Sparagas)
+"""Noesis Python Plugin
+
+      File: fmt_she_ios_not.py
+    Author: Laurynas Zubavičius (Sparagas)
+   Purpose: Silent Hill: The Escape (Apple - iOS)
+  Category: Image
+ File Mask: *.not
+  ID Bytes: 
+"""
 
 from inc_noesis import *
 
@@ -33,7 +40,6 @@ def load_rgba(data, tex_list):
         elif clr_mode_flg == 4:
             return "a1b5g5r5"
 
-    ctx = rapi.rpgCreateContext()
     bs = NoeBitStream(data)
     bs.seek(4)
     clr_mode_flg = bs.readUByte()
