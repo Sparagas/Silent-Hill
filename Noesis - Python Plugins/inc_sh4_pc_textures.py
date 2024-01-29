@@ -79,23 +79,28 @@ def sh4_pc_textures(data, tex_list):
             for k in range(img_hdr[i][j].num_mipmap):
                 bs.seek(ofs_pal_hdr[i] + ps2_pal[i].ofs + img_hdr[i][j].ofs_mipmap_dat[k] + j * 112) # hack
                 img_buf[i][j][k] = bs.readBytes(img_hdr[i][j].len_mipmap[k])
-                
+
                 w = img_hdr[i][j].w // (2 ** k)
-                if w < 4:
+                if w < 4 and img_hdr[i][j].img_fmt != 'RGBA8888':
                     w = 4
                 h = img_hdr[i][j].h // (2 ** k)
-                if h < 4:
+                if h < 4 and img_hdr[i][j].img_fmt != 'RGBA8888':
                     h = 4
-                
-                if img_hdr[i][j].img_fmt == 'RGBA8888':
-                    img = rapi.imageDecodeRaw(img_buf[i][j][k], w, h, 'b8g8r8a8')
-                elif img_hdr[i][j].img_fmt == 'DXT1':
-                    img = rapi.imageDecodeDXT(img_buf[i][j][k], w, h, noesis.NOESISTEX_DXT1)
-                elif img_hdr[i][j].img_fmt == 'DXT3':
-                    img = rapi.imageDecodeDXT(img_buf[i][j][k], w, h, noesis.NOESISTEX_DXT3)
-                elif img_hdr[i][j].img_fmt == 'DXT5':
-                    img = rapi.imageDecodeDXT(img_buf[i][j][k], w, h, noesis.NOESISTEX_DXT5)
 
-                img = NoeTexture(rapi.getInputName(), w, h, img, noesis.NOESISTEX_RGBA32)
+                name = rapi.getInputName() + '_' + str([i]) + '_' + str([j]) + '_' + str([k])
+                img = img_buf[i][j][k]
+
+                if img_hdr[i][j].img_fmt == 'RGBA8888':
+                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_RGBA32) # 'b8g8r8a8'
+
+                elif img_hdr[i][j].img_fmt == 'DXT1':
+                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT1)
+
+                elif img_hdr[i][j].img_fmt == 'DXT3':
+                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT3)
+
+                elif img_hdr[i][j].img_fmt == 'DXT5':
+                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT5)
+
                 img.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
                 tex_list.append(img)
