@@ -14,6 +14,8 @@ from inc_sh4_xbox_textures import *
 from inc_sh4_pc_textures import *
 
 def sh4_bin(data, tex_list, platform):
+    # fixes Noesis first image name bug
+    rapi.processCommands('-texnorepfn')
     bin = NoeBitStream(data)
     num_block = bin.readUInt()
     ofs_block = [bin.readUInt() for _ in range(num_block)]
