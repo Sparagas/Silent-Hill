@@ -35,11 +35,11 @@ def sh4_bin(data, tex_list, platform):
         elif temp0 == temp1:
             print(i, "image block")
             if platform == 'PS2':
-                sh4_ps2_textures(data[ofs_block[i]:], tex_list)
+                sh4_ps2_textures(data[ofs_block[i]:], tex_list, i)
             elif platform == 'Xbox':
-                sh4_xbox_textures(data[ofs_block[i]:], tex_list)
+                sh4_xbox_textures(data[ofs_block[i]:], tex_list, i)
             elif platform == 'PC':
-                sh4_pc_textures(data[ofs_block[i]:], tex_list)
+                sh4_pc_textures(data[ofs_block[i]:], tex_list, i)
 
         else:
             print(i, "other block")

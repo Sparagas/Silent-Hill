@@ -64,7 +64,8 @@ def load_rgba(data, tex_list):
         img_buf = rapi.imageDecodeRawPal(img_buf, pal_buf, img_w, img_h, img_bpp, clr_mode())
 
     img_buf = rapi.imageFlipRGBA32(img_buf, img_w, img_h, 0, 1)
-    img_buf = NoeTexture(rapi.getInputName(), img_w, img_h, img_buf, noesis.NOESISTEX_RGBA32)
+    name = rapi.getExtensionlessName(rapi.getInputName())
+    img_buf = NoeTexture(name, img_w, img_h, img_buf, noesis.NOESISTEX_RGBA32)
     img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
     tex_list.append(img_buf)
     return 1
