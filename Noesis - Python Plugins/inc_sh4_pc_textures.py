@@ -12,7 +12,7 @@ from inc_noesis import *
 from inc_sh4_textures import *
 
 
-def sh4_pc_textures(data, tex_list, block_num = None):
+def sh4_pc_textures(data, tex_list, block_num=None):
     bs = NoeBitStream(data)
 
     num_img = bs.readUShort()
@@ -62,7 +62,7 @@ def sh4_pc_textures(data, tex_list, block_num = None):
         for j in range(ps2_pal[i].num_pal):
             img_buf[i][j] = [0] * img_hdr[i][j].num_mip
             for k in range(img_hdr[i][j].num_mip):
-                bs.seek(ofs_pal_hdr[i] + ps2_pal[i].ofs + img_hdr[i][j].ofs_mip_dat[k] + j * 112) # hack
+                bs.seek(ofs_pal_hdr[i] + ps2_pal[i].ofs + img_hdr[i][j].ofs_mip_dat[k] + j * 112)  # hack
                 img_buf[i][j][k] = bs.readBytes(img_hdr[i][j].len_mip[k])
 
                 w = img_hdr[i][j].w // (2 ** k)
@@ -80,7 +80,8 @@ def sh4_pc_textures(data, tex_list, block_num = None):
                 img = img_buf[i][j][k]
 
                 if img_hdr[i][j].img_fmt == 'RGBA8888':
-                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_RGBA32) # 'b8g8r8a8'
+                    img = rapi.imageDecodeRaw(img, w, h, 'b8g8r8a8')
+                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_RGBA32)
 
                 elif img_hdr[i][j].img_fmt == 'DXT1':
                     img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT1)

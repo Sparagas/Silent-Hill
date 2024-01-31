@@ -12,7 +12,7 @@ from inc_noesis import *
 from inc_sh4_textures import *
 
 
-def sh4_ps2_textures(data, tex_list, block_num = None):
+def sh4_ps2_textures(data, tex_list, block_num=None):
     bs = NoeBitStream(data)
 
     num_img = bs.readUShort()
