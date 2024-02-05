@@ -18,9 +18,9 @@ void clr_mode(uint64 size) {
     switch (clr_mode_flg) {
         case 0 : RGB      rgb[size];      break;
         case 1 : RGBA     rgba[size];     break;
-        case 2 : RGB565   rgb565[size];   break;
-        case 3 : RGBA4444 rgba4444[size]; break;
-        case 4 : RGBA5551 rgba5551[size]; break;
+        case 2 : BGR565   bgr565[size];   break;
+        case 3 : ABGR4444 abgr4444[size]; break;
+        case 4 : ABGR1555 abgr1555[size]; break;
     }
 };
 
@@ -28,11 +28,11 @@ char   magic[4];
 Assert(magic == "NOT_", "Not Silent Hill: The Escape .not file");
 
 enum <ubyte> Clr_Mode_Flg {
-    rgb,
-    rgba,
-    rgb565,
-    rgba4444,
-    rgba5551
+    rgb      = 0,
+    rgba     = 1,
+    bgr565   = 2,
+    abgr4444 = 3,
+    abgr1555 = 4
 } clr_mode_flg;
 
 ubyte  img_bpp;

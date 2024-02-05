@@ -17,4 +17,4 @@ ubyte unk_0;
 ubyte dim_pwr;
 ubyte unk_0;
 ubyte unk_0;
-ubyte img_dat[Pow(2, dim_pwr) * Pow(2, dim_pwr) / 2];
+ubyte PVRTC_4bpp_RGBA [Pow(2, dim_pwr) * Pow(2, dim_pwr) / 2];

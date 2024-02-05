@@ -90,7 +90,7 @@ void sh4_xbox_textures() {
                     FSeek(ofs_ps2_img_pal_hdr[i] + ps2_img_pal_hdr.ps2_img_pal_hdr[i].ofs
                         + xbox_img_hdr.xbox_img_hdr[i].xbox_img_pal_hdr[j].ofs_pal_dat + 48 * j);
                     struct {
-                        RGBA rgba[256];
+                        BGRA bgra[256];
                     } xbox_img_pal_dat;
                 }
             } xbox_img_dat;
