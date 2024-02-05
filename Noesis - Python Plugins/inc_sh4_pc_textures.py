@@ -42,8 +42,6 @@ def sh4_pc_textures(data, tex_list, block_num=None):
                 self.img_fmt = 'DXT1'
             elif self.img_fmt == 861165636:
                 self.img_fmt = 'DXT3'
-            elif self.img_fmt == 894720068:
-                self.img_fmt = 'DXT5'
             self.num_mip = bs.readUInt()
             self.len_mip = [bs.readUInt() for _ in range(7)]
             bs.seek(4, NOESEEK_REL)
@@ -88,9 +86,6 @@ def sh4_pc_textures(data, tex_list, block_num=None):
 
                 elif img_hdr[i][j].img_fmt == 'DXT3':
                     img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT3)
-
-                elif img_hdr[i][j].img_fmt == 'DXT5':
-                    img = NoeTexture(name, w, h, img, noesis.NOESISTEX_DXT5)
 
                 img.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
                 tex_list.append(img)

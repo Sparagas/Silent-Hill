@@ -72,23 +72,111 @@ struct Index44 {
 };
 
 struct BC1_DXT1 {
-    uint16 color0;
-    uint16 color1;
-    uint32 index;
+    RGB565 color_0;
+    RGB565 color_1;
+              // y x
+    ubyte  index_0_0 : 2;
+    ubyte  index_0_1 : 2;
+    ubyte  index_0_2 : 2;
+    ubyte  index_0_3 : 2;
+
+    ubyte  index_1_0 : 2;
+    ubyte  index_1_1 : 2;
+    ubyte  index_1_2 : 2;
+    ubyte  index_1_3 : 2;
+    
+    ubyte  index_2_0 : 2;
+    ubyte  index_2_1 : 2;
+    ubyte  index_2_2 : 2;
+    ubyte  index_2_3 : 2;
+
+    ubyte  index_3_0 : 2;
+    ubyte  index_3_1 : 2;
+    ubyte  index_3_2 : 2;
+    ubyte  index_3_3 : 2;
 };
 
 struct BC2_DXT3 {
-    uint64 alpha;
-    uint16 color0;
-    uint16 color1;
-    uint32 index;
+    uint16 alpha_0_0 : 4;
+    uint16 alpha_0_1 : 4;
+    uint16 alpha_0_2 : 4;
+    uint16 alpha_0_3 : 4;
+
+    uint16 alpha_1_0 : 4;
+    uint16 alpha_1_1 : 4;
+    uint16 alpha_1_2 : 4;
+    uint16 alpha_1_3 : 4;
+
+    uint16 alpha_2_0 : 4;
+    uint16 alpha_2_1 : 4;
+    uint16 alpha_2_2 : 4;
+    uint16 alpha_2_3 : 4;
+
+    uint16 alpha_3_0 : 4;
+    uint16 alpha_3_1 : 4;
+    uint16 alpha_3_2 : 4;
+    uint16 alpha_3_3 : 4;
+
+    RGB565 color_0;
+    RGB565 color_1;
+              // y x
+    ubyte  index_0_0 : 2;
+    ubyte  index_0_1 : 2;
+    ubyte  index_0_2 : 2;
+    ubyte  index_0_3 : 2;
+
+    ubyte  index_1_0 : 2;
+    ubyte  index_1_1 : 2;
+    ubyte  index_1_2 : 2;
+    ubyte  index_1_3 : 2;
+    
+    ubyte  index_2_0 : 2;
+    ubyte  index_2_1 : 2;
+    ubyte  index_2_2 : 2;
+    ubyte  index_2_3 : 2;
+
+    ubyte  index_3_0 : 2;
+    ubyte  index_3_1 : 2;
+    ubyte  index_3_2 : 2;
+    ubyte  index_3_3 : 2;
 };
 
 struct BC3_DXT5 {
-    uint64 alpha;
-    uint16 color0;
-    uint16 color1;
-    uint32 index;
+    ubyte  alpha_0;
+    ubyte  alpha_1;
+    struct {
+        ubyte  lsb <hidden=true>;
+        ubyte  b   <hidden=true>;
+        ubyte  msb <hidden=true>;
+    } uint24_alpha_3bit;
+    struct {
+        ubyte  lsb <hidden=true>;
+        ubyte  b   <hidden=true>;
+        ubyte  msb <hidden=true>;
+    } uint24_alpha_3bit;
+
+    RGB565 color_0;
+    RGB565 color_1;
+              // y x
+    ubyte  index_0_0 : 2;
+    ubyte  index_0_1 : 2;
+    ubyte  index_0_2 : 2;
+    ubyte  index_0_3 : 2;
+
+    ubyte  index_1_0 : 2;
+    ubyte  index_1_1 : 2;
+    ubyte  index_1_2 : 2;
+    ubyte  index_1_3 : 2;
+    
+    ubyte  index_2_0 : 2;
+    ubyte  index_2_1 : 2;
+    ubyte  index_2_2 : 2;
+    ubyte  index_2_3 : 2;
+
+    ubyte  index_3_0 : 2;
+    ubyte  index_3_1 : 2;
+    ubyte  index_3_2 : 2;
+    ubyte  index_3_3 : 2;
 };
 
 #endif

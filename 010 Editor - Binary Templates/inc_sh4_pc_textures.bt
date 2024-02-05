@@ -17,8 +17,7 @@ void sh4_pc_textures() {
         enum {
             bgra = 21,
             DXT1 = 827611204,
-            DXT3 = 861165636,
-            DXT5 = 894720068
+            DXT3 = 861165636
         } img_fmt;
         uint32 num_mip;        // including original image
         uint32 len_mip[7];
@@ -45,8 +44,10 @@ void sh4_pc_textures() {
     struct PcImgMipDat(uint32 img_fmt, uint32 len_mip) {
         if (img_fmt == bgra)
             BGRA bgra[len_mip / 4];
-        else
-            ubyte img_dat[len_mip];
+        else if (img_fmt == DXT1)
+            BC1_DXT1 bc1_dxt1[len_mip / 8];
+        else if (img_fmt == DXT3)
+            BC2_DXT3 bc2_dxt3[len_mip / 16];
     };
 
 
