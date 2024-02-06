@@ -49,25 +49,24 @@ def load_model(data, mdlList):
                 self.color = bs.readBytes(self.num_color * 16)
 
             bs.seek(154, NOESEEK_REL)
-            self.texture_name = bs.readBytes(20)
+            self.texture_name = noeStrFromBytes(bs.readBytes(20))
 
-            if self.texture_name[:0] != b'\x00':
+            if self.texture_name != '':
                 self.texcoord_index = bs.readBytes(self.num_index * 2)
                 self.num_texcoord = bs.readUInt()
                 self.texcoord = bs.readBytes(self.num_texcoord * 8)
 
-    mesh = Mesh()
+    mesh = [Mesh() for _ in range(num_mesh)]
 
-    rapi.rpgBindPositionBuffer(mesh.position, noesis.RPGEODATA_FLOAT, 12)
-    # rapi.rpgBindColorBufferOfs(vcolbuf, noesis.RPGEODATA_UBYTE, 4, 0, 4)
-    rapi.rpgBindUV1Buffer(mesh.texcoord, noesis.RPGEODATA_FLOAT, 8)
-    rapi.rpgSetName('{}'.format(mesh.mesh_name))
-    # i += 1
-    rapi.rpgCommitTriangles(mesh.index, noesis.RPGEODATA_SHORT, mesh.num_index, noesis.RPGEO_TRIANGLE)
-    # triangles = createTriList(skipList)
-    # rapi.rpgCommitTriangles(triangles, noesis.RPGEODATA_INT, len(triangles) // 4, noesis.RPGEO_TRIANGLE, 1)
-
+    for i in range(num_mesh):
+        rapi.rpgBindPositionBuffer(mesh[i].position, noesis.RPGEODATA_FLOAT, 12)
+        # rapi.rpgBindColorBufferOfs(vcolbuf, noesis.RPGEODATA_UBYTE, 4, 0, 4)
+        # rapi.rpgBindUV1Buffer(mesh.texcoord, noesis.RPGEODATA_FLOAT, 8)
+        rapi.rpgSetName('{}'.format(mesh[i].mesh_name))
+        rapi.rpgSetMaterial('{}'.format(mesh[i].mesh_name))
+        rapi.rpgCommitTriangles(mesh[i].index, noesis.RPGEODATA_SHORT, mesh[i].num_index, noesis.RPGEO_TRIANGLE)
+        rapi.rpgClearBufferBinds()
     mdl = rapi.rpgConstructModel()
-    # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
+        # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
     mdlList.append(mdl)
     return 1
