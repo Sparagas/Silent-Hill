@@ -5,7 +5,7 @@
    Purpose: Silent Hill: The Escape (Apple - iOS)
   Category: Model
  File Mask: *.nom
-  ID Bytes: 
+  ID Bytes: 4E 4F 4D 5F //NOM_
 """
 
 from inc_noesis import *
@@ -51,7 +51,7 @@ def load_model(data, mdlList):
             bs.seek(154, NOESEEK_REL)
             self.texture_name = noeStrFromBytes(bs.readBytes(20))
 
-            if self.texture_name != '':
+            if self.texture_name !='':
                 self.texcoord_index = bs.readBytes(self.num_index * 2)
                 self.num_texcoord = bs.readUInt()
                 self.texcoord = bs.readBytes(self.num_texcoord * 8)
@@ -60,13 +60,11 @@ def load_model(data, mdlList):
 
     for i in range(num_mesh):
         rapi.rpgBindPositionBuffer(mesh[i].position, noesis.RPGEODATA_FLOAT, 12)
-        # rapi.rpgBindColorBufferOfs(vcolbuf, noesis.RPGEODATA_UBYTE, 4, 0, 4)
-        # rapi.rpgBindUV1Buffer(mesh.texcoord, noesis.RPGEODATA_FLOAT, 8)
+        # rapi.rpgBindColorBuffer(mesh[i].color, noesis.RPGEODATA_UBYTE, 4, 4)
+        # rapi.rpgBindUV1Buffer(mesh[i].texcoord, noesis.RPGEODATA_FLOAT, 8)
         rapi.rpgSetName('{}'.format(mesh[i].mesh_name))
-        rapi.rpgSetMaterial('{}'.format(mesh[i].mesh_name))
         rapi.rpgCommitTriangles(mesh[i].index, noesis.RPGEODATA_SHORT, mesh[i].num_index, noesis.RPGEO_TRIANGLE)
-        rapi.rpgClearBufferBinds()
     mdl = rapi.rpgConstructModel()
-        # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
+    # mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
     mdlList.append(mdl)
     return 1
