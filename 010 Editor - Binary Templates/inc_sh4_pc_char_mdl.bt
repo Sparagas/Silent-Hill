@@ -181,4 +181,4 @@ struct Model3 {
 
     //ChrPart chr_parts[n_vu1_parts] <optimize = false>; // need to debug
 
-} char_model_block;
+};

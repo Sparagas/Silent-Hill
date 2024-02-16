@@ -13,6 +13,7 @@
 #include "inc_sh4_ps2_textures.bt"
 #include "inc_sh4_xbox_textures.bt"
 #include "inc_sh4_pc_textures.bt"
+#include "inc_sh4_pc_char_mdl.bt"
 
 
 void sh4_bin() {
@@ -33,6 +34,7 @@ void sh4_bin() {
 
         if (temp[0] == 0x0000 && temp[1] == 0x0000)
             ubyte TODO_empty_block;
+
         else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
             uint32 unk_ffffffff;
 
@@ -60,10 +62,14 @@ void sh4_bin() {
             uint32 TODO_world_collision_mesh_block;
 
         // character mesh block
-        else if (temp[0] == 0x0003)
-            //#include "SH4 (PC) character mesh.bt" //need to debug
-            uint32 TODO_character_mesh_block;
-
+        else if (temp[0] == 0x0003) {
+            OffsetSetStart(FTell());
+                if (platform == "PC")
+                    Model3 char_mdl_block;
+                else
+                    uint32 TODO_non_PC_char_mdl_block;
+            OffsetClear();
+        }
         // SDB file block
         else if (temp[0] == 0x8581)
             uint32 TODO_SDB_file_block;
