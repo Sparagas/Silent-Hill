@@ -1,14 +1,14 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
-//      File: SH4 Mesh
-//   Authors: Hunter Stanton
-//   Version: 
-//   Purpose: A binary template for Silent Hill 4 PC meshes (aka Model3)
-//  Category: 
+//      File: inc_sh4_pc_char_mdl.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Hunter Stanton
+//            Rodolfo Nuñez (roocker666)
+//   Purpose: Silent Hill 4: The Room (Microsoft - Windows)
+//  Category: 3D model
 // File Mask: 
 //  ID Bytes: 
-//   History: 
 //------------------------------------------------
 
 typedef struct FuncData
@@ -39,23 +39,25 @@ typedef struct ClusterNode
     short k;
 } clusterNode;
 
-typedef struct Quaternion
-{
-    float x;
-    float y;
-    float z;
-    float w;
-} Quaternion;
-
 typedef struct FourByFourMatrix
 {
-    Quaternion quaternion[4];
+    float M00;
+    float M01;
+    float M02;
+    float M03;
+    float M10;
+    float M11;
+    float M12;
+    float M13;
+    float M20;
+    float M21;
+    float M22;
+    float M23;
+    float M30;
+    float M31;
+    float M32;
+    float M33;
 } fourByFourMatrix;
-
-typedef enum ChunkIDs
-{
-    ChrMesh = 4294901763,
-} chunkIDs;
 
 typedef enum MeshRevision
 {
@@ -76,7 +78,7 @@ typedef struct ChrPart
 {
     uint32 size;
     uint32 type;
-    uint32 packet_offset <format=hex>;
+    uint32 packet_offset <format=hex>; // float!
     uint32 packet_qwc;
     uint32 xtop;
     uint32 n_cluster_data;
@@ -118,67 +120,106 @@ typedef struct ChrPart
     ubyte unk5[0x4c];
     FSeek(FTell() + 0x10);
 
-    uint32 triStripCount;
-    uint32 vertexCount;
-    uint32 vertexSize;
+    uint32 triStripCount; // too big!
+    uint32 vertexCount;   // too big!
+    uint32 vertexSize;    // too big!
 
     FSeek(FTell() + 0x10);
 
-    Vertex vertices[vertexCount];
+    // vertex vertices[vertexCount]; // too big!
 } ChrPart;
 
 struct Model3 {
-    ChunkIDs id;
-    MeshRevision revision;
-    uint32 initial_matrices_offset <format=hex>;
-    uint32 n_skeletons;
-    uint32 skeleton_structure_offset <format=hex>;
-    uint32 n_skeleton_pairs;
-    uint32 skeleton_pairs_offset <format=hex>;
-    uint32 default_pcms_offset <format=hex>;
-    uint32 n_vu1_parts;
-    uint32 vu1_parts_offset <format=hex>;
-    uint32 n_vu0_parts;
-    uint32 vu0_parts_offset <format=hex>;
-    uint32 n_texture_blocks;
-    uint32 texture_blocks_offset <format=hex>;
-    uint32 n_text_poses;
-    uint32 text_poses_offset <format=hex>;
-    uint32 text_pos_params_offset <format=hex>;
-    uint32 n_cluster_nodes;
-    uint32 cluster_nodes_offset <format=hex>;
-    uint32 n_clusters;
-    uint32 clusters_offset <format=hex>;
-    uint32 n_func_data;
-    uint32 func_data_offset <format=hex>;
-    uint32 hit_offset <format=hex>;
-    uint32 box_offset <format=hex>;
-    uint32 flag;
-    uint32 relative_matrices_offset <format=hex>;
-    uint32 relative_transes_offset <format=hex>;
-    uint32 hits_offset <format=hex>;
-    uint32 reserved_1d;
-    uint32 tanmparams;
-    uint32 textureextras;
+    struct {
+        int16 magic;
+        Assert(magic == 3, "Not Silent Hill 4: The Room character model");
+        int16 magic;
+        Assert(magic == -1, "Not Silent Hill 4: The Room character model");
+        MeshRevision revision;
 
-    FSeek(initial_matrices_offset);
+        uint32 ofs_bones <format=hex>;
+        uint32 num_bones;
+        uint32 ofs_parents <format=hex>;
 
-    FourByFourMatrix skeletons[n_skeletons];
+        uint32 num_bone_pairs;
+        uint32 ofs_parent_pairs <format=hex>;
+        uint32 ofs_bone_pairs <format=hex>;
 
-    FSeek(default_pcms_offset);
+        uint32 num_vu1_parts;
+        uint32 ofs_vu1_parts <format=hex>;
+        uint32 num_vu0_parts;
+        uint32 ofs_vu0_parts <format=hex>;
 
-    FourByFourMatrix skeletonPairs[n_skeleton_pairs];
+        uint32 num_tex;
+        uint32 ofs_tex <format=hex>;
 
-    FSeek(cluster_nodes_offset);
+        uint32 num_text_poses;
+        uint32 ofs_text_poses <format=hex>;
+        uint32 unk_text_pos_params;
 
-    ClusterNode cluster_nodes[n_cluster_nodes];
+        uint32 num_cluster_nodes;
+        uint32 ofs_cluster_nodes <format=hex>;
 
-    FSeek(box_offset);
+        uint32 num_clusters;
+        uint32 ofs_clusters <format=hex>;
 
+        uint32 num_func_data;
+        uint32 ofs_func_data <format=hex>;
+
+        uint32 ofs_hit <format=hex>;
+        uint32 ofs_box <format=hex>;
+
+        uint32 unk_flag;
+
+        uint32 ofs_relative_matrices <format=hex>;
+        uint32 ofs_relative_transes <format=hex>;
+        uint32 ofs_hits <format=hex>;
+        uint32 unk_reserved_1d;
+        uint32 unk_tanmparams;
+        uint32 unk_textureextras;
+    } hdr;
+    FSeek(hdr.ofs_bones);
+    FourByFourMatrix bones[hdr.num_bones];
+
+    FSeek(hdr.ofs_bone_pairs);
+    FourByFourMatrix bone_pairs[hdr.num_bone_pairs];
+
+    FSeek(hdr.ofs_parents);
+    byte parents[hdr.num_bones];
+
+    FSeek(hdr.ofs_parent_pairs);
+    byte parent_pairs[hdr.num_bone_pairs * 2];
+    
+    FSeek(hdr.ofs_tex);
+    uint32 tex_idx[hdr.num_tex];
+
+    FSeek(hdr.ofs_text_poses);
+    int unk_text_poses_idx[hdr.num_text_poses * 2];
+
+    FSeek(hdr.ofs_cluster_nodes);
+    ClusterNode cluster_nodes[hdr.num_cluster_nodes];
+    
+    FSeek(hdr.ofs_clusters);
+    int todo_clusters[hdr.num_clusters]; // 121 ints
+    
+    if (hdr.num_func_data != 0) {
+        FSeek(hdr.ofs_func_data);
+        int todo_func_data[hdr.num_func_data];
+    }
+
+    FSeek(hdr.ofs_hit);
+    int todo_hit;
+
+    FSeek(hdr.ofs_box);
     Box boxes[8];
 
-    FSeek(vu1_parts_offset);
+    if (hdr.num_vu1_parts != 0) {
+        FSeek(hdr.ofs_vu1_parts);
+        ChrPart chr_vu1_parts <optimize=false>; // need to debug [hdr.num_vu1_parts]
+    }
 
-    //ChrPart chr_parts[n_vu1_parts] <optimize = false>; // need to debug
-
+    if (hdr.num_vu0_parts != 0) {
+        FSeek(hdr.ofs_vu0_parts);
+        ChrPart chr_vu0_parts <optimize=false>;
+    }
 };

@@ -64,10 +64,10 @@ void sh4_bin() {
         // character mesh block
         else if (temp[0] == 0x0003) {
             OffsetSetStart(FTell());
-                if (platform == "PC")
+                // if (platform == "PC")
                     Model3 char_mdl_block;
-                else
-                    uint32 TODO_non_PC_char_mdl_block;
+                // else
+                    // uint32 TODO_non_PC_char_mdl_block;
             OffsetClear();
         }
         // SDB file block
