@@ -75,56 +75,75 @@ typedef struct Vertex
 } vertex;
 
 typedef struct ChrPart
-{
+{   local int ofs = FTell();
     uint32 size;
-    uint32 type;
-    uint32 packet_offset <format=hex>; // float!
-    uint32 packet_qwc;
-    uint32 xtop;
-    uint32 n_cluster_data;
-    uint32 cluster_data_offset <format=hex>;
-    uint32 n_skeletons;
-    uint32 skeletons_offset <format=hex>;
-    uint32 n_skeleton_pairs;
-    uint32 skeleton_pairs_offset <format=hex>;
-    uint32 data_skeletons_offset <format=hex>;
-    uint32 data_skeleton_pairs_offset <format=hex>;
-    uint32 n_textures;
-    uint32 text_pos_indices_offset <format=hex>;
-    uint32 texture_params_offset <format=hex>;
-    ubyte shading_type;
-    ubyte specular_pos;
-    ubyte equipment_id;
-    ubyte hoge[1];
-    ubyte backclip;
-    ubyte envmap_param;
-    ubyte reserved[2];
-    float phong_param_a;
-    float phong_param_b;
-    float blinn_param;
+    uint32 unk_type;
+    uint32 ofs_packet <format=hex>;
+    uint32 unk_packet_qwc;
+    uint32 unk_xtop;
+    uint32 num_cluster_data;
+    uint32 ofs_cluster_data <format=hex>;
+    uint32 num_skeletons;
+    uint32 ofs_skeletons <format=hex>;
+    uint32 num_skeleton_pairs;
+    uint32 ofs_skeleton_pairs <format=hex>;
+    uint32 ofs_data_skeletons <format=hex>;
+    uint32 ofs_data_skeleton_pairs <format=hex>;
+    uint32 num_textures;
+    uint32 ofs_text_pos_indices <format=hex>;
+    uint32 ofs_texture_params <format=hex>;
+    ubyte  unk_shading_type;
+    ubyte  unk_specular_pos;
+    ubyte  unk_equipment_id;
+    ubyte  unk_hoge;
+    ubyte  unk_backclip;
+    ubyte  unk_envmap_param;
+    ubyte  reserved[2];
+    float  unk_phong_param_a;
+    float  unk_phong_param_b;
+    float  unk_blinn_param;
     uint32 padding[3];
-    float diffuse[4];
-    float ambient[4];
-    float specular[4];
+    float  diffuse[4];
+    float  ambient[4];
+    float  specular[4];
 
-    int16 skeletons[n_skeletons];
-    int16 skeletons_pairs[n_skeleton_pairs];
-    int16 textures[n_skeletons + n_skeleton_pairs];
+    int16  skeletons[num_skeletons];
+    int16  skeletons_pairs[num_skeleton_pairs];
+    int16  textures[num_skeletons + num_skeleton_pairs]; // ???
 
-    uint32 pad[2];
-    uint32 unk;
-    uint32 unk2;
-    uint32 unk3;
-    uint32 unk4;
+    
 
-    ubyte unk5[0x4c];
-    FSeek(FTell() + 0x10);
+    FSeek(ofs + ofs_packet);
+    int todo;
+    FSeek(ofs + ofs_cluster_data);
+    int todo;
+    FSeek(ofs + ofs_skeletons);
+    int todo;
+    FSeek(ofs + ofs_skeleton_pairs);
+    int todo;
+    FSeek(ofs + ofs_data_skeletons);
+    int todo;
+    FSeek(ofs + ofs_data_skeleton_pairs);
+    int todo;
+    FSeek(ofs + ofs_text_pos_indices);
+    int todo;
+    FSeek(ofs + ofs_texture_params);
+    int todo;
 
-    uint32 triStripCount; // too big!
-    uint32 vertexCount;   // too big!
-    uint32 vertexSize;    // too big!
+    // uint32 pad[2];
+    // uint32 unk;
+    // uint32 unk2;
+    // uint32 unk3;
+    // uint32 unk4;
 
-    FSeek(FTell() + 0x10);
+    // ubyte unk5[0x4c];
+    // FSeek(FTell() + 0x10);
+
+    // uint32 triStripCount; // too big!
+    // uint32 vertexCount;   // too big!
+    // uint32 vertexSize;    // too big!
+
+    // FSeek(FTell() + 0x10);
 
     // vertex vertices[vertexCount]; // too big!
 } ChrPart;
