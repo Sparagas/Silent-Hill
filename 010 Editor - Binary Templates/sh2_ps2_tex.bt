@@ -1,14 +1,13 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
+//      File: sh3_ps2_tex.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
+//   Purpose: Silent Hill 3 (Sony - PlayStation 2)
+//  Category: Image
+// File Mask: *.tex
 //  ID Bytes: 
-//   History: 
 //------------------------------------------------
 
 struct ImgIndexHead        // sh2gfw_TEX_HEAD
@@ -18,19 +17,19 @@ struct ImgIndexHead        // sh2gfw_TEX_HEAD
     uint16 unk_y;          // y
     uint16 width;          // w
     uint16 height;         // h
-    ubyte unk_color;       // color
-    ubyte len_pad;         // padbyte
+    ubyte  clr_bpp;        // color
+    ubyte  len_pad;        // padbyte
     uint16 unk_importance; // importance
     uint32 body_size;      // datasize
     uint32 all_size;       // allsize
-    ubyte unk_sendpsm;     // sendpsm
-    ubyte unk_drawpsm;     // drawpsm
-    ubyte unk_bitshift;    // bitshift
-    ubyte unk_tagpoint;    // tagpoint
-    ubyte unk_bitw;        // bitw
-    ubyte unk_bith;        // bith
+    ubyte  unk_sendpsm;    // sendpsm
+    ubyte  unk_drawpsm;    // drawpsm
+    ubyte  unk_bitshift;   // bitshift
+    ubyte  unk_tagpoint;   // tagpoint
+    ubyte  unk_bitw;       // bitw
+    ubyte  unk_bith;       // bith
     uint16 unk_check;      // check
-    char unk_giftag[16];   // ???? Q_WORDDATA giftag; ????
+    char   unk_giftag[16]; // ???? Q_WORDDATA giftag; ????
 };
 
 struct ImgPalHead             // sh2gfw_CLUTS_HEAD
@@ -38,16 +37,15 @@ struct ImgPalHead             // sh2gfw_CLUTS_HEAD
     uint32 body_size;         // clutssize
     uint32 unk_GSREGS_offs;   // toGSREGS
     uint32 unk_Raw_clut_offs; // toRawClut
-    ubyte pal_count;          // clutamount
-    ubyte unk_transcluts;     // transcluts
-    ubyte unk_clw;            // clw
-    ubyte unk_clh;            // clh
-    ubyte unk_fmt[16];        // fmt[16]
-    ubyte unk_trans[16];      // transparency[16]
+    ubyte  pal_count;         // clutamount
+    ubyte  unk_transcluts;    // transcluts
+    ubyte  unk_clw;           // clw
+    ubyte  unk_clh;           // clh
+    ubyte  unk_fmt[16];       // fmt[16]
+    ubyte  unk_trans[16];     // transparency[16]
 };
 
-struct PalPart
-{
+struct PalPart {
     ubyte pal_0[64];
     ubyte pal_1[64];
     ubyte pal_2[64];
@@ -59,8 +57,10 @@ struct PalPage
     struct PalPart pal_part[4];
 };
 
-FSeek(64);
+
+FSeek(96);
 struct ImgIndexHead img_index_head;
+
 if(img_index_head.len_pad != 0)
 {
     ubyte pad[img_index_head.len_pad];
@@ -68,7 +68,7 @@ if(img_index_head.len_pad != 0)
 
 ubyte index[img_index_head.body_size];
 
-if(img_index_head.unk_color != 24)
+if(img_index_head.clr_bpp != 24)
 {
     struct ImgPalHead img_pal_head;
     struct PalPage pal_page[img_pal_head.pal_count];
