@@ -1,0 +1,208 @@
+  This is work in progress list of media (usually demo discs) that contains stuff related to Silent Hill, like demos, savegames, trailers or other videos, reviews, release info, etc.
+  
+- Best Horror Games Ever Demo
+- Best of the Best: A Tribute to Game Music
+- Cheats Vol. 7
+- Computer Bild Spiele 10/2011 (Gold-DVD)
+- Consol': 02/2006 (07)
+- Dance Dance Revolution 3rd Mix: Original Soundtrack (Disc 1) (Original Soundtrack)
+- Dance Dance Revolution 3rd Mix: Original Soundtrack (Disc 2) (Nonstop Megamix)
+- Dengeki PS2 PlayStation D46
+- Dengeki PS2 PlayStation D50
+- Dengeki PS2 PlayStation D53
+- Dengeki PS2 PlayStation D54
+- Dengeki PS2 PlayStation D58
+- Dengeki PS2 PlayStation D59
+- Dengeki PS2 PlayStation D60
+- Dengeki PS2 PlayStation D61
+- Dengeki PS2 PlayStation D63
+- Dengeki PS2 PlayStation D67
+- Dengeki PS2 PlayStation D69
+- Dengeki PS2 PlayStation D70
+- Dengeki PS2 PlayStation D73
+- Dengeki PS2 PlayStation D78
+- Dengeki PS2 PlayStation D84
+- Dengeki PS2 PlayStation D96
+- Dengeki PS2: PlayStation 2 Save Data Collection 2006
+- DVD Gamer: April 2004/Issue 134 (Side A)
+- DVD Zone: PC Zone Issue 123 Christmas 2002 (Side 1)
+- DVD Zone: PC Zone Issue 136 Christmas 2003 (Side 1)
+- E3 Confidential 2006 (Disco 5) (Trailers)
+- Euro Demo (Future) 103
+- Euro Demo (Future) 97
+- Euro Demo 04/99 'Action Special'
+- Euro Demo 29
+- Euro Demo 40
+- Euro Demo 46
+- Euro Demo 65
+- Euro Demo 82
+- Euro Demo 87
+- Famitsu Wave 2gatsu-gou Vol. 7
+- Famitsu Wave DVD 2009 12gatsu-gou Tokubetsu Furoku (Disc 1)
+- Game.EXE: 12/2003 (101)
+- GamePro 08/2003
+- GamePro Action Disc 2
+- GameStar 04/2009 (DVD-XL)
+- GameStar 04/2009 (AB-18-DVD)
+- GameStar 09/2003 (AB-16-DVD)
+- GameStar 09/2003 (Ab-18-DVD)
+- GameStar DVD Edition 03/2003
+- Germany Speziale 11/99
+- Giochi per il Mio Computer DVD: Natale 2003
+- Giochi per il Mio Computer: Natale 2003 (Disc D)
+- Holiday 2004 Demo Disc
+- Igromania: 09/2003 (72) (Disc 1)
+- Igromania: 11/2007 (122) (Videomania)
+- Igromania: 12/2008 (135) (DVD-Mania)
+- Instant Cheats: Volume 8
+- Jampack Demo Disc Volume 11
+- Jampack: Summer 2003
+- Konami On Screen Line-Up 2007/2008 Press Kit
+- Konami Press Assets Line-Up 2008/2009
+- Konami Preview Disc
+- Konsol': 01/2006 (6)
+- Launch: Issue No. 28
+- Magazine Ufficiale PlayStation 2 Demo Italia 04/03
+- Magazine Ufficiale PlayStation 2 Demo Italia 06/03
+- Magazine Ufficiale PlayStation 2 Demo Special Cinema
+- Magazine Ufficiale PlayStation 2 Italia 01/04 Demo
+- Magazine Ufficiale PlayStation 2 Italia 06/04
+- Magazine Ufficiale PlayStation 2 Italia 09/04
+- Magazine Ufficiale PlayStation 2 Italia Demo Speciale Horror
+- The Making of Metal Gear Solid 2: Sons of Liberty
+- Mega Score Special Edition E3
+- Mindscape: Konami
+- Navigator igrovogo mira: 02/2005 (93)
+- Official PlayStation 2 Magazine Demo 12
+- Official PlayStation 2 Magazine Demo 12
+- Official PlayStation 2 Magazine Demo 12
+- Official PlayStation 2 Magazine Demo 32
+- Official PlayStation 2 Magazine Demo 32
+- Official PlayStation 2 Magazine Demo 34
+- Official PlayStation 2 Magazine Demo 34
+- Official PlayStation 2 Magazine Demo 34
+- Official PlayStation 2 Magazine Demo 34
+- Official PlayStation 2 Magazine Demo 41
+- Official PlayStation 2 Magazine Demo 41
+- Official PlayStation 2 Magazine Demo 41
+- Official PlayStation 2 Magazine Demo 41
+- Official PlayStation 2 Magazine Demo 41
+- Official PlayStation 2 Magazine Demo 46
+- Official PlayStation 2 Magazine Demo 47
+- Official PlayStation 2 Magazine Demo 47
+- Official PlayStation 2 Magazine Demo 48
+- Official PlayStation 2 Magazine Demo 48
+- Official PlayStation 2 Magazine Demo 49
+- Official PlayStation 2 Magazine Demo 50
+- Official PlayStation 2 Magazine Demo 50
+- Official PlayStation 2 Magazine Demo 50
+- Official PlayStation 2 Magazine Demo 50
+- Official PlayStation 2 Magazine Demo 52
+- Official PlayStation 2 Magazine Demo 53
+- Official PlayStation 2 Magazine Demo 57
+- Official PlayStation 2 Magazine Demo 60
+- Official PlayStation 2 Magazine Demo 60
+- Official PlayStation 2 Magazine Demo 62
+- Official PlayStation 2 Magazine Demo 76
+- Official PlayStation 2 Magazine Demo 77
+- Official PlayStation 2 Magazine Demo 78
+- Official PlayStation 2 Magazine Demo 78
+- Official PlayStation 2 Magazine Demo 79
+- Official PlayStation 2 Magazine Demo 80
+- Official PlayStation 2 Magazine Demo 80
+- Official PlayStation 2 Magazine Demo 80
+- Official PlayStation 2 Magazine Demo 81
+- Official PlayStation 2 Magazine Demo 82
+- Official PlayStation 2 Magazine Demo 84
+- Official PlayStation 2 Magazine Germany Special Edition 01/2004
+- Official PlayStation 2 Magazine Germany Special Edition 2003/03
+- Official PlayStation 2 Magazine Germany Special Edition 2005/01
+- Official PlayStation 2 Magazine Spécial Noël 2004
+- Official PlayStation 2 Magazine-UK Greatest Hits Volume 3: Special Edition: Players Guide
+- Official PlayStation 2 Magazine-UK Greatest Hits Volume 4: Special Edition: Yearbook 2001
+- Official PlayStation 2 Magazine-UK Special Edition 14: The Hit Squad
+- Official PlayStation 2 Magazine-UK Special Edition 17: The Best Games of 2003!
+- Official U.S. PlayStation Magazine Demo Disc 112
+- Official U.S. PlayStation Magazine Demo Disc 15
+- Official U.S. PlayStation Magazine Demo Disc 16
+- Official U.S. PlayStation Magazine Demo Disc 49
+- Official U.S. PlayStation Magazine Demo Disc 67
+- Official U.S. PlayStation Magazine Demo Disc 71
+- Official U.S. PlayStation Magazine Demo Disc 72
+- Official U.S. PlayStation Magazine Demo Disc 77
+- Official U.S. PlayStation Magazine Demo Disc 85
+- Official U.S. PlayStation Magazine Demo Disc 86
+- Official Xbox Magazine Game Disc 29
+- Official Xbox Magazine Game Disc 32
+- Official Xbox Magazine Game Disc 35
+- PC Action: Action Disc: Gennaio 2005 (Disc 3)
+- PC Action: Action Disc: Settembre 2003 (Disco 2)
+- PC Fun eXtreme n. 16: Novembre 2004
+- PC Gaming World: Issue 1 April 2003
+- Play Season 20 (Issue 154)
+- Play Season 25 (Issue 159)
+- Play Zone DVD Vol. 5: Avril 2001
+- Play Zone DVD Vol. 8: Juillet-Août 2001
+- Play-Pre 2 Volume 2: 2001 August
+- Play-Pre 2 Volume 3: 2001 December
+- Play-Pre 2 Volume 8: 2003 August
+- Playable Cheats Vol. 22
+- Playable Cheats Vol. 8
+- Playmag DVD #55
+- PlayStation 2 Magazine Ufficiale Italia Edizione Speciale PSP: Numero da Collezione
+- PlayStation Index (DVD-ROM-ban): PlayStation 2 Official Soft Catalog 2002 April
+- PlayStation Official Magazine: Australia: Issue 48 (Side A)
+- PlayStation Official Magazine: Australia: Issue 48 (Side B)
+- PlayStation Official Magazine: Australia: Issue 54 (Side B)
+- PlayStation Official Magazine: Australia: Issue 54 (Side A)
+- PlayStation Official Magazine: Australia: Issue 59 (Side B)
+- PlayStation Official Magazine: Australia: Issue 59 (Side A)
+- PlayStation Official Magazine: Australia: Issue 68 (Side A)
+- PlayStation Underground 3.1 (Disc 2)
+- PlayStation Underground 3.2 (Disc 1)
+- PlayStation Zone CD Vol. 10
+- Playzone 07/06 (Seite 2)
+- Playzone 07/06 (Seite 1)
+- Playzone Ausgabe 05/2006 (Seite 1)
+- Playzone Ausgabe 06/2006 (Seite 2)
+- Playzone Ausgabe 11/2006
+- PSi2 28
+- PSM DVD 4: Jan 2003
+- PSM DVD: Christmas 2008
+- PSM DVD: January 2008
+- PSM DVD: September 2006
+- PSM DVD: September 2007
+- PSM2 08
+- PSM2 DVD No. 27
+- PSM2 Volume 17
+- PSM2 Volume 30
+- PSM2 Volume 33
+- PSM2 Volume 35
+- PSM2 Volume 36
+- PSM3 131 (Side A)
+- PSM3 137 (Side A)
+- PSM3 94 (Side B)
+- PSM3 95 (Side A)
+- PSP Mania 3.0: PSP Power Pack II
+- PSP PlayStation Portable Magazine Ufficiale Italia: Numero 1
+- PSP PlayStation Portable Magazine Ufficiale Italia: Numero 1
+- PSWorld Volume 21
+- PSWorld Volume 27
+- PSWorld Volume 31
+- PSWorld Volume 32
+- PSWorld Volume 33
+- PSWorld Volume 7
+- PSWorld Volume 8
+- PSWorld Volume 84
+- Station 7
+- Strana igr: 12/2006 (213)
+- The Ultimate Selection
+- Xbox 360 Vision: Volume 62
+- Xbox 360 World 77 (Side A)
+- Xbox 360 World 96 (Side A)
+- Xbox 360: The Official Xbox Magazine Issue 28: Christmas 2007
+- Xbox Game Title Collection TGS2001 Autumn Version
+- Xbox Retailer's Demo Disc Vol. 1
+- Xtreme Cheats: Top 10
+- Xtreme Cheats: Volume 03
+
