@@ -32,5 +32,5 @@ It can be viewed as documentation.
 ## [Silent Hill series Demo list](docs/Demo%20list.md)
 List of Silent Hill demos.
 
-## [Related Media List](Related%20Media%20List.md)
+## [Related Media List](docs/Related%20Media%20List.md)
 Related media list that contains Demos and other Silent Hill stuff.
