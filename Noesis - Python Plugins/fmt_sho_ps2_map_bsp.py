@@ -1,4 +1,14 @@
-# Authors:
+"""Noesis Python Plugin
+
+      File: fmt_sho_ps2_map_bsp.py
+   Authors: Rodolfo Nuñez (roocker666)
+            Laurynas Zubavičius (Sparagas)
+   Purpose: Silent Hill Origins / Silent Hill Zero (Sony - PlayStation 2)
+  Category: 3D static map models
+ File Mask: *.bsp
+  ID Bytes: 
+"""
+
 from inc_noesis import *
 
 
