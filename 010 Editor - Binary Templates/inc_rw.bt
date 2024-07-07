@@ -1,0 +1,153 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: inc_rw.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Purpose: RenderWare Binary Stream
+//  Category: Include file
+//------------------------------------------------
+
+string IDUnpackVersion(uint32 libid) {
+    int ver;
+    if (libid & 0xFFFF0000)
+        ver = (libid >> 14 & 0x3FF00) + 0x30000 |
+              (libid >> 16 & 0x3F);
+    else
+        ver = libid << 8;
+    string s;   
+    SPrintf(s, "0x%x", ver);
+    return s;
+    }
+
+struct RwRGBA { // need to check if it's truly rgba and not abgr
+    ubyte r;
+    ubyte g;
+    ubyte b;
+    ubyte a;
+};
+
+enum <uint32> RWId {
+    // Core
+    Struct         =  1,
+    String         =  2,
+    Extension      =  3,
+    Texture        =  6,
+    Material       =  7,
+    Material_List  =  8,
+    Atomic_Section =  9,
+    World          = 11,
+    //Toolkit
+    PS2MipmapVal   = 272
+};
+
+struct RWHead {
+    RWId   id ;
+    uint32 len;
+    uint32 ver <read=IDUnpackVersion>;
+};
+
+// generic and should be replaced
+struct RWStruct {
+    RWHead head;
+    ubyte  data[head.len];
+};
+
+struct RWString {
+    RWHead head;
+    char   str[head.len];
+};
+
+struct RWStructExtension {
+    RWHead head;
+    switch (head.id) {
+    case 272 : PS2MipmapVal(); break;
+    default : ubyte  unk[head.len];
+    }
+};
+
+struct RWExtension {
+    RWHead head;
+
+    local int len = head.len;
+    while (len) {
+        RWStructExtension rw_struct;
+        len = len - sizeof(rw_struct);
+    }
+};
+
+struct RWStructTexture {
+    RWHead head;
+    uint32  filtering : 8;
+    uint32  u : 4;
+    uint32  u : 4;
+    uint32  mipmap : 1;
+};
+
+struct RWTexture {
+    RWHead          head;
+    RWStructTexture rw_struct;
+    RWString        rw_tex_name;
+    RWString        rw_tex_alpha_name;
+    RWExtension     rw_extension;
+};
+
+struct RWStructMaterial {
+    RWHead head;
+    int32  flags; // unused
+    RwRGBA color;
+    int32  unused;
+    int32  isTextured;
+    // if version > 0x30400
+        float  ambient;
+        float  specular;
+        float  diffuse;
+};
+
+struct RWMaterial {
+    RWHead           head;
+    RWStructMaterial rw_struct;
+    if (rw_struct.isTextured)
+        RWTexture rw_texture;
+    RWExtension      rw_extension;
+};
+
+
+struct RWStructMaterialList {
+    RWHead head;
+    uint32 num_material;
+     int32 material_idx[num_material];
+};
+
+struct RWMaterialList {
+    RWHead               head;
+    RWStructMaterialList rw_struct;
+    RWMaterial           rw_material[rw_struct.num_material] <optimize=false>;
+};
+
+struct RWStructAtomicSection {
+    RWHead head;
+    ubyte  data[head.len];
+};
+
+struct RWAtomicSection {
+    RWHead                head;
+    RWStructAtomicSection rw_struct;
+    RWExtension           rw_extension;
+};
+
+struct RWStructWorld {
+    RWHead head;
+    ubyte  data[head.len];
+};
+
+struct RWWorld {
+    RWHead          head;
+    RWStructWorld   rw_struct;
+    RWMaterialList  rw_material_list;
+    RWAtomicSection rw_atomic_section;
+    RWExtension     rw_extension;
+};
+
+void PS2MipmapVal() {
+    uint32 k_l_value; // TODO
+}

@@ -1,0 +1,15 @@
+//------------------------------------------------
+//--- 010 Editor v14.0 Binary Template
+//
+//      File: inc_rw.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Purpose: RenderWare Binary Stream
+//  Category: 3D static map models
+// File Mask: *.bsp
+//  ID Bytes: 0B 00 00 00
+//------------------------------------------------
+
+#include "inc_rw.bt"
+
+
+RWWorld rw_world;
