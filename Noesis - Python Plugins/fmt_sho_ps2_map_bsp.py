@@ -12,15 +12,15 @@
 from inc_noesis import *
 
 
+HAS_PADDING = b'\x6C'
+HAS_NO_PADDING = b'\x68'
+
+
 def registerNoesisTypes():
     handle = noesis.register("SHO Map PS2", ".bsp")
     noesis.setHandlerTypeCheck(handle, CheckType)
     noesis.setHandlerLoadModel(handle, LoadModel)
     return 1
-
-
-HAS_PADDING = b'\x6C'
-HAS_NO_PADDING = b'\x68'
 
 
 def CheckType(data):
@@ -31,10 +31,17 @@ def LoadModel(data, mdlList):
     bs = NoeBitStream(data)
     ctx = rapi.rpgCreateContext()
 
-    result = [(i + 7) for i in findall(b'\x05\x04\x01\x00\x01\x00', data)]  # Find array and skip to Vert count
+
+    search_pos = 0
     i = 0
-    for x in result:
-        bs.seek(x)
+    while True:
+        # Find the next occurrence of the pattern
+        search_pos = data.find(b'\x05\x04\x01\x00\x01\x00', search_pos)
+        if search_pos == -1:
+            break  # Exit the loop if no more occurrences are found
+
+        search_pos += 7  # Skip to Vert count
+        bs.seek(search_pos)
         vnum = bs.readByte()
         check_pad = bs.read(1)
 
@@ -57,19 +64,15 @@ def LoadModel(data, mdlList):
         rapi.rpgBindUV1Buffer(uvbuf, noesis.RPGEODATA_FLOAT, 8)
         rapi.rpgBindColorBuffer(vcolbuf, noesis.RPGEODATA_UBYTE, 4, 4)
 
-        rapi.rpgCommitTriangles(None, noesis.RPGEODATA_SHORT, vnum, noesis.RPGEO_TRIANGLE_STRIP)
+        rapi.rpgCommitTriangles(None, noesis.RPGEO_NONE, vnum, noesis.RPGEO_TRIANGLE_STRIP)
 
         rapi.rpgSetName('mesh{}'.format(i))
         i += 1
+
+        # Update the search position to continue searching
+        # search_pos = x + 1
 
     mdl = rapi.rpgConstructModel()
     mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
     mdlList.append(mdl)
     return 1
-
-
-def findall(p, s):
-    i = s.find(p)
-    while i != -1:
-        yield i
-        i = s.find(p, i + 1)

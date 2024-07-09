@@ -60,8 +60,8 @@ struct RWString {
 struct RWStructExtension {
     RWHead head;
     switch (head.id) {
-    case 272 : PS2MipmapVal(); break;
-    default : ubyte  unk[head.len];
+        case 272 : PS2MipmapVal(); break;
+        default  : ubyte  unk[head.len];
     }
 };
 
