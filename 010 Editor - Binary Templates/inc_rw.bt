@@ -136,7 +136,13 @@ struct RWStructMaterialList {
 struct RWMaterialList {
     RWHead               head;
     RWStructMaterialList rw_struct;
-    RWMaterial           rw_material[rw_struct.num_material] <optimize=false>;
+    
+    local int i, num_unique_material = 0;
+    for (i = 0; i < rw_struct.num_material; i++)
+        if (rw_struct.material_idx[i] == -1)
+            num_unique_material++;
+    
+    RWMaterial rw_material[num_unique_material] <optimize=false>;
 };
 
 struct RWStructAtomicSection {
