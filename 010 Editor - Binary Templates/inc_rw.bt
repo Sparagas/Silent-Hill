@@ -7,6 +7,10 @@
 //  Category: Include file
 //------------------------------------------------
 
+#include "vector.bt"
+#include "color.bt"
+
+
 string IDUnpackVersion(uint32 libid) {
     int ver;
     if (libid & 0xFFFF0000)
@@ -19,11 +23,20 @@ string IDUnpackVersion(uint32 libid) {
     return s;
     }
 
-struct RwRGBA { // need to check if it's truly rgba and not abgr
-    ubyte r;
-    ubyte g;
-    ubyte b;
-    ubyte a;
+enum <uint32> GeometryAttributes {
+    none                   = 0x0,
+    Triangle               = 0x1,
+    VertexPositions        = 0x2,
+    TextCoords             = 0x4,
+    VertexColors           = 0x8,
+    Normals                = 0x10,
+    Lights                 = 0x20,
+    ModulateMaterialColors = 0x40,
+    MultipleTextCoords     = 0x80,
+
+    NativeGeometry = 0x1000000,
+    NativeInstance = 0x2000000,
+    SectorsOverlap = 0x40000000
 };
 
 enum <uint32> RWId {
@@ -35,16 +48,17 @@ enum <uint32> RWId {
     Material       =  7,
     Material_List  =  8,
     Atomic_Section =  9,
+    Plane_Section  = 10,
     World          = 11,
     //Toolkit
     PS2MipmapVal   = 272
 };
 
-struct RWHead {
-    RWId   id ;
+typedef struct {
+    RWId   id;
     uint32 len;
     uint32 ver <read=IDUnpackVersion>;
-};
+} RWHead <read=id>;
 
 // generic and should be replaced
 struct RWStruct {
@@ -77,10 +91,10 @@ struct RWExtension {
 
 struct RWStructTexture {
     RWHead head;
-    uint32  filtering : 8;
-    uint32  u : 4;
-    uint32  u : 4;
-    uint32  mipmap : 1;
+    uint32 filtering : 8;
+    uint32 u         : 4;
+    uint32 u         : 4;
+    uint32 mipmap    : 1;
 };
 
 struct RWTexture {
@@ -93,11 +107,11 @@ struct RWTexture {
 
 struct RWStructMaterial {
     RWHead head;
-    int32  flags; // unused
-    RwRGBA color;
-    int32  unused;
-    int32  isTextured;
-    // if version > 0x30400
+    int32 flags; // unused
+    RGBA  color;
+    int32 unk; // marked as unused, but it is used
+    int32 isTextured;
+    // if version > 0x30400 // but I have 0x30400 and it is still present
         float  ambient;
         float  specular;
         float  diffuse;
@@ -106,11 +120,12 @@ struct RWStructMaterial {
 struct RWMaterial {
     RWHead           head;
     RWStructMaterial rw_struct;
+
     if (rw_struct.isTextured)
-        RWTexture rw_texture;
+        RWTexture    rw_texture;
+
     RWExtension      rw_extension;
 };
-
 
 struct RWStructMaterialList {
     RWHead head;
@@ -126,7 +141,14 @@ struct RWMaterialList {
 
 struct RWStructAtomicSection {
     RWHead head;
-    ubyte  data[head.len];
+    uint32 mat_list_window_base;
+    uint32 num_triangles; // need to test if it is realy triangles
+    uint32 num_vertices;
+    f32x3_geo bbox_min;
+    f32x3_geo bbox_max;
+    float unk_coll_sector_present;
+    uint32 unused;
+    if (head.len > 11*4) ubyte data[head.len - 11*4]; // debug - some times there are buffers inside
 };
 
 struct RWAtomicSection {
@@ -135,17 +157,64 @@ struct RWAtomicSection {
     RWExtension           rw_extension;
 };
 
+struct RWStructPlaneSection {
+    RWHead head;
+    uint32 unk_type;
+    float  unk_value;
+    int32  is_left_atomic;
+    int32  is_right_atomic;
+    float  unk_left_value;
+    float  unk_right_value;
+};
+
+struct RWPlaneSection; // forward declaration for recursive structure
+struct RWPlaneSection {
+    RWHead head;
+    RWStructPlaneSection rw_struct;
+    
+    if (rw_struct.is_left_atomic)
+        RWAtomicSection left_atomic_section;
+    else
+        RWPlaneSection  left_plane_section;
+
+    if (rw_struct.is_right_atomic)
+        RWAtomicSection right_atomic_section;
+    else
+        RWPlaneSection  right_plane_section;  
+};
+
 struct RWStructWorld {
     RWHead head;
-    ubyte  data[head.len];
+    uint32 is_world_root;
+    f32x3_geo  inverse_origin;
+
+    if (head.len == 52)
+        f32x3_geo bbox_max_center; // need example to test it
+
+    uint32 num_triangles; // need to test if realy triangles
+    uint32 num_vertices;
+    uint32 num_plane_sectors;
+    uint32 num_atomic_sectors;
+    uint32 unk_col_sector_size;
+    uint32 geometry_attributes; // TODO
+
+    if (head.len == 64) {
+        f32x3_geo bbox_max;
+        f32x3_geo bbox_min;
+    }
 };
 
 struct RWWorld {
     RWHead          head;
     RWStructWorld   rw_struct;
     RWMaterialList  rw_material_list;
-    RWAtomicSection rw_atomic_section;
-    RWExtension     rw_extension;
+    
+    if (rw_struct.is_world_root)
+        RWAtomicSection rw_atomic_section;
+    else
+        RWPlaneSection  rw_plane_section;
+
+    RWExtension         rw_extension;
 };
 
 void PS2MipmapVal() {
