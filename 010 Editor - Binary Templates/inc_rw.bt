@@ -41,17 +41,26 @@ enum <uint32> GeometryAttributes {
 
 enum <uint32> RWId {
     // Core
-    Struct         =  1,
-    String         =  2,
-    Extension      =  3,
-    Texture        =  6,
-    Material       =  7,
-    Material_List  =  8,
-    Atomic_Section =  9,
-    Plane_Section  = 10,
-    World          = 11,
-    //Toolkit
-    PS2MipmapVal   = 272
+    Struct          = 0x1,
+    String          = 0x2,
+    Extension       = 0x3,
+    Texture         = 0x6,
+    Material        = 0x7,
+    Material_List   = 0x8,
+    Atomic_Section  = 0x9,
+    Plane_Section   = 0xA,
+    World           = 0xB,
+    Right_To_Render = 0x1F,
+    // Toolkit
+    PVS_PLG           = 0x106,	
+    PS2_Mipmap_Val    = 0x110,
+    Collision_PLG     = 0x11D,
+    User_Data_PLG     = 0x11F,
+    Geometric_PVS_PLG = 0x12A,
+    // World
+    Bin_Mesh_PLG    = 0x50E,
+    Native_Data_PLG = 0x510,
+    Unk_World_PLG   = 0x511
 };
 
 typedef struct {
@@ -74,8 +83,16 @@ struct RWString {
 struct RWStructExtension {
     RWHead head;
     switch (head.id) {
-        case 272 : PS2MipmapVal(); break;
-        default  : ubyte  unk[head.len];
+        case 0x1F  : RightToRender(); break;
+        case 0x106 : PVSPLG(); break;
+        case 0x110 : PS2MipmapVal(); break;
+        case 0x11D : CollisionPLG(); break;
+        case 0x11F : UserDataPLG(); break;
+        case 0x12A : GeometricPVSPLG(); break;
+        case 0x50E : BinMeshPLG(); break;
+        case 0x510 : NativeDataPLG(); break;
+        case 0x511 : UnkWorldPLG(); break;
+        default    : ubyte  unk[head.len];
     }
 };
 
@@ -152,7 +169,7 @@ struct RWStructAtomicSection {
     uint32 num_vertices;
     f32x3_geo bbox_min;
     f32x3_geo bbox_max;
-    float unk_coll_sector_present;
+    uint32 unk_coll_sector_present; // sometimes it looks like float
     uint32 unused;
     if (head.len > 11*4) ubyte data[head.len - 11*4]; // debug - some times there are buffers inside
 };
@@ -223,6 +240,98 @@ struct RWWorld {
     RWExtension         rw_extension;
 };
 
+void RightToRender() {
+    uint32 rw_plugin_id;  // maybe RWId?
+    uint32 extra_data;
+}
+
+void PVSPLG() {
+    ubyte unk_pvs_data[head.len];
+}
+
 void PS2MipmapVal() {
     uint32 k_l_value; // TODO
+}
+
+void CollisionPLG() {
+    ubyte unk_collission_data[head.len];
+}
+
+enum <uint32> DataType {
+    integer_32 = 1,
+    float_32   = 2,
+    str_ascii  = 3
+};
+
+struct EntryUserDataPLG {
+    uint32   len_str;
+    char     str[len_str];
+    DataType data_type;
+    uint32   num_obj;
+    
+    if (data_type == integer_32)
+        uint32 u32_obj[num_obj];
+    else if (data_type == float_32)
+        float  f32_obj[num_obj];
+    else if (data_type == str_ascii) {
+        uint32 len_obj;
+        char   str_obj[len_obj];
+    }
+};
+
+void UserDataPLG() {
+    uint32 num_entry;
+    EntryUserDataPLG entry[num_entry] <optimize=false>;
+}
+
+void GeometricPVSPLG() {
+    uint32 unk_id;
+    uint32 len;
+    if (len) {
+        uint32 unk;
+        ubyte  unk_entry[len];
+    }
+}
+
+struct IndicesBinMeshPLG(int type) {
+    uint32 num_indices;
+    uint32 material_index;
+    if (type == 16)
+        uint16 u16_vert_idx[num_indices];
+    else if (type == 32)
+        uint32 u32_vert_idx[num_indices];
+};
+
+void BinMeshPLG() {
+    uint32 is_tri_strip;
+    uint32 num_mesh;
+    uint32 num_total_indices;
+    
+    if (num_mesh == 0) // totaly empty
+        return;
+    if (head.len - 12 == num_mesh * 8) // headers with no data
+        IndicesBinMeshPLG mesh_idx_hdr(0)[num_mesh] <optimize=false>;
+
+    else if (head.len - 12 == num_mesh * 8 + num_total_indices * 2) // headers with uint16 data
+        IndicesBinMeshPLG mesh_idx_u16(16)[num_mesh] <optimize=false>;
+
+    else if (head.len - 12 == num_mesh * 8 + num_total_indices * 4) // headers with uint32 data
+        IndicesBinMeshPLG mesh_idx_u32(32)[num_mesh] <optimize=false>;
+}
+
+struct RWStructNativeDataPLG {
+    RWHead head;
+    uint32 platform;
+    // sometimes it is empty
+    if (head.len-4) {
+        ubyte unk[head.len-4];
+    }
+};
+
+void NativeDataPLG() {
+    RWStructNativeDataPLG rw_struct;
+}
+
+void UnkWorldPLG() {
+    ubyte unk_world_data[head.len];
 }
