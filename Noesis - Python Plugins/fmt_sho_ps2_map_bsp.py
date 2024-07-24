@@ -40,8 +40,16 @@ def LoadModel(data, mdlList):
         if search_pos == -1:
             break  # Exit the loop if no more occurrences are found
 
-        search_pos += 7  # Skip to Vert count
+        search_pos += 7  # Skip searched bytes
+        
+        # try to skip bad SHSM data
+        original_pos = search_pos
+        next_pos = data.find(b'\x05\x04\x01\x00\x01\x00', search_pos)
+        if next_pos > 0 and next_pos - original_pos < 50:
+            search_pos = next_pos + 7
+        
         bs.seek(search_pos)
+
         vnum = bs.readByte()
         check_pad = bs.read(1)
 
@@ -56,6 +64,9 @@ def LoadModel(data, mdlList):
         bs.seek(data.find(b'\x05\x04\x01\x00\x01\x02', bs.tell()) + 9)
         vcolbuf = bs.read(vnum * 4)
 
+        bs.seek(data.find(b'\x05\x04\x01\x00\x01\x03', bs.tell()) + 9)
+        print('found ', i)
+
         if check_pad == HAS_PADDING:
             rapi.rpgBindPositionBuffer(vbuf, noesis.RPGEODATA_FLOAT, 16)
         elif check_pad == HAS_NO_PADDING:
@@ -68,9 +79,6 @@ def LoadModel(data, mdlList):
 
         rapi.rpgSetName('mesh{}'.format(i))
         i += 1
-
-        # Update the search position to continue searching
-        # search_pos = x + 1
 
     mdl = rapi.rpgConstructModel()
     mdl.setModelMaterials(NoeModelMaterials([], [NoeMaterial('mat0', '')]))
