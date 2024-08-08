@@ -12,4 +12,4 @@
 #include "inc_rw.bt"
 
 
-RWWorld rw_world;
+RwWorld rw_world;
