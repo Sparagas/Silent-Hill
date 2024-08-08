@@ -39,35 +39,35 @@ enum <uint32> GeometryAttributes {
     SectorsOverlap = 0x40000000
 };
 
-enum <uint32> RWId {
+enum <uint32> RwId {
     // Core
-    Struct          = 0x1,
-    String          = 0x2,
-    Extension       = 0x3,
-    Texture         = 0x6,
-    Material        = 0x7,
-    Material_List   = 0x8,
-    Atomic_Section  = 0x9,
-    Plane_Section   = 0xA,
-    World           = 0xB,
-    Right_To_Render = 0x1F,
+    STRUCT          = 0x1,
+    STRING          = 0x2,
+    EXTENSION       = 0x3,
+    TEXTURE         = 0x6,
+    MATERIAL        = 0x7,
+    MATERIAL_LIST   = 0x8,
+    ATOMIC_SECTION  = 0x9,
+    PLANE_SECTION   = 0xA,
+    WORLD           = 0xB,
+    RIGHT_TO_RENDER = 0x1F,
     // Toolkit
-    PVS_PLG           = 0x106,	
-    PS2_Mipmap_Val    = 0x110,
-    Collision_PLG     = 0x11D,
-    User_Data_PLG     = 0x11F,
-    Geometric_PVS_PLG = 0x12A,
+    PVS_PLG           = 0x106,
+    PS2_MIPMAP_VAL    = 0x110,
+    COLLISION_PLG     = 0x11D,
+    USER_DATA_PLG     = 0x11F,
+    GEOMETRIC_PVS_PLG = 0x12A,
     // World
-    Bin_Mesh_PLG    = 0x50E,
-    Native_Data_PLG = 0x510,
-    Unk_World_PLG   = 0x511
+    BIN_MESH_PLG    = 0x50E,
+    NATIVE_DATA_PLG = 0x510,
+    UNK_WORLD_PLG   = 0x511
 };
 
 typedef struct {
-    RWId   id;
+    RwId   id;
     uint32 len;
     uint32 ver <read=IDUnpackVersion>;
-} RWHead <read=id>;
+} RWHead <read=EnumToString(id)>;
 
 // generic and should be replaced
 struct RWStruct {
@@ -110,7 +110,7 @@ struct RWStructTexture {
     RWHead head;
     uint32 filtering : 8;
     uint32 u         : 4;
-    uint32 u         : 4;
+    uint32 v         : 4;
     uint32 mipmap    : 1;
 };
 
@@ -124,10 +124,10 @@ struct RWTexture {
 
 struct RWStructMaterial {
     RWHead head;
-    int32 flags; // unused
-    RGBA  color;
-    int32 unk; // marked as unused, but it is used
-    int32 isTextured;
+    int32  flags; // unused
+    RGBA   color;
+    int32  unk; // marked as unused, but it is used
+    int32  isTextured;
     // if version > 0x30400 // but I have 0x30400 and it is still present
         float  ambient;
         float  specular;
@@ -228,9 +228,9 @@ struct RWStructWorld {
 };
 
 struct RWWorld {
-    RWHead          head;
-    RWStructWorld   rw_struct;
-    RWMaterialList  rw_material_list;
+    RWHead         head;
+    RWStructWorld  rw_struct;
+    RWMaterialList rw_material_list;
     
     if (rw_struct.is_world_root)
         RWAtomicSection rw_atomic_section;
@@ -319,12 +319,18 @@ void BinMeshPLG() {
         IndicesBinMeshPLG mesh_idx_u32(32)[num_mesh] <optimize=false>;
 }
 
+struct PS2Data {
+    uint32 size;
+    uint32 unk_noPointers;
+    ubyte vif_codes[size];
+};
+
 struct RWStructNativeDataPLG {
     RWHead head;
     uint32 platform;
-    // sometimes it is empty
+    // it should be in a loop
     if (head.len-4) {
-        ubyte unk[head.len-4];
+        PS2Data ps2_data[rw_world.rw_material_list.rw_struct.num_material] <optimize=false>;
     }
 };
 

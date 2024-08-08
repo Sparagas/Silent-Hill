@@ -48,6 +48,12 @@ def LoadModel(data, mdlList):
         if next_pos > 0 and next_pos - original_pos < 50:
             search_pos = next_pos + 7
         
+        # sorry was lazy to do it in a loop
+        original_pos = search_pos
+        next_pos = data.find(b'\x05\x04\x01\x00\x01\x00', search_pos)
+        if next_pos > 0 and next_pos - original_pos < 50:
+            search_pos = next_pos + 7
+        
         bs.seek(search_pos)
 
         vnum = bs.readByte()
