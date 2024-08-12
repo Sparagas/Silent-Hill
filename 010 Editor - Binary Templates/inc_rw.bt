@@ -21,58 +21,184 @@ string IDUnpackVersion(uint32 libid) {
     string s;   
     SPrintf(s, "0x%x", ver);
     return s;
-    }
+ }
 
-enum <uint32> GeometryAttributes {
-    none                   = 0x0,
-    Triangle               = 0x1,
-    VertexPositions        = 0x2,
-    TextCoords             = 0x4,
-    VertexColors           = 0x8,
-    Normals                = 0x10,
-    Lights                 = 0x20,
-    ModulateMaterialColors = 0x40,
-    MultipleTextCoords     = 0x80,
+enum RwPlatformId {
+    RW_ID_PC_D3D7  = 1,
+    RW_ID_PC_OGL   = 2,
+    RW_ID_MAC      = 3,
+    RW_ID_PS2      = 4,
+    RW_ID_XBOX     = 5,
+    RW_ID_GAMECUBE = 6,
+    RW_ID_SOFT_RAS = 7,
+    RW_ID_PC_D3D8  = 8,
+    RW_ID_PC_D3D9  = 9,
+    RW_ID_PSP      = 10,
+};
 
-    NativeGeometry = 0x1000000,
-    NativeInstance = 0x2000000,
-    SectorsOverlap = 0x40000000
+enum RwDevice {
+    DEVICE_UNKNOWN  = 0,
+    DEVICE_D3D8     = 1,
+    DEVICE_D3D9     = 2,
+    DEVICE_GCN      = 3,
+    DEVICE_NULL     = 4,
+    DEVICE_OPENGL   = 5,
+    DEVICE_SKY2     = 6,
+    DEVICE_SOFT_RAS = 7,
+    DEVICE_XBOX     = 8,
+    DEVICE_PSP      = 9
 };
 
 enum <uint32> RwId {
-    // Core
-    STRUCT          = 0x1,
-    STRING          = 0x2,
-    EXTENSION       = 0x3,
-    TEXTURE         = 0x6,
-    MATERIAL        = 0x7,
-    MATERIAL_LIST   = 0x8,
-    ATOMIC_SECTION  = 0x9,
-    PLANE_SECTION   = 0xA,
-    WORLD           = 0xB,
-    RIGHT_TO_RENDER = 0x1F,
-    // Toolkit
-    PVS_PLG           = 0x106,
-    PS2_MIPMAP_VAL    = 0x110,
-    COLLISION_PLG     = 0x11D,
-    USER_DATA_PLG     = 0x11F,
-    GEOMETRIC_PVS_PLG = 0x12A,
-    // World
-    BIN_MESH_PLG    = 0x50E,
-    NATIVE_DATA_PLG = 0x510,
-    UNK_WORLD_PLG   = 0x511
+    // CORE
+    RW_ID_NA_OBJECT     = 0x00,  // Not Applicable Object
+    RW_ID_STRUCT              = 0x01,
+    RW_ID_STRING              = 0x02,
+    RW_ID_EXTENSION           = 0x03,
+    RW_ID_CAMERA              = 0x05,
+    RW_ID_TEXTURE             = 0x06,
+    RW_ID_MATERIAL            = 0x07,
+    RW_ID_MAT_LIST            = 0x08,  // Material List
+    RW_ID_ATOMIC_SECT         = 0x09,  // Atomic Section
+    RW_ID_PLANE_SECT          = 0x0A,  // Plane Section
+    RW_ID_WORLD               = 0x0B,
+    RW_ID_SPLINE              = 0x0C,
+    RW_ID_MATRIX              = 0x0D,
+    RW_ID_FRAME_LIST          = 0x0E,
+    RW_ID_GEOMETRY            = 0x0F,
+    RW_ID_CLUMP               = 0x10,
+    RW_ID_LIGHT               = 0x12,
+    RW_ID_UNICODE_STRING      = 0x13,
+    RW_ID_ATOMIC              = 0x14,
+    RW_ID_TEXTURE_NATIVE      = 0x15,  // a.k.a. Raster
+    RW_ID_TEX_DICTIONARY      = 0x16,  // Texture Dictionary
+    RW_ID_ANIM_DATABASE       = 0x17,  // Animation Database
+    RW_ID_IMAGE               = 0x18,
+    RW_ID_SKIN_ANIMATION      = 0x19,
+    RW_ID_GEOMETRY_LIST       = 0x1A,
+    RW_ID_ANIM_ANIMATION      = 0x1B,
+    RW_ID_TEAM                = 0x1C,
+    RW_ID_CROWD               = 0x1D,
+    RW_ID_D_MORPH_ANIMATION   = 0x1E,  // Delta Morph Animation
+    RW_ID_RIGHT_TO_RENDER     = 0x1F,
+    RW_ID_MT_EFFECT_NATIVE    = 0x20,  // MultiTexture Effect Native
+    RW_ID_MT_EFFECT_DICT      = 0x21,  // MultiTexture Effect Dictionary
+    RW_ID_TEAM_DICTIONARY     = 0x22,
+    RW_ID_P_I_TEX_DICTIONARY  = 0x23,  // Platform Independent Texture Dictionary
+    RW_ID_TOC                 = 0x24,  // Table of Contents
+    RW_ID_PRT_STD_GLOBAL_DATA = 0x25,  // Particle Standard Global Data
+    RW_ID_ALTPIPE             = 0x26,  // AltPipe
+    RW_ID_P_I_PEDS            = 0x27,  // Platform Independent Peds
+    RW_ID_PATCH_MESH          = 0x28,
+    RW_ID_CHUNK_GROUP_START   = 0x29,
+    RW_ID_CHUNK_GROUP_END     = 0x2A,
+    RW_ID_UV_ANIM_DICT        = 0x2B,  // UV Animation Dictionary
+    RW_ID_COLL_TREE           = 0x2C,
+    RW_ID_ENVIRONMENT         = 0x2D,
+    RW_ID_CORE_PLUGIN_ID_MAX  = 0x2E,
+
+    // CRITERION_TK a.k.a. Toolkit
+    PVS_PLG           = 0x0106,
+    SKY_MIPMAP_VAL    = 0x0110,
+    COLLISION_PLG     = 0x011D,
+    USER_DATA_PLG     = 0x011F,
+    GEOMETRIC_PVS_PLG = 0x012A,
+
+    // REDLINE_RACER
+    // CSLRD
+
+    // CRITERION_INT
+    RW_ID_NA_CORE_ID         = 0x0400,
+    RW_ID_VECTOR_MODULE      = 0x0401,
+    RW_ID_MATRIX_MODULE      = 0x0402,
+    RW_ID_FRAME_MODULE       = 0x0403,
+    RW_ID_STREAM_MODULE      = 0x0404,
+    RW_ID_CAMERA_MODULE      = 0x0405,
+    RW_ID_IMAGE_MODULE       = 0x0406,
+    RW_ID_RASTER_MODULE      = 0x0407,
+    RW_ID_TEXTURE_MODULE     = 0x0408,
+    RW_ID_PIPE_MODULE        = 0x0409,
+    RW_ID_IMMEDIATE_MODULE   = 0x040A,
+    RW_ID_RESOURCES_MODULE   = 0x040B,
+    RW_ID_DEVICE_MODULE      = 0x040C,
+    RW_ID_COLOR_MODULE       = 0x040D,
+    RW_ID_POLY_PIPE_MODULE   = 0x040E,
+    RW_ID_ERROR_MODULE       = 0x040F,
+    RW_ID_METRICS_MODULE     = 0x0410,
+    RW_ID_DRIVER_MODULE      = 0x0411,
+    RW_ID_CHUNK_GROUP_MODULE = 0x0412,
+
+    // CRITERION_WORLD
+    RW_ID_NA_WORLD_ID            = 0x0500,
+    RW_ID_MATERIAL_MODULE        = 0x0501,
+    RW_ID_MESH_MODULE            = 0x0502,
+    RW_ID_GEOMETRY_MODULE        = 0x0503,
+    RW_ID_CLUMP_MODULE           = 0x0504,
+    RW_ID_LIGHT_MODULE           = 0x0505,
+    RW_ID_COLLISION_MODULE       = 0x0506,
+    RW_ID_WORLD_MODULE           = 0x0507,
+    RW_ID_RANDOM_MODULE          = 0x0508,
+    RW_ID_WORLD_OBJ_MODULE       = 0x0509,
+    RW_ID_SECTOR_MODULE          = 0x050A,
+    RW_ID_BIN_WORLD_MODULE       = 0x050B,
+    RW_ID_WORLD_PIPE_MODULE      = 0x050D,
+    RW_ID_BIN_MESH_PLUGIN        = 0x050E,
+    RW_ID_RX_WORLD_DEVICE_MODULE = 0x050F,
+    RW_ID_NATIVE_DATA_PLUGIN     = 0x0510,
+    RW_ID_VERTEX_FMT_PLUGIN      = 0x0511
+
+    // BETA
+    // CRITERION_RM
+    // CRITERION_RW_A a.k.a. RenderWare Audio
+    // CRITERION_RW_P a.k.a. RenderWare Physics
+};
+
+enum <uint8> RwTextureFilterMode {
+    FILTER_NA_FILTER_MODE     = 0,
+    FILTER_NEAREST            = 1, // Point sampled
+    FILTER_LINEAR             = 2, // Bilinear
+    FILTER_MIP_NEAREST        = 3, // Point sampled per pixel mip map
+    FILTER_MIP_LINEAR         = 4, // Bilinear per pixel mipmap
+    FILTER_LINEAR_MIP_NEAREST = 5, // MipMap interp point sampled
+    FILTER_LINEAR_MIP_LINEAR  = 6  // Trilinear
+};
+
+enum <uint8> RwTextureAddressMode {
+    TEXTURE_ADDRESS_NA_TEXTURE_ADDRESS = 0,
+    TEXTURE_ADDRESS_WRAP               = 1, // UV wraps (tiles)
+    TEXTURE_ADDRESS_MIRROR             = 2, // Alternate UV is flipped
+    TEXTURE_ADDRESS_CLAMP              = 3, // UV is clamped to 0-1
+    TEXTURE_ADDRESS_BORDER             = 4  // Border color takes effect outside of 0-1
+};
+
+struct RwGeometryFlag {
+    uint8 is_tri_strip               : 1;  // Triangle Strips
+    uint8 is_positions               : 1;  // Vertex Positions?
+    uint8 is_textured                : 1;  // Vertex TexCoords (one set)
+    uint8 is_prelit                  : 1;  // Vertex Colors?
+    uint8 is_normals                 : 1;  // Vertex Normals
+    uint8 is_light                   : 1;
+    uint8 is_modulate_material_color : 1;  // Modulate material color with vertex colors (pre-lit + lit)
+    uint8 is_textured_2              : 1;  // Vertex TexCoords (two sets or more)
+    uint8 is_colored                 : 1;  // This mesh specifies per-vertex colors. NB: ONLY USED IN IM3D
+    uint8 unk                        : 7;
+    uint8 unk;
+    uint8 is_native                  : 1;
+    uint8 is_native_instance         : 1;
+    uint8 unk                        : 6;
 };
 
 typedef struct {
     RwId   id;
     uint32 len;
     uint32 ver <read=IDUnpackVersion>;
-} RwHeader <read=EnumToString(id)>;
+} RwHeader     <read=EnumToString(id)>;
 
 // generic and should be replaced
 struct RwStruct {
     RwHeader rw_header;
-    ubyte    data[rw_header.len];
+    if (rw_header.len)
+        uint8 data[rw_header.len];
 };
 
 struct RwString {
@@ -80,38 +206,57 @@ struct RwString {
     char     str[rw_header.len];
 };
 
-struct RWStructExtension {
-    RwHeader rw_header;
-    switch (rw_header.id) {
-        case 0x1F  : RightToRender(); break;
-        case 0x106 : PvsPlg(); break;
-        case 0x110 : SkyMipmapVal(); break;
-        case 0x11D : CollisionPlg(); break;
-        case 0x11F : UserDataPlg(); break;
-        case 0x12A : GeometricPvsPlg(); break;
-        case 0x50E : BinMeshPlg(); break;
-        case 0x510 : NativeDataPlg(); break;
-        case 0x511 : UnkWorldPlg(); break;
-        default    : ubyte  unk[rw_header.len];
-    }
-};
-
 struct RwExtension {
-    RwHeader rw_header;
-
-    local int len = rw_header.len;
+    RwHeader     rw_header;
+    local uint32 len = rw_header.len;
     while (len) {
-        RWStructExtension rw_struct;
-        len = len - sizeof(rw_struct);
+        len -= RwStructExtension();
     }
 };
+
+uint32 RwStructExtension() {
+    local uint32 local_id = ReadUInt();
+    local uint32 local_len = ReadUInt(FTell() + 4);
+    switch (local_id) {
+        case RW_ID_RIGHT_TO_RENDER:
+            struct RightToRender right_to_render;
+            break;
+        case PVS_PLG:
+            struct PvsPlg pvs_plg;
+            break;
+        case SKY_MIPMAP_VAL:
+            struct SkyMipmapVal sky_mipmap_val;
+            break;
+        case COLLISION_PLG:
+            struct CollisionPlg collision_plg;
+            break;
+        case USER_DATA_PLG:
+            struct UserDataPlg user_data_plg;
+            break;
+        case GEOMETRIC_PVS_PLG:
+            struct GeometricPvsPlg geometric_pvs_plg;
+            break;
+        case RW_ID_BIN_MESH_PLUGIN:
+            struct BinMeshPlg bin_mesh_plg;
+            break;
+        case RW_ID_NATIVE_DATA_PLUGIN:
+            struct NativeDataPlugin native_data_plugin;
+            break;
+        case RW_ID_VERTEX_FMT_PLUGIN:
+            struct VertexFmtPlugin vertex_fmt_plugin;
+            break;
+        default:
+            struct RwStruct unk_extension;
+    }
+    return sizeof(RwHeader) + local_len;
+}
 
 struct RwStructTexture {
-    RwHeader rw_header;
-    uint32   filtering : 8;
-    uint32   u         : 4;
-    uint32   v         : 4;
-    uint32   mipmap    : 1;
+    RwHeader             rw_header;
+    RwTextureFilterMode  filtering_mode;
+    RwTextureAddressMode u_addressing_mode : 4;
+    RwTextureAddressMode v_addressing_mode : 4;
+    uint16               has_mipmaps;
 };
 
 struct RwTexture {
@@ -124,10 +269,10 @@ struct RwTexture {
 
 struct RwStructMaterial {
     RwHeader rw_header;
-    int32    flags; // unused
+    int32    pad_flg; // unused
     RGBA     color;
-    int32    unk; // marked as unused, but it is used
-    int32    isTextured;
+    int32    unk;   // marked as unused, but it is used
+    int32    has_texture;
     // if version > 0x30400 // but I have 0x30400 and it is still present
         float ambient;
         float specular;
@@ -138,21 +283,21 @@ struct RwMaterial {
     RwHeader         rw_header;
     RwStructMaterial rw_struct;
 
-    if (rw_struct.isTextured)
+    if (rw_struct.has_texture)
         RwTexture rw_texture;
 
     RwExtension rw_extension;
 };
 
-struct RwStructMaterialList {
+struct RwStructMatList {
     RwHeader rw_header;
     uint32   num_material;
      int32   material_idx[num_material];
 };
 
-struct RwMaterialList {
-    RwHeader             rw_header;
-    RwStructMaterialList rw_struct;
+struct RwMatList {
+    RwHeader        rw_header;
+    RwStructMatList rw_struct;
     
     local int i, num_unique_material = 0;
     for (i = 0; i < rw_struct.num_material; i++)
@@ -162,67 +307,67 @@ struct RwMaterialList {
     RwMaterial rw_material[num_unique_material] <optimize=false>;
 };
 
-struct RwStructAtomicSection {
+struct RwStructAtomicSect {
     RwHeader  rw_header;
     uint32    mat_list_window_base;
-    uint32    num_triangles; // need to test if it is realy triangles
+    uint32    num_triangles;  // need to test if it is realy triangles
     uint32    num_vertices;
     f32x3_geo bbox_min;
     f32x3_geo bbox_max;
-    uint32    unk_coll_sector_present; // sometimes it looks like float
+    uint32    unk_coll_sector_present;  // sometimes it looks like float
     uint32    unused;
 
     if (rw_header.len > 11*4)
-        ubyte data[rw_header.len - 11*4]; // debug - some times there are buffers inside
+        uint8 data[rw_header.len - 11*4];  // debug - some times there are buffers inside
 };
 
-struct RwAtomicSection {
-    RwHeader              rw_header;
-    RwStructAtomicSection rw_struct;
-    RwExtension           rw_extension;
+struct RwAtomicSect {
+    RwHeader           rw_header;
+    RwStructAtomicSect rw_struct;
+    RwExtension        rw_extension;
 };
 
-struct RwStructPlaneSection {
+struct RwStructPlaneSect {
     RwHeader rw_header;
     uint32   unk_type;
     float    unk_value;
-    int32    is_left_atomic;
-    int32    is_right_atomic;
+    int32    is_left_atomic_sect;
+    int32    is_right_atomic_sect;
     float    unk_left_value;
     float    unk_right_value;
 };
 
-struct RwPlaneSection; // forward declaration for recursive structure
-struct RwPlaneSection {
-    RwHeader             rw_header;
-    RwStructPlaneSection rw_struct;
+struct RwPlaneSect; // forward declaration for recursive structure
+struct RwPlaneSect {
+    RwHeader          rw_header;
+    RwStructPlaneSect rw_struct;
     
-    if (rw_struct.is_left_atomic)
-        RwAtomicSection left_atomic_section;
+    if (rw_struct.is_left_atomic_sect)
+        RwAtomicSect left_atomic_sect;
     else
-        RwPlaneSection  left_plane_section;
+        RwPlaneSect  left_plane_sect;
 
-    if (rw_struct.is_right_atomic)
-        RwAtomicSection right_atomic_section;
+    if (rw_struct.is_right_atomic_sect)
+        RwAtomicSect right_atomic_sect;
     else
-        RwPlaneSection  right_plane_section;  
+        RwPlaneSect  right_plane_sect;  
 };
 
 struct RwStructWorld {
-    RwHeader   rw_header;
-    uint32     is_world_root;
-    f32x3_geo  inverse_origin;
-
+    RwHeader  rw_header;
+    uint32    is_root_atomic_sect;
+    f32x3_geo origin_pivot_point;
+    // 34000?
     if (rw_header.len == 52)
         f32x3_geo bbox_max_center; // need example to test it
 
-    uint32 num_triangles; // need to test if realy triangles
-    uint32 num_vertices;
-    uint32 num_plane_sectors;
-    uint32 num_atomic_sectors;
-    uint32 unk_col_sector_size;
-    uint32 geometry_attributes; // TODO
-
+    uint32         num_triangles; // need to test if realy triangles
+    uint32         num_vertices;
+    uint32         num_plane_sectors;
+    uint32         num_atomic_sectors;
+    uint32         unk_col_sector_size;
+    RwGeometryFlag rw_geometry_flag;
+    // Added in 34003
     if (rw_header.len == 64) {
         f32x3_geo bbox_max;
         f32x3_geo bbox_min;
@@ -230,34 +375,38 @@ struct RwStructWorld {
 };
 
 struct RwWorld {
-    RwHeader       rw_header;
-    RwStructWorld  rw_struct;
-    RwMaterialList rw_material_list;
+    RwHeader      rw_header;
+    RwStructWorld rw_struct;
+    RwMatList     rw_mat_list;
     
-    if (rw_struct.is_world_root)
-        RwAtomicSection rw_atomic_section;
+    if (rw_struct.is_root_atomic_sect)
+        RwAtomicSect rw_atomic_sect;
     else
-        RwPlaneSection  rw_plane_section;
+        RwPlaneSect  rw_root_plane_sect;
 
     RwExtension rw_extension;
 };
 
-void RightToRender() {
-    uint32 rw_plugin_id;  // maybe RWId?
-    uint32 extra_data;
-}
+struct RightToRender {
+    RwHeader rw_header;
+    uint32   rw_plugin_id;  // maybe RWId?
+    uint32   extra_data;
+};
 
-void PvsPlg() {
-    ubyte unk_pvs_data[rw_header.len];
-}
+struct PvsPlg {
+    RwHeader rw_header;
+    uint8    unk_pvs_data[rw_header.len];
+};
 
-void SkyMipmapVal() { // Sky is a codename for PS2
-    uint32 k_l_value; // TODO
-}
+struct SkyMipmapVal { // Sky is a codename for PS2
+    RwHeader rw_header;
+    uint32   k_l_value; // TODO
+};
 
-void CollisionPlg() {
-    ubyte unk_collission_data[rw_header.len];
-}
+struct CollisionPlg {
+    RwHeader rw_header;
+    uint8    unk_collission_data[rw_header.len];
+};
 
 enum <uint32> DataType {
     integer_32 = 1,
@@ -281,19 +430,21 @@ struct EntryUserDataPlg {
     }
 };
 
-void UserDataPlg() {
+struct UserDataPlg {
+    RwHeader         rw_header;
     uint32           num_entry;
     EntryUserDataPlg entry[num_entry] <optimize=false>;
-}
+};
 
-void GeometricPvsPlg() {
-    uint32 unk_id;
-    uint32 len;
+struct GeometricPvsPlg() {
+    RwHeader rw_header;
+    uint32   unk_id;
+    uint32   len;
     if (len) {
         uint32 unk;
-        ubyte  unk_entry[len];
+        uint8  unk_entry[len];
     }
-}
+};
 
 struct IndicesBinMeshPlg(int type) {
     uint32 num_indices;
@@ -304,9 +455,11 @@ struct IndicesBinMeshPlg(int type) {
         uint32 u32_vert_idx[num_indices];
 };
 
-void BinMeshPlg() {
+struct BinMeshPlg {
+    RwHeader rw_header;
     uint32 is_tri_strip;
     uint32 num_mesh;
+    local_num_mesh = num_mesh;
     uint32 num_total_indices;
     
     if (num_mesh == 0) // totaly empty
@@ -319,27 +472,30 @@ void BinMeshPlg() {
 
     else if (rw_header.len - 12 == num_mesh * 8 + num_total_indices * 4) // headers with uint32 data
         IndicesBinMeshPlg mesh_idx_u32(32)[num_mesh] <optimize=false>;
-}
+};
 
 struct Ps2Data {
     uint32 size;
     uint32 unk_noPointers;
-    ubyte  vif_codes[size];
+    uint8  vif_codes[size];
 };
 
+local uint32 local_num_mesh = 0;
 struct RwStructNativeDataPlg {
     RwHeader rw_header;
     uint32   platform;
     // it should be in a loop
-    if (rw_header.len-4) {
-        Ps2Data ps2_data[rw_world.rw_material_list.rw_struct.num_material] <optimize=false>;
+    if (local_num_mesh) {
+        Ps2Data ps2_data[local_num_mesh] <optimize=false>;
     }
 };
 
-void NativeDataPlg() {
+struct NativeDataPlugin {
+    RwHeader rw_header;
     RwStructNativeDataPlg rw_struct;
-}
+};
 
-void UnkWorldPlg() {
-    ubyte unk_world_data[rw_header.len];
-}
+struct VertexFmtPlugin {
+    RwHeader rw_header;
+    uint8    unk[rw_header.len];
+};
