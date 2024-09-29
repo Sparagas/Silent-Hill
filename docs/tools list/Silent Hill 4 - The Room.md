@@ -6,11 +6,12 @@
 
 ### Microsoft - Xbox
 
-* N/A
+* [Noesis plugin for model files](https://reshax.com/topic/513-silent-hill-4-xbox-models-bin/#comment-2181)
 
 ### Microsoft - Windows
 
 * [Font extractor for Silent Hill 2/3/4 PC games](https://github.com/belek666/fontsh234)
+* [Blender plugin for world files](https://github.com/HunterStanton/sh4worldmeshimport)
 
 ### common
 
