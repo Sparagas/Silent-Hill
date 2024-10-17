@@ -297,7 +297,7 @@ struct RwGeometryFlag {
 };
 
 typedef struct {
-    RwId   id;
+    RwId   id  <format=hex>;
     uint32 len;
     uint32 ver <read=IDUnpackVersion>;
 } RwHeader     <read=EnumToString(id)>;
