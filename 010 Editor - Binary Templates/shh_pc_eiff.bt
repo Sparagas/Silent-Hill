@@ -39,21 +39,21 @@ struct EIFF_DAT {
     local char magic[4];
     ReadBytes(magic, FTell(), 4);
     if (magic == "MODL") {
-        #include "SH-H (PC) inc-modl.bt"
+        #include "shh_pc_inc-modl.bt"
     } else if (magic == "PTMC") {
-        #include "SH-H (PC) inc-ptmc.bt"
+        #include "shh_pc_inc-ptmc.bt"
     } else if (magic == "PGPC") {
-        #include "SH-H (PC) inc-pgpc.bt"
+        #include "shh_pc_inc-pgpc.bt"
     } else if (magic == "MTMC") {
-        #include "SH-H (PC) inc-mtmc.bt"
+        #include "shh_pc_inc-mtmc.bt"
     } else if (magic == "SCTR") {
-        #include "SH-H (PC) inc-sctr.bt"
+        #include "shh_pc_inc-sctr.bt"
     } else if (magic == "LVLP") {
-        #include "SH-H (PC) inc-lvlp.bt"
+        #include "shh_pc_inc-lvlp.bt"
     } else if (magic == "MYSC") {
-        #include "SH-H (PC) inc-mysc.bt"
+        #include "shh_pc_inc-mysc.bt"
     } else if (magic == "NAVM") {
-        #include "SH-H (PC) inc-navm.bt"
+        #include "shh_pc_inc-navm.bt"
     } else {
         struct Head unk_hdr;
         ubyte  TODO[unk_hdr.data_size];

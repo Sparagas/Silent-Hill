@@ -12,4 +12,4 @@
 //------------------------------------------------
 
 BigEndian();
-#include "SH-H (PC) pak.bt"
+#include "shh_pc_pak.bt"

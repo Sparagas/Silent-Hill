@@ -11,4 +11,4 @@
 //   History: 
 //------------------------------------------------
 BigEndian();
-#include "SH3 (PS2) map.bt"
+#include "sh3_ps2_map.bt"

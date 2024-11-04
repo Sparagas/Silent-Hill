@@ -1,5 +1,5 @@
 //------------------------------------------------
-//--- 010 Editor v13.0.2 Binary Template
+//--- 010 Editor v14.0 Binary Template
 //
 //      File: 
 //   Authors: 
@@ -12,4 +12,4 @@
 //------------------------------------------------
 
 BigEndian();
-#include "SH2 (PS2) map.bt"
+#include "shh_pc_mdl.bt"

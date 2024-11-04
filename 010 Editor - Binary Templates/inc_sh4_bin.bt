@@ -54,7 +54,7 @@ void sh4_bin() {
         }
         // shadow mesh block
         else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
-            //#include "SH4 (PC) shadow mesh.bt"
+            //#include "sh4_pc_shadow_mesh.bt"
             uint32 TODO_shadow_mesh_block;
 
         // world collision mesh block
@@ -85,7 +85,7 @@ void sh4_bin() {
             else if (platform == "Xbox")
                 uint32 TODO_slgt_block;
             else if (platform == "PC") {
-                #include "SH4 (PC) SLGT.bt"
+                #include "sh4_pc_SLGT.bt"
             }
         }
         // animation block
@@ -100,7 +100,7 @@ void sh4_bin() {
             else if (platform == "Xbox")
                 uint32 TODO_world_mesh_block;
             else if (platform == "PC") {
-                #include "SH4 (PC) world mesh.bt"
+                #include "sh4_pc_world_mesh.bt"
             }
         }
         else
