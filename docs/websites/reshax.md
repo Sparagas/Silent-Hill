@@ -4,6 +4,7 @@
 * [SH4 (PC)](https://reshax.com/topic/354-sh4-pc/)
 * [Silent Hill 4 XBOX models .bin](https://reshax.com/topic/513-silent-hill-4-xbox-models-bin/)
 * [[PS2] Tokimeki Memorial 3 - Getting Models from eeMemory?](https://reshax.com/topic/666-ps2-tokimeki-memorial-3-getting-models-from-eememory/)<br>Another Konami game that uses similar model format as Silent Hill 2 / 3 and maybe even 4
+* [Ghostbusters TVG:R Anim Files](https://reshax.com/topic/675-ghostbusters-tvgr-anim-files/)<br>Uses the same engine as Silent Hill: Book of Memories
 * [Help with Silent Hill 3 translation](https://reshax.com/topic/679-help-with-silent-hill-3-translation/)
 * [Tools to modify the Silent Hill 3 textures (console)](https://reshax.com/topic/818-tools-to-modify-the-silent-hill-3-textures-console/)
 * [Silent Hill 4: The Room (GOG) Turn off subtitles?](https://reshax.com/topic/843-silent-hill-4-the-room-gog-turn-off-subtitles/)
