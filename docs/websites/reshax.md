@@ -13,21 +13,16 @@
 Could work on a lot of audio files
 * [A reminder for everyone: most of your audio woes are taken care of by VGMstream](https://reshax.com/topic/134-a-reminder-for-everyone-most-of-your-audio-woes-are-taken-care-of-by-vgmstream/)
 
-Slayer Engine used in Silent Hill: Homecoming
+Games using Slayer Engine that is also used in Silent Hill: Homecoming
 * [[Slayer Engine] Indiana Jones And The Emperor's Tomb (PC) - MSH AND MTX Files](https://reshax.com/topic/211-slayer-engine-indiana-jones-and-the-emperors-tomb-pc-msh-and-mtx-files/)
 * [[Xbox] Buffy the Vampire Slayer models](https://reshax.com/topic/749-xbox-buffy-the-vampire-slayer-models/)
 
-Infernal Engine used in Silent Hill: Book of Memories
+Games using Infernal Engine that is also used in Silent Hill: Book of Memories
 * [Ghostbusters TVG:R Anim Files](https://reshax.com/topic/675-ghostbusters-tvgr-anim-files/)
 
-RenderWare Engine used in Silent Hill: Origins and Silent Hill: Shattered Memories
-* [[PC] Moorhuhn Adventure 2 ._img format](https://reshax.com/topic/586-pc-moorhuhn-adventure-2-_img-format/))
+Games using RenderWare Engine that are also used in Silent Hill: Origins and Silent Hill: Shattered Memories
 * [[PC] Moorhuhn Kart 2 .bsp track models.](https://reshax.com/topic/641-pc-moorhuhn-kart-2-bsp-track-models/)
 * [Dead to Rights 2 DFF](https://reshax.com/topic/644-dead-to-rights-2-dff/)
-* [[PC] Moorhuhn Kart Extra .obj files](https://reshax.com/topic/665-pc-moorhuhn-kart-extra-obj-files/)
-* [[PC] Moorhuhn Kart Extra .clu track files.](https://reshax.com/topic/672-pc-moorhuhn-kart-extra-clu-track-files/)
-* [Moorhuhn Winter Edition .dat archive](https://reshax.com/topic/743-moorhuhn-winter-edition-dat-archive/)
-* [[PC] Moorhuhn Kart Extra .trk files](https://reshax.com/topic/756-pc-moorhuhn-kart-extra-trk-files/)
 
 Another Konami game that uses a similar model format as SH2/3 and maybe even SH4
 * [[PS2] Tokimeki Memorial 3 (.bin)](https://reshax.com/topic/587-ps2-tokimeki-memorial-3-bin/)
