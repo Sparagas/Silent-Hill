@@ -86,7 +86,7 @@ ISS Pro Evolution, also known as World Soccer Jikkyou Winning Eleven 4 in Japan 
 #### Description
 It is almost the same game as the first ISS Pro Evolution, with the same easter egg.
 
-### New International Track & Field
+### New International Track & Field (non-Japan) / New International Hyper Sports DS (Japan)
 #### Platforms
 - Nintendo - Nintendo DS
 
@@ -205,7 +205,7 @@ It could be using the same audio assets as Silent Hill 3.
 - Sony - PlayStation 3
 
 #### Description
-PlayStation Home was a virtual 3D social gaming platform. It had James and Pyramid Head costumes and a Diner location from Silent Hill: Downpour.
+PlayStation Home was a virtual 3D social gaming platform. It had James Sunderland, Pyramid Head, Heather Mason, Nurse, and Robbie the Rabbit character costumes, Anne's police uniform outfit, and a Diner location from Silent Hill: Downpour.
 
 ### Dead by Daylight
 #### Platforms
