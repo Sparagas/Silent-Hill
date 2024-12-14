@@ -8,6 +8,7 @@
 * [Silent Hill 4 (PC) - How can I Extract text and translate it](https://reshax.com/topic/847-silent-hill-4-pc-how-can-i-extract-text-and-translate-it/)
 * [[PS3] Silent Hill Downpour .LocalizationTable](https://reshax.com/topic/862-ps3-silent-hill-downpour-localizationtable/)
 * [possible to update mt_ue4 script for Noesis for ue5.1 Silent Hill 2 Remake](https://reshax.com/topic/1159-possible-to-update-mt_ue4-script-for-noesis-for-ue51-silent-hill-2-remake/)
+* [Silent Hill 4 Xbox animations](https://reshax.com/topic/1305-silent-hill-4-xbox-animations/)
 
 ## Related topics to Silent Hill games
 Could work on a lot of audio files
