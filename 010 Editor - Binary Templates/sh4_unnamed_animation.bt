@@ -1,0 +1,329 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: 
+//   Authors: sh4_unnamed_animation.bt
+//   Version: Laurynas Zubavičius (Sparagas)
+//            Rodolfo Nuñez (roocker666)
+//            Hunter Stanton
+//   Purpose: Silent Hill 4: The Room (all platforms)
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//------------------------------------------------
+enum <uint16> KeyTypes  // AnimKeyTypes?
+{
+    None                        = 0,
+    RotQuatLinearInterp         = 1,
+    RotQuatBoehmInterp          = 2,
+    RotQuatSquadInterp          = 3,
+    AnmPositionLinearInterp     = 4,
+    AnmPositionHermiteInterp    = 5,
+    AnmPositionBezierInterp     = 6,
+    AnmPositionCardinalInterp   = 7,
+    FloatLinearInterp           = 8,
+    FloatCardinalInterp         = 9,
+    ScaleLinearInterp           = 10,
+    ScaleCardinalInterp         = 11,
+    FloatVectorStepInterp       = 12,
+    RotQuatS15LinearInterp      = 13,
+    RotQuatS15BoehmInterp       = 14,
+    RotQuatS15SquadInterp       = 15,
+    AnmPositionS4LinearInterp   = 16,
+    AnmPositionS4HermiteInterp  = 17,
+    AnmPositionS4BezierInterp   = 18,
+    AnmPositionS4CardinalInterp = 19,
+    ScaleS12LinearInterp        = 20,
+    ScaleS12CardinalInterp      = 21
+};
+
+struct AnmHdr1
+{
+    uint32 type_id;
+    Assert (type_id == 0xFF010001);
+    int16  total_time;
+    int16  is_loop       <comment="loop">;
+    int32  reserved_a;
+    int32  reserved_b;
+    uint32 ofs_anm_hdr_3;
+    uint32 ofs_anm_hdr_2;
+    uint32 pad;
+};
+
+struct Connect
+{
+    uint8 unk_bone_no   <comment="bone_no">;
+    int8  unk_parent_no <comment="parent_no">;
+};
+
+struct IKChain
+{
+    uint8 unk_handle_no     <comment="handle_no">;
+    int8  unk_ikhandle_type <comment="ikhandle_type">;
+    int8  unk_start_no      <comment="start_no">;
+    int8  unk_effector_no   <comment="effector_no">;
+};
+
+struct AnmHdr3
+{
+    uint32  type_id;
+    Assert  (type_id == 0xFF010003);
+    int16   num_connects              <comment="n_connects">;
+    int16   num_ik_chains             <comment="n_ik_chains">;
+    int32   ofs_connects              <comment="connects_offset">;
+    int32   ofs_ik_chains             <comment="ik_chains_offset">;
+    FSeek   (startof(type_id) + ofs_connects);
+    Connect connects[num_connects];
+    FSeek   (startof(type_id) + ofs_ik_chains);
+    IKChain ik_chains[num_ik_chains];
+};
+
+struct OfsKeyframes
+{
+    local int count = 0;
+    while (ReadInt() != 0) {
+        uint32 ofs_keyframe;
+        count++;
+    }
+    uint32 pad;
+};
+
+struct AnmHdr2  // sgAnmKeyFrames?
+{
+    uint32       type_id;
+    Assert       (type_id == 0xFF010002);
+    int16        num_data       <comment="n_data">;
+    int16        is_relative    <comment="relative">;
+    OfsKeyframes ofs_keyframes;
+};
+
+struct f32x4
+{
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+struct i16x4
+{
+    int16 x;
+    int16 y;
+    int16 z;
+    int16 w;
+};
+
+struct QuatLinearKey
+{
+    f32x4 quat;
+};
+
+struct QuatBoehmKey
+{
+    f32x4 quat;
+    f32x4 Tq;
+};
+
+struct QuatSquadKey
+{
+    f32x4 quat;
+    f32x4 Ts;
+    f32x4 Td;
+};
+
+struct XYZWKey
+{
+    f32x4 pos;
+};
+
+struct XYZWHermiteKey
+{
+    f32x4 pos;
+    f32x4 Ts;
+    f32x4 Td;
+};
+
+struct XYZWBezierKey
+{
+    f32x4 pos;
+    f32x4 in_knot;
+    f32x4 out_knot;
+};
+
+struct XYZWCardinalKey
+{
+    f32x4 pos;
+    f32x4 Tsd;
+};
+
+struct QuatS15LinearKey
+{
+    i16x4 quat;
+};
+
+struct QuatS15BoehmKey
+{
+    i16x4 quat;
+    i16x4 Tq;
+};
+
+struct QuatS15SquadKey
+{
+    i16x4 quat;
+    i16x4 Ts;
+    i16x4 Td;
+};
+
+struct XYZWShortKey
+{
+    i16x4 pos;
+};
+
+struct XYZWShortHermiteKey
+{
+    i16x4 pos;
+    i16x4 Ts;
+    i16x4 Td;
+};
+
+struct XYZWShortBezierKey
+{
+    i16x4 pos;
+    i16x4 in_knot;
+    i16x4 out_knot;
+};
+
+struct XYZWShortCardinalKey
+{
+    i16x4 pos;
+    i16x4 Tsd;
+};
+
+struct Keyframe  // sgAnmKeys?
+{
+    KeyTypes key_type         <comment="key_type">;
+    int16    reserved;
+    int16    num_keys         <comment="nb_keys">;
+    int8     unk_skeleton_no;
+    uint8    is_relative      <comment="relative">;
+    uint32   ofs_time_table   <comment="time_table_offset">;
+    uint32   ofs_keys         <comment="keys_offset">;
+    FSeek    (startof (key_type) + ofs_time_table);
+    uint16   times[num_keys];
+    FSeek    (startof (key_type) + ofs_keys);
+
+    switch(key_type)
+    {
+        case RotQuatLinearInterp:
+            QuatLinearKey keys[num_keys];
+            break;
+
+        case RotQuatBoehmInterp:
+            QuatBoehmKey keys[num_keys];
+            break;
+
+        case RotQuatSquadInterp:
+            QuatSquadKey keys[num_keys];
+            break;
+
+        case AnmPositionLinearInterp:
+            XYZWKey keys[num_keys];
+            break;
+
+        case AnmPositionHermiteInterp:
+            XYZWHermiteKey keys[num_keys];
+            break;
+
+        case AnmPositionBezierInterp:
+            XYZWBezierKey keys[num_keys];
+            break;
+
+        case AnmPositionCardinalInterp:
+            XYZWCardinalKey keys[num_keys];
+            break;
+
+        case FloatLinearInterp:
+            Warning("Unknown structure");
+            break;
+
+        case FloatCardinalInterp:
+            Warning("Unknown structure");
+            break;  
+
+        case ScaleLinearInterp:
+            XYZWKey keys[num_keys];
+            break;
+
+        case ScaleCardinalInterp:
+            XYZWCardinalKey keys[num_keys];
+            break;
+
+        case FloatVectorStepInterp:
+            Warning("Unknown structure");
+            break;
+
+        case RotQuatS15LinearInterp:
+            QuatS15LinearKey keys[num_keys];
+            break;
+
+        case RotQuatS15BoehmInterp:
+            QuatS15BoehmKey keys[num_keys];
+            break;
+
+        case RotQuatS15SquadInterp:
+            QuatS15SquadKey keys[num_keys];
+            break;
+
+        case AnmPositionS4LinearInterp:
+            XYZWShortKey keys[num_keys];
+            break;
+
+        case AnmPositionS4HermiteInterp:
+            XYZWShortHermiteKey keys[num_keys];
+            break;
+
+        case AnmPositionS4BezierInterp:
+            XYZWShortBezierKey keys[num_keys];
+            break;
+
+        case AnmPositionS4CardinalInterp:
+            XYZWShortCardinalKey keys[num_keys];
+            break;
+
+        case ScaleS12LinearInterp:
+            Warning("Unknown structure");
+            break;
+
+        case ScaleS12CardinalInterp:
+            Warning("Unknown structure");
+            break;
+
+        default:
+            Warning("Unknown animation type: " + key_type);
+            break;
+    }
+};
+
+struct Keyframes
+{
+    local int i;
+    for (i = 0; i < anm_hdr_2.ofs_keyframes.count; i++)
+    {
+        FSeek(startof(anm_hdr_2) + anm_hdr_2.ofs_keyframes.ofs_keyframe[i]);
+        Keyframe keyframe;
+    }
+};
+
+// Main parsing
+struct AnmBlock
+{
+    AnmHdr1  anm_hdr_1;
+    FSeek    (anm_hdr_1.ofs_anm_hdr_3);
+    AnmHdr3  anm_hdr_3;
+    FSeek    (anm_hdr_1.ofs_anm_hdr_2);
+    AnmHdr2  anm_hdr_2;
+    Keyframes keyframes;
+};
+
+if (GetTemplateName() == "sh4_unnamed_animation.bt")
+    AnmBlock file <open=true>;

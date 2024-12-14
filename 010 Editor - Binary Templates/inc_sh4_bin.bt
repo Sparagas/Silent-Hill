@@ -89,10 +89,12 @@ void sh4_bin() {
             }
         }
         // animation block
-        else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
-            //#include "SH4 (PC) animation.bt" //need to debug
-            uint32 TODO_animation_block;
-
+        else if (temp[0] == 0x0001 && temp[1] == 0xFF01) {
+            OffsetSetStart(FTell());
+            #include "sh4_unnamed_animation.bt"
+            AnmBlock anm_block;
+            OffsetClear();
+        }
         // world mesh block
         else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
             if (platform == "PS2")
