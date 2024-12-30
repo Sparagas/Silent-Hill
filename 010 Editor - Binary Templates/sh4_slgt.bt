@@ -53,10 +53,10 @@ typedef struct Light
     float unk; // possible this is just padding or something
 } light;
 
-struct SLGT
+struct Sh4Slgt
 {
     char type[4]; // always SLGT, game checks for this byte sequence or it wont load the lights
-    if(type == "SLGT")
+    if (type == "SLGT")
     {
         uint32 version;
         uint32 light_num;
@@ -66,4 +66,7 @@ struct SLGT
     } else {
         Warning("Not a SLGT file, can not continue");
     }
-} slgt_block;
+};
+
+if (GetTemplateName() == "sh4_slgt.bt")
+    Sh4Slgt sh4_slgt <open=true>;

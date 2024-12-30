@@ -21,4 +21,7 @@ struct Fog
     ubyte a;
     ubyte near_power;
     ubyte far_power;
-} fog;
+};
+
+if (GetTemplateName() == "sh4_fog.bt")
+    Fog sh4_fog <open=true>;

@@ -180,4 +180,7 @@ struct WorldModel { // SGEMRenderModel
     } else {
         Warning("Error: Template does not support non-final versioned world meshes");
     }
-} world_model_block;
+};
+
+if (GetTemplateName() == "sh4_static_model_pc.bt")
+    WorldModel sh4_static_model_pc <open=true>;

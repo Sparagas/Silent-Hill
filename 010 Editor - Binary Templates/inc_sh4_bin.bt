@@ -9,103 +9,99 @@
 //------------------------------------------------
 
 #include "color.bt"
-#include "inc_sh4_textures.bt"
-#include "inc_sh4_ps2_textures.bt"
-#include "inc_sh4_xbox_textures.bt"
-#include "inc_sh4_pc_textures.bt"
-#include "inc_sh4_pc_char_mdl.bt"
 
+#include "sh4_animation.bt"
+#include "sh4_fog.bt"
+#include "sh4_shadow_model.bt"
+#include "sh4_skeletal_model_pc.bt"
+#include "sh4_slgt.bt"
+#include "sh4_static_model_pc.bt"
+#include "sh4_textures.bt"
 
 void sh4_bin() {
 
     uint32 num_block;
     uint32 ofs_block[num_block];
 
-    local uint32 local_ofs;
     local uint16 temp[2];
     local uint32 i;
     for (i = 0; i < num_block; i++) {
-        local_ofs = ofs_block[i];
-        FSeek(ofs_block[i]);
-        temp[0] = ReadUShort();
-        FSeek(ofs_block[i]+2);
-        temp[1] = ReadUShort();
-        FSeek(ofs_block[i]);
+        temp[0] = ReadUShort(ofs_block[i]);
+        temp[1] = ReadUShort(ofs_block[i] + 2);
 
+        FSeek(ofs_block[i]);
+        OffsetSetStart(FTell());
+
+        // could be text file
         if (temp[0] == 0x0000 && temp[1] == 0x0000)
-            ubyte TODO_empty_block;
+            ubyte unk_0000_0000;
 
+        // unknown file
         else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
-            uint32 unk_ffffffff;
+            uint32 unk_FFFF_FFFF;
 
-        // texture block
-        else if (temp[0] == temp[1]) {
-            OffsetSetStart(FTell());
-            struct {
-                sh4_textures();
-                if (platform == "PS2")
-                    sh4_ps2_textures();
-                else if (platform == "Xbox")
-                    sh4_xbox_textures();
-                else if (platform == "PC")
-                    sh4_pc_textures();
-            } img_block;
-            OffsetClear();
-        }
-        // shadow mesh block
+        // texture file
+        else if (temp[0] == temp[1])
+            Sh4Textures sh4_textures;
+
+        // shadow model file
         else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
-            //#include "sh4_pc_shadow_mesh.bt"
-            uint32 TODO_shadow_mesh_block;
+            SGSVModel sh4_shadow_model;
 
-        // world collision mesh block
+        // collision model file
         else if (temp[0] == 0xFF11)
-            uint32 TODO_world_collision_mesh_block;
+            uint32 TODO_collision_model;
 
-        // character mesh block
-        else if (temp[0] == 0x0003) {
-            OffsetSetStart(FTell());
-                // if (platform == "PC")
-                    Model3 char_mdl_block;
-                // else
-                    // uint32 TODO_non_PC_char_mdl_block;
-            OffsetClear();
-        }
-        // SDB file block
+        // skeletal model file
+        else if (temp[0] == 0x0003)
+            if (platform == "PC")
+                Model3 sh4_skeletal_model;
+            else
+                uint32 TODO_non_PC_sh4_skeletal_model;
+
+        // SDB file file
         else if (temp[0] == 0x8581)
             uint32 TODO_SDB_file_block;
 
-        // Monster ID list
+        // Monster ID list file
         else if (temp[0] == 0x4554)
             uint32 TODO_Monster_id_list;
 
-        // SLGT file block
-        else if (temp[0] == 0x4C53) {
-            if (platform == "PS2")
-                uint32 TODO_slgt_block;
-            else if (platform == "Xbox")
-                uint32 TODO_slgt_block;
-            else if (platform == "PC") {
-                #include "sh4_pc_SLGT.bt"
-            }
-        }
-        // animation block
-        else if (temp[0] == 0x0001 && temp[1] == 0xFF01) {
-            OffsetSetStart(FTell());
-            #include "sh4_unnamed_animation.bt"
-            AnmBlock anm_block;
-            OffsetClear();
-        }
-        // world mesh block
+        // SLGT S-light file 
+        else if (temp[0] == 0x4C53)
+            Sh4Slgt sh4_slgt;
+
+        // animation file
+        else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
+            Sh4Animation sh4_animation;
+
+        // static model file
         else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
             if (platform == "PS2")
-                uint32 TODO_world_mesh_block;
+                uint32 TODO_sh4_static_model_ps2;
             else if (platform == "Xbox")
-                uint32 TODO_world_mesh_block;
-            else if (platform == "PC") {
-                #include "sh4_pc_world_mesh.bt"
-            }
+                uint32 TODO_sh4_static_model_xbox;
+            else if (platform == "PC")
+                WorldModel sh4_static_model_pc;
         }
-        else
-            uint32 unk_block;
+
+        // fog file - after 14 butes only goes zeroes, but I only check 2 bytes after
+        else if (ReadUShort(14) == 0)
+            Fog sh4_fog;
+
+        // unknown file
+        else {
+            OffsetClear();
+            // if last offset
+            if (i == num_block - 1)
+                struct {
+                    uint8 unk[FileSize() - FTell()];
+                } unk_file;
+            else
+                struct (uint32 i) {
+                    uint8 unk[ofs_block[i + 1] - FTell()];
+                } unk_file(i);
+            }
+        OffsetClear();
     }
 };

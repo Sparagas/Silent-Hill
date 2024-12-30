@@ -243,3 +243,6 @@ struct Model3 {
         ChrPart chr_vu0_parts <optimize=false>;
     }
 };
+
+if (GetTemplateName() == "sh4_skeletal_model_pc.bt")
+    Model3 char_mdl_block <open=true>;

@@ -315,7 +315,7 @@ struct Keyframes
 };
 
 // Main parsing
-struct AnmBlock
+struct Sh4Animation
 {
     AnmHdr1  anm_hdr_1;
     FSeek    (anm_hdr_1.ofs_anm_hdr_3);
@@ -325,5 +325,5 @@ struct AnmBlock
     Keyframes keyframes;
 };
 
-if (GetTemplateName() == "sh4_unnamed_animation.bt")
-    AnmBlock file <open=true>;
+if (GetTemplateName() == "sh4_animation.bt")
+    Sh4Animation sh4_animation <open=true>;

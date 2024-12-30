@@ -86,4 +86,7 @@ struct SGSVModel
         FSeek(offsets[i]);
         Mesh meshPart;
     }
-} shadow_model_block;
+};
+
+if (GetTemplateName() == "sh4_shadow_model.bt")
+    SGSVModel sh4_shadow_model <open=true>;
