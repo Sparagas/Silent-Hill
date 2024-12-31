@@ -40,7 +40,7 @@ def load_rgba(data, tex_list):
         temp1 = bin.readBytes(2)
         bin.seek(ofs_block[i])
         
-        if temp0 == temp1:
+        if (temp0 == temp1) and (temp0 != b'\x00\x00') and (temp0 != b'\xFF\xFF'):
             print(i, "image block")
             sh4_textures(data[ofs_block[i]:], tex_list, i)
     return 1

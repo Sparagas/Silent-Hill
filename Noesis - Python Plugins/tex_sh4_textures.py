@@ -1,6 +1,6 @@
 """Noesis Python Plugin
 
-      File: inc_sh4_textures.py
+      File: tex_sh4_textures.py
    Authors: Laurynas Zubavičius (Sparagas)
             Rodolfo Nuñez (roocker666)
    Purpose: Silent Hill 4: The Room (Sony - PlayStation 2)
@@ -140,7 +140,13 @@ def sh4_textures(data, tex_list, block_num=None):
         tmp1 = bs.readUInt()
         bs.seek(36, NOESEEK_REL)
         tmp2 = bs.readUInt()
-        if tmp1 == tmp2:
+        bs.seek(ofs_pal_hdr[0] + ps2_pal[0].ofs)
+        bs.seek(4, NOESEEK_REL)
+        tmp3 = bs.readUInt()
+        bs.seek(36, NOESEEK_REL)
+        tmp4 = bs.readUInt()
+        # if tmp1 == tmp2 and tmp1 != 0:
+        if tmp1 == tmp2 and tmp3 == tmp4:
             print("Xbox detected")
             # xbox part ------------------------------------------------------
             class IdxHdr:

@@ -85,8 +85,9 @@ void sh4_bin() {
                 WorldModel sh4_static_model_pc;
         }
 
-        // fog file - after 14 butes only goes zeroes, but I only check 2 bytes after
-        else if (ReadUShort(14) == 0)
+        // fog file
+        // after 14 butes only goes zeroes, but I only check 2 bytes after. It gets confused with other files sometimes, so I need to work on this
+        else if (ReadFloat(4) != 0 && ReadUShort(14) == 0)
             Fog sh4_fog;
 
         // unknown file
