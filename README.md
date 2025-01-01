@@ -14,7 +14,7 @@ Scripts are written in **Python** language to view Silent Hill 3D models in **3D
 ## [Noesis - Python Plugins](Noesis%20-%20Python%20Plugins)
 Scripts are written in **Python** language to view Silent Hill 3D models and 2D images in **Noesis**.
 
-## [dwarf2cpp](dwarf2cpp)
+## [Debug - dwarf2cpp](Debug%20-%20dwarf2cpp)
 Debug information extracted from Silent Hill demos with **dwarf2cpp**.
 
 ## [GitHub repositories related to Silent Hill](docs/GitHub%20list.md)
