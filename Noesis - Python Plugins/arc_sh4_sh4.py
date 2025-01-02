@@ -44,10 +44,7 @@ def extract_sh4_archive(noe_file_name, noe_file_len, just_checking):
             f.seek(file_hdr[i].ofs_file)
             file_data.append(f.read(file_hdr[i].len_file))
 
-        # Skip padding zeros
-        while f.read(1) == b'\x00':
-            continue
-        f.seek(f.tell() - 1)  # Go back one byte
+        f.seek(num_files * -16, 2)
 
         file_name = [f.read(16).split(b'\x00')[0].decode('ascii') for _ in range(num_files)]
 

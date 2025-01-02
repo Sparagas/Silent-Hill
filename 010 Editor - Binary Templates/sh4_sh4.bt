@@ -30,8 +30,7 @@ struct {
     }
 } file_data;
 
-while (ReadUByte() == 0)
-    FSkip(1);
+FSeek(FileSize() - num_files * 16);
 
 struct {
     char name[16];
