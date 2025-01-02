@@ -1,0 +1,38 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh4_sh4.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
+//            Silent Hill 4: The Room (Microsoft - Windows)
+//  Category: Archive
+// File Mask: *.sh4
+//  ID Bytes: 53 48 34 00
+//------------------------------------------------
+
+struct FileHdr {
+    uint32 ofs_file;
+    uint32 len_file;
+};
+
+char magic[4];
+Assert(magic == "SH4\0");
+uint32 num_files;
+FileHdr file_hdr[num_files];
+
+struct {
+    local int i;
+    for (i = 0; i < num_files; i++) {
+        FSeek(file_hdr[i].ofs_file);
+        struct {
+            uint8 raw_bytes[file_hdr[i].len_file];
+        } file_data;
+    }
+} file_data;
+
+while (ReadUByte() == 0)
+    FSkip(1);
+
+struct {
+    char name[16];
+} file_name[num_files];
