@@ -1,0 +1,32 @@
+//------------------------------------------------
+//--- QuickBMS
+//
+//      File: sh4_sh4.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
+//            Silent Hill 4: The Room (Microsoft - Windows)
+//  Category: Archive
+// File Mask: *.sh4
+//  ID Bytes: 53 48 34 00
+//------------------------------------------------
+
+IDString "SH4\0"       # Check the file magic
+Get NUM_FILES long     # Read the number of files in the archive
+
+# Read the file headers and store offsets and lengths in arrays
+For i = 0 < NUM_FILES
+    Get FILE_OFS long
+    Get FILE_LEN long
+    PutArray 0 i FILE_OFS FILE_LEN  # Store offset in array 0
+Next i
+
+# Jump to the end of the file to read the file name table
+Math NAME_TABLE_START NUM_FILES * 16
+GoTo NAME_TABLE_START 0 SEEK_END
+
+# Read file names
+For i = 0 < NUM_FILES
+    GetDString FILE_NAME 16
+    GetArray FILE_OFS FILE_LEN 0 i   # Retrieve offset from array 0
+    Log FILE_NAME FILE_OFS FILE_LEN  # Extract the file
+Next i
