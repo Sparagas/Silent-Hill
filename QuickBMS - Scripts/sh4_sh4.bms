@@ -21,7 +21,7 @@ For i = 0 < NUM_FILES
 Next i
 
 # Jump to the end of the file to read the file name table
-Math NAME_TABLE_START NUM_FILES * 16
+XMath NAME_TABLE_START "NUM_FILES * 16"
 GoTo NAME_TABLE_START 0 SEEK_END
 
 # Read file names
