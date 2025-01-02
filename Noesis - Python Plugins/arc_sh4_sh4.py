@@ -25,20 +25,16 @@ class FileHdr:
 
 
 def extract_sh4_archive(noe_file_name, noe_file_len, just_checking):
-    if just_checking:
-        with open(noe_file_name, "rb") as f:
-            if noe_file_len < 8:
-                return 0
-            magic = f.read(4)
-            if magic != b'SH4\x00':
-                return 0
-
     with open(noe_file_name, "rb") as f:
         if noe_file_len < 8:
             return 0
         magic = f.read(4)
         if magic != b'SH4\x00':
             return 0
+
+        if just_checking:
+            return 1
+
         num_files = int.from_bytes(f.read(4), byteorder='little')
 
         file_hdr = [FileHdr(f) for _ in range(num_files)]
