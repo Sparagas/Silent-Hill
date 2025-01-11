@@ -135,6 +135,7 @@
 - Official Xbox Magazine Game Disc 29
 - Official Xbox Magazine Game Disc 32
 - Official Xbox Magazine Game Disc 35
+- Official Xbox Magazine Game Disc 36
 - PC Action: Action Disc: Gennaio 2005 (Disc 3)
 - PC Action: Action Disc: Settembre 2003 (Disco 2)
 - PC Fun eXtreme n. 16: Novembre 2004
