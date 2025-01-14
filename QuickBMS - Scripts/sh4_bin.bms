@@ -1,0 +1,83 @@
+//------------------------------------------------
+//--- QuickBMS
+//
+//      File: sh4_bin.bms
+//   Authors: Laurynas Zubavičius (Sparagas)
+//            Hunter Stanton
+//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
+//            Silent Hill 4: The Room (Microsoft - Windows)
+//            Silent Hill 4: The Room (Sony - PlayStation 2)
+//  Category: Archive
+// File Mask: *.bin
+//------------------------------------------------
+
+get ARCHIVE_NAME basename
+get num_files long
+
+# Get all file offsets
+for i = 0 < num_files
+    get offset long
+    putarray 0 i offset
+next i
+
+# Process each file
+for i = 0 < num_files
+    getarray offset 0 i
+    print "offset %offset%"
+    
+    # Calculate size using next offset or EOF
+    XMath last_file "num_files - 1"
+    if i == last_file
+        get filesize asize
+        math size = filesize
+        math size -= offset
+        print "size %size%"
+    else
+        Xmath n "i + 1"
+        getarray next_offset 0 n
+        math size = next_offset
+        math size -= offset
+        print "size %size%"
+    endif
+
+    # Read identifiers
+    goto offset
+    get temp0 short
+    get temp1 short
+    goto 0x0A 0 SEEK_CUR
+    get temp2 short
+    goto offset
+
+    # Build filename
+    string name p= "%s_%d" ARCHIVE_NAME i
+
+    if temp0 == 0x0000 && temp1 == 0x0000
+        string name += "._unk_0000_0000"
+    elif temp0 == 0xFFFF && temp1 == 0xFFFF
+        string name += "._unk_ffff_ffff"
+    elif temp0 == temp1
+        string name += "._sh4_textures"
+    elif temp0 == 0x7000 && temp1 == 0x0FC0
+        string name += "._sh4_shadow_model"
+    elif temp0 == 0xFF11
+        string name += "._sh4_collision_model"
+    elif temp0 == 0x0003
+        string name += "._sh4_skeletal_model"
+    elif temp0 == 0x8581
+        string name += "._sh4_sdb_file"
+    elif temp0 == 0x4554
+        string name += "._sh4_monster_id_list"
+    elif temp0 == 0x4C53
+        string name += ".slgt"
+    elif temp0 == 0x0001 && temp1 == 0xFF01
+        string name += "._sh4_animation"
+    elif temp0 == 0x0001 && temp1 == 0xFC03
+        string name += "._sh4_static_model"
+    elif (temp0 != 0x0000 || temp1 != 0x0000) && temp2 == 0x0000
+        string name += "._sh4_fog"
+    else
+        string name += ".sh4_unknown"
+    endif
+
+    log name offset size
+next i

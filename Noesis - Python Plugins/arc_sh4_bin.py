@@ -23,16 +23,22 @@ def extract_bin_archive(noe_file_name, noe_file_len, just_checking):
     with open(noe_file_name, "rb") as f:
         if noe_file_len < 4:
             return 0
+
         num_files = int.from_bytes(f.read(4), byteorder='little')
+
         if noe_file_len < 4 * (num_files + 1):
             return 0
+
+        if just_checking:
+            return 1
+
         ofs_file = [int.from_bytes(f.read(4), byteorder='little') for _ in range(num_files)]
+
         end_file = [int] * num_files
         for i in range(num_files - 1):
             end_file[i] = ofs_file[i + 1]
         end_file[num_files - 1] = noe_file_len
-        if just_checking:
-            return 1
+
         for i in range(num_files):
             f.seek(ofs_file[i])
             temp0 = f.read(2)
@@ -40,46 +46,48 @@ def extract_bin_archive(noe_file_name, noe_file_len, just_checking):
             f.seek(10, 1)
             temp2 = f.read(2)
             f.seek(ofs_file[i])
+
             name = rapi.getExtensionlessName(rapi.getLocalFileName(noe_file_name))
-            name = name + '_file{}'.format(i)
+            name = name + '_{}'.format(i)
 
             if temp0 == b'\x00\x00' and temp1 == b'\x00\x00':
-                name = name + '.unk_0000_0000'
+                name = name + '._unk_0000_0000'
 
             elif temp0 == b'\xff\xff' and temp1 == b'\xff\xff':
-                name = name + '.unk_ffff_ffff'
+                name = name + '._unk_ffff_ffff'
 
             elif temp0 == temp1:
-                name = name + '.sh4_textures'
-                
+                name = name + '._sh4_textures'
+
             elif temp0 == b'\x00\x70' and temp1 == b'\xC0\x0F':
-                name = name + '.sh4_shadow_model'
-                
+                name = name + '._sh4_shadow_model'
+
             elif temp0 == b'\x11\xFF':
-                name = name + '.sh4_collision_model'
-                
+                name = name + '._sh4_collision_model'
+
             elif temp0 == b'\x03\x00':
-                name = name + '.sh4_skeletal_model'
-            
+                name = name + '._sh4_skeletal_model'
+
             elif temp0 == b'\x81\x85':
-                name = name + '.sh4_sdb_file'
-                
+                name = name + '._sh4_sdb_file'
+
             elif temp0 == b'\x54\x45':
-                name = name + '.sh4_monster_id_list'
-                
+                name = name + '._sh4_monster_id_list'
+
             elif temp0 == b'\x53\x4C':
-                name = name + '.sh4_slgt'
-                
+                name = name + '.slgt'
+
             elif temp0 == b'\x01\x00' and temp1 == b'\x01\xFF':
-                name = name + '.sh4_animation'
-                
+                name = name + '._sh4_animation'
+
             elif temp0 == b'\x01\x00' and temp1 == b'\x03\xFC':
-                name = name + '.sh4_static_model'
-            
+                name = name + '._sh4_static_model'
+
             elif (temp0 != b'\x00\x00' or temp1 != b'\x00\x00') and temp2 == b'\x00\x00':
-                name = name + '.sh4_fog'
-            
+                name = name + '._sh4_fog'
+
             else:
                 name = name + '.sh4_unknown'
+
             rapi.exportArchiveFile(name, f.read(end_file[i] - ofs_file[i]))
     return 1
