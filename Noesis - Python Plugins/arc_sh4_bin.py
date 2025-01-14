@@ -53,6 +53,9 @@ def extract_bin_archive(noe_file_name, noe_file_len, just_checking):
             if temp0 == b'\x00\x00' and temp1 == b'\x00\x00':
                 name = name + '._unk_0000_0000'
 
+            if temp0 == b'\x00\x00' and temp1 == b'\x01\x00':
+                name = name + '._ps2_save_icon'
+
             elif temp0 == b'\xff\xff' and temp1 == b'\xff\xff':
                 name = name + '._unk_ffff_ffff'
 

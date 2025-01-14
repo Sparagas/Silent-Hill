@@ -53,6 +53,8 @@ for i = 0 < num_files
 
     if temp0 == 0x0000 && temp1 == 0x0000
         string name += "._unk_0000_0000"
+    elif temp0 == 0x0000 && temp1 == 0x0001
+        string name += "._ps2_save_icon"
     elif temp0 == 0xFFFF && temp1 == 0xFFFF
         string name += "._unk_ffff_ffff"
     elif temp0 == temp1
@@ -76,7 +78,7 @@ for i = 0 < num_files
     elif (temp0 != 0x0000 || temp1 != 0x0000) && temp2 == 0x0000
         string name += "._sh4_fog"
     else
-        string name += ".sh4_unknown"
+        string name += "._sh4_unknown"
     endif
 
     log name offset size
