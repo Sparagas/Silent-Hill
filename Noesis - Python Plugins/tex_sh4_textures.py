@@ -13,7 +13,7 @@ from inc_noesis import *
 
 
 def registerNoesisTypes():
-    handle = noesis.register("Silent Hill 4: The Room (PS2, Xbox, PC)", ".textures")
+    handle = noesis.register("Silent Hill 4: The Room (PS2, Xbox, PC)", "._sh4_textures")
     noesis.setHandlerTypeCheck(handle, check_type)
     noesis.setHandlerLoadRGBA(handle, sh4_textures)
     return 1
