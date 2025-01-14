@@ -18,27 +18,36 @@
 #include "sh4_static_model_pc.bt"
 #include "sh4_textures.bt"
 
+struct File(uint32 len) {
+    uint8 bytes[len];
+};
+
 void sh4_bin() {
 
-    uint32 num_block;
-    uint32 ofs_block[num_block];
+    uint32 num_files;
+    uint32 ofs_file[num_files];
+    
+    local uint32 len_file[num_files];
+    local uint32 i;
+    for (i = 0; i < num_files - 1; i++)
+        len_file[i] = ofs_file[i + 1] - ofs_file[i];
+    len_file[num_files - 1] = FileSize() - ofs_file[num_files - 1];
 
     local uint16 temp[2];
-    local uint32 i;
-    for (i = 0; i < num_block; i++) {
-        temp[0] = ReadUShort(ofs_block[i]);
-        temp[1] = ReadUShort(ofs_block[i] + 2);
+    for (i = 0; i < num_files; i++) {
+        temp[0] = ReadUShort(ofs_file[i]);
+        temp[1] = ReadUShort(ofs_file[i] + 2);
 
-        FSeek(ofs_block[i]);
+        FSeek(ofs_file[i]);
         OffsetSetStart(FTell());
 
         // could be text file
         if (temp[0] == 0x0000 && temp[1] == 0x0000)
-            ubyte unk_0000_0000;
+            File unk_0000_0000(len_file[i]);
 
         // unknown file
         else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
-            uint32 unk_FFFF_FFFF;
+            File unk_FFFF_FFF(len_file[i]);
 
         // texture file
         else if (temp[0] == temp[1])
@@ -50,22 +59,22 @@ void sh4_bin() {
 
         // collision model file
         else if (temp[0] == 0xFF11)
-            uint32 TODO_collision_model;
+            File TODO_collision_model(len_file[i]);
 
         // skeletal model file
         else if (temp[0] == 0x0003)
             if (platform == "PC")
                 Model3 sh4_skeletal_model;
             else
-                uint32 TODO_non_PC_sh4_skeletal_model;
+                File TODO_non_PC_sh4_skeletal_model(len_file[i]);
 
         // SDB file file
         else if (temp[0] == 0x8581)
-            uint32 TODO_SDB_file_block;
+            File TODO_SDB_file_block(len_file[i]);
 
         // Monster ID list file
         else if (temp[0] == 0x4554)
-            uint32 TODO_Monster_id_list;
+            File TODO_Monster_id_list(len_file[i]);
 
         // SLGT S-light file 
         else if (temp[0] == 0x4C53)
@@ -78,9 +87,9 @@ void sh4_bin() {
         // static model file
         else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
             if (platform == "PS2")
-                uint32 TODO_sh4_static_model_ps2;
+                File TODO_sh4_static_model_ps2(len_file[i]);
             else if (platform == "Xbox")
-                uint32 TODO_sh4_static_model_xbox;
+                File TODO_sh4_static_model_xbox(len_file[i]);
             else if (platform == "PC")
                 WorldModel sh4_static_model_pc;
         }
@@ -91,18 +100,8 @@ void sh4_bin() {
             Fog sh4_fog;
 
         // unknown file
-        else {
-            OffsetClear();
-            // if last offset
-            if (i == num_block - 1)
-                struct {
-                    uint8 unk[FileSize() - FTell()];
-                } unk_file;
-            else
-                struct (uint32 i) {
-                    uint8 unk[ofs_block[i + 1] - FTell()];
-                } unk_file(i);
-            }
+        else
+            File unk_file(len_file[i]);
         OffsetClear();
     }
 };
