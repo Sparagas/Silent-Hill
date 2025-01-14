@@ -45,10 +45,6 @@ void sh4_bin() {
         if (temp[0] == 0x0000 && temp[1] == 0x0000)
             File unk_0000_0000(len_file[i]);
 
-        // PlayStation 2 3D save icon
-        if (temp[0] == 0x0000 && temp[1] == 0x0001)
-            File ps2_save_icon(len_file[i]);
-
         // unknown file
         else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
             File unk_FFFF_FFF(len_file[i]);
@@ -56,6 +52,10 @@ void sh4_bin() {
         // texture file
         else if (temp[0] == temp[1])
             Sh4Textures sh4_textures;
+
+        // PlayStation 2 3D save icon
+        else if (temp[0] == 0x0000 && temp[1] == 0x0001)
+            File ps2_save_icon(len_file[i]);
 
         // shadow model file
         else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
