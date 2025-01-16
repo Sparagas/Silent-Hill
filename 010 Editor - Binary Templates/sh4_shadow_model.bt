@@ -63,7 +63,8 @@ typedef struct Mesh
     VertPosUnk vert_pos_unk[n_vertices];
 
     FSeek(start + bones_offset);
-    int16 bones[16]; // there can be more than 16 bones in a mesh, but for shadow meshes each part is limited to 16 bones
+    // int16 bones[16]; // there can be more than 16 bones in a mesh, but for shadow meshes each part is limited to 16 bones
+    int8 bones[16]; // there can be more than 16 bones in a mesh, but for shadow meshes each part is limited to 16 bones
 } mesh;
 
 struct SGSVModel

@@ -56,6 +56,10 @@ void sh4_bin() {
         // PlayStation 2 3D save icon
         else if (temp[0] == 0x0000 && temp[1] == 0x0001)
             File ps2_save_icon(len_file[i]);
+            
+        // unknown se_en_* and se_start file
+        else if (temp[0] == 0x0001 && ReadUShort(4) == 0x0003)
+            File unk_se_file(len_file[i]);
 
         // shadow model file
         else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
@@ -83,6 +87,10 @@ void sh4_bin() {
         // SLGT S-light file 
         else if (temp[0] == 0x4C53)
             Sh4Slgt sh4_slgt;
+
+        // unknown text or messages file
+        else if (temp[0] == 0x0132 || temp[0] == 0xE7 || temp[0] == 0x5F || temp[0] == 0x19D || temp[0] == 0x35 || temp[0] == 0xE0 || temp[0] == 0x61 || temp[0] == 0x5F || temp[0] == 0x2F)
+            File sh4_messages(len_file[i]);
 
         // animation file
         else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
