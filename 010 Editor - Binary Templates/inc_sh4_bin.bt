@@ -8,8 +8,6 @@
 //  Category: Include file
 //------------------------------------------------
 
-#include "color.bt"
-
 #include "sh4_animation.bt"
 #include "sh4_fog.bt"
 #include "sh4_shadow_model.bt"
@@ -18,9 +16,23 @@
 #include "sh4_static_model_pc.bt"
 #include "sh4_textures.bt"
 
-struct File(uint32 len) {
-    uint8 bytes[len];
+struct File {
+    uint8 bytes[FileSize()];
 };
+
+int is_all_zeroes() {
+    local int original_offset = FTell();
+    local int i;
+    for (i = 0; i < FileSize(); i++) {
+        if (ReadUByte() != 0) {
+            FSeek(original_offset);
+            return false;
+        }
+        FSkip(1);
+    }
+    FSeek(original_offset);
+    return true;
+}
 
 void sh4_bin() {
 
@@ -33,21 +45,27 @@ void sh4_bin() {
         len_file[i] = ofs_file[i + 1] - ofs_file[i];
     len_file[num_files - 1] = FileSize() - ofs_file[num_files - 1];
 
+    local uint8  zero;
     local uint16 temp[2];
     for (i = 0; i < num_files; i++) {
-        temp[0] = ReadUShort(ofs_file[i]);
-        temp[1] = ReadUShort(ofs_file[i] + 2);
-
         FSeek(ofs_file[i]);
         OffsetSetStart(FTell());
+        OffsetSetLimitSize(len_file[i]);
+
+        temp[0] = ReadUShort();
+        temp[1] = ReadUShort(2);
+
+        // empty file
+        if (is_all_zeroes())
+            File empty_file;
 
         // could be text file
-        if (temp[0] == 0x0000 && temp[1] == 0x0000)
-            File unk_0000_0000(len_file[i]);
+        else if (temp[0] == 0x0000 && temp[1] == 0x0000)
+            File unk_0000_0000;
 
         // unknown file
         else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
-            File unk_FFFF_FFF(len_file[i]);
+            File unk_FFFF_FFF;
 
         // texture file
         else if (temp[0] == temp[1])
@@ -55,11 +73,7 @@ void sh4_bin() {
 
         // PlayStation 2 3D save icon
         else if (temp[0] == 0x0000 && temp[1] == 0x0001)
-            File ps2_save_icon(len_file[i]);
-            
-        // unknown se_en_* and se_start file
-        else if (temp[0] == 0x0001 && ReadUShort(4) == 0x0003)
-            File unk_se_file(len_file[i]);
+            File ps2_save_icon;
 
         // shadow model file
         else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
@@ -67,22 +81,22 @@ void sh4_bin() {
 
         // collision model file
         else if (temp[0] == 0xFF11)
-            File TODO_collision_model(len_file[i]);
+            File sh4_collision_model;
 
         // skeletal model file
         else if (temp[0] == 0x0003)
             if (platform == "PC")
                 Model3 sh4_skeletal_model;
             else
-                File TODO_non_PC_sh4_skeletal_model(len_file[i]);
+                File sh4_skeletal_model_non_pc;
 
         // SDB file file
         else if (temp[0] == 0x8581)
-            File TODO_SDB_file_block(len_file[i]);
+            File sh4_sdb;
 
         // Monster ID list file
         else if (temp[0] == 0x4554)
-            File TODO_Monster_id_list(len_file[i]);
+            File monster_id_list;
 
         // SLGT S-light file 
         else if (temp[0] == 0x4C53)
@@ -90,7 +104,7 @@ void sh4_bin() {
 
         // unknown text or messages file
         else if (temp[0] == 0x0132 || temp[0] == 0xE7 || temp[0] == 0x5F || temp[0] == 0x19D || temp[0] == 0x35 || temp[0] == 0xE0 || temp[0] == 0x61 || temp[0] == 0x5F || temp[0] == 0x2F)
-            File sh4_messages(len_file[i]);
+            File sh4_messages;
 
         // animation file
         else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
@@ -99,21 +113,31 @@ void sh4_bin() {
         // static model file
         else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
             if (platform == "PS2")
-                File TODO_sh4_static_model_ps2(len_file[i]);
+                File sh4_static_model_ps2;
             else if (platform == "Xbox")
-                File TODO_sh4_static_model_xbox(len_file[i]);
+                File sh4_static_model_xbox;
             else if (platform == "PC")
                 WorldModel sh4_static_model_pc;
         }
 
-        // fog file
+        // unknown se_en_* and se_start file
+        else if (temp[0] == 0x0001 && ReadUShort(4) == 0x0003)
+            File sh4_se_file;
+
+        // unknown path file
+        // second is number of FF FF FF FF
+        else if (ReadUInt() <= len_file[i] && (len_file[i] - ReadUInt()) % 4 == 0)
+            File sh4_path_file;
+
+        // fog data file
         // after 14 butes only goes zeroes, but I only check 2 bytes after. It gets confused with other files sometimes, so I need to work on this
-        else if (ReadFloat(4) != 0 && ReadUShort(14) == 0)
-            Fog sh4_fog;
+        else if (ReadFloat() < ReadFloat(4) && ReadUShort(14) == 0)
+            Fog sh4_fog_data;
 
         // unknown file
         else
-            File unk_file(len_file[i]);
+            File unk_file;
+
         OffsetClear();
     }
-};
+}
