@@ -9,7 +9,7 @@
 //------------------------------------------------
 
 #include "sh4_animation.bt"
-#include "sh4_fog.bt"
+#include "sh4_fog_data.bt"
 #include "sh4_shadow_model.bt"
 #include "sh4_skeletal_model_pc.bt"
 #include "sh4_slgt.bt"
@@ -36,6 +36,9 @@ int is_all_zeroes() {
 
 void sh4_bin() {
 
+    if (!FileSize())
+        Exit(0);
+
     uint32 num_files;
     uint32 ofs_file[num_files];
     
@@ -45,73 +48,64 @@ void sh4_bin() {
         len_file[i] = ofs_file[i + 1] - ofs_file[i];
     len_file[num_files - 1] = FileSize() - ofs_file[num_files - 1];
 
-    local uint8  zero;
-    local uint16 temp[2];
     for (i = 0; i < num_files; i++) {
         FSeek(ofs_file[i]);
         OffsetSetStart(FTell());
         OffsetSetLimitSize(len_file[i]);
-
-        temp[0] = ReadUShort();
-        temp[1] = ReadUShort(2);
 
         // empty file
         if (is_all_zeroes())
             File empty_file;
 
         // could be text file
-        else if (temp[0] == 0x0000 && temp[1] == 0x0000)
+        else if (ReadUInt() == 0)
             File unk_0000_0000;
 
-        // unknown file
-        else if (temp[0] == 0xFFFF && temp[1] == 0xFFFF)
-            File unk_FFFF_FFF;
-
-        // texture file
-        else if (temp[0] == temp[1])
-            Sh4Textures sh4_textures;
+        // SH3 static model and textures PS2 version test files!
+        else if (ReadUInt() == 0xFFFFFFFF)
+            File sh3_ps2_test_file;
 
         // PlayStation 2 3D save icon
-        else if (temp[0] == 0x0000 && temp[1] == 0x0001)
+        else if (ReadUInt() == 0x00010000)
             File ps2_save_icon;
 
         // shadow model file
-        else if (temp[0] == 0x7000 && temp[1] == 0x0FC0)
+        else if (ReadUInt() == 0x0FC07000)
             SGSVModel sh4_shadow_model;
 
+        // collision model file for SH3?
+        else if (ReadUInt() == 0x0000FF11)
+            File sh3_collision_model;
+
         // collision model file
-        else if (temp[0] == 0xFF11)
+        else if (ReadUInt() == 0x0002FF11)
             File sh4_collision_model;
 
         // skeletal model file
-        else if (temp[0] == 0x0003)
+        else if (ReadUInt() == 0xFFFF0003)
             if (platform == "PC")
                 Model3 sh4_skeletal_model;
             else
                 File sh4_skeletal_model_non_pc;
 
         // SDB file file
-        else if (temp[0] == 0x8581)
+        else if (ReadUShort() == 0x8581)
             File sh4_sdb;
 
         // Monster ID list file
-        else if (temp[0] == 0x4554)
+        else if (ReadUShort() == 0x4554)
             File monster_id_list;
 
         // SLGT S-light file 
-        else if (temp[0] == 0x4C53)
+        else if (ReadUInt() == 0x54474C53)
             Sh4Slgt sh4_slgt;
 
-        // unknown text or messages file
-        else if (temp[0] == 0x0132 || temp[0] == 0xE7 || temp[0] == 0x5F || temp[0] == 0x19D || temp[0] == 0x35 || temp[0] == 0xE0 || temp[0] == 0x61 || temp[0] == 0x5F || temp[0] == 0x2F)
-            File sh4_messages;
-
         // animation file
-        else if (temp[0] == 0x0001 && temp[1] == 0xFF01)
+        else if (ReadUInt() == 0xFF010001)
             Sh4Animation sh4_animation;
 
         // static model file
-        else if (temp[0] == 0x0001 && temp[1] == 0xFC03) {
+        else if (ReadUInt() == 0xFC030001) {
             if (platform == "PS2")
                 File sh4_static_model_ps2;
             else if (platform == "Xbox")
@@ -120,24 +114,34 @@ void sh4_bin() {
                 WorldModel sh4_static_model_pc;
         }
 
+        // texture file
+        else if (ReadUShort() == ReadUShort(2) && ReadUInt(4) == 0 && ReadUInt(8) == 0 && ReadUInt(12) == 0)
+            Sh4Textures sh4_textures;
+
+        // text file
+        else if (ReadUShort(2) == ReadUShort() + 1)
+            File sh4_messages;
+
         // unknown se_en_* and se_start file
-        else if (temp[0] == 0x0001 && ReadUShort(4) == 0x0003)
+        else if (ReadUInt() == 1 && ReadUInt(4) == 3)
             File sh4_se_file;
 
-        // unknown path file
-        // second is number of FF FF FF FF
-        else if (ReadUInt() <= len_file[i] && (len_file[i] - ReadUInt()) % 4 == 0)
-            File sh4_path_file;
-
         // fog data file
-        // after 14 butes only goes zeroes, but I only check 2 bytes after. It gets confused with other files sometimes, so I need to work on this
+        // after 14 bytes only goes 2 zeroes, and it looks like after that goes 48 zeroes
         else if (ReadFloat() < ReadFloat(4) && ReadUShort(14) == 0)
             Fog sh4_fog_data;
 
-        // unknown file
-        else
-            File unk_file;
+        // unknown path file
+        // second is number of FF FF FF FF
+        else if (ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
+            File sh4_path_file;
 
+        // unknown file
+        else {
+            File unk_file;
+            Warning("unknown file type");
+        }
+        
         OffsetClear();
     }
 }
