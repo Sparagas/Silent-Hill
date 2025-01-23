@@ -1,0 +1,22 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: she_smb.bt
+//    Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: The Escape SMB file for Apple - iOS
+//  Category: Game
+// File Mask: *.smb
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+uint16 room_count;
+ubyte  x;
+ubyte  y;
+
+struct Chunk {
+    byte   chunk_id;
+    byte   rotation;
+} chunks[x * y];

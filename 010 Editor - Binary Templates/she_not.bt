@@ -1,12 +1,15 @@
 //------------------------------------------------
-//--- 010 Editor v14.0 Binary Template
+//--- 010 Editor Binary Template
 //
-//      File: she_ios_not.bt
-//    Author: Laurynas Zubavičius (Sparagas)
-//   Purpose: Silent Hill: The Escape (Apple - iOS)
+//      File: she_not.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: The Escape NOT image for Apple - iOS
 //  Category: Image
 // File Mask: *.not
 //  ID Bytes: 4E 4F 54 5F //NOT_
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 // origin = bottom
