@@ -2,12 +2,14 @@
 //--- 010 Editor Binary Template
 //
 //      File: sh4_textures.bt
-//   Authors: Laurynas Zubavičius (Sparagas)
-//            Rodolfo Nuñez (roocker666)
-//   Purpose: Silent Hill 4: The Room (Sony - PlayStation 2)
-//            Silent Hill 4: The Room (Microsoft - Xbox)
-//            Silent Hill 4: The Room (Microsoft - Windows)
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 4: The Room textures for Sony - PlayStation 2, Microsoft - Xbox and Microsoft - Windows.
 //  Category: Image
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 #include "color.bt"

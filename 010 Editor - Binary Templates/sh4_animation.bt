@@ -1,16 +1,17 @@
 //------------------------------------------------
 //--- 010 Editor Binary Template
 //
-//      File: 
-//   Authors: sh4_unnamed_animation.bt
-//   Version: Laurynas Zubavičius (Sparagas)
-//            Rodolfo Nuñez (roocker666)
-//            Hunter Stanton
-//   Purpose: Silent Hill 4: The Room (all platforms)
-//  Category: 
+//      File: sh4_animation.bt
+//   Authors: Laurynas Zubavičius (Sparagas), Hunter Stanton (hun10sta), Rodolfo Nuñez (roocker666)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 4: The Room animation.
+//  Category: Game
 // File Mask: 
-//  ID Bytes: 
+//  ID Bytes: 01 00 01 FF
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
+
 enum <uint16> KeyTypes  // AnimKeyTypes?
 {
     None                        = 0,

@@ -3,11 +3,13 @@
 //
 //      File: sh4_sh4.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
-//   Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
-//            Silent Hill 4: The Room (Microsoft - Windows)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 4: The Room for Microsoft - Xbox and Microsoft - Windows.
 //  Category: Archive
 // File Mask: *.sh4
 //  ID Bytes: 53 48 34 00
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 struct FileHdr {
