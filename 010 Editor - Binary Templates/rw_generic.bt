@@ -1,14 +1,15 @@
 //------------------------------------------------
-//--- 010 Editor v15.0 Binary Template
+//--- 010 Editor Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
+//      File: rw_generic.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse RenderWare Binary Stream.
+//  Category: Game
 // File Mask: 
 //  ID Bytes: 
 //   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 #include "inc_rw.bt"

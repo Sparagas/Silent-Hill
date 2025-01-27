@@ -1,10 +1,15 @@
 //------------------------------------------------
-//--- 010 Editor v14.0 Binary Template
+//--- 010 Editor Binary Template
 //
 //      File: inc_rw.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
-//   Purpose: RenderWare Binary Stream
-//  Category: Include file
+//   Version: 0.0
+//   Purpose: Parse RenderWare Binary Stream.
+//  Category: Game
+// File Mask: .rsw, *.bsp
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 #include "vector.bt"
