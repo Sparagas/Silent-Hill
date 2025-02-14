@@ -79,12 +79,12 @@ Here are all known Konami music rhythm games with Silent Hill songs. There are s
 #### Description
 ISS Pro Evolution, also known as World Soccer Jikkyou Winning Eleven 4 in Japan is a European football/soccer game with Cybil Bennett billboard with "Silent Hill" written on it. It is seen in the European team training stadium.
 
-### ISS Pro Evolution 2 (non-Japan) / World Soccer Jikkyou Winning Eleven 2000 - U-23 Medal e no Chousen (Japan)
+### ISS Pro Evolution 2 (Europe) / World Soccer Jikkyou Winning Eleven 2000 - U-23 Medal e no Chousen (Japan) / ESPN MLS Gamenight (USA)
 #### Platforms
 - Sony - PlayStation
 
 #### Description
-It is almost the same game as the first ISS Pro Evolution, with the same easter egg.
+It is almost the same game as the first ISS Pro Evolution, with the same easter egg. In USA it was licenced by MLS, so it has different name and sliglty different game, but overall they are almost the same.
 
 ### New International Track & Field (non-Japan) / New International Hyper Sports DS (Japan)
 #### Platforms
