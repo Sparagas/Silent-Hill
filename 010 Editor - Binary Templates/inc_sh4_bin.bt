@@ -57,33 +57,13 @@ void sh4_bin() {
         OffsetSetStart(FTell());
         OffsetSetLimitSize(len_file[i]);
 
+        // if filename is fontdata, then all files inside are fonts (there is no other way to recognise it)
+        if (Memcmp(FileNameGetBase(GetFileName()), "fontdata", 8) == 0)
+            File sh4_font_data;
+
         // empty file
-        if (is_all_zeroes())
+        else if (is_all_zeroes())
             File empty_file;
-
-        // could be text file
-        else if (ReadUInt() == 0)
-            File unk_0000_0000;
-
-        // SH3 static model and textures PS2 version test files!
-        else if (ReadUInt() == 0xFFFFFFFF)
-            File sh3_ps2_test_file;
-
-        // PlayStation 2 3D save icon
-        else if (ReadUInt() == 0x00010000)
-            File ps2_save_icon;
-
-        // shadow model file
-        else if (ReadUInt() == 0x0FC07000)
-            SGSVModel sh4_shadow_model;
-
-        // collision model file for SH3?
-        else if (ReadUInt() == 0x0000FF11)
-            File sh3_collision_model;
-
-        // collision model file
-        else if (ReadUInt() == 0x0002FF11)
-            File sh4_collision_model;
 
         // skeletal model file
         else if (ReadUInt() == 0xFFFF0003)
@@ -92,21 +72,9 @@ void sh4_bin() {
             else
                 File sh4_skeletal_model_non_pc;
 
-        // SDB file file
-        else if (ReadUShort() == 0x8581)
-            File sh4_sdb;
-
-        // Monster ID list file
-        else if (ReadUShort() == 0x4554)
-            File monster_id_list;
-
-        // SLGT S-light file 
-        else if (ReadUInt() == 0x54474C53)
-            Sh4Slgt sh4_slgt;
-
-        // animation file
-        else if (ReadUInt() == 0xFF010001)
-            Sh4Animation sh4_animation;
+        // shadow model file
+        else if (ReadUInt() == 0x0FC07000)
+            SGSVModel sh4_shadow_model;
 
         // static model file
         else if (ReadUInt() == 0xFC030001) {
@@ -118,8 +86,44 @@ void sh4_bin() {
                 WorldModel sh4_static_model_pc;
         }
 
+        // SH3 static model and textures for PS2 version test files!
+        else if (ReadUInt() == 0xFFFFFFFF)
+            File sh3_static_model_ps2;
+
+        // collision model file
+        else if (ReadUInt() == 0x0002FF11)
+            File sh4_collision_model;
+
+        // collision model file for SH3?
+        else if (ReadUInt() == 0x0000FF11)
+            File sh3_collision_model;
+
+        // SLGT S-light file. After that always goes fog data file
+        else if (ReadUInt() == 0x54474C53) {
+            Sh4Slgt sh4_slgt;
+            i++;
+            OffsetClear();
+            FSeek(ofs_file[i]);
+            OffsetSetStart(FTell());
+            OffsetSetLimitSize(len_file[i]);
+            // (ReadFloat() < ReadFloat(4) && ReadUShort(14) == 0)
+            Fog sh4_fog_data;
+        }
+
+        // animation file
+        else if (ReadUInt() == 0xFF010001)
+            Sh4Animation sh4_animation;
+
+        // SDB file file
+        else if (ReadUShort() == 0x8581)
+            File sh4_sdb;
+
+        // PlayStation 2 3D save icon
+        else if (ReadUInt() == 0x00010000)
+            File ps2_save_icon;
+
         // texture file
-        else if (ReadUShort() == ReadUShort(2) && ReadUInt(4) == 0 && ReadUInt(8) == 0 && ReadUInt(12) == 0)
+        else if (ReadUShort() == ReadUShort(2) && !ReadUInt(4) && !ReadUInt(8) && !ReadUInt(12))
             Sh4Textures sh4_textures;
 
         // text file
@@ -129,11 +133,6 @@ void sh4_bin() {
         // unknown se_en_* and se_start file
         else if (ReadUInt() == 1 && ReadUInt(4) == 3)
             File sh4_se_file;
-
-        // fog data file
-        // after 14 bytes only goes 2 zeroes, and it looks like after that goes 48 zeroes
-        else if (ReadFloat() < ReadFloat(4) && ReadUShort(14) == 0)
-            Fog sh4_fog_data;
 
         // unknown path file
         // second is number of FF FF FF FF
