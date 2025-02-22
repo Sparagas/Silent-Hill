@@ -24,10 +24,11 @@ struct File {
     uint8 bytes[FileSize()];
 };
 
-int is_all_zeroes() {
+int is_all_zeroes(int start) {
     local int original_offset = FTell();
+    FSkip(start);
     local int i;
-    for (i = 0; i < FileSize(); i++) {
+    for (i = start; i < FileSize(); i++) {
         if (ReadUByte() != 0) {
             FSeek(original_offset);
             return false;
@@ -62,8 +63,8 @@ void sh4_bin() {
             File sh4_font_data;
 
         // empty file
-        else if (is_all_zeroes())
-            File empty_file;
+        //else if (is_all_zeroes(0))
+          //  File empty_file;
 
         // skeletal model file
         else if (ReadUInt() == 0xFFFF0003)
@@ -99,16 +100,8 @@ void sh4_bin() {
             File sh3_collision_model;
 
         // SLGT S-light file. After that always goes fog data file
-        else if (ReadUInt() == 0x54474C53) {
+        else if (ReadUInt() == 0x54474C53)
             Sh4Slgt sh4_slgt;
-            i++;
-            OffsetClear();
-            FSeek(ofs_file[i]);
-            OffsetSetStart(FTell());
-            OffsetSetLimitSize(len_file[i]);
-            // (ReadFloat() < ReadFloat(4) && ReadUShort(14) == 0)
-            Fog sh4_fog_data;
-        }
 
         // animation file
         else if (ReadUInt() == 0xFF010001)
@@ -122,24 +115,38 @@ void sh4_bin() {
         else if (ReadUInt() == 0x00010000)
             File ps2_save_icon;
 
-        // texture file
-        else if (ReadUShort() == ReadUShort(2) && !ReadUInt(4) && !ReadUInt(8) && !ReadUInt(12))
-            Sh4Textures sh4_textures;
-
-        // text file
-        else if (ReadUShort(2) == ReadUShort() + 1)
-            File sh4_messages;
-
         // unknown se_en_* and se_start file
         else if (ReadUInt() == 1 && ReadUInt(4) == 3)
             File sh4_se_file;
+
+        // These files don't have headers so it needs mode complicated recognition
+
+        // Fog data. After 14 bytes goes 50 zeroes.
+        else if (ReadFloat() < ReadFloat(4) && !ReadShort(14))
+            Sh4Fog sh4_fog_data;
+
+        // Fog data but with empy values
+        else if (FileSize() >= 64 && FileSize() < 144 && !ReadFloat() && !ReadFloat(4))
+            Sh4Fog sh4_fog_data_empty;
+
+        // texture file
+        else if (FileSize() >= 144 && ReadUShort() && !ReadUInt(4) && !ReadUInt(8) && !ReadUInt(12))
+            Sh4Textures sh4_textures;
+
+        // texture file but with empy values
+        else if (FileSize() >= 144 && !ReadUInt())
+            File sh4_textures_empty;
+
+        // text file
+        else if (ReadUShort() + 1 == ReadUShort(2))
+            File sh4_messages;
 
         // unknown path file
         // second is number of FF FF FF FF
         else if (ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
             File sh4_path_file;
 
-        // unknown file
+        // Unknown file. Idealy this should never be executed.
         else {
             File unk_file;
             Warning("unknown file type");

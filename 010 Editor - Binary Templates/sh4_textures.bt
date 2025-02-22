@@ -293,24 +293,29 @@ void sh4_common_textures() {
 };
 
 struct Sh4Textures {
-    sh4_common_textures();
-    if (ps2_img_idx_hdr.ps2_img_idx_hdr[0].ofs == 0)
-        sh4_pc_textures();
+    // temp fix
+    if (ReadUShort() != ReadUShort(2))
+        uint8 todo[FileSize()];
     else {
-        FSeek(ofs_ps2_img_idx_hdr[0] + ps2_img_idx_hdr.ps2_img_idx_hdr[0].ofs);
-        FSkip(4);
-        local uint32 tmp1 = ReadUInt();
-        FSkip(40);
-        local uint32 tmp2 = ReadUInt();
-        FSeek(ofs_ps2_img_pal_hdr[0] + ps2_img_pal_hdr.ps2_img_pal_hdr[0].ofs);
-        FSkip(4);
-        local uint32 tmp3 = ReadUInt();
-        FSkip(40);
-        local uint32 tmp4 = ReadUInt();
-        if (tmp1 == tmp2 && tmp3 == tmp4)
-            sh4_xbox_textures();
-        else
-            sh4_ps2_textures();
+        sh4_common_textures();
+        if (ps2_img_idx_hdr.ps2_img_idx_hdr[0].ofs == 0)
+            sh4_pc_textures();
+        else {
+            FSeek(ofs_ps2_img_idx_hdr[0] + ps2_img_idx_hdr.ps2_img_idx_hdr[0].ofs);
+            FSkip(4);
+            local uint32 tmp1 = ReadUInt();
+            FSkip(40);
+            local uint32 tmp2 = ReadUInt();
+            FSeek(ofs_ps2_img_pal_hdr[0] + ps2_img_pal_hdr.ps2_img_pal_hdr[0].ofs);
+            FSkip(4);
+            local uint32 tmp3 = ReadUInt();
+            FSkip(40);
+            local uint32 tmp4 = ReadUInt();
+            if (tmp1 == tmp2 && tmp3 == tmp4)
+                sh4_xbox_textures();
+            else
+                sh4_ps2_textures();
+        }
     }
 };
 

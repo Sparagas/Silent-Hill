@@ -12,7 +12,7 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-struct Fog
+struct Sh4Fog
 {
     float near;
     float far;
@@ -26,4 +26,4 @@ struct Fog
 };
 
 if (GetTemplateName() == "sh4_fog_data.bt")
-    Fog sh4_fog <open=true>;
+    Sh4Fog sh4_fog <open=true>;
