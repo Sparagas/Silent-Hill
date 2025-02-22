@@ -18,6 +18,7 @@
 #include "sh4_skeletal_model_pc.bt"
 #include "sh4_slgt.bt"
 #include "sh4_static_model_pc.bt"
+#include "sh4_path_data.bt"
 #include "sh4_textures.bt"
 
 struct File {
@@ -41,6 +42,7 @@ int is_all_zeroes(int start) {
 
 void sh4_bin() {
 
+    // Some BIN archives are completely empty with zero size, so we need to test it
     if (!FileSize())
         Exit(0);
 
@@ -99,7 +101,7 @@ void sh4_bin() {
         else if (ReadUInt() == 0x0000FF11)
             File sh3_collision_model;
 
-        // SLGT S-light file. After that always goes fog data file
+        // SLGT S-light file. After that majority of the time goes fog data file, but not always
         else if (ReadUInt() == 0x54474C53)
             Sh4Slgt sh4_slgt;
 
@@ -111,15 +113,15 @@ void sh4_bin() {
         else if (ReadUShort() == 0x8581)
             File sh4_sdb;
 
-        // PlayStation 2 3D save icon
-        else if (ReadUInt() == 0x00010000)
-            File ps2_save_icon;
-
         // unknown se_en_* and se_start file
         else if (ReadUInt() == 1 && ReadUInt(4) == 3)
             File sh4_se_file;
 
-        // These files don't have headers so it needs mode complicated recognition
+        // PlayStation 2 3D save icon. Only one exist in save_icon.bin, and even in non-PS2 versions.
+        else if (ReadUInt() == 0x00010000)
+            File ps2_save_icon;
+
+        // These files don't have headers so it needs more complicated identification.
 
         // Fog data. After 14 bytes goes 50 zeroes.
         else if (ReadFloat() < ReadFloat(4) && !ReadShort(14))
@@ -142,9 +144,8 @@ void sh4_bin() {
             File sh4_messages;
 
         // unknown path file
-        // second is number of FF FF FF FF
         else if (ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
-            File sh4_path_file;
+            SH4Path sh4_path_data;
 
         // Unknown file. Idealy this should never be executed.
         else {

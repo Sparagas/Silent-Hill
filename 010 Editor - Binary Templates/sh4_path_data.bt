@@ -1,0 +1,30 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh4_path_data.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 4: The Room path data.
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+struct UnknownStruct {
+    uint8 bytes[16];
+};
+
+struct SH4Path() {
+    uint32 fileSize;
+    uint32 count;
+    uint32 unknown0;
+    uint32 unknown1;  // it is zero if there is no "second part".
+    UnknownStruct unknown2[count];
+    if (unknown1)
+        uint8 unknown3[FileSize() - 16 - 16 * count];  // ends with FF FF FF FF
+};
+
+if (GetTemplateName() == "sh4_path_data.bt")
+    SH4Path sh4_path_data <open=true>;
