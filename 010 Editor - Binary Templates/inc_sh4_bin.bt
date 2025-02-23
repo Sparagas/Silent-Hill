@@ -42,7 +42,7 @@ int is_all_zeroes(int start) {
 
 void sh4_bin() {
 
-    // Some BIN archives are completely empty with zero size, so we need to test it
+    // message_pasthome0_k.bin is completely empty with zero size, so we need to test it
     if (!FileSize())
         Exit(0);
 
@@ -64,9 +64,22 @@ void sh4_bin() {
         if (Memcmp(FileNameGetBase(GetFileName()), "fontdata", 8) == 0)
             File sh4_font_data;
 
-        // empty file
-        //else if (is_all_zeroes(0))
-          //  File empty_file;
+        // exclusive sample.bin
+        else if (FileNameGetBase(GetFileName()) == "sample.bin")
+            File test_text_file;
+
+        // exclusive param.bin
+        else if (FileNameGetBase(GetFileName()) == "param.bin")
+            if (ReadInt() == 1414743380)
+                File test_text_file;
+            else
+                struct {
+                    float floats[FileSize() / 4];
+                } test_float_file;
+
+        // empty file. message_end0_?.bin files only has 2 zero byte file inside
+        else if (FileSize() == 2)
+            File empty_file;
 
         // skeletal model file
         else if (ReadUInt() == 0xFFFF0003)
@@ -89,7 +102,7 @@ void sh4_bin() {
                 WorldModel sh4_static_model_pc;
         }
 
-        // SH3 static model and textures for PS2 version test files!
+        // SH3 static model and textures for PS2 version test files! Only present in sb06.bin and mzXX.bin.
         else if (ReadUInt() == 0xFFFFFFFF)
             File sh3_static_model_ps2;
 
@@ -97,9 +110,17 @@ void sh4_bin() {
         else if (ReadUInt() == 0x0002FF11)
             File sh4_collision_model;
 
-        // collision model file for SH3?
+        // collision model file for SH3?  Only present in hit1.bin.
+        else if (ReadUInt() == 0x0001FF11)
+            File unk_collision_model;
+
+        // collision model file for SH3?  Only present in sb06.bin.
         else if (ReadUInt() == 0x0000FF11)
             File sh3_collision_model;
+
+        // unknown models found in hit1.bin
+        else if (ReadUInt(4) == 0x10)
+            File unk_collision_model;
 
         // SLGT S-light file. After that majority of the time goes fog data file, but not always
         else if (ReadUInt() == 0x54474C53)
@@ -113,22 +134,22 @@ void sh4_bin() {
         else if (ReadUShort() == 0x8581)
             File sh4_sdb;
 
-        // unknown se_en_* and se_start file
+        // se_* file
         else if (ReadUInt() == 1 && ReadUInt(4) == 3)
             File sh4_se_file;
 
-        // PlayStation 2 3D save icon. Only one exist in save_icon.bin, and even in non-PS2 versions.
+        // PlayStation 2 3D save icon. Only one exist in save_icon.bin, and mc_icon_kari.bin. This file exist even in non-PS2 versions.
         else if (ReadUInt() == 0x00010000)
             File ps2_save_icon;
 
         // These files don't have headers so it needs more complicated identification.
 
         // Fog data. After 14 bytes goes 50 zeroes.
-        else if (ReadFloat() < ReadFloat(4) && !ReadShort(14))
+        else if (ReadFloat() < ReadFloat(4) && !ReadShort(14) && !ReadFloat(16) && !ReadFloat(20) && !ReadFloat(24) && !ReadFloat(28))
             Sh4Fog sh4_fog_data;
 
-        // Fog data but with empy values
-        else if (FileSize() >= 64 && FileSize() < 144 && !ReadFloat() && !ReadFloat(4))
+        // Fog data but with empy values. mz32.bin is the size of 176, so this is a hack.
+        else if (((FileSize() >= 64 && FileSize() < 144) || FileSize() == 176) && !ReadFloat() && !ReadFloat(4))
             Sh4Fog sh4_fog_data_empty;
 
         // texture file
@@ -136,18 +157,18 @@ void sh4_bin() {
             Sh4Textures sh4_textures;
 
         // texture file but with empy values
-        else if (FileSize() >= 144 && !ReadUInt())
+        else if (FileSize() >= 144 && !ReadUInt() && !ReadUInt(4) && !ReadUInt(8) && !ReadUInt(12))
             File sh4_textures_empty;
 
         // text file
         else if (ReadUShort() + 1 == ReadUShort(2))
             File sh4_messages;
 
-        // unknown path file
-        else if (ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
+        // path file
+        else if (!ReadUInt() && ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
             SH4Path sh4_path_data;
 
-        // Unknown file. Idealy this should never be executed.
+        // Unknown file. Idealy this should only be executed in demo.bin one file.
         else {
             File unk_file;
             Warning("unknown file type");
