@@ -12,9 +12,37 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
+struct IPDHeader {
+    uint8  magic;
+    Assert(magic == 0x14);
+    uint8  version;
+    Assert(version == 0);
+    int8   levelGridX;
+    int8   levelGridY;
+    uint32 plmOffset;
+    uint8  modelsCount;
+    uint8  modelsBuffersCount;
+    uint8  unknown;
+    uint8  unknown;
+    uint8  padding[8];
+    uint32 modelsListOffset;
+    uint32 modelBuffersOffset;
+    uint8  texturesCount; //should it be uint32?
+ // uint8 Relative pointer to textures list
+ // uint32 Relative pointer to object order
+};
+
+if (ReadShort() == 0x14) {
+    IPDHeader ipdHeader;
+    FSeek(ipdHeader.plmOffset);
+    OffsetSetStart(FTell());
+}
+
 struct Header {
     ubyte magic;
+    Assert(magic == 0x30);
     ubyte version;
+    Assert(version == 6);
     ubyte pad;
     ubyte num_tex;
     uint32 off_tex_list;

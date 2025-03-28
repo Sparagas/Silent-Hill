@@ -77,6 +77,10 @@ void sh4_bin() {
                     float floats[FileSize() / 4];
                 } test_float_file;
 
+        // exclusive in demo.bin is one unknown file type
+        else if (ReadInt() == 0x0000DE30)
+            File unk_file;
+
         // empty file. message_end0_?.bin files only has 2 zero byte file inside
         else if (FileSize() == 2)
             File empty_file;
@@ -119,7 +123,7 @@ void sh4_bin() {
             File sh3_collision_model;
 
         // unknown models found in hit1.bin
-        else if (ReadUInt(4) == 0x10)
+        else if ((ReadUInt() == 0 || ReadUInt() == 6) && ReadUInt(4) == 0x10)
             File unk_collision_model;
 
         // SLGT S-light file. After that majority of the time goes fog data file, but not always
@@ -163,9 +167,9 @@ void sh4_bin() {
         // text file
         else if (ReadUShort() + 1 == ReadUShort(2))
             File sh4_messages;
-
+        
         // path file
-        else if (!ReadUInt() && ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
+        else if (ReadUInt() && ReadUInt() <= FileSize() && (FileSize() - ReadUInt()) % 4 == 0)
             SH4Path sh4_path_data;
 
         // Unknown file. Idealy this should only be executed in demo.bin one file.
