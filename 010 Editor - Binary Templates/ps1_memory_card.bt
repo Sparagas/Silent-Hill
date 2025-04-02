@@ -1,0 +1,153 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: ps1_memory_card.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Sony - PlayStation Memory Card.
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+#include "inc_sh1_save.bt"
+
+
+//------------------------------------------------
+// Enums
+//------------------------------------------------
+
+enum BlockListInformation {
+    HEADER_BLOCK               = 0x51,
+    INTERMEDIATE_BLOCK         = 0x52,
+    END_BLOCK                  = 0x53,
+    FREE_BLOCK                 = 0xA0,
+    DELETED_HEADER_BLOCK       = 0xA1,
+    DELETED_INTERMEDIATE_BLOCK = 0xA2,
+    DELETED_END_BLOCK          = 0xA3
+
+};
+
+enum <uint8> IconDisplayFlag {
+    NO_ICON                    = 0x00,
+    ICON_HAS_1_STATIC_FRAME    = 0x11,
+    ICON_HAS_2_ANIMATED_FRAMES = 0x12,
+    ICON_HAS_3_ANIMATED_FRAMES = 0x13
+
+};
+
+enum <char> CountryCode {
+    NORTH_AMERICA    = 'A',
+    EUROPE_AUSTRALIA = 'E',
+    JAPAN            = 'I'
+};
+
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+struct HeaderSector {
+    char magic[2];
+    Assert(magic == "MC");
+    ubyte padding[125];
+    uint8 checksumXOR;
+    // Assert(checksumXOR ==);
+};
+
+struct BlockInformationSector {
+    BlockListInformation blockListInformation;
+    int32                fileSize;
+    Assert(fileSize % 8192 == 0);
+    int16                nextBlock;
+    // char              filename[21];
+    char                 magic;
+    Assert(magic == 'B' || magic == 0);
+    CountryCode          countryCode;
+    char                 productCode[10];  // AAAA-00000 or p instead of - for PocketStation
+    char                 identifier[9];
+    ubyte                reserved;
+    ubyte                padding[94];
+    uint8                pdaApplication;
+    uint8                checksumXOR;
+    // Assert(checksumXOR ==);
+};
+
+struct AlternateInformationSector {
+    int32 substitutedSectorNumber;
+    int32 fileSize;
+    int16 nextBlock;
+    ubyte padding1[117];
+    uint8 checksumXOR;
+    // Assert(checksumXOR ==);
+};
+
+struct Sector {
+    ubyte data[127];
+    uint8 checksumXOR;
+    // Assert(checksumXOR ==);
+};
+
+struct HeaderBlock {
+    HeaderSector               headerSector;
+    BlockInformationSector     blockInformationSectors[15] <optimize=false>;
+    AlternateInformationSector alternateInformationSectors[20];
+    Sector                     alternateSectors[20];
+    Sector                     reservedSectors[7];
+    Sector                     dummyWriteSector;
+};
+
+struct color {
+    uint16 r : 5;
+    uint16 g : 5;
+    uint16 b : 5;
+    uint16 a : 1;
+};
+
+struct index {
+    uint8 index1 : 4;
+    uint8 index2 : 4;
+};
+
+struct UserData {
+    // a little hack to work for now. Should search for known save data types
+    if ("SILENT00" == "SILENT00") {  /* blockInformationSectors[i].identifier doesn't work for some reason */
+        SH1Header         sh1Header;
+        SH1GlobalOptions  sh1GlobalOptions;
+        SH1Save           sh1Saves[11];
+        Sector            unkDummySector[2];
+    } else
+        ubyte unknownGame[7680];
+
+};
+
+struct SaveBlock {
+    if (ReadString(FTell(), 2) != "SC")
+        Sector unformatedSectors[64];
+    else {
+        char            magic[2];                       // "SC"
+        IconDisplayFlag iconDisplayFlag;
+        uint8           blockCount;
+        char            title[64];
+        ubyte           reserved[12];                   // filled with zero
+        uint16          pocketStationMCIconFrameCount;
+        char            pocketStationId[4];
+        uint16          pocketStationAPIconFrameCount;
+        ubyte           padding[8];                     // filled with zero
+        color           iconPalette[16];
+        index           iconFrame1Indices[128];
+        index           iconFrame2Indices[128];
+        index           iconFrame3Indices[128];
+        UserData        userData;
+    }
+};
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+SetFileCharSet(CHARSET_JAPANESE);
+struct HeaderBlock headerBlock;
+struct SaveBlock   saveBlocks[15] <optimize=false>;

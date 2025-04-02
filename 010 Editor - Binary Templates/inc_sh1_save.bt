@@ -1,0 +1,258 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh1_save.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill (1) save game for Sony - PlayStation.
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+//------------------------------------------------
+// Enums
+//------------------------------------------------
+
+enum <ubyte> SaveTitle {
+    ANYWHERE     = 0,
+    CAFE         = 1,
+    BUS          = 2,
+    STORE        = 3,
+    INFIRMARY    = 4,
+    DOGHOUSE     = 5,
+    GORDON       = 6,
+    CHURCH       = 7,
+    GARAGE       = 8,
+    POLICE       = 9,
+    RECEPTION    = 10,
+    ROOM_302     = 11,
+    DIRECTORS    = 12,
+    JEWELRY_SHOP = 13,
+    POOL_HALL    = 14,
+    ANTIQUE_SHOP = 15,
+    THEME_PARK   = 16,
+    BOAT         = 17,
+    BRIDGE       = 18,
+    MOTEL        = 19,
+    LIGHTHOUSE   = 20,
+    SEWER        = 21,
+    NOWHERE      = 22,
+    CHILDS_ROOM  = 23,
+    NEXT_FEAR    = 24
+};
+
+enum <int8> ItemID {
+    EMPTY                  = -1,
+    
+    HEALTH_DRINK           = 0x20,
+    FIRST_AID_KIT          = 0x21,
+    AMPOULE                = 0x22,
+
+    LOBBY_KEY              = 0x40,
+    HOUSE_KEY              = 0x41,
+    KEY_OF_LION            = 0x42,
+    KEY_OF_WOODMAN         = 0x43,
+    KEY_OF_SCARECROW       = 0x44,
+    LIBRARY_RESERVE_KEY    = 0x45,
+    CLASSROOM_KEY          = 0x46,
+    K_GORDON_KEY           = 0x47,
+    DRAWBRIDGE_KEY         = 0x48,
+    BASEMENT_KEY           = 0x49,
+    BASEMENT_STOREROOM_KEY = 0x4A,
+    EXAMINATION_ROOM_KEY   = 0x4B,
+    ANTIQUE_SHOP_KEY       = 0x4C,
+    SEWER_KEY              = 0x4D,
+    KEY_OF_OPHIEL          = 0x4E,
+    KEY_OF_HAGITH          = 0x4F,
+    KEY_OF_PHALEG          = 0x50,
+    KEY_OF_BETHOR          = 0x51,
+    KEY_OF_ARATRON         = 0x52,
+    NOTE_TO_SCHOOL         = 0x53,
+    NOTE_DOGHOUSE          = 0x54,
+    PICTURE_CARD           = 0x55,
+
+    SEWER_EXIT_KEY         = 0x57,
+    CHANNELING_STONE       = 0x58,
+
+    CHEMICAL               = 0x60,
+    GOLD_MEDALLION         = 0x61,
+    SILVER_MEDALLION       = 0x62,
+    RUBBER_BALL            = 0x63,
+    FLAUROS                = 0x64,
+    PLASTIC_BOTTLE         = 0x65,
+    UNKNOWN_LIQUID         = 0x66,
+    PLATE_OF_TURTLE        = 0x67,
+    PLATE_OF_HATTER        = 0x68,
+    PLATE_OF_CAT           = 0x69,
+    PLATE_OF_QUEEN         = 0x6A,
+    BLOOD_PACK             = 0x6B,
+    DISINFECTING_ALCOHOL   = 0x6C,
+    LIGHTER                = 0x6D,
+    VIDEO_TAPE             = 0x6E,
+
+    KAUFMANN_KEY           = 0x70,
+    RECEIPT                = 0x71,
+    SAFE_KEY               = 0x72,
+    MAGNET                 = 0x73,
+    MOTORCYCLE_KEY         = 0x74,
+    BIRD_CAGE_KEY          = 0x75,
+    PLIERS                 = 0x76,
+    SCREWDRIVER            = 0x77,
+    CAMERA                 = 0x78,
+    RING_OF_CONTRACT       = 0x79,
+    KITCHEN_KNIFE          = 0x80,
+    STEEL_PIPE             = 0x81,
+    ROCK_DRILL             = 0x82,
+    
+    HAMMER                 = 0x84,
+    CHAINSAW               = 0x85,
+    KATANA                 = 0x86,
+    AXE                    = 0x87,
+
+    HANDGUN                = 0xA0,
+    HUNTING_RIFLE          = 0xA1,
+    SHOTGUN                = 0xA2,
+    HYPER_BLASTER          = 0xA3,
+
+    HANDGUN_BULLETS        = 0xC0,
+    RIFLE_SHELLS           = 0xC1,
+    SHOTGUN_SHELLS         = 0xC2,
+
+    FLASHLIGHT             = 0xE0,
+    POCKET_RADIO           = 0xE1,
+    GASOLINE_TANK          = 0xE2
+};
+/*
+enum <int8> Options {
+    USE = 0,
+    EQUIP_RELOAD = 1,
+    RELOAD = 4,
+    UNEQUIP_RELOAD = 5,
+    RELOAD = 7,
+};
+*/
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+struct SaveLoadScreen {
+    uint16    TotalSavesCount;    // probaly total count on all playthroughs
+    uint16    unk_0;
+    uint32    time_sec_div_4096;  // 1 second == 4096 units
+    uint16    savesCount;         // only counts on current playthrough
+    SaveTitle saveTitle;
+    uint8     isTitleYellowFlag;
+};
+
+struct SH1Header {
+    char           unkPadding[4];
+    SaveLoadScreen saveLoadScreen[11];
+    ubyte          padding[116];
+    ubyte          xor[2];
+    ubyte          end_dc[2];
+};
+
+struct Buttons {
+    uint16 buttonSelect   : 1;
+    uint16 buttonL3       : 1;
+    uint16 buttonR3       : 1;
+    uint16 buttonStart    : 1;
+    uint16 buttonUp       : 1;
+    uint16 buttonRight    : 1;
+    uint16 buttonDown     : 1;
+    uint16 buttonLeft     : 1;
+    uint16 buttonL2       : 1;
+    uint16 buttonR2       : 1;
+    uint16 buttonL1       : 1;
+    uint16 buttonR1       : 1;
+    uint16 buttonTriangle : 1;
+    uint16 buttonCircle   : 1;
+    uint16 buttonCross    : 1;
+    uint16 buttonSquare   : 1;
+};
+
+struct ControllerConfig {
+    Buttons enter;
+    Buttons cancel;
+    Buttons skip;
+    Buttons action;
+    Buttons aim;
+    Buttons light;
+    Buttons run;
+    Buttons view;
+    Buttons stepL;
+    Buttons stepR;
+    Buttons pause;
+    Buttons item;
+    Buttons map;
+    Buttons option;
+};
+
+struct ScreenPosition {
+    int8  screenPosX;  // min = -11, max = 11, default is 0
+    int8  screenPosY;  // min = -8, max = 8, default is 0
+};
+
+struct SH1GlobalOptions {
+    ControllerConfig controllerConfig;
+    ScreenPosition   screenPosition;
+    uint8 sound;               // Stereo = 0, Monaural = 1, default is Stereo
+    uint8 bgmVolume;           // 0x00 = 0 - 16 = 0x80, default is 16 increment every 8
+    uint8 seVoume;             // 0x00 = 0 - 16 = 0x80, default is 16 increment every 8
+    uint8 vibration;           // 0x80 = on, 0x00 = off, default is on
+    uint8 brighntess;          // 0-7, default is 3
+    uint8 weaponControl;       // Press = 1, Switch = 0, defaulti is 1
+    uint8 bloodColor;          // Normal = 0, Green = 2, Violet = 5, Black = 13, default is Normal
+    uint8 autoLoad;            // Off = 0, On = 1, default is off
+    ubyte unk0[2];             // reveal secret options? how many times game is finsihed?
+    uint8 viewControl;         // Normal = 0, Reverse = 1, default is Normal
+    ubyte secretViewMode;      // Normal = 0, Self View = 1, default is Normal
+    uint8 retreatTurn;         // Normal = 0, Reverse = 1, default is Normal
+    uint8 walkRunControl;      // Normal = 0, Reverse = 1, default is Normal
+    uint8 autoAiming;          // On = 0, Off = 1, default is On
+    uint8 secretBulletAdjust;  // min x1 = 0, max x6 = 5, default is x1
+    ubyte unk1[2];             // only non zero in next fear?
+    ubyte Padding[76];
+    ubyte xor[2];
+    ubyte end_dc[2];
+};
+
+struct SH1Item {
+    ItemID id;
+    uint8  count;
+    uint8  unk_options;
+    uint8  unk_index;
+};
+
+struct SH1Save {
+    SH1Item   sh1Items[40];
+    char      unkPadding[4];
+    ubyte     unk_room_entrance_coord;
+    ubyte     unk_0;
+    uint16    savesCount;
+    SaveTitle saveTitle;
+    ubyte     unk_1[7];
+    char      unk_2[400];
+    uint32    unkHealh;            // need to more testing
+    uint32    unkCoordinates;      // need to more testing
+    uint32    unkRotation;         // North = 0, don't know what method is used for rotation
+    uint32    unk_3;
+    uint32    time_sec_div_4096;   // 1 second == 4096 units
+    uint32    unkRunningDistance;  // need to more testing
+    uint32    unkWalkingDistance;  // need to more testing
+    char      unk_4[32];           // related to game results like killing counter
+    ubyte     xor[2];
+    ubyte     end_dc[2];
+};
+
+/*
+// for now as a quick script hack, this part is moved to ps1_memory_card.bt
+SH1Header         sh1Header;
+SH1GlobalOptions  sh1GlobalOptions;
+SH1Save           sh1Saves[11];
+Sector            unkDummySector[2];
+*/
