@@ -40,7 +40,7 @@ enum <uint8> IconDisplayFlag {
 };
 
 enum <char> CountryCode {
-    NORTH_AMERICA    = 'A',
+    USA_CANADA       = 'A',
     EUROPE_AUSTRALIA = 'E',
     JAPAN            = 'I'
 };

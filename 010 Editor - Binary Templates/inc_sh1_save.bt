@@ -47,7 +47,8 @@ enum <ubyte> SaveTitle {
 
 enum <int8> ItemID {
     EMPTY                  = -1,
-    
+    UNEQUIPPED             = 0,
+
     HEALTH_DRINK           = 0x20,
     FIRST_AID_KIT          = 0x21,
     AMPOULE                = 0x22,
@@ -126,23 +127,29 @@ enum <int8> ItemID {
     POCKET_RADIO           = 0xE1,
     GASOLINE_TANK          = 0xE2
 };
-/*
-enum <int8> Options {
-    USE = 0,
-    EQUIP_RELOAD = 1,
-    RELOAD = 4,
+
+enum <int8> Commands {
+    USE_HEALTH = 0,
+    USE = 1,
+    EQUIP = 2,
+    UNEQUIP = 3,
+    EQUIP_RELOAD = 4,
     UNEQUIP_RELOAD = 5,
+    ON_OFF = 6,
     RELOAD = 7,
+    LOOK = 8,
+    USE_LOOK = 9
+    // flashlight 11 in day time?
 };
-*/
+
 //------------------------------------------------
 // Structs
 //------------------------------------------------
 
 struct SaveLoadScreen {
-    uint16    TotalSavesCount;    // probaly total count on all playthroughs
+    uint16    totalSavesCount;    // probaly total count on all playthroughs
     uint16    unk_0;
-    uint32    time_sec_div_4096;  // 1 second == 4096 units
+    uint32    gameplayTimer       <read=Str("%lg", this / 4096.0)>;
     uint16    savesCount;         // only counts on current playthrough
     SaveTitle saveTitle;
     uint8     isTitleYellowFlag;
@@ -165,6 +172,7 @@ struct Buttons {
     uint16 buttonRight    : 1;
     uint16 buttonDown     : 1;
     uint16 buttonLeft     : 1;
+
     uint16 buttonL2       : 1;
     uint16 buttonR2       : 1;
     uint16 buttonL1       : 1;
@@ -208,7 +216,8 @@ struct SH1GlobalOptions {
     uint8 weaponControl;       // Press = 1, Switch = 0, defaulti is 1
     uint8 bloodColor;          // Normal = 0, Green = 2, Violet = 5, Black = 13, default is Normal
     uint8 autoLoad;            // Off = 0, On = 1, default is off
-    ubyte unk0[2];             // reveal secret options? how many times game is finsihed?
+    ubyte unk0;      
+    uint8 ExtraOptionsEnabled; // for some reason it is not 1 when enabled?
     uint8 viewControl;         // Normal = 0, Reverse = 1, default is Normal
     ubyte secretViewMode;      // Normal = 0, Self View = 1, default is Normal
     uint8 retreatTurn;         // Normal = 0, Reverse = 1, default is Normal
@@ -222,29 +231,128 @@ struct SH1GlobalOptions {
 };
 
 struct SH1Item {
-    ItemID id;
-    uint8  count;
-    uint8  unk_options;
-    uint8  unk_index;
+    ItemID   id;
+    uint8    count;
+    Commands commands;
+    uint8    unk_index;
 };
 
 struct SH1Save {
     SH1Item   sh1Items[40];
     char      unkPadding[4];
-    ubyte     unk_room_entrance_coord;
+    ubyte     unk_room_entrance_coord;  // mapOverlayIdx
     ubyte     unk_0;
     uint16    savesCount;
-    SaveTitle saveTitle;
-    ubyte     unk_1[7];
-    char      unk_2[400];
-    uint32    unkHealh;            // need to more testing
-    uint32    unkCoordinates;      // need to more testing
-    uint32    unkRotation;         // North = 0, don't know what method is used for rotation
-    uint32    unk_3;
-    uint32    time_sec_div_4096;   // 1 second == 4096 units
-    uint32    unkRunningDistance;  // need to more testing
-    uint32    unkWalkingDistance;  // need to more testing
-    char      unk_4[32];           // related to game results like killing counter
+    SaveTitle saveTitle;           // mapEventIdx
+    uint8     unk_1;               // mapIdx
+    ItemID    equipedWeapon;       // default: 0
+    ubyte     field_AB;
+    uint32    flags_AC;
+    uint32    field_B0[45];        // FF
+    uint32    hasMapFlags;
+    /*
+    NOWHERE_THEME_PARK : 00000001  // 0x01 it only displays infinie OLD_TOWN maps...
+    OLD_TOWN         : 00000010  // 0x02
+    UNK_CENTRAL_TOWN : 00000100  // 0x04
+    UNK_CENTRAL_TOWN : 00001000  // 0x04
+    RESORT_TOWN      : 00010000  // 0x08
+    UNK_SCHOOL       : 00100000  // 0x20
+    FOG_SCHOOL_1F    : 01000000  // 0x40
+    UNK_SCHOOL       : 10000000  // x080
+    
+    UNK_SCHOOL          : 00000001  // 0x01
+    UNK_SCHOOL          : 00000010  // 0x02
+    UNK_SCHOOL          : 00000100  // 0x04
+    UNK_SCHOOL          : 00001000  // x008
+    UNK_SCHOOL          : 00010000  // 0x10
+    UNK_1ST_SEWER       : 00100000  // 0x20
+    UNK_1ST_SEWER       : 01000000  // 0x40
+    SEWER_TO_THEME_PARK : 10000000  // x080
+    
+    UNK_HOSPITAL  : 00000001  // 0x01
+    UNK_HOSPITAL  : 00000010  // 0x02
+    UNK_HOSPITAL  : 00000100  // 0x04
+    UNK_HOSPITAL  : 00001000  // x008
+    UNK_HOSPITAL  : 00010000  // 0x10
+    UNK_HOSPITAL  : 00100000  // 0x20
+    UNK_HOSPITAL  : 01000000  // 0x40
+    UNK_HOSPITAL  : 10000000  // x080
+    */
+    
+    uint32    eventFlags_168[6];
+    /*
+    [0] 02 00 00 00 In game Intro
+        03 00 00 00 after founding Cheryl
+    
+    [1] 80 01 02 00 original
+    [1] 88 01 02 00 when picked up KITCHEN_KNIFE
+    [1] 90 01 02 00 when picked up FLASHLIGHT
+    [1] D0 07 02 00 when picked up FLASHLIGHT and MAP
+    [1] D8 0F 02 00 when picked up FLASHLIGHT and MAP and KITCHEN_KNIFE
+    
+    first byte:
+    KITCHEN_KNIFE 00001000
+    FLASHLIGHT    00010000
+    MAP_IN_CAFE   01000000
+    CAFE_EVENT    10000000
+    
+    second byte:
+    00001000 picked all necesery items to go outside?
+    */
+    
+    uint32    field_180[2];
+    uint32    field_188;
+    uint32    field_18C;
+    uint32    field_190[4];
+    uint32    field_1A0;
+    uint32    field_1A4[12];
+    /*
+    [3] 00 00 10 00 when picked up HEALTH_DRINK near TV
+    [3] 00 00 20 00 when picked up HEALTH_DRINK near MAP
+    */
+    
+    uint32    mapFlags_1D4[3];  // at least 10 bytes, not sure about last 2 bytes, 0x00: unmarked
+    /*
+    BACHMAN_TOP 10 00 00 00
+    
+    */
+    
+    uint32    field_1E0[22];
+    uint32    field_238;
+    uint16    pickedUpItemsCount;
+    ubyte     field_23E;
+    ubyte     field_23F;;
+    uint32    playerHealth         <read=Str("%lg", this / 4096.0)>;
+    int32     playerPositionX      <read=Str("%lg", this / 4096.0)>;
+    int16     playerRotationY      <read=Str("%lg", this / 2048.0 * 180)>; // North = 0, clockwise rotation for positive valuses and anticlocwise for negative values, range [-32767, 32768]
+    ubyte     unk_4[2];
+    int32     playerPositionZ      <read=Str("%lg", this / 4096.0)>;
+    uint32    gameplayTimer        <read=Str("%lg", this / 4096.0)>;
+    uint32    RunningDistance      <read=Str("%lg", this / 4096.0)>;  // need more testing to see if this is the right scale
+    uint32    WalkingDistance      <read=Str("%lg", this / 4096.0)>;  // need more testing to see if this is the right scale
+
+    // related to game results like killing counter
+    uint32    field_25C;
+    uint32    field_260;  // Packed data. Stores game difficulty and something else.
+    /*
+    Easy:   00 00 00 F0
+    Normal: 00 00 00 00
+    Hard:   00 00 00 10
+    */
+    
+    uint16    field_264;
+    uint16    field_266;
+    uint16    field_268;
+    uint16    field_26A;
+    uint16    field_26C;
+    uint16    field_26E;
+    uint16    field_270;
+    uint16    field_272;
+    uint16    field_274;
+    uint16    field_276;
+    uint16    field_278;
+    ubyte     field_27A;
+    ubyte     field_27B;
     ubyte     xor[2];
     ubyte     end_dc[2];
 };
