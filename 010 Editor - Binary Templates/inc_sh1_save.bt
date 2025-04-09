@@ -146,10 +146,13 @@ enum <int8> Commands {
 // Structs
 //------------------------------------------------
 
+typedef int32 q20_12 <read=Str("%lg", this / 4096.0),
+                     write=(this = Atof(value) * 4096.0)>;
+
 struct SaveLoadScreen {
     uint16    totalSavesCount;    // probaly total count on all playthroughs
-    uint16    unk_0;
-    uint32    gameplayTimer       <read=Str("%lg", this / 4096.0)>;
+    uint16    unk_02;
+    q20_12    gameplayTimer;
     uint16    savesCount;         // only counts on current playthrough
     SaveTitle saveTitle;
     uint8     isTitleYellowFlag;
@@ -201,29 +204,29 @@ struct ControllerConfig {
 };
 
 struct ScreenPosition {
-    int8  screenPosX;  // min = -11, max = 11, default is 0
-    int8  screenPosY;  // min = -8, max = 8, default is 0
+    int8  screenPosX;  // Range: [-11, 11], default: 0
+    int8  screenPosY;  // Range: [-8, 8], default: 0
 };
 
 struct SH1GlobalOptions {
     ControllerConfig controllerConfig;
     ScreenPosition   screenPosition;
-    uint8            sound;               // Stereo = 0, Monaural = 1, default is Stereo
-    uint8            bgmVolume;           // 0x00 = 0 - 16 = 0x80, default is 16 increment every 8
-    uint8            seVoume;             // 0x00 = 0 - 16 = 0x80, default is 16 increment every 8
-    uint8            vibration;           // 0x80 = on, 0x00 = off, default is on
-    uint8            brighntess;          // 0-7, default is 3
-    uint8            weaponControl;       // Press = 1, Switch = 0, defaulti is 1
-    uint8            bloodColor;          // Normal = 0, Green = 2, Violet = 5, Black = 13, default is Normal
-    uint8            autoLoad;            // Off = 0, On = 1, default is off
-    ubyte            unk0;      
+    uint8            sound;               // Stereo: 0, Monaural: 1, default: Stereo
+    uint8            bgmVolume;           // Range: [0, 128] with steps of 8, default: 16
+    uint8            seVoume;             // Range: [0, 128] with steps of 8, default: 16
+    uint8            vibration;           // Off: 0, On: 128, default: On
+    uint8            brighntess;          // Range: [0, 7], default: 3
+    uint8            weaponControl;       // Switch: 0, Press: 1, default: Press
+    uint8            bloodColor;          // Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal
+    uint8            autoLoad;            // Off: 0, On: 1, default: Off
+    ubyte            unk_26;      
     uint8            ExtraOptionsEnabled; // for some reason it is not 1 when enabled?
-    uint8            viewControl;         // Normal = 0, Reverse = 1, default is Normal
-    ubyte            secretViewMode;      // Normal = 0, Self View = 1, default is Normal
-    uint8            retreatTurn;         // Normal = 0, Reverse = 1, default is Normal
-    uint8            walkRunControl;      // Normal = 0, Reverse = 1, default is Normal
-    uint8            autoAiming;          // On = 0, Off = 1, default is On
-    uint8            secretBulletAdjust;  // min x1 = 0, max x6 = 5, default is x1
+    uint8            viewControl;         // Normal: 0, Reverse: 1, default: Normal
+    ubyte            secretViewMode;      // Normal: 0, Self View: 1, default: Normal
+    uint8            retreatTurn;         // Normal: 0, Reverse: 1, default: Normal
+    uint8            walkRunControl;      // Normal: 0, Reverse: 1, default: Normal
+    uint8            autoAiming;          // On: 0, Off: 1, default: On
+    uint8            secretBulletAdjust;  // x1-x5: Range [0, 5], default: x1.
     ubyte            unk1[2];             // only non zero in next fear?
     ubyte            Padding[76];
     ubyte            xor[2];
@@ -322,14 +325,15 @@ struct SH1Save {
     uint16    pickedUpItemsCount;
     ubyte     field_23E;
     ubyte     field_23F;;
-    uint32    playerHealth         <read=Str("%lg", this / 4096.0)>;
-    int32     playerPositionX      <read=Str("%lg", this / 4096.0)>;
-    int16     playerRotationY      <read=Str("%lg", this / 2048.0 * 180)>; // North = 0, clockwise rotation for positive valuses and anticlocwise for negative values, range [-32767, 32768]
+    q20_12    playerHealth;
+    q20_12    playerPositionX;
+    int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 180),
+                                   write=(this = Atof(value) * 4096.0 / 180.0)>; // North = 0, clockwise rotation for positive valuses and anticlocwise for negative values, range [-32767, 32768]
     ubyte     unk_4[2];
-    int32     playerPositionZ      <read=Str("%lg", this / 4096.0)>;
-    uint32    gameplayTimer        <read=Str("%lg", this / 4096.0)>;
-    uint32    RunningDistance      <read=Str("%lg", this / 4096.0)>;  // need more testing to see if this is the right scale
-    uint32    WalkingDistance      <read=Str("%lg", this / 4096.0)>;  // need more testing to see if this is the right scale
+    q20_12    playerPositionZ;
+    q20_12    gameplayTimer;
+    q20_12    RunningDistance;     // need more testing to see if this is the right scale
+    q20_12    WalkingDistance;     // need more testing to see if this is the right scale
 
     // related to game results like killing counter
     uint32    field_25C;
