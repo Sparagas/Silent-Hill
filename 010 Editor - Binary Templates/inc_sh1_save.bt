@@ -273,10 +273,10 @@ struct SH1Save {
     SH1Item      sh1Items[40];
     char         unkPadding[4];
     ubyte        unk_room_entrance_coord;  // mapOverlayIdx
-    ubyte        unk_0;
+    ubyte        field_A5;
     uint16       savesCount;
     SaveTitle    saveTitle;           // mapEventIdx
-    uint8        unk_1;               // mapIdx
+    uint8        mapIdx;              // mapIdx
     ItemID       equipedWeapon;       // default: 0
     ubyte        field_AB;
     uint32       flags_AC;
@@ -310,14 +310,53 @@ struct SH1Save {
     uint32    field_1A0;
     uint32    field_1A4[12];
     /*
-    [3] 00 00 10 00 when picked up HEALTH_DRINK near TV
-    [3] 00 00 20 00 when picked up HEALTH_DRINK near MAP
+    [3] 00 00 10 00 HEALTH_DRINK Cafee near TV
+    [3] 00 00 20 00 HEALTH_DRINK Cafee near MAP
+    [5] 00 00 00 01 HANDGUN_BULLETS near Caffe on a bench to the right
+    [5] 00 00 80 00 HANDGUN_BULLETS near Caffe on a bench to the left
     */
     
-    uint32    mapFlags_1D4[3];  // at least 10 bytes, not sure about last 2 bytes, 0x00: unmarked
-    /*
-    BACHMAN_TOP 10 00 00 00
     
+    uint32    mapMarkingsFlags[3];  // at least 10 bytes, not sure about last 2 bytes, 0x00: unmarked
+    /*
+    [0] oldTown_BACHMAN_TOP     10 00 00 00
+    [0] oldTown_Cofe arrow      40 00 00 00
+    [0] oldTown_Cofe sign       00 01 00 00
+    [0] oldTown_Cheryl          00 04 00 00
+    [0] oldTown_Finney left     00 10 00 00
+    [0] oldTown_Midwitch top    00 40 00 00
+    [0] oldTown_Midwitch left   00 00 01 00
+    [0] oldTown_Midwitch bot    00 00 04 00
+    [0] oldTown_Bradbury mid    00 00 10 00
+    [0] oldTown_Bradbury left   00 00 40 00
+    [0] oldTown_BACHMAN bot     00 00 00 01
+    [0] oldTown_Elroy bot       00 00 00 04
+    [0] oldTown_bot right big x 00 00 00 10
+    [0] oldTown_Elroy mid       00 00 00 40
+    
+    [1] oldTown_Bachman mid       01 00 00 00
+    [1] oldTown_Finney right      04 00 00 00
+    [1] oldTown_Bloch left        10 00 00 00
+    [1] oldTown_Levin top         40 00 00 00
+    [1] oldTown_Bloch mid         00 01 00 00
+    [1] oldTown_Levin bot         00 04 00 00
+    [1] oldTown_Levin Bloch combo 00 10 00 00
+    [1] oldTown_Matheson          00 40 00 00
+    [1] oldTown_Doghouse arrows   00 00 01 00
+    [1] oldTown_Gordon arrows     00 00 04 00
+    [1] oldTown_Finey right Arrow 00 00 10 00
+    [1] oldTown_dog yard line     00 00 40 00
+    [1] oldTown_Ellroy circle     00 00 00 01
+    [1] oldTown_Bloch right       00 00 00 04
+    [1] oldTown_Bridge correction 00 00 00 08
+    [1] oldTown_Bridge arrow      00 00 00 10
+    [1] oldTown_church circle     00 00 00 40
+    [1] oldTown_church check      00 00 00 80
+    
+    [2] oldTown_School circle     04 00 00 00
+    [2] oldTown_School check      08 00 00 00
+    [2] oldTown_Gordon mark       10 00 00 00
+    [2] oldTown_Dog house dot     40 00 00 00
     */
     
     uint32    field_1E0[22];
@@ -327,8 +366,8 @@ struct SH1Save {
     ubyte     field_23F;;
     q20_12    playerHealth;
     q20_12    playerPositionX;
-    int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 180),
-                                   write=(this = Atof(value) * 4096.0 / 180.0)>; // North = 0, clockwise rotation for positive valuses and anticlocwise for negative values, range [-32767, 32768]
+    int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 360),
+                                   write=(this = Atof(value) * 4096.0 / 360.0)>; // North = 0, clockwise rotation
     ubyte     unk_4[2];
     q20_12    playerPositionZ;
     q20_12    gameplayTimer;
@@ -336,27 +375,30 @@ struct SH1Save {
     q20_12    WalkingDistance;     // need more testing to see if this is the right scale
 
     // related to game results like killing counter
-    uint32    field_25C;
+    uint8     unk_pad;
+    uint16    meleeKills;
+    uint8     rangedKills;
     uint32    field_260;  // Packed data. Stores game difficulty and something else.
     /*
-    Easy:   00 00 00 F0
+    dificulity modifier?
+    Easy:   00 00 00 F0 // -16
     Normal: 00 00 00 00
-    Hard:   00 00 00 10
+    Hard:   00 00 00 10 //  16
     */
     
-    uint16    field_264;
-    uint16    field_266;
-    uint16    field_268;
-    uint16    field_26A;
+    uint16    ShotsFired;
+    uint16    shortRangeShots;
+    uint16    middleRangeShots;
+    uint16    longRangeShots;
     uint16    field_26C;
-    uint16    field_26E;
+    uint16    field_26E;  // related to enemy kills. misses?
     uint16    field_270;
     uint16    field_272;
     uint16    field_274;
     uint16    field_276;
     uint16    field_278;
     ubyte     field_27A;
-    ubyte     field_27B;
+    ubyte     continuesCount;
     ubyte     xor[2];
     ubyte     end_dc[2];
 };
