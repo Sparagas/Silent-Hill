@@ -211,23 +211,23 @@ struct ScreenPosition {
 struct SH1GlobalOptions {
     ControllerConfig controllerConfig;
     ScreenPosition   screenPosition;
-    uint8            sound;               // Stereo: 0, Monaural: 1, default: Stereo
-    uint8            bgmVolume;           // Range: [0, 128] with steps of 8, default: 16
-    uint8            seVoume;             // Range: [0, 128] with steps of 8, default: 16
-    uint8            vibration;           // Off: 0, On: 128, default: On
-    uint8            brighntess;          // Range: [0, 7], default: 3
-    uint8            weaponControl;       // Switch: 0, Press: 1, default: Press
-    uint8            bloodColor;          // Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal
-    uint8            autoLoad;            // Off: 0, On: 1, default: Off
-    ubyte            unk_26;      
-    uint8            ExtraOptionsEnabled; // for some reason it is not 1 when enabled?
-    uint8            viewControl;         // Normal: 0, Reverse: 1, default: Normal
-    ubyte            secretViewMode;      // Normal: 0, Self View: 1, default: Normal
-    uint8            retreatTurn;         // Normal: 0, Reverse: 1, default: Normal
-    uint8            walkRunControl;      // Normal: 0, Reverse: 1, default: Normal
-    uint8            autoAiming;          // On: 0, Off: 1, default: On
-    uint8            secretBulletAdjust;  // x1-x5: Range [0, 5], default: x1.
-    ubyte            unk1[2];             // only non zero in next fear?
+    uint8            sound;                // Stereo: 0, Monaural: 1, default: Stereo
+    uint8            bgmVolume;            // Range: [0, 128] with steps of 8, default: 16
+    uint8            seVoume;              // Range: [0, 128] with steps of 8, default: 16
+    uint8            vibration;            // Off: 0, On: 128, default: On
+    uint8            brighntess;           // Range: [0, 7], default: 3
+    uint8            weaponControl;        // Switch: 0, Press: 1, default: Press
+    uint8            bloodColor;           // Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal
+    uint8            autoLoad;             // Off: 0, On: 1, default: Off
+    ubyte            unk_26;               
+    uint8            ExtraOptionsEnabled;  // for some reason it is not 1 when enabled?
+    uint8            viewControl;          // Normal: 0, Reverse: 1, default: Normal
+    ubyte            secretViewMode;       // Normal: 0, Self View: 1, default: Normal
+    uint8            retreatTurn;          // Normal: 0, Reverse: 1, default: Normal
+    uint8            walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
+    uint8            autoAiming;           // On: 0, Off: 1, default: On
+    uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
+    ubyte            unk1[2];              // only non zero in next fear?
     ubyte            Padding[76];
     ubyte            xor[2];
     ubyte            end_dc[2];
@@ -244,45 +244,45 @@ struct HasMapsFlags {
     uint32 otherPlaces    : 1; // 0x01 Impossible to obtain. Displays oldTown with infinite arrows in places where there are no maps (like Nowthere)
     uint32 oldTown        : 1; // 0x02
     uint32 fogCentralTown : 1; // 0x04
-    uint32 badCentralTown : 1; // 0x04
+    uint32 altCentralTown : 1; // 0x04
     uint32 resortTown     : 1; // 0x08
-    uint32 fogSchoolBf    : 1; // 0x20
-    uint32 fogSchool1f    : 1; // 0x40
-    uint32 fogSchool2f    : 1; // 0x08
+    uint32 fogSchoolBF    : 1; // 0x20
+    uint32 fogSchool1F    : 1; // 0x40
+    uint32 fogSchool2F    : 1; // 0x08
 
-    uint32 fogSchoolRf    : 1; // 0x0100
-    uint32 badSchoolBf    : 1; // 0x0200
-    uint32 badSchool1f    : 1; // 0x0400
-    uint32 badSchool2f    : 1; // 0x0800
-    uint32 badSchoolRf    : 1; // 0x1000
-    uint32 fogSewer1f     : 1; // 0x2000
-    uint32 fogSewer2f     : 1; // 0x4000
-    uint32 badSewer       : 1; // 0x0800
+    uint32 fogSchoolRF    : 1; // 0x0100
+    uint32 altSchoolBF    : 1; // 0x0200
+    uint32 altSchool1F    : 1; // 0x0400
+    uint32 altSchool2F    : 1; // 0x0800
+    uint32 altSchoolRF    : 1; // 0x1000
+    uint32 fogSewer1F     : 1; // 0x2000
+    uint32 fogSewer2F     : 1; // 0x4000
+    uint32 altSewer       : 1; // 0x0800
 
-    uint32 fogHospitalBf  : 1; // 0x010000
-    uint32 fogHospital1f  : 1; // 0x020000
-    uint32 fogHospital2f  : 1; // 0x040000
-    uint32 fogHospital3f  : 1; // 0x080000
-    uint32 badHospitalBf  : 1; // 0x100000
-    uint32 badHospital1f  : 1; // 0x200000
-    uint32 badHospital2f  : 1; // 0x400000
-    uint32 badHospital3f  : 1; // 0x800000
+    uint32 fogHospitalBF  : 1; // 0x010000
+    uint32 fogHospital1F  : 1; // 0x020000
+    uint32 fogHospital2F  : 1; // 0x040000
+    uint32 fogHospital3F  : 1; // 0x080000
+    uint32 altHospitalBF  : 1; // 0x100000
+    uint32 altHospital1F  : 1; // 0x200000
+    uint32 altHospital2F  : 1; // 0x400000
+    uint32 altHospital3F  : 1; // 0x800000
 };
 
 struct SH1Save {
     SH1Item      sh1Items[40];
     char         unkPadding[4];
-    ubyte        unk_room_entrance_coord;  // mapOverlayIdx
+    ubyte        unkMapOverlayIdx;  // mapOverlayIdx
     ubyte        field_A5;
     uint16       savesCount;
-    SaveTitle    saveTitle;           // mapEventIdx
-    uint8        mapIdx;              // mapIdx
-    ItemID       equipedWeapon;       // default: 0
+    SaveTitle    saveTitle;         // mapEventIdx
+    uint8        unkMapIdx;         // mapIdx
+    ItemID       equipedWeapon;     // default: 0
     ubyte        field_AB;
     uint32       flags_AC;
-    uint32       field_B0[45];        // FF
+    uint32       field_B0[45];      // FF
     HasMapsFlags hasMapsFlags;
-    uint32       eventFlags_168[6];
+    uint32       eventFlags[6];
     /*
     [0] 02 00 00 00 In game Intro
         03 00 00 00 after founding Cheryl
@@ -317,9 +317,9 @@ struct SH1Save {
     */
     
     
-    uint32    mapMarkingsFlags[3];  // at least 10 bytes, not sure about last 2 bytes, 0x00: unmarked
+    uint32    mapMarkingsFlags[8];
     /*
-    [0] oldTown_BACHMAN_TOP     10 00 00 00
+    [0] oldTown_Bachman top     10 00 00 00
     [0] oldTown_Cofe arrow      40 00 00 00
     [0] oldTown_Cofe sign       00 01 00 00
     [0] oldTown_Cheryl          00 04 00 00
@@ -353,13 +353,49 @@ struct SH1Save {
     [1] oldTown_church circle     00 00 00 40
     [1] oldTown_church check      00 00 00 80
     
-    [2] oldTown_School circle     04 00 00 00
-    [2] oldTown_School check      08 00 00 00
-    [2] oldTown_Gordon mark       10 00 00 00
-    [2] oldTown_Dog house dot     40 00 00 00
+    [2] oldTown_School circle      04 00 00 00
+    [2] oldTown_School check       08 00 00 00
+    [2] oldTown_Gordon mark        10 00 00 00
+    [2] oldTown_Dog house dot      40 00 00 00
+    [2] fogCentralTown_antique     00 00 01 00
+    [2] fogCentralTown_hospital    00 00 04 00
+    [2] fogCentralTown_CrichtonTop 00 00 10 00
+    [2] fogCentralTown_CrichtonBot 00 00 40 00
+    [2] fogCentralTown_Sagan       00 00 00 01
+    [2] fogCentralTown_Koontz      00 00 00 04
+    [2] fogCentralTown_Simmons     00 00 00 10
+    
+    [3] altCentralTown_antique     00 00 04 00
+    [3] altCentralTown_hospital    00 00 10 00
+    [3] altCentralTown_CrichtonTop 00 00 40 00
+    [3] altCentralTown_CrichtonBot 00 00 00 01
+    [3] altCentralTown_SimmonsTop  00 00 00 04
+    [3] altCentralTown_SimmonsMid  00 00 00 10
+    [3] altCentralTown_SimmonsMid  00 00 00 40
+    
+    [4] altCentralTown_Wilson         01 00 00 00
+    [4] altCentralTown_Koontz         04 00 00 00
+    [4] altCentralTown_SaganRight     10 00 00 00
+    [4] altCentralTown_SaganLeft      40 00 00 00
+    [4] altCentralTown_parkingLot     00 01 00 00
+    [4] altCentralTown_untatiledBot   00 04 00 00
+    [4] altCentralTown_CrichtonKoontz 00 40 00 00
+    [4] resortTown_Bachman            00 00 10 00
+    [4] resortTown_Craig              00 00 40 00
+    [4] resortTown_GarageRight        00 00 00 01
+    [4] resortTown_GarageBot          00 00 00 04
+    [4] resortTown_SandfordLeft       00 00 00 10
+    [4] resortTown_SandfordRight      00 00 00 40
+    
+    [5] resortTown_LighthouseCircle   01 00 00 00
+    [5] resortTown_LighthouseCheck    02 00 00 00
+    [5] resortTown_ThemeParkArrow     04 00 00 00
+    [5] fogSchoolBF_StorageBroken     00 00 40 00
+    [5] fogSchoolBF_StorageEnter      00 00 80 00
+    [5] fogSchoolBF_BoilerEnter       00 00 00 02
     */
     
-    uint32    field_1E0[22];
+    uint32    field_1E0[17];
     uint32    field_238;
     uint16    pickedUpItemsCount;
     ubyte     field_23E;
@@ -374,11 +410,10 @@ struct SH1Save {
     q20_12    RunningDistance;     // need more testing to see if this is the right scale
     q20_12    WalkingDistance;     // need more testing to see if this is the right scale
 
-    // related to game results like killing counter
     uint8     unk_pad;
     uint16    meleeKills;
     uint8     rangedKills;
-    uint32    field_260;  // Packed data. Stores game difficulty and something else.
+    uint32    unkDifficulity;  // Packed data. Stores game difficulty and something else.
     /*
     dificulity modifier?
     Easy:   00 00 00 F0 // -16
