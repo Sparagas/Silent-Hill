@@ -227,7 +227,7 @@ struct SH1GlobalOptions {
     uint8            walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
     uint8            autoAiming;           // On: 0, Off: 1, default: On
     uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
-    ubyte            unk1[2];              // only non zero in next fear?
+    ubyte            unk1[2];              // Looks like non-zero values in "Next Fear" mode.
     ubyte            Padding[76];
     ubyte            xor[2];
     ubyte            end_dc[2];
@@ -277,7 +277,7 @@ struct SH1Save {
     uint16       savesCount;
     SaveTitle    saveTitle;         // mapEventIdx
     uint8        unkMapIdx;         // mapIdx
-    ItemID       equipedWeapon;     // default: 0
+    ItemID       equippedWeapon;    // default: 0
     ubyte        field_AB;
     uint32       flags_AC;
     uint32       field_B0[45];      // FF
@@ -317,7 +317,7 @@ struct SH1Save {
     */
     
     
-    uint32    mapMarkingsFlags[8];
+    uint32    mapMarkingsFlags[25];
     /*
     [0] oldTown_Bachman top     10 00 00 00
     [0] oldTown_Cofe arrow      40 00 00 00
@@ -394,21 +394,20 @@ struct SH1Save {
     [5] fogSchoolBF_StorageEnter      00 00 80 00
     [5] fogSchoolBF_BoilerEnter       00 00 00 02
     */
-    
-    uint32    field_1E0[17];
+
     uint32    field_238;
-    uint16    pickedUpItemsCount;
+    uint16    pickedUpItemCount;
     ubyte     field_23E;
     ubyte     field_23F;;
-    q20_12    playerHealth;
+    q20_12    playerHealth;        // default: 100
     q20_12    playerPositionX;
     int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 360),
                                    write=(this = Atof(value) * 4096.0 / 360.0)>; // North = 0, clockwise rotation
     ubyte     unk_4[2];
     q20_12    playerPositionZ;
     q20_12    gameplayTimer;
-    q20_12    RunningDistance;     // need more testing to see if this is the right scale
-    q20_12    WalkingDistance;     // need more testing to see if this is the right scale
+    q20_12    runDistance;
+    q20_12    walkDistance;
 
     uint8     unk_pad;
     uint16    meleeKills;
@@ -421,12 +420,12 @@ struct SH1Save {
     Hard:   00 00 00 10 //  16
     */
     
-    uint16    ShotsFired;
+    uint16    shotsFired;
     uint16    shortRangeShots;
     uint16    middleRangeShots;
     uint16    longRangeShots;
     uint16    field_26C;
-    uint16    field_26E;  // related to enemy kills. misses?
+    uint16    field_26E;  // related to enemy kills.
     uint16    field_270;
     uint16    field_272;
     uint16    field_274;
