@@ -244,11 +244,11 @@ struct HasMapsFlags {
     uint32 otherPlaces    : 1; // 0x01 Impossible to obtain. Displays oldTown with infinite arrows in places where there are no maps (like Nowthere)
     uint32 oldTown        : 1; // 0x02
     uint32 fogCentralTown : 1; // 0x04
-    uint32 altCentralTown : 1; // 0x04
-    uint32 resortTown     : 1; // 0x08
+    uint32 altCentralTown : 1; // 0x08
+    uint32 resortTown     : 1; // 0x10
     uint32 fogSchoolBF    : 1; // 0x20
     uint32 fogSchool1F    : 1; // 0x40
-    uint32 fogSchool2F    : 1; // 0x08
+    uint32 fogSchool2F    : 1; // 0x80
 
     uint32 fogSchoolRF    : 1; // 0x0100
     uint32 altSchoolBF    : 1; // 0x0200
@@ -257,7 +257,7 @@ struct HasMapsFlags {
     uint32 altSchoolRF    : 1; // 0x1000
     uint32 fogSewer1F     : 1; // 0x2000
     uint32 fogSewer2F     : 1; // 0x4000
-    uint32 altSewer       : 1; // 0x0800
+    uint32 altSewer       : 1; // 0x8000
 
     uint32 fogHospitalBF  : 1; // 0x010000
     uint32 fogHospital1F  : 1; // 0x020000
@@ -267,6 +267,8 @@ struct HasMapsFlags {
     uint32 altHospital1F  : 1; // 0x200000
     uint32 altHospital2F  : 1; // 0x400000
     uint32 altHospital3F  : 1; // 0x800000
+    
+    uint32 padding        : 8;
 };
 
 struct SH1Save {
@@ -285,7 +287,7 @@ struct SH1Save {
     uint32       eventFlags[6];
     /*
     [0] 02 00 00 00 In game Intro
-        03 00 00 00 after founding Cheryl
+    [0] 03 00 00 00 after founding Cheryl
     
     [1] 80 01 02 00 original
     [1] 88 01 02 00 when picked up KITCHEN_KNIFE
@@ -304,9 +306,19 @@ struct SH1Save {
     */
     
     uint32    field_180[2];
+    /*
+    [0] 80 00 00 00 FIRST_AID_KIT fog hospital reception
+    [0] 00 08 00 00 fog hospital medicine room newspaper (unpickable, but registrable)
+    [0] 00 80 00 00 hospital map pick up
+    */
+    
     uint32    field_188;
     uint32    field_18C;
     uint32    field_190[4];
+    /*
+    [3] 00 00 10 00 altSewer map pick up
+    */
+    
     uint32    field_1A0;
     uint32    field_1A4[12];
     /*
@@ -319,80 +331,208 @@ struct SH1Save {
     
     uint32    mapMarkingsFlags[25];
     /*
-    [0] oldTown_Bachman top     10 00 00 00
-    [0] oldTown_Cofe arrow      40 00 00 00
-    [0] oldTown_Cofe sign       00 01 00 00
-    [0] oldTown_Cheryl          00 04 00 00
-    [0] oldTown_Finney left     00 10 00 00
-    [0] oldTown_Midwitch top    00 40 00 00
-    [0] oldTown_Midwitch left   00 00 01 00
-    [0] oldTown_Midwitch bot    00 00 04 00
-    [0] oldTown_Bradbury mid    00 00 10 00
-    [0] oldTown_Bradbury left   00 00 40 00
-    [0] oldTown_BACHMAN bot     00 00 00 01
-    [0] oldTown_Elroy bot       00 00 00 04
-    [0] oldTown_bot right big x 00 00 00 10
-    [0] oldTown_Elroy mid       00 00 00 40
+    [00] oldTown_BachmanTop                 10 00 00 00
+    [00] oldTown_CofeArrow                  40 00 00 00
+    [00] oldTown_CofeSign                   00 01 00 00
+    [00] oldTown_Cheryl                     00 04 00 00
+    [00] oldTown_FinneyLeft                 00 10 00 00
+    [00] oldTown_MidwitchTop                00 40 00 00
+    [00] oldTown_MidwitchLeft               00 00 01 00
+    [00] oldTown_MidwitchBot                00 00 04 00
+    [00] oldTown_BradburyMid                00 00 10 00
+    [00] oldTown_BradburyLeft               00 00 40 00
+    [00] oldTown_BachmanBot                 00 00 00 01
+    [00] oldTown_ElroyBot                   00 00 00 04
+    [00] oldTown_BotRightBigCross           00 00 00 10
+    [00] oldTown_ElroyMid                   00 00 00 40
+                                            
+    [01] oldTown_BachmanMid                 01 00 00 00
+    [01] oldTown_FinneyRight                04 00 00 00
+    [01] oldTown_BlochLeft                  10 00 00 00
+    [01] oldTown_LevinTop                   40 00 00 00
+    [01] oldTown_BlochMid                   00 01 00 00
+    [01] oldTown_LevinBot                   00 04 00 00
+    [01] oldTown_LevinBlochCombo            00 10 00 00
+    [01] oldTown_Matheson                   00 40 00 00
+    [01] oldTown_DoghouseArrows             00 00 01 00
+    [01] oldTown_GordonArrows               00 00 04 00
+    [01] oldTown_FineyRightArrow            00 00 10 00
+    [01] oldTown_DogYardLine                00 00 40 00
+    [01] oldTown_EllroyCircle               00 00 00 01
+    [01] oldTown_BlochRight                 00 00 00 04
+    [01] oldTown_BridgeCorrection           00 00 00 08
+    [01] oldTown_BridgeRrrow                00 00 00 10
+    [01] oldTown_ChurchCircle               00 00 00 40
+    [01] oldTown_ChurchCheck                00 00 00 80
+
+    [02] oldTown_SchoolCircle               04 00 00 00
+    [02] oldTown_SchoolCheck                08 00 00 00
+    [02] oldTown_GordonDot                  10 00 00 00
+    [02] oldTown_DoghouseDot                40 00 00 00
+    [02] fogCentralTown_Antique             00 00 01 00
+    [02] fogCentralTown_Hospital            00 00 04 00
+    [02] fogCentralTown_CrichtonTop         00 00 10 00
+    [02] fogCentralTown_CrichtonBot         00 00 40 00
+    [02] fogCentralTown_Sagan               00 00 00 01
+    [02] fogCentralTown_Koontz              00 00 00 04
+    [02] fogCentralTown_Simmons             00 00 00 10
+                                            
+    [03] altCentralTown_Antique             00 00 04 00
+    [03] altCentralTown_Hospital            00 00 10 00
+    [03] altCentralTown_CrichtonTop         00 00 40 00
+    [03] altCentralTown_CrichtonBot         00 00 00 01
+    [03] altCentralTown_SimmonsTop          00 00 00 04
+    [03] altCentralTown_SimmonsMid          00 00 00 10
+    [03] altCentralTown_SimmonsBot          00 00 00 40
+                                    
+    [04] altCentralTown_Wilson              01 00 00 00
+    [04] altCentralTown_Koontz              04 00 00 00
+    [04] altCentralTown_SaganRight          10 00 00 00
+    [04] altCentralTown_SaganLeft           40 00 00 00
+    [04] altCentralTown_ParkingLot          00 01 00 00
+    [04] altCentralTown_UntatiledBot        00 04 00 00
+    [04] altCentralTown_CrichtonKoontz      00 40 00 00
+    [04] resortTown_Bachman                 00 00 10 00
+    [04] resortTown_Craig                   00 00 40 00
+    [04] resortTown_GarageRight             00 00 00 01
+    [04] resortTown_GarageBot               00 00 00 04
+    [04] resortTown_SandfordLeft            00 00 00 10
+    [04] resortTown_SandfordRight           00 00 00 40
+                                           
+    [05] resortTown_LighthouseCircle        01 00 00 00
+    [05] resortTown_LighthouseCheck         02 00 00 00
+    [05] resortTown_ThemeParkArrow          04 00 00 00
+    [05] fogSchoolBF_StorageBroken          00 00 40 00
+    [05] fogSchoolBF_StorageArrows          00 00 80 00
+    [05] fogSchoolBF_BoilerArrows           00 00 00 02
+
+    [06] altSchoolBF_StorageBroken          01 00 00 00
+    [06] altSchoolBF_StorageArrows          02 00 00 00
+    [06] altSchoolBF_BoilerArrows           08 00 00 00
+    [06] fogSchool1F_EntranceArrows         00 08 00 00
+    [06] fogSchool1F_LobbyArrows            00 20 00 00
+    [06] fogSchool1F_BotLeftLocked          00 40 00 00
+    [06] fogSchool1F_BotLeftArrows          00 80 00 00
+    [06] fogSchool1F_ReceptionBroken        00 00 01 00
+    [06] fogSchool1F_ReceptionArrows        00 00 02 00
+    [06] fogSchool1F_InfirmaryArrows        00 00 08 00
+    [06] fogSchool1F_CortyardBotBroken      00 00 10 00
+    [06] fogSchool1F_CortyardBotArrows      00 00 20 00
+    [06] fogSchool1F_BotRightLocked         00 00 40 00
+    [06] fogSchool1F_BotRightArrows         00 00 80 00
+    [06] fogSchool1F_TopRightLocked         00 00 00 01
+    [06] fogSchool1F_TopRightArrows         00 00 00 02
+    [06] fogSchool1F_HallMidBroken          00 00 00 04
+    [06] fogSchool1F_TopClassTopBroken      00 00 00 10
+    [06] fogSchool1F_TopClassTopArrows      00 00 00 20
+    [06] fogSchool1F_TopClassBotBroken      00 00 00 40
+    [06] fogSchool1F_TopClassBotBroken      00 00 00 80
+
+    [07] fogSchool1F_BotClassTopBroken      01 00 00 00
+    [07] fogSchool1F_BotClassTopArrows      02 00 00 00
+    [07] fogSchool1F_BotClassBotBroken      04 00 00 00
+    [07] fogSchool1F_BotClassBotArrows      08 00 00 00
+    [07] fogSchool1F_ClassMidArrows         20 00 00 00
+    [07] fogSchool1F_CortyardTopArrows      80 00 00 00
+    [07] fogSchool1F_HallLeftBroken         00 01 00 00
+    [07] fogSchool1F_UntitledBotArrows      00 08 00 00
+    [07] fogSchool1F_StorageBroken          00 10 00 00
+    [07] fogSchool1F_TopLeftArrows          00 80 00 00
+    [07] fogSchool1F_UntitledTopBroken      00 00 01 00
+    [07] fogSchool1F_TopTeacherTopBroken    00 00 04 00
+    [07] fogSchool1F_TopTeacherBotBroken    00 00 10 00
+    [07] fogSchool1F_BotTeacherTopBroken    00 00 40 00
+    [07] fogSchool1F_BotTeacherBotBroken    00 00 00 01
+    [07] fogSchool1F_MensBathroomArrows     00 00 00 08
+    [07] fogSchool1F_WomensBathroomArrow    00 00 00 20
+    [07] fogSchool1F_ReceptionQuestion      00 00 00 40
+
+    [08] fogSchool1F_ClockTowerCircle       01 00 00 00
+    [08] fogSchool1F_BotLeftBroken          04 00 00 00
+    [08] fogSchool1F_TopRightBroken         10 00 00 00
+    [08] altSchool1F_LobbyBotBroken         00 00 00 01
+    [08] altSchool1F_LobbyTopArrows         00 00 00 08
+    [08] altSchool1F_BotLeftLocked          00 00 00 10
+    [08] altSchool1F_BotLeftArrows          00 00 00 20
+    [08] altSchool1F_ReceptionArrows        00 00 00 80
     
-    [1] oldTown_Bachman mid       01 00 00 00
-    [1] oldTown_Finney right      04 00 00 00
-    [1] oldTown_Bloch left        10 00 00 00
-    [1] oldTown_Levin top         40 00 00 00
-    [1] oldTown_Bloch mid         00 01 00 00
-    [1] oldTown_Levin bot         00 04 00 00
-    [1] oldTown_Levin Bloch combo 00 10 00 00
-    [1] oldTown_Matheson          00 40 00 00
-    [1] oldTown_Doghouse arrows   00 00 01 00
-    [1] oldTown_Gordon arrows     00 00 04 00
-    [1] oldTown_Finey right Arrow 00 00 10 00
-    [1] oldTown_dog yard line     00 00 40 00
-    [1] oldTown_Ellroy circle     00 00 00 01
-    [1] oldTown_Bloch right       00 00 00 04
-    [1] oldTown_Bridge correction 00 00 00 08
-    [1] oldTown_Bridge arrow      00 00 00 10
-    [1] oldTown_church circle     00 00 00 40
-    [1] oldTown_church check      00 00 00 80
+    [09] altSchool1F_InfirmaryArrows        02 00 00 00
+    [09] altSchool1F_CortyardBotLocked      04 00 00 00
+    [09] altSchool1F_CortyardBotArrows      08 00 00 00
+    [09] altSchool1F_BotRightArrows         20 00 00 00
+    [09] altSchool1F_TopRightLocked         40 00 00 00
+    [09] altSchool1F_TopRightArrows         80 00 00 00
+    [09] altSchool1F_HallMidArrows          00 02 00 00
+    [09] altSchool1F_TopClassTopArrows      00 08 00 00
+    [09] altSchool1F_TopClassBotArrows      00 20 00 00
+    [09] altSchool1F_BotClassTopBroken      00 40 00 00
+    [09] altSchool1F_BotClassTopArrows      00 80 00 00
+    [09] altSchool1F_BotClassBotArrows      00 00 02 00
+    [09] altSchool1F_ClassMidArrows         00 00 08 00
+    [09] altSchool1F_CortyardTopArrows      00 00 20 00
+    [09] altSchool1F_HallLeftArrows         00 00 80 00
+    [09] altSchool1F_UntitledBotArrows      00 00 00 02
+    [09] altSchool1F_StorageArrows          00 00 00 08
+    [09] altSchool1F_TopLeftLocked          00 00 00 10
+    [09] altSchool1F_TopLeftArrows          00 00 00 20
+    [09] altSchool1F_TopTeacherTopArrows    00 00 00 80
     
-    [2] oldTown_School circle      04 00 00 00
-    [2] oldTown_School check       08 00 00 00
-    [2] oldTown_Gordon mark        10 00 00 00
-    [2] oldTown_Dog house dot      40 00 00 00
-    [2] fogCentralTown_antique     00 00 01 00
-    [2] fogCentralTown_hospital    00 00 04 00
-    [2] fogCentralTown_CrichtonTop 00 00 10 00
-    [2] fogCentralTown_CrichtonBot 00 00 40 00
-    [2] fogCentralTown_Sagan       00 00 00 01
-    [2] fogCentralTown_Koontz      00 00 00 04
-    [2] fogCentralTown_Simmons     00 00 00 10
+    [10] altSchool1F_TopTeacherBotBroken    01 00 00 00
+    [10] altSchool1F_BotTeacherTopArrows    08 00 00 00
+    [10] altSchool1F_BotTeacherBotArrows    20 00 00 00
+    [10] altSchool1F_MensBathroomArrows     80 00 00 00
+    [10] altSchool1F_WomensBathroomArrows   00 02 00 00
+    [10] altSchool1F_TeacherMidArrows       00 08 00 00
+    [10] altSchool1F_LeftMidCorridorBroken  00 10 00 00
+    [10] altSchool1F_RightMidCorridorBroken 00 40 00 00
+    [10] altSchool1F_RightBotCorridorLocked 00 00 01 00
+    [10] altSchool1F_RightBotCorridorArrows 00 00 02 00
+    [10] altSchool1F_CortyardQuestion       00 00 04 00
+    [10] altSchool1F_UntitledTopCross       00 00 10 00
+    [10] altSchool1F_SecretDoorLocked       00 00 40 00
+    [10] altSchool1F_SecretDoorArrows       00 00 80 00
+    [10] altSchool1F_RightBotCorridorDots   00 00 00 01
     
-    [3] altCentralTown_antique     00 00 04 00
-    [3] altCentralTown_hospital    00 00 10 00
-    [3] altCentralTown_CrichtonTop 00 00 40 00
-    [3] altCentralTown_CrichtonBot 00 00 00 01
-    [3] altCentralTown_SimmonsTop  00 00 00 04
-    [3] altCentralTown_SimmonsMid  00 00 00 10
-    [3] altCentralTown_SimmonsMid  00 00 00 40
+    [11] fogSchool2F_BotLeftLocked          40 00 00 00
+    [11] fogSchool2F_BotLeftArrows          80 00 00 00
+    [11] fogSchool2F_MusicArrows            00 02 00 00
+    [11] fogSchool2F_LockerArrows           00 08 00 00
+    [11] fogSchool2F_BotRightBroken         00 10 00 00
+    [11] fogSchool2F_BotRightArrows         00 20 00 00
+    [11] fogSchool2F_TopRightBroken         00 40 00 00
+    [11] fogSchool2F_TopRightArrows         00 80 00 00
+    [11] fogSchool2F_LibraryBroken          00 00 01 00
+    [11] fogSchool2F_LibraryArrows          00 00 02 00
+    [11] fogSchool2F_TopRightClassTopBroken 00 00 04 00
+    [11] fogSchool2F_TopRightClassTopArrows 00 00 08 00
+    [11] fogSchool2F_TopRightClassBotBroken 00 00 10 00
+    [11] fogSchool2F_TopRightClassBotArrows 00 00 20 00
+    [11] fogSchool2F_BotRightClassTopBroken 00 00 40 00
+    [11] fogSchool2F_BotRightClassTopArrows 00 00 80 00
+    [11] fogSchool2F_BotRightClassBotBroken 00 00 00 01
+    [11] fogSchool2F_BotRightClassBotArrows 00 00 00 02
+    [11] fogSchool2F_RightClassMidArrows    00 00 00 08
+    [11] fogSchool2F_ReserveLocked          00 00 00 10
+    [11] fogSchool2F_ReserveArrows          00 00 00 20
+    [11] fogSchool2F_ChemistryArrows        00 00 00 80
     
-    [4] altCentralTown_Wilson         01 00 00 00
-    [4] altCentralTown_Koontz         04 00 00 00
-    [4] altCentralTown_SaganRight     10 00 00 00
-    [4] altCentralTown_SaganLeft      40 00 00 00
-    [4] altCentralTown_parkingLot     00 01 00 00
-    [4] altCentralTown_untatiledBot   00 04 00 00
-    [4] altCentralTown_CrichtonKoontz 00 40 00 00
-    [4] resortTown_Bachman            00 00 10 00
-    [4] resortTown_Craig              00 00 40 00
-    [4] resortTown_GarageRight        00 00 00 01
-    [4] resortTown_GarageBot          00 00 00 04
-    [4] resortTown_SandfordLeft       00 00 00 10
-    [4] resortTown_SandfordRight      00 00 00 40
+    [11] fogSchool2F_EquipmentArrows        02 00 00 00
+    [11] fogSchool2F_TopLeftArrows          08 00 00 00
+    [11] fogSchool2F_TopLeftClassTopArrows  20 00 00 00
+    [11] fogSchool2F_TopLeftClassBotArrows  80 00 00 00
+    [11] fogSchool2F_BotLeftClassTopArrows  00 02 00 00
+    [11] fogSchool2F_BotLeftClassBotArrows  00 08 00 00
+    [11] fogSchool2F_LeftClassMidArrows     00 20 00 00
+    [11] fogSchool2F_MensBathroomArrows     00 80 00 00
+    [11] fogSchool2F_WomensBathroomArrows   00 00 02 00
+    [11] fogSchool2F_ReseveLibraryMidArrows 00 00 08 00
+    [11] fogSchool2F_StatueOfHandSign       00 00 10 00
+    [11] fogSchool2F_PianoSign              00 00 40 00
+    [11] fogSchool2F_LockerQuestion         00 00 00 01
     
-    [5] resortTown_LighthouseCircle   01 00 00 00
-    [5] resortTown_LighthouseCheck    02 00 00 00
-    [5] resortTown_ThemeParkArrow     04 00 00 00
-    [5] fogSchoolBF_StorageBroken     00 00 40 00
-    [5] fogSchoolBF_StorageEnter      00 00 80 00
-    [5] fogSchoolBF_BoilerEnter       00 00 00 02
+    [15] fogSchoolRF_RoofBroken             00 04 00 00
+    [15] fogSchoolRF_RoofArrows             00 08 00 00
+    [15] fogSchoolRF_ValveSign              00 10 00 00
     */
 
     uint32    field_238;
@@ -402,7 +542,7 @@ struct SH1Save {
     q20_12    playerHealth;        // default: 100
     q20_12    playerPositionX;
     int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 360),
-                                   write=(this = Atof(value) * 4096.0 / 360.0)>; // North = 0, clockwise rotation
+                                   write=(this = Atof(value) * 4096.0 / 360.0)>; // Positive Z: 0, clockwise rotation
     ubyte     unk_4[2];
     q20_12    playerPositionZ;
     q20_12    gameplayTimer;
