@@ -1191,10 +1191,10 @@ struct SH1Save {
     Hard:   00 00 00 10 //  16
     */
     
-    uint16    shotsFired;
-    uint16    shortRangeShots;
-    uint16    middleRangeShots;
-    uint16    longRangeShots;
+    uint16    firedShotCount;
+    uint16    closeRangeShotCount;
+    uint16    midRangeShotCount;
+    uint16    longRangeShotCount;
     uint16    field_26C;
     uint16    field_26E;  // related to enemy kills.
     uint16    field_270;
@@ -1203,7 +1203,7 @@ struct SH1Save {
     uint16    field_276;
     uint16    field_278;
     ubyte     field_27A;
-    ubyte     continuesCount;
+    ubyte     continueCount;
     ubyte     xor[2];
     ubyte     end_dc[2];
 };
