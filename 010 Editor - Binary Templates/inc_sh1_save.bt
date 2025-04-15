@@ -129,16 +129,16 @@ enum <int8> ItemID {
 };
 
 enum <int8> Commands {
-    USE_HEALTH = 0,
-    USE = 1,
-    EQUIP = 2,
-    UNEQUIP = 3,
-    EQUIP_RELOAD = 4,
+    USE_HEALTH     = 0,
+    USE            = 1,
+    EQUIP          = 2,
+    UNEQUIP        = 3,
+    EQUIP_RELOAD   = 4,
     UNEQUIP_RELOAD = 5,
-    ON_OFF = 6,
-    RELOAD = 7,
-    LOOK = 8,
-    USE_LOOK = 9
+    ON_OFF         = 6,
+    RELOAD         = 7,
+    LOOK           = 8,
+    USE_LOOK       = 9
     // flashlight 11 in day time?
 };
 
@@ -167,23 +167,23 @@ struct SH1Header {
 };
 
 struct Buttons {
-    uint16 buttonSelect   : 1; // 0x01
-    uint16 buttonL3       : 1; // 0x02
-    uint16 buttonR3       : 1; // 0x04
-    uint16 buttonStart    : 1; // 0x08
-    uint16 buttonUp       : 1; // 0x10
-    uint16 buttonRight    : 1; // 0x20
-    uint16 buttonDown     : 1; // 0x40
-    uint16 buttonLeft     : 1; // 0x80
+    uint16 buttonSelect   : 1; // 01 00 0x01
+    uint16 buttonL3       : 1; // 02 00 0x02
+    uint16 buttonR3       : 1; // 04 00 0x04
+    uint16 buttonStart    : 1; // 08 00 0x08
+    uint16 buttonUp       : 1; // 10 00 0x10
+    uint16 buttonRight    : 1; // 20 00 0x20
+    uint16 buttonDown     : 1; // 40 00 0x40
+    uint16 buttonLeft     : 1; // 80 00 0x80
 
-    uint16 buttonL2       : 1; // 0x0100
-    uint16 buttonR2       : 1; // 0x0200
-    uint16 buttonL1       : 1; // 0x0400
-    uint16 buttonR1       : 1; // 0x0800
-    uint16 buttonTriangle : 1; // 0x1000
-    uint16 buttonCircle   : 1; // 0x2000
-    uint16 buttonCross    : 1; // 0x4000
-    uint16 buttonSquare   : 1; // 0x8000
+    uint16 buttonL2       : 1; // 00 01 0x0100
+    uint16 buttonR2       : 1; // 00 02 0x0200
+    uint16 buttonL1       : 1; // 00 04 0x0400
+    uint16 buttonR1       : 1; // 00 08 0x0800
+    uint16 buttonTriangle : 1; // 00 10 0x1000
+    uint16 buttonCircle   : 1; // 00 20 0x2000
+    uint16 buttonCross    : 1; // 00 40 0x4000
+    uint16 buttonSquare   : 1; // 00 80 0x8000
 };
 
 struct ControllerConfig {
@@ -241,35 +241,872 @@ struct SH1Item {
 };
 
 struct HasMapsFlags {
-    uint32 otherPlaces    : 1; // 0x01 Impossible to obtain. Displays oldTown with infinite arrows in places where there are no maps (like Nowthere)
-    uint32 oldTown        : 1; // 0x02
-    uint32 fogCentralTown : 1; // 0x04
-    uint32 altCentralTown : 1; // 0x08
-    uint32 resortTown     : 1; // 0x10
-    uint32 fogSchoolBF    : 1; // 0x20
-    uint32 fogSchool1F    : 1; // 0x40
-    uint32 fogSchool2F    : 1; // 0x80
+    uint32 otherPlaces    : 1; // 01 00 00 00 0x01 Impossible to obtain. Displays oldTown with infinite arrows in places where there are no maps (like Nowthere)
+    uint32 oldTown        : 1; // 02 00 00 00 0x02
+    uint32 fogCentralTown : 1; // 04 00 00 00 0x04
+    uint32 altCentralTown : 1; // 08 00 00 00 0x08
+    uint32 resortTown     : 1; // 10 00 00 00 0x10
+    uint32 fogSchoolBF    : 1; // 20 00 00 00 0x20
+    uint32 fogSchool1F    : 1; // 40 00 00 00 0x40
+    uint32 fogSchool2F    : 1; // 80 00 00 00 0x80
 
-    uint32 fogSchoolRF    : 1; // 0x0100
-    uint32 altSchoolBF    : 1; // 0x0200
-    uint32 altSchool1F    : 1; // 0x0400
-    uint32 altSchool2F    : 1; // 0x0800
-    uint32 altSchoolRF    : 1; // 0x1000
-    uint32 fogSewer1F     : 1; // 0x2000
-    uint32 fogSewer2F     : 1; // 0x4000
-    uint32 altSewer       : 1; // 0x8000
+    uint32 fogSchoolRF    : 1; // 00 01 00 00 0x0100
+    uint32 altSchoolBF    : 1; // 00 02 00 00 0x0200
+    uint32 altSchool1F    : 1; // 00 04 00 00 0x0400
+    uint32 altSchool2F    : 1; // 00 08 00 00 0x0800
+    uint32 altSchoolRF    : 1; // 00 10 00 00 0x1000
+    uint32 fogSewer1F     : 1; // 00 20 00 00 0x2000
+    uint32 fogSewer2F     : 1; // 00 40 00 00 0x4000
+    uint32 altSewer       : 1; // 00 80 00 00 0x8000
 
-    uint32 fogHospitalBF  : 1; // 0x010000
-    uint32 fogHospital1F  : 1; // 0x020000
-    uint32 fogHospital2F  : 1; // 0x040000
-    uint32 fogHospital3F  : 1; // 0x080000
-    uint32 altHospitalBF  : 1; // 0x100000
-    uint32 altHospital1F  : 1; // 0x200000
-    uint32 altHospital2F  : 1; // 0x400000
-    uint32 altHospital3F  : 1; // 0x800000
+    uint32 fogHospitalBF  : 1; // 00 00 01 00 0x010000
+    uint32 fogHospital1F  : 1; // 00 00 02 00 0x020000
+    uint32 fogHospital2F  : 1; // 00 00 04 00 0x040000
+    uint32 fogHospital3F  : 1; // 00 00 08 00 0x080000
+    uint32 altHospitalBF  : 1; // 00 00 10 00 0x100000
+    uint32 altHospital1F  : 1; // 00 00 20 00 0x200000
+    uint32 altHospital2F  : 1; // 00 00 40 00 0x400000
+    uint32 altHospital3F  : 1; // 00 00 80 00 0x800000
     
     uint32 padding        : 8;
 };
+
+
+struct MapMarkingsFlags {
+    /*
+    Table of Content:
+
+    [00] u32 oldTown
+    [01] u32 oldTown
+    [02] u32 oldTown_fogCentralTown
+    [03] u32 altCentralTown
+    [04] u32 altCentralTown_resortTown
+    [05] u32 resortTown_fogSchoolBF
+    [06] u32 altSchoolBF_fogSchool1F
+    [07] u32 fogSchool1F
+    [08] u32 fogSchool1F_altSchool1F
+    [09] u32 altSchool1F
+    [10] u32 altSchool1F
+    [11] u32 fogSchool2F
+    [12] u32 fogSchool2F
+    [13] u32 altSchool2F
+    [14] u32 altSchool2F
+    [15] u32 fogSchoolRF_altSchoolRF_fogSewer1F
+    [16] u32 fogSewer1F_fogSewer2F
+    [17] u32 altSewer_fogHospotal1F
+    [18] u32 fogHospotal1F_altHospotal1F
+    [19] u32 altHospotal1F
+    [20] u32 fogHospotalBF_altHospotalBF
+    [21] u32 altHospotalBF_fogHospotal2F_fogHospotal3F_altHospotal2F
+    [22] u32 altHospotal2F
+    [23] u32 altHospotal3F
+    [24] u32 altHospotal3F
+    */
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 oldTown_BachmanRdTopCross               : 1;  // [00] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_CofeArrowOnly                   : 1;  // [00] 40 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_CofeSignOnly                    : 1;  // [00] 00 01 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_CherylArrowAndSign              : 1;  // [00] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_FinneyStLeftCross               : 1;  // [00] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_MidwitchStTopCross              : 1;  // [00] 00 40 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_UntitledStLeftCross             : 1;  // [00] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_MidwitchStBotCross              : 1;  // [00] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_BradburyStMidCross              : 1;  // [00] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_BradburyStLeftCross             : 1;  // [00] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_BachmanRdBotCross               : 1;  // [00] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 oldTown_ElroyStBotCross                 : 1;  // [00] 00 00 00 04
+    uint32 unused                                  : 1;
+    uint32 oldTown_BotRightHugeComboCross          : 1;  // [00] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 oldTown_ElroyStMidCross                 : 1;  // [00] 00 00 00 40
+    uint32 unused                                  : 1;
+
+    uint32 oldTown_BachmanRdMidCross               : 1;  // [01] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_FinneyStRightCross              : 1;  // [01] 04 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_BlochStLeftCross                : 1;  // [01] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_LevinStTopCross                 : 1;  // [01] 40 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_BlochStRightCross               : 1;  // [01] 00 01 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_LevinStBotCross                 : 1;  // [01] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_LevinBlochBigCombo              : 1;  // [01] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_MathesonStCross                 : 1;  // [01] 00 40 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_DoghouseArrowsOnly              : 1;  // [01] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_KGordonArrowsOnly               : 1;  // [01] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_FineyStRightKeyArrow            : 1;  // [01] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_DogYardKeyLine                  : 1;  // [01] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_EllroyStKeyCircle               : 1;  // [01] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 oldTown_BotBridgeCross                  : 1;  // [01] 00 00 00 04
+    uint32 oldTown_BotBridgeCorrection             : 1;  // [01] 00 00 00 08
+    uint32 oldTown_BotBridgeArrow                  : 1;  // [01] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 oldTown_BalkanChurchCircle              : 1;  // [01] 00 00 00 40
+    uint32 oldTown_BalkanChurchCheck               : 1;  // [01] 00 00 00 80
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 oldTown_SchoolCircle                    : 1;  // [02] 04 00 00 00
+    uint32 oldTown_SchoolCheck                     : 1;  // [02] 08 00 00 00
+    uint32 oldTown_KGordonDotAndSignOnly           : 1;  // [02] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 oldTown_DoghouseDotOnly                 : 1;  // [02] 40 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_AntiqueWholeSign         : 1;  // [02] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_HospitalCirlce           : 1;  // [02] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_CrichtonStTotBigCross    : 1;  // [02] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_CrichtonStBotBigCross    : 1;  // [02] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_SaganStBigCross          : 1;  // [02] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_KoontzStBigCross         : 1;  // [02] 00 00 00 04
+    uint32 unused                                  : 1;
+    uint32 fogCentralTown_SimmonsStBigCross        : 1;  // [02] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_AntiqueWholeSign         : 1;  // [03] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_HospitalCircle           : 1;  // [03] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_CrichtonStTopBigCross    : 1;  // [03] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_CrichtonStBotBigCross    : 1;  // [03] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_SimmonsStTopBigCross     : 1;  // [03] 00 00 00 04
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_SimmonsStMidCross        : 1;  // [03] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_SimmonsStBotCross        : 1;  // [03] 00 00 00 40
+    uint32 unused                                  : 1;
+
+    uint32 altCentralTown_WilsonStCross            : 1;  // [04] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_KoontzStBigCross         : 1;  // [04] 04 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_SaganStRightBigCross     : 1;  // [04] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_SaganStLeftBigCross      : 1;  // [04] 40 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_ParkingLotBigCross       : 1;  // [04] 00 01 00 00
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_UntatiledStBotCross      : 1;  // [04] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altCentralTown_CrichtonKoontzBigCross   : 1;  // [04] 00 40 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 resortTown_BachmanRdCross               : 1;  // [04] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 resortTown_CraigStBigCross              : 1;  // [04] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 resortTown_EastGarageRightCross         : 1;  // [04] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 resortTown_EastGarageBotCross           : 1;  // [04] 00 00 00 04
+    uint32 unused                                  : 1;
+    uint32 resortTown_SandfordStLeftBigCross       : 1;  // [04] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 resortTown_SandfordStRightCross         : 1;  // [04] 00 00 00 40
+    uint32 unused                                  : 1;
+
+    uint32 resortTown_LighthouseCircle             : 1;  // [05] 01 00 00 00
+    uint32 resortTown_LighthouseCheck              : 1;  // [05] 02 00 00 00
+    uint32 resortTown_ThemeParkArrow               : 1;  // [05] 04 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchoolBF_StorageBroken               : 1;  // [05] 00 00 40 00
+    uint32 fogSchoolBF_StorageArrows               : 1;  // [05] 00 00 80 00
+    uint32 unused                                  : 1;
+    uint32 fogSchoolBF_BoilerRoomArrows            : 1;  // [05] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 altSchoolBF_StorageBroken               : 1;  // [06] 01 00 00 00
+    uint32 altSchoolBF_StorageArrows               : 1;  // [06] 02 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchoolBF_BoilerRoomArrows            : 1;  // [06] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_EntranceArrows              : 1;  // [06] 00 08 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_LobbyArrows                 : 1;  // [06] 00 20 00 00
+    uint32 fogSchool1F_BotLeftCorridorLocked       : 1;  // [06] 00 40 00 00
+    uint32 fogSchool1F_BotLeftCorridorArrows       : 1;  // [06] 00 80 00 00
+    uint32 fogSchool1F_ReceptionBroken             : 1;  // [06] 00 00 01 00
+    uint32 fogSchool1F_ReceptionArrows             : 1;  // [06] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_InfirmaryArrows             : 1;  // [06] 00 00 08 00
+    uint32 fogSchool1F_CortyardBotBroken           : 1;  // [06] 00 00 10 00
+    uint32 fogSchool1F_CortyardBotArrows           : 1;  // [06] 00 00 20 00
+    uint32 fogSchool1F_BotRightCorridorLocked      : 1;  // [06] 00 00 40 00
+    uint32 fogSchool1F_BotRightCorridorArrows      : 1;  // [06] 00 00 80 00
+    uint32 fogSchool1F_TopRightCorridorLocked      : 1;  // [06] 00 00 00 01
+    uint32 fogSchool1F_TopRightCorridorArrows      : 1;  // [06] 00 00 00 02
+    uint32 fogSchool1F_HallMidBroken               : 1;  // [06] 00 00 00 04
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_TopClassRoomTopBroken       : 1;  // [06] 00 00 00 10
+    uint32 fogSchool1F_TopClassRoomTopArrows       : 1;  // [06] 00 00 00 20
+    uint32 fogSchool1F_TopClassRoomBotBroken       : 1;  // [06] 00 00 00 40
+    uint32 fogSchool1F_TopClassRoomBotBroken       : 1;  // [06] 00 00 00 80
+
+    uint32 fogSchool1F_BotClassRoomTopBroken       : 1;  // [07] 01 00 00 00
+    uint32 fogSchool1F_BotClassRoomTopArrows       : 1;  // [07] 02 00 00 00
+    uint32 fogSchool1F_BotClassRoomBotBroken       : 1;  // [07] 04 00 00 00
+    uint32 fogSchool1F_BotClassRoomBotArrows       : 1;  // [07] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_ClassRoomMidArrows          : 1;  // [07] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_CortyardTopArrows           : 1;  // [07] 80 00 00 00
+    uint32 fogSchool1F_HallLeftBroken              : 1;  // [07] 00 01 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_UntitledLobbyBotArrows      : 1;  // [07] 00 08 00 00
+    uint32 fogSchool1F_StorageBroken               : 1;  // [07] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_TopLeftCorridorArrows       : 1;  // [07] 00 80 00 00
+    uint32 fogSchool1F_UntitledLobbyTopBroken      : 1;  // [07] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_TopTeachersRoomTopBroken    : 1;  // [07] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_TopTeachersRoomBotBroken    : 1;  // [07] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_BotTeachersRoomTopBroken    : 1;  // [07] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_BotTeachersRoomBotBroken    : 1;  // [07] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_MensBathroomArrows          : 1;  // [07] 00 00 00 08
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_WomensBathroomArrow         : 1;  // [07] 00 00 00 20
+    uint32 fogSchool1F_ReceptionQuestion           : 1;  // [07] 00 00 00 40
+    uint32 unused                                  : 1;
+
+    uint32 fogSchool1F_ClockTowerCircle            : 1;  // [08] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_BotLeftCorridorBroken       : 1;  // [08] 04 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool1F_TopRightCorridorBroken      : 1;  // [08] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_LobbyBotBroken              : 1;  // [08] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_LobbyTopArrows              : 1;  // [08] 00 00 00 08
+    uint32 altSchool1F_BotLeftCorridorLocked       : 1;  // [08] 00 00 00 10
+    uint32 altSchool1F_BotLeftCorridorArrows       : 1;  // [08] 00 00 00 20
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_ReceptionArrows             : 1;  // [08] 00 00 00 80
+
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_InfirmaryArrows             : 1;  // [09] 02 00 00 00
+    uint32 altSchool1F_CortyardBotLocked           : 1;  // [09] 04 00 00 00
+    uint32 altSchool1F_CortyardBotArrows           : 1;  // [09] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_BotRightCorridorArrows      : 1;  // [09] 20 00 00 00
+    uint32 altSchool1F_TopRightCorridorLocked      : 1;  // [09] 40 00 00 00
+    uint32 altSchool1F_TopRightCorridorArrows      : 1;  // [09] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_HallMidArrows               : 1;  // [09] 00 02 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_TopClassRoomTopArrows       : 1;  // [09] 00 08 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_TopClassRoomBotArrows       : 1;  // [09] 00 20 00 00
+    uint32 altSchool1F_BotClassRoomTopBroken       : 1;  // [09] 00 40 00 00
+    uint32 altSchool1F_BotClassRoomTopArrows       : 1;  // [09] 00 80 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_BotClassRoomBotArrows       : 1;  // [09] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_ClassRoomMidArrows          : 1;  // [09] 00 00 08 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_CortyardTopArrows           : 1;  // [09] 00 00 20 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_HallLeftArrows              : 1;  // [09] 00 00 80 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_UntitledLobbyBotArrows      : 1;  // [09] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_StorageArrows               : 1;  // [09] 00 00 00 08
+    uint32 altSchool1F_TopLeftCorridorLocked       : 1;  // [09] 00 00 00 10
+    uint32 altSchool1F_TopLeftCorridorArrows       : 1;  // [09] 00 00 00 20
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_TopTeachersRoomTopArrows    : 1;  // [09] 00 00 00 80
+
+    uint32 altSchool1F_TopTeachersRoomBotBroken    : 1;  // [10] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_BotTeachersRoomTopArrows    : 1;  // [10] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_BotTeachersRoomBotArrows    : 1;  // [10] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_MensBathroomArrows          : 1;  // [10] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_WomensBathroomArrows        : 1;  // [10] 00 02 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_TeacherMidArrows            : 1;  // [10] 00 08 00 00
+    uint32 altSchool1F_LeftMidCorridorBroken       : 1;  // [10] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_RightCorridorMidBroken      : 1;  // [10] 00 40 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_RightCorridorBotLocked      : 1;  // [10] 00 00 01 00
+    uint32 altSchool1F_RightCorridorBotArrows      : 1;  // [10] 00 00 02 00
+    uint32 altSchool1F_CortyardQuestion            : 1;  // [10] 00 00 04 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_UntitledLobbyTopCross       : 1;  // [10] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 altSchool1F_SecretDoorLocked            : 1;  // [10] 00 00 40 00
+    uint32 altSchool1F_SecretDoorArrows            : 1;  // [10] 00 00 80 00
+    uint32 altSchool1F_RightCorridorBotDots        : 1;  // [10] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_BotLeftCorridorLocked       : 1;  // [11] 40 00 00 00
+    uint32 fogSchool2F_BotLeftCorridorArrows       : 1;  // [11] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_MusicRoomArrows             : 1;  // [11] 00 02 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_LockerRoomArrows            : 1;  // [11] 00 08 00 00
+    uint32 fogSchool2F_BotRightCorridorBroken      : 1;  // [11] 00 10 00 00
+    uint32 fogSchool2F_BotRightCorridorArrows      : 1;  // [11] 00 20 00 00
+    uint32 fogSchool2F_TopRightCorridorBroken      : 1;  // [11] 00 40 00 00
+    uint32 fogSchool2F_TopRightCorridorArrows      : 1;  // [11] 00 80 00 00
+    uint32 fogSchool2F_LibraryBroken               : 1;  // [11] 00 00 01 00
+    uint32 fogSchool2F_LibraryArrows               : 1;  // [11] 00 00 02 00
+    uint32 fogSchool2F_TopRightClassRoomTopBroken  : 1;  // [11] 00 00 04 00
+    uint32 fogSchool2F_TopRightClassRoomTopArrows  : 1;  // [11] 00 00 08 00
+    uint32 fogSchool2F_TopRightClassRoomBotBroken  : 1;  // [11] 00 00 10 00
+    uint32 fogSchool2F_TopRightClassRoomBotArrows  : 1;  // [11] 00 00 20 00
+    uint32 fogSchool2F_BotRightClassRoomTopBroken  : 1;  // [11] 00 00 40 00
+    uint32 fogSchool2F_BotRightClassRoomTopArrows  : 1;  // [11] 00 00 80 00
+    uint32 fogSchool2F_BotRightClassRoomBotBroken  : 1;  // [11] 00 00 00 01
+    uint32 fogSchool2F_BotRightClassRoomBotArrows  : 1;  // [11] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_RightClassRoomMidArrows     : 1;  // [11] 00 00 00 08
+    uint32 fogSchool2F_LibraryReserveLocked        : 1;  // [11] 00 00 00 10
+    uint32 fogSchool2F_LibraryReserveArrows        : 1;  // [11] 00 00 00 20
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_ChemistryLabArrows          : 1;  // [11] 00 00 00 80
+
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_LabEquipmentRoomArrows      : 1;  // [12] 02 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_TopLeftArrows               : 1;  // [12] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_TopLeftClassRoomTopArrows   : 1;  // [12] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_TopLeftClassRoomBotArrows   : 1;  // [12] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_BotLeftClassRoomTopArrows   : 1;  // [12] 00 02 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_BotLeftClassRoomBotArrows   : 1;  // [12] 00 08 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_LeftClassRoomMidArrows      : 1;  // [12] 00 20 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_MensBathroomArrows          : 1;  // [12] 00 80 00 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_WomensBathroomArrows        : 1;  // [12] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_ReserveLibraryMidArrows     : 1;  // [12] 00 00 08 00
+    uint32 fogSchool2F_StatueOfHandSign            : 1;  // [12] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_PianoSign                   : 1;  // [12] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 fogSchool2F_LockerRoomQuestion          : 1;  // [12] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_BotLeftCorridorArrows       : 1;  // [13] 00 02 00 00
+    uint32 altSchool2F_MusicRoomBroken             : 1;  // [13] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_LockerRoomArrows            : 1;  // [13] 00 20 00 00
+    uint32 altSchool2F_BotRightCorridorLocked      : 1;  // [13] 00 40 00 00
+    uint32 altSchool2F_BotRightCorridorArrows      : 1;  // [13] 00 80 00 00
+    uint32 altSchool2F_TopRightCorridorLocked      : 1;  // [13] 00 00 01 00
+    uint32 altSchool2F_TopRightCorridorArrows      : 1;  // [13] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_LibraryArrows               : 1;  // [13] 00 00 08 00
+    uint32 altSchool2F_TopRightClassRoomTopLocked  : 1;  // [13] 00 00 10 00
+    uint32 altSchool2F_TopRightClassRoomTopArrows  : 1;  // [13] 00 00 20 00
+    uint32 altSchool2F_TopRightClassRoomBotLocked  : 1;  // [13] 00 00 40 00
+    uint32 altSchool2F_TopRightClassRoomBotArrows  : 1;  // [13] 00 00 80 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_BotRightClassRoomTopArrows  : 1;  // [13] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_BotRightClassRoomBotArrows  : 1;  // [13] 00 00 00 08
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_RightClassRoomMidArrows     : 1;  // [13] 00 00 00 20
+    uint32 altSchool2F_LibraryReserveLocked        : 1;  // [13] 00 00 00 40
+    uint32 altSchool2F_LibraryReserveArrows        : 1;  // [13] 00 00 00 80
+
+    uint32 altSchool2F_ChemistryLabBroken          : 1;  // [14] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_LabEquipmentRoomBroken      : 1;  // [14] 04 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_TopLeftCorridorArrows       : 1;  // [14] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_TopLeftClassRoomTopArrows   : 1;  // [14] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_TopLeftClassRoomBotArrows   : 1;  // [14] 00 02 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_BotLeftClassRoomTopArrows   : 1;  // [14] 00 08 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_BotLeftClassRoomBotArrows   : 1;  // [14] 00 20 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_LeftClassRoomMidArrows      : 1;  // [14] 00 80 00 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_MensBathroomArrows          : 1;  // [14] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_WomensBathroomArrows        : 1;  // [14] 00 00 08 00
+    uint32 altSchool2F_LeftCorridorMidBroken       : 1;  // [14] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_LeftCorridorMidBroken       : 1;  // [14] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_RightCorridorMidBroken      : 1;  // [14] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchool2F_ReserveLibraryMidArrows     : 1;  // [14] 00 00 00 08
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSchoolRF_RoofBroken                  : 1;  // [15] 00 04 00 00
+    uint32 fogSchoolRF_RoofArrows                  : 1;  // [15] 00 08 00 00
+    uint32 fogSchoolRF_ValveSign                   : 1;  // [15] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSchoolRF_RoofBroken                  : 1;  // [15] 00 00 04 00
+    uint32 altSchoolRF_RoofArrows                  : 1;  // [15] 00 00 08 00
+    uint32 altSchoolRF_ValveSign                   : 1;  // [15] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogSewer1F_MidLocked                    : 1;  // [15] 00 00 00 04
+    uint32 fogSewer1F_MidArrows                    : 1;  // [15] 00 00 00 08
+    uint32 fogSewer1F_RightMidLocked               : 1;  // [15] 00 00 00 10
+    uint32 fogSewer1F_RightMidArrows               : 1;  // [15] 00 00 00 20
+    uint32 fogSewer1F_RightTopLocked               : 1;  // [15] 00 00 00 40
+    uint32 fogSewer1F_RightTopArrows               : 1;  // [15] 00 00 00 80
+
+    uint32 fogSewer1F_RightBotLocked               : 1;  // [16] 01 00 00 00
+    uint32 fogSewer1F_RightBotArrows               : 1;  // [16] 02 00 00 00
+    uint32 fogSewer2F_OuterRightLocked             : 1;  // [16] 00 40 00 00
+    uint32 fogSewer2F_OuterRightArrows             : 1;  // [16] 00 80 00 00
+    uint32 fogSewer2F_MidRightLocked               : 1;  // [16] 00 00 01 00
+    uint32 fogSewer2F_MidRightArrows               : 1;  // [16] 00 00 02 00
+    uint32 fogSewer2F_MidLeftLocked                : 1;  // [16] 00 00 04 00
+    uint32 fogSewer2F_MidLeftArrows                : 1;  // [16] 00 00 08 00
+    uint32 fogSewer2F_OuterLeftLocked              : 1;  // [16] 00 00 10 00
+    uint32 fogSewer2F_OuterLeftArrows              : 1;  // [16] 00 00 20 00
+    uint32 fogSewer2F_BigCross                     : 1;  // [16] 00 00 40 00
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altSewer_BigCross                       : 1;  // [17] 40 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_CorridorLeftBroken        : 1;  // [17] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_ExaminationRoomLeftArrows : 1;  // [17] 00 00 08 00
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_ReceptionOfficeArrows     : 1;  // [17] 00 00 20 00
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_OfficeExaminationArrows   : 1;  // [17] 00 00 80 00
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_ExaminationMedicineArrows : 1;  // [17] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_MedicineRoomBotArrows     : 1;  // [17] 00 00 00 08
+    uint32 fogHospital1F_StorageRoomBroken         : 1;  // [17] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_BotOfficeBroken           : 1;  // [17] 00 00 00 40
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_DoctorConferenceArrows    : 1;  // [18] 02 00 00 00
+    uint32 fogHospital1F_DoctorOfficeLeftBroken    : 1;  // [18] 04 00 00 00
+    uint32 fogHospital1F_DoctorOfficeLeftArrows    : 1;  // [18] 08 00 00 00
+    uint32 fogHospital1F_KitchenBroken             : 1;  // [18] 10 00 00 00
+    uint32 fogHospital1F_KitchenArrows             : 1;  // [18] 20 00 00 00
+    uint32 fogHospital1F_DirectorsOfficeBroken     : 1;  // [18] 40 00 00 00
+    uint32 fogHospital1F_DirectorsOfficeArrows     : 1;  // [18] 80 00 00 00
+    uint32 fogHospital1F_StairsLocked              : 1;  // [18] 00 01 00 00
+    uint32 fogHospital1F_StairsArrows              : 1;  // [18] 00 02 00 00
+    uint32 fogHospital1F_StairsBroken              : 1;  // [18] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_CorridorMidBroken         : 1;  // [18] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 fogHospital1F_RightEntranceBroken       : 1;  // [18] 00 40 00 00
+    uint32 fogHospital1F_RightEntranceArrows       : 1;  // [18] 00 80 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_CorridorLeftBroken        : 1;  // [18] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_ExaminationRoomLeftArrows : 1;  // [18] 00 00 00 80
+
+    uint32 altHospital1F_OfficeExaminationBroken   : 1;  // [19] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_ExaminationMedicineLocked : 1;  // [19] 04 00 00 00
+    uint32 altHospital1F_ExaminationMedicineArrows : 1;  // [19] 08 00 00 00
+    uint32 altHospital1F_MedicineRoomBotBroken     : 1;  // [19] 10 00 00 00
+    uint32 altHospital1F_MedicineRoomBotArrows     : 1;  // [19] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_StoreRoomArrows           : 1;  // [19] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_BotOfficeArrows           : 1;  // [19] 00 02 00 00
+    uint32 altHospital1F_DoctorOfficeBroken        : 1;  // [19] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_KitchenArrows             : 1;  // [19] 00 20 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_DirectorsOfficeArrows     : 1;  // [19] 00 80 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_StairsArrows              : 1;  // [19] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_CorridorMidArrows         : 1;  // [19] 00 00 08 00
+    uint32 altHospital1F_RightEntranceBroken       : 1;  // [19] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_MensBathroomBroken        : 1;  // [19] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 altHospital1F_WomensBathroomBroken      : 1;  // [19] 00 00 00 01
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospitalBF_StairsArrows              : 1;  // [20] 00 02 00 00
+    uint32 fogHospitalBF_MorgueBroken              : 1;  // [20] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 fogHospitalBF_StoreroomBroken           : 1;  // [20] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospitalBF_GeneratorRoomArrows       : 1;  // [20] 00 80 00 00
+    uint32 fogHospitalBF_BoilerBroken              : 1;  // [20] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospitalBF_StairsArrows              : 1;  // [20] 00 00 00 20
+    uint32 unused                                  : 1;
+    uint32 altHospitalBF_MorgueArrows              : 1;  // [20] 00 00 00 80
+
+    uint32 altHospitalBF_StoreroomLocked           : 1;  // [21] 01 00 00 00
+    uint32 altHospitalBF_StoreroomArrows           : 1;  // [21] 02 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospitalBF_GeneratorRoomArrows       : 1;  // [21] 08 00 00 00
+    uint32 altHospitalBF_BoilerRoomBroken          : 1;  // [21] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospital2F_NearElevatorBroken        : 1;  // [21] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 fogHospital3F_NearElevatorBroken        : 1;  // [21] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_NearElevatorLocked        : 1;  // [21] 00 00 00 10
+    uint32 altHospital2F_NearElevatorArrows        : 1;  // [21] 00 00 00 20
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_Room206Arrows             : 1;  // [21] 00 00 00 80
+
+    uint32 altHospital2F_Room205Broken             : 1;  // [22] 01 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_IntensiveCareUnitArrow    : 1;  // [22] 08 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_OperatingPrepRoomArrow    : 1;  // [22] 20 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_OperatingRoomArrow        : 1;  // [22] 80 00 00 00
+    uint32 altHospital2F_NurseCenterBotLocked      : 1;  // [22] 00 01 00 00
+    uint32 altHospital2F_NurseCenterBotArrows      : 1;  // [22] 00 02 00 00
+    uint32 altHospital2F_CorridorMidLocked         : 1;  // [22] 00 04 00 00
+    uint32 altHospital2F_CorridorMidArrows         : 1;  // [22] 00 08 00 00
+    uint32 altHospital2F_WomensBathroomBroken      : 1;  // [22] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_MensBathroomBroken        : 1;  // [22] 00 40 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_StairsArrows              : 1;  // [22] 00 00 02 00
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_Room201Arrows             : 1;  // [22] 00 00 08 00
+    uint32 altHospital2F_Room202Broken             : 1;  // [22] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_Room203Broken             : 1;  // [22] 00 00 40 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_Room204Arrows             : 1;  // [22] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 altHospital2F_NurseCenterLeftArrows     : 1;  // [22] 00 00 00 08
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_NearElevatorLocked        : 1;  // [23] 00 04 00 00
+    uint32 altHospital3F_NearElevatorArrows        : 1;  // [23] 00 08 00 00
+    uint32 altHospital3F_Room307Broken             : 1;  // [23] 00 10 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_Room306Arrows             : 1;  // [23] 00 80 00 00
+    uint32 altHospital3F_Room305Broken             : 1;  // [23] 00 00 01 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_StorageRoomArrows         : 1;  // [23] 00 00 08 00
+    uint32 altHospital3F_StoreRoomBroken           : 1;  // [23] 00 00 10 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_LinenRoomBotArrows        : 1;  // [23] 00 00 80 00
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_CorridorMidArrows         : 1;  // [23] 00 00 00 02
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_MensBathroomArrows        : 1;  // [23] 00 00 00 08
+    uint32 altHospital3F_WomensBathroomBroken      : 1;  // [23] 00 00 00 10
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_StairsArrows              : 1;  // [23] 00 00 00 80
+
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_Room301Arrows             : 1;  // [24] 02 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_Room302Arrows             : 1;  // [24] 08 00 00 00
+    uint32 altHospital3F_Room303Broken             : 1;  // [24] 10 00 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_Room304Arrows             : 1;  // [24] 80 00 00 00
+    uint32 unused                                  : 1;
+    uint32 altHospital3F_LinenRoomLeftArrows       : 1;  // [23] 00 02 00 00
+    uint32 altHospital3F_VideoSign                 : 1;  // [23] 00 04 00 00
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+    uint32 unused                                  : 1;
+};
+
 
 struct SH1Save {
     SH1Item      sh1Items[40];
@@ -327,365 +1164,8 @@ struct SH1Save {
     [5] 00 00 00 01 HANDGUN_BULLETS near Caffe on a bench to the right
     [5] 00 00 80 00 HANDGUN_BULLETS near Caffe on a bench to the left
     */
-    
-    
-    uint32    mapMarkingsFlags[25];
-    /*
-    [00] oldTown_BachmanRdTopCross               10 00 00 00
-    [00] oldTown_CofeArrowOnly                   40 00 00 00
-    [00] oldTown_CofeSignOnly                    00 01 00 00
-    [00] oldTown_CherylArrowAndSign              00 04 00 00
-    [00] oldTown_FinneyStLeftCross               00 10 00 00
-    [00] oldTown_MidwitchStTopCross              00 40 00 00
-    [00] oldTown_UntitledStLeftCross             00 00 01 00
-    [00] oldTown_MidwitchStBotCross              00 00 04 00
-    [00] oldTown_BradburyStMidCross              00 00 10 00
-    [00] oldTown_BradburyStLeftCross             00 00 40 00
-    [00] oldTown_BachmanRdBotCross               00 00 00 01
-    [00] oldTown_ElroyStBotCross                 00 00 00 04
-    [00] oldTown_BotRightHugeComboCross          00 00 00 10
-    [00] oldTown_ElroyStMidCross                 00 00 00 40
-                                                
-    [01] oldTown_BachmanRdMidCross               01 00 00 00
-    [01] oldTown_FinneyStRightCross              04 00 00 00
-    [01] oldTown_BlochStLeftCross                10 00 00 00
-    [01] oldTown_LevinStTopCross                 40 00 00 00
-    [01] oldTown_BlochStRightCross               00 01 00 00
-    [01] oldTown_LevinStBotCross                 00 04 00 00
-    [01] oldTown_LevinBlochBigCombo              00 10 00 00
-    [01] oldTown_MathesonStCross                 00 40 00 00
-    [01] oldTown_DoghouseArrowsOnly              00 00 01 00
-    [01] oldTown_KGordonArrowsOnly               00 00 04 00
-    [01] oldTown_FineyStRightKeyArrow            00 00 10 00
-    [01] oldTown_DogYardKeyLine                  00 00 40 00
-    [01] oldTown_EllroyStKeyCircle               00 00 00 01
-    [01] oldTown_BotBridgeCross                  00 00 00 04
-    [01] oldTown_BotBridgeCorrection             00 00 00 08
-    [01] oldTown_BotBridgeArrow                  00 00 00 10
-    [01] oldTown_BalkanChurchCircle              00 00 00 40
-    [01] oldTown_BalkanChurchCheck               00 00 00 80
-                                             
-    [02] oldTown_SchoolCircle                    04 00 00 00
-    [02] oldTown_SchoolCheck                     08 00 00 00
-    [02] oldTown_KGordonDotAndSignOnly           10 00 00 00
-    [02] oldTown_DoghouseDotOnly                 40 00 00 00
-    [02] fogCentralTown_AntiqueWholeSign         00 00 01 00
-    [02] fogCentralTown_HospitalCirlce           00 00 04 00
-    [02] fogCentralTown_CrichtonStTotBigCross    00 00 10 00
-    [02] fogCentralTown_CrichtonStBotBigCross    00 00 40 00
-    [02] fogCentralTown_SaganStBigCross          00 00 00 01
-    [02] fogCentralTown_KoontzStBigCross         00 00 00 04
-    [02] fogCentralTown_SimmonsStBigCross        00 00 00 10
-                                                 
-    [03] altCentralTown_AntiqueWholeSign         00 00 04 00
-    [03] altCentralTown_HospitalCircle           00 00 10 00
-    [03] altCentralTown_CrichtonStTopBigCross    00 00 40 00
-    [03] altCentralTown_CrichtonStBotBigCross    00 00 00 01
-    [03] altCentralTown_SimmonsStTopBigCross     00 00 00 04
-    [03] altCentralTown_SimmonsStMidCross        00 00 00 10
-    [03] altCentralTown_SimmonsStBotCross        00 00 00 40
-                                                
-    [04] altCentralTown_WilsonStCross            01 00 00 00
-    [04] altCentralTown_KoontzStBigCross         04 00 00 00
-    [04] altCentralTown_SaganStRightBigCross     10 00 00 00
-    [04] altCentralTown_SaganStLeftBigCross      40 00 00 00
-    [04] altCentralTown_ParkingLotBigCross       00 01 00 00
-    [04] altCentralTown_UntatiledStBotCross      00 04 00 00
-    [04] altCentralTown_CrichtonKoontzBigCross   00 40 00 00
-    [04] resortTown_BachmanRdCross               00 00 10 00
-    [04] resortTown_CraigStBigCross              00 00 40 00
-    [04] resortTown_EastGarageRightCross         00 00 00 01
-    [04] resortTown_EastGarageBotCross           00 00 00 04
-    [04] resortTown_SandfordStLeftBigCross       00 00 00 10
-    [04] resortTown_SandfordStRightCross         00 00 00 40
-                                             
-    [05] resortTown_LighthouseCircle             01 00 00 00
-    [05] resortTown_LighthouseCheck              02 00 00 00
-    [05] resortTown_ThemeParkArrow               04 00 00 00
-    [05] fogSchoolBF_StorageBroken               00 00 40 00
-    [05] fogSchoolBF_StorageArrows               00 00 80 00
-    [05] fogSchoolBF_BoilerRoomArrows            00 00 00 02
-                                                 
-    [06] altSchoolBF_StorageBroken               01 00 00 00
-    [06] altSchoolBF_StorageArrows               02 00 00 00
-    [06] altSchoolBF_BoilerRoomArrows            08 00 00 00
-    [06] fogSchool1F_EntranceArrows              00 08 00 00
-    [06] fogSchool1F_LobbyArrows                 00 20 00 00
-    [06] fogSchool1F_BotLeftCorridorLocked       00 40 00 00
-    [06] fogSchool1F_BotLeftCorridorArrows       00 80 00 00
-    [06] fogSchool1F_ReceptionBroken             00 00 01 00
-    [06] fogSchool1F_ReceptionArrows             00 00 02 00
-    [06] fogSchool1F_InfirmaryArrows             00 00 08 00
-    [06] fogSchool1F_CortyardBotBroken           00 00 10 00
-    [06] fogSchool1F_CortyardBotArrows           00 00 20 00
-    [06] fogSchool1F_BotRightCorridorLocked      00 00 40 00
-    [06] fogSchool1F_BotRightCorridorArrows      00 00 80 00
-    [06] fogSchool1F_TopRightCorridorLocked      00 00 00 01
-    [06] fogSchool1F_TopRightCorridorArrows      00 00 00 02
-    [06] fogSchool1F_HallMidBroken               00 00 00 04
-    [06] fogSchool1F_TopClassRoomTopBroken       00 00 00 10
-    [06] fogSchool1F_TopClassRoomTopArrows       00 00 00 20
-    [06] fogSchool1F_TopClassRoomBotBroken       00 00 00 40
-    [06] fogSchool1F_TopClassRoomBotBroken       00 00 00 80
 
-    [07] fogSchool1F_BotClassRoomTopBroken       01 00 00 00
-    [07] fogSchool1F_BotClassRoomTopArrows       02 00 00 00
-    [07] fogSchool1F_BotClassRoomBotBroken       04 00 00 00
-    [07] fogSchool1F_BotClassRoomBotArrows       08 00 00 00
-    [07] fogSchool1F_ClassRoomMidArrows          20 00 00 00
-    [07] fogSchool1F_CortyardTopArrows           80 00 00 00
-    [07] fogSchool1F_HallLeftBroken              00 01 00 00
-    [07] fogSchool1F_UntitledLobbyBotArrows      00 08 00 00
-    [07] fogSchool1F_StorageBroken               00 10 00 00
-    [07] fogSchool1F_TopLeftCorridorArrows       00 80 00 00
-    [07] fogSchool1F_UntitledLobbyTopBroken      00 00 01 00
-    [07] fogSchool1F_TopTeachersRoomTopBroken    00 00 04 00
-    [07] fogSchool1F_TopTeachersRoomBotBroken    00 00 10 00
-    [07] fogSchool1F_BotTeachersRoomTopBroken    00 00 40 00
-    [07] fogSchool1F_BotTeachersRoomBotBroken    00 00 00 01
-    [07] fogSchool1F_MensBathroomArrows          00 00 00 08
-    [07] fogSchool1F_WomensBathroomArrow         00 00 00 20
-    [07] fogSchool1F_ReceptionQuestion           00 00 00 40
-                                                 
-    [08] fogSchool1F_ClockTowerCircle            01 00 00 00
-    [08] fogSchool1F_BotLeftCorridorBroken       04 00 00 00
-    [08] fogSchool1F_TopRightCorridorBroken      10 00 00 00
-    [08] altSchool1F_LobbyBotBroken              00 00 00 01
-    [08] altSchool1F_LobbyTopArrows              00 00 00 08
-    [08] altSchool1F_BotLeftCorridorLocked       00 00 00 10
-    [08] altSchool1F_BotLeftCorridorArrows       00 00 00 20
-    [08] altSchool1F_ReceptionArrows             00 00 00 80
-
-    [09] altSchool1F_InfirmaryArrows             02 00 00 00
-    [09] altSchool1F_CortyardBotLocked           04 00 00 00
-    [09] altSchool1F_CortyardBotArrows           08 00 00 00
-    [09] altSchool1F_BotRightCorridorArrows      20 00 00 00
-    [09] altSchool1F_TopRightCorridorLocked      40 00 00 00
-    [09] altSchool1F_TopRightCorridorArrows      80 00 00 00
-    [09] altSchool1F_HallMidArrows               00 02 00 00
-    [09] altSchool1F_TopClassRoomTopArrows       00 08 00 00
-    [09] altSchool1F_TopClassRoomBotArrows       00 20 00 00
-    [09] altSchool1F_BotClassRoomTopBroken       00 40 00 00
-    [09] altSchool1F_BotClassRoomTopArrows       00 80 00 00
-    [09] altSchool1F_BotClassRoomBotArrows       00 00 02 00
-    [09] altSchool1F_ClassRoomMidArrows          00 00 08 00
-    [09] altSchool1F_CortyardTopArrows           00 00 20 00
-    [09] altSchool1F_HallLeftArrows              00 00 80 00
-    [09] altSchool1F_UntitledLobbyBotArrows      00 00 00 02
-    [09] altSchool1F_StorageArrows               00 00 00 08
-    [09] altSchool1F_TopLeftCorridorLocked       00 00 00 10
-    [09] altSchool1F_TopLeftCorridorArrows       00 00 00 20
-    [09] altSchool1F_TopTeachersRoomTopArrows    00 00 00 80
-                                                 
-    [10] altSchool1F_TopTeachersRoomBotBroken    01 00 00 00
-    [10] altSchool1F_BotTeachersRoomTopArrows    08 00 00 00
-    [10] altSchool1F_BotTeachersRoomBotArrows    20 00 00 00
-    [10] altSchool1F_MensBathroomArrows          80 00 00 00
-    [10] altSchool1F_WomensBathroomArrows        00 02 00 00
-    [10] altSchool1F_TeacherMidArrows            00 08 00 00
-    [10] altSchool1F_LeftMidCorridorBroken       00 10 00 00
-    [10] altSchool1F_RightCorridorMidBroken      00 40 00 00
-    [10] altSchool1F_RightCorridorBotLocked      00 00 01 00
-    [10] altSchool1F_RightCorridorBotArrows      00 00 02 00
-    [10] altSchool1F_CortyardQuestion            00 00 04 00
-    [10] altSchool1F_UntitledLobbyTopCross       00 00 10 00
-    [10] altSchool1F_SecretDoorLocked            00 00 40 00
-    [10] altSchool1F_SecretDoorArrows            00 00 80 00
-    [10] altSchool1F_RightCorridorBotDots        00 00 00 01
-
-    [11] fogSchool2F_BotLeftCorridorLocked       40 00 00 00
-    [11] fogSchool2F_BotLeftCorridorArrows       80 00 00 00
-    [11] fogSchool2F_MusicRoomArrows             00 02 00 00
-    [11] fogSchool2F_LockerRoomArrows            00 08 00 00
-    [11] fogSchool2F_BotRightCorridorBroken      00 10 00 00
-    [11] fogSchool2F_BotRightCorridorArrows      00 20 00 00
-    [11] fogSchool2F_TopRightCorridorBroken      00 40 00 00
-    [11] fogSchool2F_TopRightCorridorArrows      00 80 00 00
-    [11] fogSchool2F_LibraryBroken               00 00 01 00
-    [11] fogSchool2F_LibraryArrows               00 00 02 00
-    [11] fogSchool2F_TopRightClassRoomTopBroken  00 00 04 00
-    [11] fogSchool2F_TopRightClassRoomTopArrows  00 00 08 00
-    [11] fogSchool2F_TopRightClassRoomBotBroken  00 00 10 00
-    [11] fogSchool2F_TopRightClassRoomBotArrows  00 00 20 00
-    [11] fogSchool2F_BotRightClassRoomTopBroken  00 00 40 00
-    [11] fogSchool2F_BotRightClassRoomTopArrows  00 00 80 00
-    [11] fogSchool2F_BotRightClassRoomBotBroken  00 00 00 01
-    [11] fogSchool2F_BotRightClassRoomBotArrows  00 00 00 02
-    [11] fogSchool2F_RightClassRoomMidArrows     00 00 00 08
-    [11] fogSchool2F_LibraryReserveLocked        00 00 00 10
-    [11] fogSchool2F_LibraryReserveArrows        00 00 00 20
-    [11] fogSchool2F_ChemistryLabArrows          00 00 00 80
-                                                 
-    [12] fogSchool2F_LabEquipmentRoomArrows      02 00 00 00
-    [12] fogSchool2F_TopLeftArrows               08 00 00 00
-    [12] fogSchool2F_TopLeftClassRoomTopArrows   20 00 00 00
-    [12] fogSchool2F_TopLeftClassRoomBotArrows   80 00 00 00
-    [12] fogSchool2F_BotLeftClassRoomTopArrows   00 02 00 00
-    [12] fogSchool2F_BotLeftClassRoomBotArrows   00 08 00 00
-    [12] fogSchool2F_LeftClassRoomMidArrows      00 20 00 00
-    [12] fogSchool2F_MensBathroomArrows          00 80 00 00
-    [12] fogSchool2F_WomensBathroomArrows        00 00 02 00
-    [12] fogSchool2F_ReserveLibraryMidArrows     00 00 08 00
-    [12] fogSchool2F_StatueOfHandSign            00 00 10 00
-    [12] fogSchool2F_PianoSign                   00 00 40 00
-    [12] fogSchool2F_LockerRoomQuestion          00 00 00 01
-                                             
-    [13] altSchool2F_BotLeftCorridorArrows       00 02 00 00
-    [13] altSchool2F_MusicRoomBroken             00 04 00 00
-    [13] altSchool2F_LockerRoomArrows            00 20 00 00
-    [13] altSchool2F_BotRightCorridorLocked      00 40 00 00
-    [13] altSchool2F_BotRightCorridorArrows      00 80 00 00
-    [13] altSchool2F_TopRightCorridorLocked      00 00 01 00
-    [13] altSchool2F_TopRightCorridorArrows      00 00 02 00
-    [13] altSchool2F_LibraryArrows               00 00 08 00
-    [13] altSchool2F_TopRightClassRoomTopLocked  00 00 10 00
-    [13] altSchool2F_TopRightClassRoomTopArrows  00 00 20 00
-    [13] altSchool2F_TopRightClassRoomBotLocked  00 00 40 00
-    [13] altSchool2F_TopRightClassRoomBotArrows  00 00 80 00
-    [13] altSchool2F_BotRightClassRoomTopArrows  00 00 00 02
-    [13] altSchool2F_BotRightClassRoomBotArrows  00 00 00 08
-    [13] altSchool2F_RightClassRoomMidArrows     00 00 00 20
-    [13] altSchool2F_LibraryReserveLocked        00 00 00 40
-    [13] altSchool2F_LibraryReserveArrows        00 00 00 80
-                                                
-    [14] altSchool2F_ChemistryLabBroken          01 00 00 00
-    [14] altSchool2F_LabEquipmentRoomBroken      04 00 00 00
-    [14] altSchool2F_TopLeftCorridorArrows       20 00 00 00
-    [14] altSchool2F_TopLeftClassRoomTopArrows   80 00 00 00
-    [14] altSchool2F_TopLeftClassRoomBotArrows   00 02 00 00
-    [14] altSchool2F_BotLeftClassRoomTopArrows   00 08 00 00
-    [14] altSchool2F_BotLeftClassRoomBotArrows   00 20 00 00
-    [14] altSchool2F_LeftClassRoomMidArrows      00 80 00 00
-    [14] altSchool2F_MensBathroomArrows          00 00 02 00
-    [14] altSchool2F_WomensBathroomArrows        00 00 08 00
-    [14] altSchool2F_LeftCorridorMidBroken       00 00 10 00
-    [14] altSchool2F_LeftCorridorMidBroken       00 00 40 00
-    [14] altSchool2F_RightCorridorMidBroken      00 00 00 01
-    [14] altSchool2F_ReserveLibraryMidArrows     00 00 00 08
-                                             
-    [15] fogSchoolRF_RoofBroken                  00 04 00 00
-    [15] fogSchoolRF_RoofArrows                  00 08 00 00
-    [15] fogSchoolRF_ValveSign                   00 10 00 00
-    [15] altSchoolRF_RoofBroken                  00 00 04 00
-    [15] altSchoolRF_RoofArrows                  00 00 08 00
-    [15] altSchoolRF_ValveSign                   00 00 10 00
-    [15] fogSewer1F_MidLocked                    00 00 00 04
-    [15] fogSewer1F_MidArrows                    00 00 00 08
-    [15] fogSewer1F_RightMidLocked               00 00 00 10
-    [15] fogSewer1F_RightMidArrows               00 00 00 20
-    [15] fogSewer1F_RightTopLocked               00 00 00 40
-    [15] fogSewer1F_RightTopArrows               00 00 00 80
-                                                 
-    [16] fogSewer1F_RightBotLocked               01 00 00 00
-    [16] fogSewer1F_RightBotArrows               02 00 00 00
-    [16] fogSewer2F_OuterRightLocked             00 40 00 00
-    [16] fogSewer2F_OuterRightArrows             00 80 00 00
-    [16] fogSewer2F_MidRightLocked               00 00 01 00
-    [16] fogSewer2F_MidRightArrows               00 00 02 00
-    [16] fogSewer2F_MidLeftLocked                00 00 04 00
-    [16] fogSewer2F_MidLeftArrows                00 00 08 00
-    [16] fogSewer2F_OuterLeftLocked              00 00 10 00
-    [16] fogSewer2F_OuterLeftArrows              00 00 20 00
-    [16] fogSewer2F_BigCross                     00 00 40 00
-    
-    [17] altSewer_BigCross                       40 00 00 00
-    [17] fogHospital1F_CorridorLeftBroken        00 00 01 00
-    [17] fogHospital1F_ExaminationRoomLeftArrows 00 00 08 00
-    [17] fogHospital1F_ReceptionOfficeArrows     00 00 20 00
-    [17] fogHospital1F_OfficeExaminationArrows   00 00 80 00
-    [17] fogHospital1F_ExaminationMedicineArrows 00 00 00 02
-    [17] fogHospital1F_MedicineRoomBotArrows     00 00 00 08
-    [17] fogHospital1F_StorageRoomBroken         00 00 00 10
-    [17] fogHospital1F_BotOfficeBroken           00 00 00 40
-    
-    [18] fogHospital1F_DoctorConferenceArrows    02 00 00 00
-    [18] fogHospital1F_DoctorOfficeLeftBroken    04 00 00 00
-    [18] fogHospital1F_DoctorOfficeLeftArrows    08 00 00 00
-    [18] fogHospital1F_KitchenBroken             10 00 00 00
-    [18] fogHospital1F_KitchenArrows             20 00 00 00
-    [18] fogHospital1F_DirectorsOfficeBroken     40 00 00 00
-    [18] fogHospital1F_DirectorsOfficeArrows     80 00 00 00
-    [18] fogHospital1F_StairsLocked              00 01 00 00
-    [18] fogHospital1F_StairsArrows              00 02 00 00
-    [18] fogHospital1F_StairsBroken              00 04 00 00
-    [18] fogHospital1F_CorridorMidBroken         00 10 00 00
-    [18] fogHospital1F_RightEntranceBroken       00 40 00 00
-    [18] fogHospital1F_RightEntranceArrows       00 80 00 00
-    [18] altHospital1F_CorridorLeftBroken        00 00 00 10
-    [18] altHospital1F_ExaminationRoomLeftArrows 00 00 00 80
-
-    [19] altHospital1F_OfficeExaminationBroken   01 00 00 00
-    [19] altHospital1F_ExaminationMedicineLocked 04 00 00 00
-    [19] altHospital1F_ExaminationMedicineArrows 08 00 00 00
-    [19] altHospital1F_MedicineRoomBotBroken     10 00 00 00
-    [19] altHospital1F_MedicineRoomBotArrows     20 00 00 00
-    [19] altHospital1F_StoreRoomArrows           80 00 00 00
-    [19] altHospital1F_BotOfficeArrows           00 02 00 00
-    [19] altHospital1F_DoctorOfficeBroken        00 04 00 00
-    [19] altHospital1F_KitchenArrows             00 20 00 00
-    [19] altHospital1F_DirectorsOfficeArrows     00 80 00 00
-    [19] altHospital1F_StairsArrows              00 00 02 00
-    [19] altHospital1F_CorridorMidArrows         00 00 08 00
-    [19] altHospital1F_RightEntranceBroken       00 00 10 00
-    [19] altHospital1F_MensBathroomBroken        00 00 40 00
-    [19] altHospital1F_WomensBathroomBroken      00 00 00 01
-
-    [20] fogHospitalBF_StairsArrows              00 02 00 00
-    [20] fogHospitalBF_MorgueBroken              00 04 00 00
-    [20] fogHospitalBF_StoreroomBroken           00 10 00 00
-    [20] fogHospitalBF_GeneratorRoomArrows       00 80 00 00
-    [20] fogHospitalBF_BoilerBroken              00 00 01 00
-    [20] altHospitalBF_StairsArrows              00 00 00 20
-    [20] altHospitalBF_MorgueArrows              00 00 00 80
-
-    [21] altHospitalBF_StoreroomLocked           01 00 00 00
-    [21] altHospitalBF_StoreroomArrows           02 00 00 00
-    [21] altHospitalBF_GeneratorRoomArrows       08 00 00 00
-    [21] altHospitalBF_BoilerRoomBroken          10 00 00 00
-    [21] fogHospital2F_NearElevatorBroken        00 00 01 00
-    [21] fogHospital3F_NearElevatorBroken        00 00 40 00
-    [21] altHospital2F_NearElevatorLocked        00 00 00 10
-    [21] altHospital2F_NearElevatorArrows        00 00 00 20
-    [21] altHospital2F_Room206Arrows             00 00 00 80
-
-    [22] altHospital2F_Room205Broken             01 00 00 00
-    [22] altHospital2F_IntensiveCareUnitArrow    08 00 00 00
-    [22] altHospital2F_OperatingPrepRoomArrow    20 00 00 00
-    [22] altHospital2F_OperatingRoomArrow        80 00 00 00
-    [22] altHospital2F_NurseCenterBotLocked      00 01 00 00
-    [22] altHospital2F_NurseCenterBotArrows      00 02 00 00
-    [22] altHospital2F_CorridorMidLocked         00 04 00 00
-    [22] altHospital2F_CorridorMidArrows         00 08 00 00
-    [22] altHospital2F_WomensBathroomBroken      00 10 00 00
-    [22] altHospital2F_MensBathroomBroken        00 40 00 00
-    [22] altHospital2F_StairsArrows              00 00 02 00
-    [22] altHospital2F_Room201Arrows             00 00 08 00
-    [22] altHospital2F_Room202Broken             00 00 10 00
-    [22] altHospital2F_Room203Broken             00 00 40 00
-    [22] altHospital2F_Room204Arrows             00 00 00 02
-    [22] altHospital2F_NurseCenterLeftArrows     00 00 00 08
-
-    [23] altHospital3F_NearElevatorLocked        00 04 00 00
-    [23] altHospital3F_NearElevatorArrows        00 08 00 00
-    [23] altHospital3F_Room307Broken             00 10 00 00
-    [23] altHospital3F_Room306Arrows             00 80 00 00
-    [23] altHospital3F_Room305Broken             00 00 01 00
-    [23] altHospital3F_StorageRoomArrows         00 00 08 00
-    [23] altHospital3F_StoreRoomBroken           00 00 10 00
-    [23] altHospital3F_LinenRoomBotArrows        00 00 80 00
-    [23] altHospital3F_CorridorMidArrows         00 00 00 02
-    [23] altHospital3F_MensBathroomArrows        00 00 00 08
-    [23] altHospital3F_WomensBathroomBroken      00 00 00 10
-    [23] altHospital3F_StairsArrows              00 00 00 80
-
-    [24] altHospital3F_Room301Arrows             02 00 00 00
-    [24] altHospital3F_Room302Arrows             08 00 00 00
-    [24] altHospital3F_Room303Broken             10 00 00 00
-    [24] altHospital3F_Room304Arrows             80 00 00 00
-    [23] altHospital3F_LinenRoomLeftArrows       00 02 00 00
-    [23] altHospital3F_VideoSign                 00 04 00 00
-    */
-
+    MapMarkingsFlags mapMarkingsFlags;
     uint32    field_238;
     uint16    pickedUpItemCount;
     ubyte     field_23E;
