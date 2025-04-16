@@ -146,14 +146,20 @@ enum <int8> Commands {
 // Structs
 //------------------------------------------------
 
-typedef int32 q20_12 <read=Str("%lg", this / 4096.0),
-                     write=(this = Atof(value) * 4096.0)>;
+typedef int32 q20_12     <read=Str("%lg", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+                     
+typedef int16  q4_12     <read=Str("%lg", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+                      
+typedef int16  q4_12_deg <read=Str("%lg deg", this / 4096.0 * 360),
+                         write=(this = Atof(value) * 4096.0 / 360.0)>;
 
 struct SaveLoadScreen {
     uint16    totalSavesCount;    // probaly total count on all playthroughs
     uint16    unk_02;
     q20_12    gameplayTimer;
-    uint16    savesCount;         // only counts on current playthrough
+    uint16    savesCount;         // only counts on current playthrough, on screen range [0, 999], real range: s16
     SaveTitle saveTitle;
     uint8     isTitleYellowFlag;
 };
@@ -275,32 +281,31 @@ struct HasMapsFlags {
 struct MapMarkingsFlags {
     /*
     Table of Content:
-
-    [00] u32 oldTown
-    [01] u32 oldTown
-    [02] u32 oldTown_fogCentralTown
-    [03] u32 altCentralTown
-    [04] u32 altCentralTown_resortTown
-    [05] u32 resortTown_fogSchoolBF
-    [06] u32 altSchoolBF_fogSchool1F
-    [07] u32 fogSchool1F
-    [08] u32 fogSchool1F_altSchool1F
-    [09] u32 altSchool1F
-    [10] u32 altSchool1F
-    [11] u32 fogSchool2F
-    [12] u32 fogSchool2F
-    [13] u32 altSchool2F
-    [14] u32 altSchool2F
-    [15] u32 fogSchoolRF_altSchoolRF_fogSewer1F
-    [16] u32 fogSewer1F_fogSewer2F
-    [17] u32 altSewer_fogHospotal1F
-    [18] u32 fogHospotal1F_altHospotal1F
-    [19] u32 altHospotal1F
-    [20] u32 fogHospotalBF_altHospotalBF
-    [21] u32 altHospotalBF_fogHospotal2F_fogHospotal3F_altHospotal2F
-    [22] u32 altHospotal2F
-    [23] u32 altHospotal3F
-    [24] u32 altHospotal3F
+        [00] u32 - old town
+        [01] u32 - old town
+        [02] u32 - old town - fog central town
+        [03] u32 - alt central town
+        [04] u32 - alt central town - resort town
+        [05] u32 - resort town - fog School BF
+        [06] u32 - alt school BF - fog school 1F
+        [07] u32 - fog school 1F
+        [08] u32 - fog school 1F - alt school 1F
+        [09] u32 - alt school 1F
+        [10] u32 - alt school 1F
+        [11] u32 - fog school 2F
+        [12] u32 - fog school 2F
+        [13] u32 - alt school 2F
+        [14] u32 - alt school 2F
+        [15] u32 - fog school RF - alt school RF - fog sewer 1F
+        [16] u32 - fog sewer 1F - fog sewer 2F
+        [17] u32 - alt sewer - fog hospital 1F
+        [18] u32 - fog hospital 1F - alt hospital 1F
+        [19] u32 - alt hospital 1F
+        [20] u32 - fog hospital BF - alt hospital BF
+        [21] u32 - alt hospital BF - fog hospital 2F - fog hospital 3F - alt - hospital 2F
+        [22] u32 - alt hospital 2F
+        [23] u32 - alt hospital 3F
+        [24] u32 - alt hospital 3F
     */
     uint32 unused                                  : 1;
     uint32 unused                                  : 1;
@@ -1107,52 +1112,99 @@ struct MapMarkingsFlags {
     uint32 unused                                  : 1;
 };
 
-
 struct SH1Save {
     SH1Item      sh1Items[40];
     char         unkPadding[4];
-    ubyte        unkMapOverlayIdx;  // mapOverlayIdx
-    ubyte        field_A5;
+    ubyte        unkMapOverlayIdx;  // mapOverlayIdx - only on load
+    /*
+    15 - 
+    16 - trigger: after exiting Kaufman cutscene room in hospital through any door
+    */
+    
+    ubyte        field_A5;          // roomIdx?
     uint16       savesCount;
-    SaveTitle    saveTitle;         // mapEventIdx
+    SaveTitle    saveTitle;         // mapEventIdx - only on load
     uint8        unkMapIdx;         // mapIdx
-    ItemID       equippedWeapon;    // default: 0
+    ItemID       equippedWeapon;    // default: 0, effects only the visible player weapon model
     ubyte        field_AB;
     uint32       flags_AC;
     uint32       field_B0[45];      // FF
     HasMapsFlags hasMapsFlags;
     uint32       eventFlags[6];
     /*
-    [0] 02 00 00 00 In game Intro
-    [0] 03 00 00 00 after founding Cheryl
+    [0] 01 00 00 00 Event: Brahams Rd. top cross reading // alley map back gate reading // retuirning to alley 2 from alley 3 // resets to 0x1 in cofe after examining the door
+    [0] 02 00 00 00 Event: first In game Intro
+    [0] 04 00 00 00 Event: first Cheryl cut-scene encounter
+    [0] 08 00 00 00 Event: Cheryl cut-scene encounter after FMV
+  ->[0] 30 00 00 00 Event: Cheryl first run spawn
+    [0] 40 00 00 00 Event: Cheryl first run despawn
+    [0] 80 00 00 00 Event: Cheryl second run spawn, after first few seconds
+    [0] 00 01 00 00 Event: Cheryl second run spawn, first few seconds
+    [0] 00 02 00 00 Event: Cheryl second run despawn
+    [0] 00 04 00 00 Event: Cheryl corner spawn
+    [0] 00 08 00 00 Event: Cheryl corner despawn
+    [0] 00 10 00 00 Event: spawn no return in alley invis wall
+    [0] 00 20 00 00 Event: entering alley 1st map
+    [0] 00 40 00 00 Event: entering alley 2nd map, first few secons
+    [0] 00 80 00 00 Event: lighter cut-scene first few seconds
+    [0] 00 00 01 00 Event: lighter cut-scene after few seconds
+    [0] 00 00 02 00 Event: lighter cut-scene actual ligher action
+    [0] 00 00 04 00 Event: entering alley 2nd map, after a few secons
+    [0] 00 00 08 00 Event: no return wall examination in alley 2nd map
+    [0] 00 00 10 00 Event: alley morgue music trigger // disapears at the nebinning of death animation
+    [0] 00 00 20 00 Event: alley 2nd music trigger
+    [0] 00 00 40 00 Event: alley 3rd music trigger
+    [0] 00 00 80 00 Event: alley 4th music trigger
+    [0] 00 00 00 01 Event: final alley cut-scene first few seconds
+    [0] 00 00 00 02 Event: final alley cut-scene after few seconds
+    [0] 00 00 00 04 Event: final alley cut-scene after more few seconds
+
+    [1] 08 00 00 00 Pick-up: KITCHEN_KNIFE
+    [1] 10 00 00 00 Pick-up: FLASHLIGHT
+    [1] 20 00 00 00 Pick-up: RADIO
+    [1] 40 00 00 00 Event: Map pick up camera begins
+    [1] 80 00 00 00 Event: Cofe in-game cutscene
+    [1] 00 01 00 00 Event: Cofe FMV
+  ->[1] 00 06 00 00 Event: Map pick up camera ends
+    [1] 00 08 00 00 Event: Cofe exit door spawn
+    [1] 00 20 00 00 Event: bird scene 2nd camera and wall despawn
+    [1] 00 40 00 00 Event: bird scene 3rd camera
+    [1] 00 80 00 00 Event: broken windows and maybe bird spawn
+    [1] 00 00 02 00 Event: stops cut scene music
+  ->[1] 00 00 14 00 Event: bird scene start // somethinds resets
+    [1] 00 00 00 01 Event: "this is not a dream" talk
+    [1] 00 00 00 08 Event: after "this is not a dream" talk
+
+    0x16efd8 after cutscene
+    0x01efd8 when defeat talking
+    0x09efd8 music stops
+    0x09eff8 after radio pick up
+ 
+    --------------
+    [2] 08 00 00 00 school map pick up
     
-    [1] 80 01 02 00 original
-    [1] 88 01 02 00 when picked up KITCHEN_KNIFE
-    [1] 90 01 02 00 when picked up FLASHLIGHT
-    [1] D0 07 02 00 when picked up FLASHLIGHT and MAP
-    [1] D8 0F 02 00 when picked up FLASHLIGHT and MAP and KITCHEN_KNIFE
-    
-    first byte:
-    KITCHEN_KNIFE 00001000
-    FLASHLIGHT    00010000
-    MAP_IN_CAFE   01000000
-    CAFE_EVENT    10000000
-    
-    second byte:
-    00001000 picked all necesery items to go outside?
+    [5] 00 08 00 00 centralTown map pick up in Bridge or Police station
     */
     
     uint32    field_180[2];
     /*
-    [0] 80 00 00 00 FIRST_AID_KIT fog hospital reception
-    [0] 00 08 00 00 fog hospital medicine room newspaper (unpickable, but registrable)
-    [0] 00 80 00 00 hospital map pick up
+    [0] 01 00 00 00 Event: Gunshots outside hospital in CentralTown map
+    [0] 08 00 00 00 Event: Kaufman FMV
+    [0] 10 00 00 00 Event: Kaufman in game cutscene start
+    [0] 20 00 00 00 Event: Kaufman in game cutscene end
+    [0] 40 00 00 00 Event: Kaufman in game cutscene as he picks up breafcase
+    [0] 80 00 00 00 Pick-up: FIRST_AID_KIT fog hospital reception
+    [0] 00 01 00 00 Event: Corridor gunshot
+    [0] 00 08 00 00 Pick-up: fog hospital medicine room newspaper (unpickable, but registrable)
+    [0] 00 80 00 00 Pick-up: hospital map pick up excluding basement
+    [0] 00 00 01 00 Pick-up: hospital BF map pick up
     */
     
     uint32    field_188;
     uint32    field_18C;
     uint32    field_190[4];
     /*
+    [1] 00 00 04 00 resortTown map pick up
     [3] 00 00 10 00 altSewer map pick up
     */
     
@@ -1166,24 +1218,23 @@ struct SH1Save {
     */
 
     MapMarkingsFlags mapMarkingsFlags;
-    uint32    field_238;
-    uint16    pickedUpItemCount;
-    ubyte     field_23E;
-    ubyte     field_23F;;
-    q20_12    playerHealth;        // default: 100
-    q20_12    playerPositionX;
-    int16     playerRotationY      <read=Str("%lg deg", this / 4096.0 * 360),
-                                   write=(this = Atof(value) * 4096.0 / 360.0)>; // Positive Z: 0, clockwise rotation
-    ubyte     unk_4[2];
-    q20_12    playerPositionZ;
-    q20_12    gameplayTimer;
-    q20_12    runDistance;
-    q20_12    walkDistance;
-
-    uint8     unk_pad;
-    uint16    meleeKills;
-    uint8     rangedKills;
-    uint32    unkDifficulity;  // Packed data. Stores game difficulty and something else.
+    uint32           field_238;
+    uint16           pickedUpItemCount;
+    ubyte            field_23E;
+    ubyte            field_23F;;
+    q20_12           playerHealth;       // default: 100
+    q20_12           playerPositionX;
+    q4_12_deg        playerRotationY;    // Positive Z: 0, clockwise rotation
+    ubyte            unk_4[2];           // clearedGamesCount?
+    q20_12           playerPositionZ;
+    q20_12           gameplayTimer;      // doesn't stop at PAUSE or inventory screen
+    q20_12           runDistance;
+    q20_12           walkDistance;
+                     
+    uint8            unk_pad;
+    uint16           meleeKills;
+    uint8            rangedKills;
+    uint32           unkDifficulity;  // Packed data. Stores game difficulty and something else.
     /*
     dificulity modifier?
     Easy:   00 00 00 F0 // -16
