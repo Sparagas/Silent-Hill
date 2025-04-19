@@ -149,10 +149,10 @@ enum <int8> Commands {
 typedef int32 q20_12     <read=Str("%lg", this / 4096.0),
                          write=(this = Atof(value) * 4096.0)>;
                      
-typedef int16  q4_12     <read=Str("%lg", this / 4096.0),
+typedef int16 q4_12      <read=Str("%lg", this / 4096.0),
                          write=(this = Atof(value) * 4096.0)>;
                       
-typedef int16  q4_12_deg <read=Str("%lg deg", this / 4096.0 * 360),
+typedef int16 q4_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
                          write=(this = Atof(value) * 4096.0 / 360.0)>;
 
 struct SaveLoadScreen {
@@ -233,7 +233,7 @@ struct SH1GlobalOptions {
     uint8            walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
     uint8            autoAiming;           // On: 0, Off: 1, default: On
     uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
-    ubyte            unk1[2];              // Looks like non-zero values in "Next Fear" mode.
+    uint16           seenGameOverTips;     // resets after picking all 15
     ubyte            Padding[76];
     ubyte            xor[2];
     ubyte            end_dc[2];
@@ -1171,7 +1171,7 @@ struct SH1Save {
     [1] 00 40 00 00 Event: bird scene 3rd camera
     [1] 00 80 00 00 Event: broken windows and maybe bird spawn
     [1] 00 00 02 00 Event: stops cut scene music
-  ->[1] 00 00 14 00 Event: bird scene start // somethinds resets
+  ->[1] 00 00 14 00 Event: bird scene start // something resets
     [1] 00 00 00 01 Event: "this is not a dream" talk
     [1] 00 00 00 08 Event: after "this is not a dream" talk
 
@@ -1259,10 +1259,15 @@ struct SH1Save {
     ubyte     end_dc[2];
 };
 
-/*
-// for now as a quick script hack, this part is moved to ps1_memory_card.bt
-SH1Header         sh1Header;
-SH1GlobalOptions  sh1GlobalOptions;
-SH1Save           sh1Saves[11];
-Sector            unkDummySector[2];
-*/
+struct Sector;
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+struct SilentHillSave {
+    SH1Header         sh1Header;
+    SH1GlobalOptions  sh1GlobalOptions;
+    SH1Save           sh1Saves[11];
+    Sector            unkDummySector[2];
+};

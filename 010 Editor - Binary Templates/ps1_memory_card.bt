@@ -6,8 +6,8 @@
 //   Version: 0.0
 //   Purpose: Parse Sony - PlayStation Memory Card.
 //  Category: Game
-// File Mask: 
-//  ID Bytes: 
+// File Mask: *mcr,*.mcd,*.vm1
+//  ID Bytes: 4D 43 //MC
 //   History: 
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
@@ -28,7 +28,6 @@ enum BlockListInformation {
     DELETED_HEADER_BLOCK       = 0xA1,
     DELETED_INTERMEDIATE_BLOCK = 0xA2,
     DELETED_END_BLOCK          = 0xA3
-
 };
 
 enum <uint8> IconDisplayFlag {
@@ -36,7 +35,6 @@ enum <uint8> IconDisplayFlag {
     ICON_HAS_1_STATIC_FRAME    = 0x11,
     ICON_HAS_2_ANIMATED_FRAMES = 0x12,
     ICON_HAS_3_ANIMATED_FRAMES = 0x13
-
 };
 
 enum <char> CountryCode {
@@ -111,18 +109,6 @@ struct index {
     uint8 index2 : 4;
 };
 
-struct UserData {
-    // a little hack to work for now. Should search for known save data types
-    if ("SILENT00" == "SILENT00") {  /* blockInformationSectors[i].identifier doesn't work for some reason */
-        SH1Header         sh1Header;
-        SH1GlobalOptions  sh1GlobalOptions;
-        SH1Save           sh1Saves[11];
-        Sector            unkDummySector[2];
-    } else
-        ubyte unknownGame[7680];
-
-};
-
 struct SaveBlock {
     if (ReadString(FTell(), 2) != "SC")
         Sector unformatedSectors[64];
@@ -140,7 +126,11 @@ struct SaveBlock {
         index           iconFrame1Indices[128];
         index           iconFrame2Indices[128];
         index           iconFrame3Indices[128];
-        UserData        userData;
+
+        if (Memcmp(headerBlock.blockInformationSectors[i].identifier, "SILENT", 6) == 0)
+            SilentHillSave silentHillSave;
+        else
+            ubyte unknownGameSave[7680];
     }
 };
 
@@ -149,5 +139,9 @@ struct SaveBlock {
 //------------------------------------------------
 
 SetFileCharSet(CHARSET_JAPANESE);
-struct HeaderBlock headerBlock;
-struct SaveBlock   saveBlocks[15] <optimize=false>;
+
+HeaderBlock headerBlock;
+
+local int i;
+for (i = 0; i < 15; i++)
+    SaveBlock saveBlocks;
