@@ -210,8 +210,8 @@ struct ControllerConfig {
 };
 
 struct ScreenPosition {
-    int8  screenPosX;  // Range: [-11, 11], default: 0
-    int8  screenPosY;  // Range: [-8, 8], default: 0
+    int8 screenPosX;  // Range: [-11, 11], default: 0
+    int8 screenPosY;  // Range: [-8, 8], default: 0
 };
 
 struct SH1GlobalOptions {
@@ -225,7 +225,7 @@ struct SH1GlobalOptions {
     uint8            weaponControl;        // Switch: 0, Press: 1, default: Press
     uint8            bloodColor;           // Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal
     uint8            autoLoad;             // Off: 0, On: 1, default: Off
-    ubyte            unk_26;               
+    ubyte            unk_26;
     uint8            ExtraOptionsEnabled;  // for some reason it is not 1 when enabled?
     uint8            viewControl;          // Normal: 0, Reverse: 1, default: Normal
     ubyte            secretViewMode;       // Normal: 0, Self View: 1, default: Normal
@@ -234,7 +234,9 @@ struct SH1GlobalOptions {
     uint8            autoAiming;           // On: 0, Off: 1, default: On
     uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
     uint16           seenGameOverTips;     // resets after picking all 15
-    ubyte            Padding[76];
+    ubyte            padding_30[4];
+    uint8            palLanguage;
+    ubyte            padding_34[71];
     ubyte            xor[2];
     ubyte            end_dc[2];
 };
