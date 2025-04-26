@@ -48,11 +48,11 @@ enum <char> CountryCode {
 //------------------------------------------------
 
 struct HeaderSector {
-    char magic[2];
+    char  magic[2];
     Assert(magic == "MC");
     ubyte padding[125];
-    uint8 checksumXOR;
-    // Assert(checksumXOR ==);
+    uint8 checksumXor;
+    Assert(checksumXor == checksumXorCheck(127));
 };
 
 struct BlockInformationSector {
@@ -69,8 +69,8 @@ struct BlockInformationSector {
     ubyte                reserved;
     ubyte                padding[94];
     uint8                pdaApplication;
-    uint8                checksumXOR;
-    // Assert(checksumXOR ==);
+    uint8                checksumXor;
+    Assert(checksumXor == checksumXorCheck(127));
 };
 
 struct AlternateInformationSector {
@@ -78,20 +78,20 @@ struct AlternateInformationSector {
     int32 fileSize;
     int16 nextBlock;
     ubyte padding1[117];
-    uint8 checksumXOR;
-    // Assert(checksumXOR ==);
+    uint8 checksumXor;
+    Assert(checksumXor == checksumXorCheck(127));
 };
 
-struct Sector {
+struct Sector{
     ubyte data[127];
-    uint8 checksumXOR;
-    // Assert(checksumXOR ==);
+    uint8 checksumXor;
+    //Assert(checksumXor == checksumXorCheck(127));
 };
 
 struct HeaderBlock {
     HeaderSector               headerSector;
-    BlockInformationSector     blockInformationSectors[15] <optimize=false>;
-    AlternateInformationSector alternateInformationSectors[20];
+    BlockInformationSector     blockInformationSectors[15]     <optimize=false>;
+    AlternateInformationSector alternateInformationSectors[20] <optimize=false>;
     Sector                     alternateSectors[20];
     Sector                     reservedSectors[7];
     Sector                     dummyWriteSector;
@@ -132,6 +132,28 @@ struct SaveBlock {
         else
             ubyte unknownGameSave[7680];
     }
+};
+
+//------------------------------------------------
+// Functions
+//------------------------------------------------
+
+int checksumXorGenerate(int size) {
+    FSkip(-size);
+    local uint8  checksum;
+    local int    i;
+    for (i = 0; i < size; i++) {
+        checksum ^= ReadUByte();
+        FSkip(1);
+    }
+    return checksum;
+};
+
+int checksumXorCheck(int size) {
+    FSkip(-1);
+    local uint8 checksum = checksumXorGenerate(size);
+    FSkip(1);
+    return checksum;
 };
 
 //------------------------------------------------

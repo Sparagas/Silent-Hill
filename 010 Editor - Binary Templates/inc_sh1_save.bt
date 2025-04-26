@@ -13,6 +13,17 @@
 //------------------------------------------------
 
 
+typedef int32 q20_12     <read=Str("%lg", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+                     
+typedef int16 q4_12      <read=Str("%lg", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+                      
+typedef int16 q4_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
+                         write=(this = Atof(value) * 4096.0 / 360.0)>;
+
+struct Sector;
+
 //------------------------------------------------
 // Enums
 //------------------------------------------------
@@ -146,15 +157,6 @@ enum <int8> Commands {
 // Structs
 //------------------------------------------------
 
-typedef int32 q20_12     <read=Str("%lg", this / 4096.0),
-                         write=(this = Atof(value) * 4096.0)>;
-                     
-typedef int16 q4_12      <read=Str("%lg", this / 4096.0),
-                         write=(this = Atof(value) * 4096.0)>;
-                      
-typedef int16 q4_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
-                         write=(this = Atof(value) * 4096.0 / 360.0)>;
-
 struct SaveLoadScreen {
     uint16    totalSavesCount;    // probaly total count on all playthroughs
     uint16    unk_02;
@@ -168,8 +170,14 @@ struct SH1Header {
     char           unkPadding[4];
     SaveLoadScreen saveLoadScreen[11];
     ubyte          padding[116];
-    ubyte          xor[2];
+
+    uint8          checksumXor[2];
+    Assert(checksumXor[0] == checksumXor[1]
+        && checksumXor[1] == sHchecksumXorCheck(252));
+
     ubyte          end_dc[2];
+    Assert(end_dc[0] == end_dc[1]
+        && end_dc[1] == 0xDC);
 };
 
 struct Buttons {
@@ -237,8 +245,13 @@ struct SH1GlobalOptions {
     ubyte            padding_30[4];
     uint8            palLanguage;
     ubyte            padding_34[71];
-    ubyte            xor[2];
+    uint8            checksumXor[2];
+    Assert(checksumXor[0] == checksumXor[1]
+        && checksumXor[1] == sHchecksumXorCheck(124));
+
     ubyte            end_dc[2];
+    Assert(end_dc[0] == end_dc[1]
+        && end_dc[1] == 0xDC);
 };
 
 struct SH1Item {
@@ -1257,11 +1270,25 @@ struct SH1Save {
     uint16    field_278;
     ubyte     field_27A;
     ubyte     continueCount;
-    ubyte     xor[2];
+    uint8     checksumXor[2];
+    //Assert(checksumXor[0] == checksumXor[1]
+        //&& checksumXor[1] == sHchecksumXorCheck(636));
+
     ubyte     end_dc[2];
+    //Assert(end_dc[0] == end_dc[1]
+        //&& end_dc[1] == 0xDC);
 };
 
-struct Sector;
+//------------------------------------------------
+// Functions
+//------------------------------------------------
+
+int sHchecksumXorCheck(int size) {
+    FSkip(-2);
+    local uint8 checksum = checksumXorGenerate(size);
+    FSkip(2);
+    return checksum;
+};
 
 //------------------------------------------------
 // Main
