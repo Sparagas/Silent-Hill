@@ -222,7 +222,7 @@ struct ScreenPosition {
     int8 screenPosY;  // Range: [-8, 8], default: 0
 };
 
-struct SH1GlobalOptions {
+struct ShSaveUserConfig {
     ControllerConfig controllerConfig;
     ScreenPosition   screenPosition;
     uint8            sound;                // Stereo: 0, Monaural: 1, default: Stereo
@@ -243,8 +243,12 @@ struct SH1GlobalOptions {
     uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
     uint16           seenGameOverTips;     // resets after picking all 15
     ubyte            padding_30[4];
-    uint8            palLanguage;
-    ubyte            padding_34[71];
+    uint32           palLanguage;
+};
+
+struct ShSaveUserConfigContainer {
+    ShSaveUserConfig shSaveUserConfig <open=true>;
+    ubyte            padding_38[68];
     uint8            checksumXor[2];
     Assert(checksumXor[0] == checksumXor[1]
         && checksumXor[1] == sHchecksumXorCheck(124));
@@ -296,31 +300,31 @@ struct HasMapsFlags {
 struct MapMarkingsFlags {
     /*
     Table of Content:
-        [00] u32 - old town
-        [01] u32 - old town
-        [02] u32 - old town - fog central town
-        [03] u32 - alt central town
-        [04] u32 - alt central town - resort town
-        [05] u32 - resort town - fog School BF
-        [06] u32 - alt school BF - fog school 1F
-        [07] u32 - fog school 1F
-        [08] u32 - fog school 1F - alt school 1F
-        [09] u32 - alt school 1F
-        [10] u32 - alt school 1F
-        [11] u32 - fog school 2F
-        [12] u32 - fog school 2F
-        [13] u32 - alt school 2F
-        [14] u32 - alt school 2F
-        [15] u32 - fog school RF - alt school RF - fog sewer 1F
-        [16] u32 - fog sewer 1F - fog sewer 2F
-        [17] u32 - alt sewer - fog hospital 1F
-        [18] u32 - fog hospital 1F - alt hospital 1F
-        [19] u32 - alt hospital 1F
-        [20] u32 - fog hospital BF - alt hospital BF
-        [21] u32 - alt hospital BF - fog hospital 2F - fog hospital 3F - alt - hospital 2F
-        [22] u32 - alt hospital 2F
-        [23] u32 - alt hospital 3F
-        [24] u32 - alt hospital 3F
+        0xBCC08 [00] u32 - old town
+        0xBCC0C [01] u32 - old town
+        0xBCC10 [02] u32 - old town,         fog central town
+        0xBCC14 [03] u32 - alt central town
+        0xBCC18 [04] u32 - alt central town, resort town
+        0xBCC1C [05] u32 - resort town,      fog School BF
+        0xBCC20 [06] u32 - alt school BF,    fog school 1F
+        0xBCC24 [07] u32 - fog school 1F
+        0xBCC28 [08] u32 - fog school 1F,    alt school 1F
+        0xBCC2C [09] u32 - alt school 1F
+        0xBCC30 [10] u32 - alt school 1F
+        0xBCC34 [11] u32 - fog school 2F
+        0xBCC38 [12] u32 - fog school 2F
+        0xBCC3C [13] u32 - alt school 2F
+        0xBCC40 [14] u32 - alt school 2F
+        0xBCC44 [15] u32 - fog school RF,    alt school RF,   fog sewer 1F
+        0xBCC48 [16] u32 - fog sewer 1F,     fog sewer 2F
+        0xBCC4C [17] u32 - alt sewer,        fog hospital 1F
+        0xBCC50 [18] u32 - fog hospital 1F,  alt hospital 1F
+        0xBCC54 [19] u32 - alt hospital 1F
+        0xBCC58 [20] u32 - fog hospital BF,  alt hospital BF
+        0xBCC5C [21] u32 - alt hospital BF,  fog hospital 2F, fog hospital 3F, alt hospital 2F
+        0xBCC60 [22] u32 - alt hospital 2F
+        0xBCC64 [23] u32 - alt hospital 3F
+        0xBCC68 [24] u32 - alt hospital 3F
     */
     uint32 unused                                  : 1;
     uint32 unused                                  : 1;
@@ -1127,7 +1131,7 @@ struct MapMarkingsFlags {
     uint32 unused                                  : 1;
 };
 
-struct SH1Save {
+struct ShSaveGame {
     SH1Item      sh1Items[40];
     char         unkPadding[4];
     ubyte        unkMapOverlayIdx;  // mapOverlayIdx - only on load
@@ -1198,7 +1202,9 @@ struct SH1Save {
     --------------
     [2] 08 00 00 00 school map pick up
     
+    [5] 08 00 00 00 enables draw bridge control tower second floor
     [5] 00 08 00 00 centralTown map pick up in Bridge or Police station
+    [5] 00 80 00 00 PickUp: HEALTH_DRINK in the Jeep
     */
     
     uint32    field_180[2];
@@ -1228,6 +1234,8 @@ struct SH1Save {
     /*
     [3] 00 00 10 00 HEALTH_DRINK Cafee near TV
     [3] 00 00 20 00 HEALTH_DRINK Cafee near MAP
+    [3] 00 00 00 02 HEALTH_DRINK Conv. Store near Ice Creem
+    
     [5] 00 00 00 01 HANDGUN_BULLETS near Caffe on a bench to the right
     [5] 00 00 80 00 HANDGUN_BULLETS near Caffe on a bench to the left
     */
@@ -1270,11 +1278,15 @@ struct SH1Save {
     uint16    field_278;
     ubyte     field_27A;
     ubyte     continueCount;
-    uint8     checksumXor[2];
+};
+
+struct ShSaveGameContainer {
+    ShSaveGame shSaveGame      <open=true>;
+    uint8      checksumXor[2];
     //Assert(checksumXor[0] == checksumXor[1]
         //&& checksumXor[1] == sHchecksumXorCheck(636));
 
-    ubyte     end_dc[2];
+    ubyte   end_dc[2];
     //Assert(end_dc[0] == end_dc[1]
         //&& end_dc[1] == 0xDC);
 };
@@ -1295,8 +1307,8 @@ int sHchecksumXorCheck(int size) {
 //------------------------------------------------
 
 struct SilentHillSave {
-    SH1Header         sh1Header;
-    SH1GlobalOptions  sh1GlobalOptions;
-    SH1Save           sh1Saves[11];
-    Sector            unkDummySector[2];
+    SH1Header                 sh1Header;
+    ShSaveUserConfigContainer shSaveUserConfigContainer;
+    ShSaveGameContainer       shSaveGameContainers[11];
+    Sector                    unkDummySector[2];
 };
