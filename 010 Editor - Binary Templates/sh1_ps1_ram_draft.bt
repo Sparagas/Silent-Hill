@@ -61,7 +61,7 @@ enum <ubyte> charId
     BLOODY_INCUBATOR    = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
     KAUFMANN            = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
     ENDING_KAUFMANN     = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
-    UNKNOWN_FLAUROS     = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - moving FLAUROS but also UNUSED_BUTTERFLY???
+    FLAUROS             = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
     LITTLE_INCUBUS      = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
     GHOST_DOCTOR        = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
     INTENSIVE_CARE_UNIT = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "Intense Care Unit"
