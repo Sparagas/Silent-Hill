@@ -14,50 +14,57 @@
 #include "inc_sh1_save.bt"
 
 
-// BizHawk
-if ( FileNameGetBase( GetFileName() ) == "Core" ) {
-    OffsetSetStart(107394);
-    SetStartingAddress(-107394);
-}
-// DuckStation
-else {
-    OffsetSetStart(203362);
-    SetStartingAddress(-203362);
-}
-
-OffsetSetLimitSize(0x200000);
-FSeek(0);
-
 //------------------------------------------------
 // Enums
 //------------------------------------------------
 
+// abbreviations are in japanese dialect
 enum <ubyte> charId
 {
-    AIR_SCREAMER     = 2,   // fog bird
-    NIGHT_FLUTTER    = 3,   // alt bird
-    GROANER          = 4,   // fog dog
-    WORMHEAD         = 5,   // alt dog
-    LARVAL_STALKER   = 6,   // harmless child shadow
-    GREY_CHILD       = 8,
-    MUMBLER          = 9,   // censored GREY_CHILD
-    HANGED_SCRATCHER = 10,  // sewer enemy
-    CREAPER          = 11,  // cockroach
-    ROMPER           = 12,
-    SPLITHEAD        = 14,
-    FLOATSTINGER     = 15,
-    NURSE            = 16,
-    TWINFEELER       = 20,  // worm boss and small ones before fall
-    BLOODSUCKER      = 21,
-    MONSTER_CYBIL    = 24,
-    LOCKER_BODY      = 25,
-    CYBIL            = 26,
-    CHERYL           = 28,
-    CAT              = 29,
-    DAHLIA           = 30,
-    LISA             = 32,
-    ALESA            = 34,
-    KAUFMANN         = 38
+    NONE                = 0,   // 0x00 : -1          , 0         , 0          -
+    HARRY               = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
+    AIR_SCREAMER        = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
+    NIGHT_FLUTTER       = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
+    GROANER             = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
+    WORMHEAD            = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
+    LARVAL_STALKER      = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
+    STALKER             = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
+    GREY_CHILD          = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
+    MUMBLER             = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
+    HANGED_SCRATCHER    = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
+    CREAPER             = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
+    ROMPER              = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
+    UNUSED_CHICKEN      = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
+    SPLITHEAD           = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
+    FLOATSTINGER        = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
+    PUPPET_NURSE        = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
+    DUMMY_A             = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Nurse?
+    PUPPET_DOCTOR       = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
+    DUMMY_B             = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Doctor?
+    TWINFEELER          = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
+    BLOODSUCKER         = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
+    INCUBUS             = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
+    UNKNOWN             = 23   // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
+    MONSTER_CYBIL       = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
+    LOCKER_DEAD_BODY    = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
+    CYBIL               = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
+    ENDING_CYBIL        = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
+    CHERYL              = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
+    CAT                 = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
+    DAHLIA              = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
+    ENDING_DAHLIA       = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
+    LISA                = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
+    BLOODY_LISA         = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
+    ALESSA              = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
+    GHOST_CHILD_ALESSA  = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
+    INCUBATOR           = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
+    BLOODY_INCUBATOR    = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
+    KAUFMANN            = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
+    ENDING_KAUFMANN     = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
+    UNKNOWN_FLAUROS     = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - moving FLAUROS but also UNUSED_BUTTERFLY???
+    LITTLE_INCUBUS      = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
+    GHOST_DOCTOR        = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
+    INTENSIVE_CARE_UNIT = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "Intense Care Unit"
 };
 
 //------------------------------------------------
@@ -247,6 +254,20 @@ struct GameWork
 //------------------------------------------------
 // Main
 //------------------------------------------------
+
+// BizHawk
+if ( FileNameGetBase( GetFileName() ) == "Core" ) {
+    OffsetSetStart(107394);
+    SetStartingAddress(-107394);
+}
+// DuckStation
+else {
+    OffsetSetStart(203362);
+    SetStartingAddress(-203362);
+}
+
+OffsetSetLimitSize(0x200000);
+FSeek(0);
 
 //Printf("%X", FTell());
 
