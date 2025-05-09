@@ -11,49 +11,69 @@
 //   History: 
 //------------------------------------------------
 
-#include "inc_sh1_save.bt"
-
+#include "sh1_bodyprog_draft.bt"
 
 typedef uint8 u8_deg <read=Str("%lg deg", this / 352.0 * 360),
                      write=(this = Atof(value) * 352.0 / 360.0)>;
 
-struct SpawnInfo
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+typedef struct (ShCharacterId charaGroupIds)
 {
-    q20_12 posX;
-    int8   chara_type_4;  /** `e_ShCharacterId` */
-    u8_deg rotY;
-    int8   flags_6;       /** Copied to `isAnimStateUnchanged_3` in `s_Model`. */
-    int8   unk_7;
-    q20_12 posZ;
+    q20_12              posX;
+    ShCharacterId       chara_type;
+    u8_deg              rotY;
+    int8                flags_6;     /** Copied to `isAnimStateUnchanged_3` in `s_Model`. */
+    int8                unk_7;
+    q20_12              posZ;
+    local ShCharacterId charaGroupIds = charaGroupIds;
+}
+SpawnInfo <read=readSpawnInfo(chara_type, charaGroupIds),
+           optimize=false>;
+
+string readSpawnInfo (ShCharacterId chara_type, ShCharacterId charaGroupIds)
+{
+    if (chara_type == 0)
+        return EnumToString(charaGroupIds);
+    else 
+        return EnumToString(chara_type);
 };
 
-uint8     padding[4];
-uint8     unk_0[8];
-int8      field_8;
-uint8     unk_9[3];
-uint8     unk_C[8];
-int8      field_14;
-uint8     unk_15[3];
-uint8     unk_18[8];
-uint32    mapEventFuncs_20     <format=hex>;  // Points to array of event functions.
-uint8     unk_24[12];
-uint32    mapMessageStrings_30 <format=hex>;  // Points to array of `char*` for each displayed message in the map.
-uint8     unk_34[12];
-uint32    func_40              <format=hex>;
-uint32    func_44              <format=hex>;
-uint8     unk_48[128];
-uint32    func_C8              <format=hex>;
-uint32    func_CC              <format=hex>;
-uint32    func_D0              <format=hex>;  // 0x800C964C
-uint8     unk_D4[24];
-uint32    func_EC              <format=hex>;
-uint8     unk_F0[76];
-uint32    func_13C             <format=hex>;  // 0x800C96B8
-uint8     unk_140[40];
-uint32    func_168             <format=hex>;
-uint8     unk_16C[4];
-uint8     unk_170[36];
-uint32    charaUpdateFuncs[45];
-uint8     charaGroupIds[2];
-uint8     unk_24A[2];
-SpawnInfo charaSpawns[32];
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+uint8         padding[4];
+uint8         unk_0[8];
+int8          field_8;
+uint8         unk_9[3];
+uint8         unk_C[8];
+int8          field_14;
+uint8         unk_15[3];
+uint8         unk_18[8];
+uint32        mapEventFuncs_20     <format=hex>;  // Points to array of event functions.
+uint8         unk_24[12];
+uint32        mapMessageStrings_30 <format=hex>;  // Points to array of `char*` for each displayed message in the map.
+uint8         unk_34[12];
+uint32        func_40              <format=hex>;
+uint32        func_44              <format=hex>;
+uint8         unk_48[128];
+uint32        func_C8              <format=hex>;
+uint32        func_CC              <format=hex>;
+uint32        func_D0              <format=hex>;  // 0x800C964C
+uint8         unk_D4[24];
+uint32        func_EC              <format=hex>;
+uint8         unk_F0[76];
+uint32        func_13C             <format=hex>;  // 0x800C96B8
+uint8         unk_140[40];
+uint32        func_168             <format=hex>;
+uint8         unk_16C[4];
+uint8         unk_170[36];
+uint32        charaUpdateFuncs[45] <format=hex>;
+ShCharacterId charaGroupIdsA;
+ShCharacterId charaGroupIdsB;
+uint8         unk_24A[2];                         // also ShCharacterId?
+SpawnInfo     charaSpawnsA(charaGroupIdsA)[16];
+SpawnInfo     charaSpawnsB(charaGroupIdsB)[16];

@@ -43,9 +43,8 @@ int is_all_zeroes(int start) {
 void sh4_bin() {
 
     // message_pasthome0_k.bin is completely empty with zero size, so we need to test it
-    if (!FileSize())
+    if (!FileSize() || !ReadUInt())
         Exit(0);
-
     uint32 num_files;
     uint32 ofs_file[num_files];
     

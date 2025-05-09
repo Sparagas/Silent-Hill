@@ -11,245 +11,8 @@
 //   History: 
 //------------------------------------------------
 
-#include "inc_sh1_save.bt"
+#include "sh1_bodyprog_draft.bt"
 
-
-//------------------------------------------------
-// Enums
-//------------------------------------------------
-
-// abbreviations are in japanese dialect
-enum <ubyte> ShCharacterId
-{
-    CHARA_NONE               = 0,   // 0x00 : -1          , 0         , 0          -
-    CHARA_HERO               = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
-    CHARA_AIR_SCREAMER       = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
-    CHARA_NIGHT_FLUTTER      = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
-    CHARA_GROANER            = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
-    CHARA_WORMHEAD           = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
-    CHARA_LARVAL_STALKER     = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
-    CHARA_STALKER            = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
-    CHARA_GREY_CHILD         = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
-    CHARA_MUMBLER            = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
-    CHARA_HANGED_SCRATCHER   = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
-    CHARA_CREAPER            = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
-    CHARA_ROMPER             = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
-    CHARA_UNUSED_CHICKEN     = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
-    CHARA_SPLITHEAD          = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
-    CHARA_FLOATSTINGER       = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
-    CHARA_PUPPET_NURSE       = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
-    CHARA_DUMMY_A            = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Nurse?
-    CHARA_PUPPET_DOCTOR      = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
-    CHARA_DUMMY_B            = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Doctor?
-    CHARA_TWINFEELER         = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
-    CHARA_BLOODSUCKER        = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
-    CHARA_INCUBUS            = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
-    CHARA_UNKNOWN23          = 23,  // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
-    CHARA_MONSTER_CYBIL      = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
-    CHARA_LOCKER_DEAD_BODY   = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
-    CHARA_CYBIL              = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
-    CHARA_ENDING_CYBIL       = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
-    CHARA_CHERYL             = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
-    CHARA_CAT                = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
-    CHARA_DAHLIA             = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
-    CHARA_ENDING_DAHLIA      = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
-    CHARA_LISA               = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
-    CHARA_BLOODY_LISA        = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
-    CHARA_ALESSA             = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
-    CHARA_GHOST_CHILD_ALESSA = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
-    CHARA_INCUBATOR          = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
-    CHARA_BLOODY_INCUBATOR   = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
-    CHARA_KAUFMANN           = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
-    CHARA_ENDING_KAUFMANN    = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
-    CHARA_FLAUROS            = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
-    CHARA_LITTLE_INCUBUS     = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
-    CHARA_GHOST_DOCTOR       = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
-    CHARA_PARASITE           = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "InCUbator?"
-};
-
-//------------------------------------------------
-// Structs
-//------------------------------------------------
-
-struct ModelAnim
-{
-    uint8  animIdx_0;
-    uint8  maybeSomeState_1; // State says if `animTime_4` is anim time or a func ptr? That field could be a union. -- emoose
-    uint16 flags_2;          /** `e_AnimFlags` */ // Bit 1: movement unlockled(?), bit 2: visible.
-    int32  time_4;           /** Fixed-point time along keyframe timeline. */ 
-    int16  keyframeIdx0_8;
-    int16  keyframeIdx1_A;
-    int32  field_C;
-    int32  field_10;
-};
-
-struct Model
-{
-    ShCharacterId shCharacterId;
-    uint8         field_1;
-    uint8         field_2;
-    uint8         isAnimStateUnchanged_3;
-    ModelAnim     anim_4;
-};
-
-struct SubCharacter
-{
-    Model     model_0;
-    q20_12    playerPositionX;  // Offset: 0xBA024
-    q20_12    playerPositionY;  // Offset: 0xBA028
-    q20_12    playerPositionZ;  // Offset: 0xBA02C
-
-    q4_12_deg playerRotationX;  // Offset: 0xBA030
-    q4_12_deg playerRotationY;  // Offset: 0xBA032
-    q4_12_deg playerRotationZ;  // Offset: 0xBA034
-
-    q4_12_deg rotationSpeedX;   // Offset: 0xBA030
-    q4_12_deg rotationSpeedY;   // Offset: 0xBA032
-    q4_12_deg rotationSpeedZ;   // Offset: 0xBA034  
-
-    int32     field_34[2]; // <--- needed to pad
-    int32     moveSpeed_38;
-    int16     headingAngle_3C;
-    int16     field_3E;
-    int8      unk_40[4];
-    int16     field_44;
-    int8      unk_46[2];
-    int8      unk_48[104];
-    //int32     health_B0; // Bits 3-4 contain `s16` associated with player's rate of heavy breathing, always set to 6. Can't split into `s16`s? Maybe packed data.
-    q20_12    playerHealth;     // Offset: 0xBA0BC <-----
-    int8      unk_B8[12];
-    uint16    dead_timer_C4; // Part of `shBattleInfo` struct in SH2, may use something similar here.
-    uint16    field_C6;
-    
-    // Fields seen used inside maps (eg. `map0_s00` `func_800D923C`)
-
-    int16     field_C8;
-    int16     field_CA;
-    int8      unk_CC[2];
-    int16     field_CE;
-    int8      unk_D0[4];
-    int16     field_D4;
-    int16     field_D6;
-    int16     field_D8;
-    int16     field_DA;
-    int16     field_DC;
-    int16     field_DE;
-    int32     flags_E0;
-    int32     properties_E4[10];
-    int8      unk_10C;
-    uint8     field_10D;
-    int8      unk_10E[6];
-    int32     field_114;
-    int8      unk_118[4];
-    int32     field_11C;
-    int8      unk_120[6];
-    int16     field_126;
-    
-    uint8     myPad[4];
-};
-
-struct MainCharacterExtra
-{
-    Model model_0; // For player, this is a copy of model_0 in its corresponding s_SubCharacter.
-    int32 field_18;
-    int32 field_1C; // Some kind of state. 0: nothing, 1: unknown bent over pose, 2: AFK, 8: dying, 5: forcefully turned around.
-    int32 field_20; // Some kind of anim state related to current action (running, walking, sidestepping, etc.).
-    int32 field_24; // Some kind of anim state related to current action (running, walking, sidestepping, etc.). Sometimes same as above, but not always.
-    int8  field_28; // Forcefully setting to 1 opens options menu.
-    uint8 unkPad[3];   // <-----
-};
-
-struct MainCharacter
-{
-    SubCharacter       subCharacter;
-    MainCharacterExtra mainCharacterExtra;
-};
-
-struct GsCoordinate2
-{
-    uint8 ram[80];
-};
-
-struct SysWork
-{
-    int8          unk_0[8];
-    int32         sysState_8;     /** e_SysState */
-    int32         sysStateStep_C; // Current step/state of sysState_8 game is in.
-    int32         field_10;       // Sometimes assigned to same thing as sysStateStep_C.
-    int32         field_14;
-    int32         field_18;
-    int32         timer_1C;
-    int32         timer_20;
-    int32         timer_24;
-    int32         field_28;
-    int32         timer_2C;
-    int32         field_30;
-    int8          unk_34[4];
-    int32         field_38; // Something related to map loading.
-    int8          unk_3C[11];
-    int8          field_47; // Something related to map loading.
-    int8          unk_48[3];
-    uint8         isPlayerInCombatMode_4B;
-    MainCharacter mainCharacter;
-    SubCharacter  npcs_1A0[6];
-
-    GsCoordinate2 playerBoneCoords_890[18];
-    
-    int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
-    int8          unk_FC0[4824]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
-    int32         flags_2298;    // Something related to map loading.
-    int8          unk_229C[4];
-    int32         field_22A0;
-    int32         flags_22A4;
-    int8          unk_22A8[168];
-    int32         field_2350;
-    int8          unk_2354[4];
-    uint8         field_2358;
-    int8          unk_2359[33];
-    int16         cameraAngleY_237A;
-    int16         cameraAngleZ_237C;
-    int16         field_237E;
-    int32         cameraRadiusXz_2380;
-    int32         cameraY_2384;
-    int8          unk_2388[20];
-    int8          field_239C;
-    uint8         field_239D; // Index?
-    int8          unk_239E[318];
-    int32         field_24DC;
-    int8          unk_24E0[48];
-    int32         field_2510;
-    int32         field_2514[10];
-    uint8         unk_253C[524];
-    int16         field_2748[9];
-    uint8         unk_275A[2];
-    int32         field_275C;
-    uint8         unk_2760[8];
-};
-
-struct GameWork
-{
-    ShSaveUserConfig shSaveUserConfig;
-    uint8            todoControllerData[44*2];
-    ShSaveGame       unkShSaveGame;
-    ShSaveGame       shSaveGameCurrent;
-    uint16           screenWidth;
-    uint16           screenHeight;
-    uint8            field_58C; // R?
-    uint8            field_58D; // G?
-    uint8            field_58E; // B?
-    uint8            field_58F; // A or graphics command code?
-    int32            gameStatePrev_590;    /** `e_GameState` */
-    int32            gameState_594;        /** `e_GameState` */
-    int32            gameStateStep_598[3]; /** Temp data used by current gameState. Can be another state ID or other data. */
-    int8             unk_5A4[4];
-    int32            field_5A8;
-    int32            field_5AC;
-    int8             unk_5B0;
-    int8             mapAnimIdx_5B1;
-    int8             unk_5B2[2];
-    uint8            todoRawPadData_5B4[8];
-    int8             unk_5BC[28];
-};
 
 //------------------------------------------------
 // Main
@@ -269,28 +32,23 @@ else {
 OffsetSetLimitSize(0x200000);
 FSeek(0);
 
-//Printf("%X", FTell());
-//FSeek(0x24B60);
-//uint8 bodybrog[674560];
+uint8    ram_0[0x24B60];
+Bodyprog bodyprog(0x24B60);
 
-uint8     ram_0[0xB9FC0];
-SysWork   sysWork;          // Offset: 0xB9FC0
-GameWork  gameWork;         // Offset: 0xBC728
+uint8    ram_BCD00[29801];
 
-uint8     ram_BCD00[29801];
+uint8    isFogEnabled;     // Offset: 0xC4169
 
-uint8     isFogEnabled;     // Offset: 0xC4169
+uint8    ram_C416A[26];
 
-uint8     ram_C416A[26];
+uint8    FogColorR;        // Offset: 0xC4184
+uint8    FogColorG;        // Offset: 0xC4185
+uint8    FogColorB;        // Offset: 0xC4186
 
-uint8     FogColorR;        // Offset: 0xC4184
-uint8     FogColorG;        // Offset: 0xC4185
-uint8     FogColorB;        // Offset: 0xC4186
+uint8    ram_C4187[9];
 
-uint8     ram_C4187[9];
+uint8    WorldTintR;       // Offset: 0xC4190
+uint8    WorldTintG;       // Offset: 0xC4191
+uint8    WorldTintB;       // Offset: 0xC4192
 
-uint8     WorldTintR;       // Offset: 0xC4190
-uint8     WorldTintG;       // Offset: 0xC4191
-uint8     WorldTintB;       // Offset: 0xC4192
-
-uint8     ram_C4193[1293933];
+uint8    ram_C4193[1293933];
