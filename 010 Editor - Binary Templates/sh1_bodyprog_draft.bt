@@ -1,0 +1,16 @@
+//------------------------------------------------
+//--- 010 Editor v15.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+FSeek(0x95460); // SysWork?
+FSeek(0xBC728-0x24B60); // GameWork?
+FSeek(0xC4184-0x24B60); // GameWork?
+int test;

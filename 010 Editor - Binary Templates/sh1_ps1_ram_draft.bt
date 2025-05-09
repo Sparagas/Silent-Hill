@@ -19,52 +19,52 @@
 //------------------------------------------------
 
 // abbreviations are in japanese dialect
-enum <ubyte> charId
+enum <ubyte> ShCharacterId
 {
-    NONE                = 0,   // 0x00 : -1          , 0         , 0          -
-    HARRY               = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
-    AIR_SCREAMER        = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
-    NIGHT_FLUTTER       = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
-    GROANER             = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
-    WORMHEAD            = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
-    LARVAL_STALKER      = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
-    STALKER             = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
-    GREY_CHILD          = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
-    MUMBLER             = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
-    HANGED_SCRATCHER    = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
-    CREAPER             = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
-    ROMPER              = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
-    UNUSED_CHICKEN      = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
-    SPLITHEAD           = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
-    FLOATSTINGER        = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
-    PUPPET_NURSE        = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
-    DUMMY_A             = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Nurse?
-    PUPPET_DOCTOR       = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
-    DUMMY_B             = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Doctor?
-    TWINFEELER          = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
-    BLOODSUCKER         = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
-    INCUBUS             = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
-    UNKNOWN             = 23   // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
-    MONSTER_CYBIL       = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
-    LOCKER_DEAD_BODY    = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
-    CYBIL               = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
-    ENDING_CYBIL        = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
-    CHERYL              = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
-    CAT                 = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
-    DAHLIA              = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
-    ENDING_DAHLIA       = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
-    LISA                = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
-    BLOODY_LISA         = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
-    ALESSA              = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
-    GHOST_CHILD_ALESSA  = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
-    INCUBATOR           = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
-    BLOODY_INCUBATOR    = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
-    KAUFMANN            = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
-    ENDING_KAUFMANN     = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
-    FLAUROS             = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
-    LITTLE_INCUBUS      = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
-    GHOST_DOCTOR        = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
-    INTENSIVE_CARE_UNIT = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "Intense Care Unit"
+    CHARA_NONE               = 0,   // 0x00 : -1          , 0         , 0          -
+    CHARA_HERO               = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
+    CHARA_AIR_SCREAMER       = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
+    CHARA_NIGHT_FLUTTER      = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
+    CHARA_GROANER            = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
+    CHARA_WORMHEAD           = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
+    CHARA_LARVAL_STALKER     = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
+    CHARA_STALKER            = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
+    CHARA_GREY_CHILD         = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
+    CHARA_MUMBLER            = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
+    CHARA_HANGED_SCRATCHER   = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
+    CHARA_CREAPER            = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
+    CHARA_ROMPER             = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
+    CHARA_UNUSED_CHICKEN     = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
+    CHARA_SPLITHEAD          = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
+    CHARA_FLOATSTINGER       = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
+    CHARA_PUPPET_NURSE       = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
+    CHARA_DUMMY_A            = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Nurse?
+    CHARA_PUPPET_DOCTOR      = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
+    CHARA_DUMMY_B            = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Doctor?
+    CHARA_TWINFEELER         = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
+    CHARA_BLOODSUCKER        = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
+    CHARA_INCUBUS            = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
+    CHARA_UNKNOWN23          = 23,  // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
+    CHARA_MONSTER_CYBIL      = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
+    CHARA_LOCKER_DEAD_BODY   = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
+    CHARA_CYBIL              = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
+    CHARA_ENDING_CYBIL       = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
+    CHARA_CHERYL             = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
+    CHARA_CAT                = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
+    CHARA_DAHLIA             = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
+    CHARA_ENDING_DAHLIA      = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
+    CHARA_LISA               = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
+    CHARA_BLOODY_LISA        = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
+    CHARA_ALESSA             = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
+    CHARA_GHOST_CHILD_ALESSA = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
+    CHARA_INCUBATOR          = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
+    CHARA_BLOODY_INCUBATOR   = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
+    CHARA_KAUFMANN           = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
+    CHARA_ENDING_KAUFMANN    = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
+    CHARA_FLAUROS            = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
+    CHARA_LITTLE_INCUBUS     = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
+    CHARA_GHOST_DOCTOR       = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
+    CHARA_PARASITE           = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "InCUbator?"
 };
 
 //------------------------------------------------
@@ -85,11 +85,11 @@ struct ModelAnim
 
 struct Model
 {
-    int8      chara_type_0;
-    uint8     field_1;
-    uint8     field_2;
-    uint8     isAnimStateUnchanged_3;
-    ModelAnim anim_4;
+    ShCharacterId shCharacterId;
+    uint8         field_1;
+    uint8         field_2;
+    uint8         isAnimStateUnchanged_3;
+    ModelAnim     anim_4;
 };
 
 struct SubCharacter
@@ -256,7 +256,7 @@ struct GameWork
 //------------------------------------------------
 
 // BizHawk
-if ( FileNameGetBase( GetFileName() ) == "Core" ) {
+if ( FileNameGetBase ( GetFileName() ) == "Core" ) {
     OffsetSetStart(107394);
     SetStartingAddress(-107394);
 }
@@ -270,6 +270,8 @@ OffsetSetLimitSize(0x200000);
 FSeek(0);
 
 //Printf("%X", FTell());
+//FSeek(0x24B60);
+//uint8 bodybrog[674560];
 
 uint8     ram_0[0xB9FC0];
 SysWork   sysWork;          // Offset: 0xB9FC0
