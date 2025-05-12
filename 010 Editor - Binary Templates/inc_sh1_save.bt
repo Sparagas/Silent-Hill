@@ -13,13 +13,13 @@
 //------------------------------------------------
 
 
-typedef int32 q20_12     <read=Str("%lg", this / 4096.0),
+typedef int32 q19_12     <read=Str("%lg", this / 4096.0),
                          write=(this = Atof(value) * 4096.0)>;
                      
-typedef int16 q4_12      <read=Str("%lg", this / 4096.0),
+typedef int16 q3_12      <read=Str("%lg", this / 4096.0),
                          write=(this = Atof(value) * 4096.0)>;
                       
-typedef int16 q4_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
+typedef int16 q3_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
                          write=(this = Atof(value) * 4096.0 / 360.0)>;
 
 struct Sector;
@@ -28,7 +28,8 @@ struct Sector;
 // Enums
 //------------------------------------------------
 
-enum <ubyte> SaveTitle {
+enum <ubyte> SaveTitle
+{
     ANYWHERE     = 0,
     CAFE         = 1,
     BUS          = 2,
@@ -56,7 +57,8 @@ enum <ubyte> SaveTitle {
     NEXT_FEAR    = 24
 };
 
-enum <int8> ItemID {
+enum <int8> InventoryItemId
+{
     EMPTY                  = -1,
     UNEQUIPPED             = 0,
 
@@ -139,8 +141,9 @@ enum <int8> ItemID {
     GASOLINE_TANK          = 0xE2
 };
 
-enum <int8> Commands {
-    USE_HEALTH     = 0,
+enum <int8> Commands
+{
+    USE_HEALTH     = 0,  // Text is "Use", but this one is used explusively on health items.
     USE            = 1,
     EQUIP          = 2,
     UNEQUIP        = 3,
@@ -157,50 +160,39 @@ enum <int8> Commands {
 // Structs
 //------------------------------------------------
 
-struct SaveLoadScreen {
+struct SaveLoadScreen
+{
     uint16    totalSavesCount;    // probaly total count on all playthroughs
     uint16    unk_02;
-    q20_12    gameplayTimer;
+    q19_12    gameplayTimer;
     uint16    savesCount;         // only counts on current playthrough, on screen range [0, 999], real range: s16
     SaveTitle saveTitle;
     uint8     isTitleYellowFlag;
 };
 
-struct SH1Header {
-    char           unkPadding[4];
-    SaveLoadScreen saveLoadScreen[11];
-    ubyte          padding[116];
-
-    uint8          checksumXor[2];
-    Assert(checksumXor[0] == checksumXor[1]
-        && checksumXor[1] == sHchecksumXorCheck(252));
-
-    ubyte          end_dc[2];
-    Assert(end_dc[0] == end_dc[1]
-        && end_dc[1] == 0xDC);
+struct Buttons
+{
+    uint16 buttonSelect   : 1;  // 01 00 0x01
+    uint16 buttonL3       : 1;  // 02 00 0x02
+    uint16 buttonR3       : 1;  // 04 00 0x04
+    uint16 buttonStart    : 1;  // 08 00 0x08
+    uint16 buttonUp       : 1;  // 10 00 0x10
+    uint16 buttonRight    : 1;  // 20 00 0x20
+    uint16 buttonDown     : 1;  // 40 00 0x40
+    uint16 buttonLeft     : 1;  // 80 00 0x80
+                                
+    uint16 buttonL2       : 1;  // 00 01 0x0100
+    uint16 buttonR2       : 1;  // 00 02 0x0200
+    uint16 buttonL1       : 1;  // 00 04 0x0400
+    uint16 buttonR1       : 1;  // 00 08 0x0800
+    uint16 buttonTriangle : 1;  // 00 10 0x1000
+    uint16 buttonCircle   : 1;  // 00 20 0x2000
+    uint16 buttonCross    : 1;  // 00 40 0x4000
+    uint16 buttonSquare   : 1;  // 00 80 0x8000
 };
 
-struct Buttons {
-    uint16 buttonSelect   : 1; // 01 00 0x01
-    uint16 buttonL3       : 1; // 02 00 0x02
-    uint16 buttonR3       : 1; // 04 00 0x04
-    uint16 buttonStart    : 1; // 08 00 0x08
-    uint16 buttonUp       : 1; // 10 00 0x10
-    uint16 buttonRight    : 1; // 20 00 0x20
-    uint16 buttonDown     : 1; // 40 00 0x40
-    uint16 buttonLeft     : 1; // 80 00 0x80
-
-    uint16 buttonL2       : 1; // 00 01 0x0100
-    uint16 buttonR2       : 1; // 00 02 0x0200
-    uint16 buttonL1       : 1; // 00 04 0x0400
-    uint16 buttonR1       : 1; // 00 08 0x0800
-    uint16 buttonTriangle : 1; // 00 10 0x1000
-    uint16 buttonCircle   : 1; // 00 20 0x2000
-    uint16 buttonCross    : 1; // 00 40 0x4000
-    uint16 buttonSquare   : 1; // 00 80 0x8000
-};
-
-struct ControllerConfig {
+struct ControllerConfig
+{
     Buttons enter;
     Buttons cancel;
     Buttons skip;
@@ -217,12 +209,14 @@ struct ControllerConfig {
     Buttons option;
 };
 
-struct ScreenPosition {
+struct ScreenPosition
+{
     int8 screenPosX;  // Range: [-11, 11], default: 0
     int8 screenPosY;  // Range: [-8, 8], default: 0
 };
 
-struct ShSaveUserConfig {
+struct ShSaveUserConfig
+{
     ControllerConfig controllerConfig;
     ScreenPosition   screenPosition;
     uint8            sound;                // Stereo: 0, Monaural: 1, default: Stereo
@@ -235,37 +229,46 @@ struct ShSaveUserConfig {
     uint8            autoLoad;             // Off: 0, On: 1, default: Off
     ubyte            unk_26;
     uint8            ExtraOptionsEnabled;  // for some reason it is not 1 when enabled?
-    uint8            viewControl;          // Normal: 0, Reverse: 1, default: Normal
-    ubyte            secretViewMode;       // Normal: 0, Self View: 1, default: Normal
-    uint8            retreatTurn;          // Normal: 0, Reverse: 1, default: Normal
-    uint8            walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
-    uint8            autoAiming;           // On: 0, Off: 1, default: On
-    uint8            secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
+    int8             viewControl;          // Normal: 0, Reverse: 1, default: Normal
+    byte             secretViewMode;       // Normal: 0, Self View: 1, default: Normal
+    int8             retreatTurn;          // Normal: 0, Reverse: 1, default: Normal
+    int8             walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
+    int8             autoAiming;           // On: 0, Off: 1, default: On
+    int8             secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
     uint16           seenGameOverTips;     // resets after picking all 15
     ubyte            padding_30[4];
-    uint32           palLanguage;
+    uint32           palLanguageId;
 };
 
-struct ShSaveUserConfigContainer {
-    ShSaveUserConfig shSaveUserConfig <open=true>;
-    ubyte            padding_38[68];
-    uint8            checksumXor[2];
+struct ShSaveGameFooter
+{
+    uint8  checksumXor[2];
+    uint16 magic           <format=hex>;
+    /*
     Assert(checksumXor[0] == checksumXor[1]
-        && checksumXor[1] == sHchecksumXorCheck(124));
-
-    ubyte            end_dc[2];
-    Assert(end_dc[0] == end_dc[1]
-        && end_dc[1] == 0xDC);
+        && checksumXor[1] == sHchecksumXorCheck(value));
+    Assert(magic[0] == magic[1]
+        && magic == 0xDCDC);
+    */
 };
 
-struct SH1Item {
-    ItemID   id;
-    uint8    count;
-    Commands commands;
-    uint8    unk_index;
+struct ShSaveUserConfigContainer
+{
+    ShSaveUserConfig shSaveUserConfig <open=true>;
+    ubyte            padding[68];
+    ShSaveGameFooter footer;  // (124)
 };
 
-struct HasMapsFlags {
+struct ShInventoryItem
+{
+    InventoryItemId id;
+    uint8           count;
+    Commands        commands;
+    uint8           unk_index;
+};
+
+struct HasMapsFlags
+{
     uint32 otherPlaces    : 1; // 01 00 00 00 0x01 Impossible to obtain. Displays oldTown with infinite arrows in places where there are no maps (like Nowthere)
     uint32 oldTown        : 1; // 02 00 00 00 0x02
     uint32 fogCentralTown : 1; // 04 00 00 00 0x04
@@ -297,7 +300,8 @@ struct HasMapsFlags {
 };
 
 
-struct MapMarkingsFlags {
+struct MapMarkingsFlags
+{
     /*
     Table of Content:
         0xBCC08 [00] u32 - old town
@@ -1131,25 +1135,27 @@ struct MapMarkingsFlags {
     uint32 unused                                  : 1;
 };
 
-struct ShSaveGame {
-    SH1Item      sh1Items[40];
-    char         unkPadding[4];
-    ubyte        unkMapOverlayIdx;  // mapOverlayIdx - only on load
+struct ShSaveGame
+{
+    ShInventoryItem items[40];
+    int8            field_A0;
+    int8            field_A1[3];
+    int8            mapOverlayIdx;   // only on load
     /*
     15 - 
     16 - trigger: after exiting Kaufman cutscene room in hospital through any door
     */
     
-    ubyte        field_A5;          // roomIdx?
-    uint16       savesCount;
-    SaveTitle    saveTitle;         // mapEventIdx - only on load
-    uint8        unkMapIdx;         // mapIdx
-    ItemID       equippedWeapon;    // default: 0, effects only the visible player weapon model
-    ubyte        field_AB;
-    uint32       flags_AC;
-    uint32       field_B0[45];      // FF
-    HasMapsFlags hasMapsFlags;
-    uint32       eventFlags[6];
+    int8            mapRoomIdx;      // roomIdx?
+    uint16          saveGameCount;
+    SaveTitle       saveTitle;       // mapEventIdx - only on load
+    uint8           mapIdx;          // global map index?
+    InventoryItemId equippedWeapon;  // default: 0, effects only the visible player weapon model
+    ubyte           field_AB;
+    uint32          flags_AC;
+    int32           field_B0[45];    // FF
+    HasMapsFlags    hasMapsFlags;
+    uint32          eventFlags_168[6];
     /*
     [0] 01 00 00 00 Event: Brahams Rd. top cross reading // alley map back gate reading // retuirning to alley 2 from alley 3 // resets to 0x1 in cofe after examining the door
     [0] 02 00 00 00 Event: first In game Intro
@@ -1207,7 +1213,7 @@ struct ShSaveGame {
     [5] 00 80 00 00 PickUp: HEALTH_DRINK in the Jeep
     */
     
-    uint32    field_180[2];
+    uint32    eventFlags_180[2];
     /*
     [0] 01 00 00 00 Event: Gunshots outside hospital in CentralTown map
     [0] 08 00 00 00 Event: Kaufman FMV
@@ -1221,16 +1227,16 @@ struct ShSaveGame {
     [0] 00 00 01 00 Pick-up: hospital BF map pick up
     */
     
-    uint32    field_188;
-    uint32    field_18C;
-    uint32    field_190[4];
+    uint32    eventFlags_188;
+    uint32    eventFlags_18C;
+    uint32    eventFlags_190[4];
     /*
     [1] 00 00 04 00 resortTown map pick up
     [3] 00 00 10 00 altSewer map pick up
     */
     
-    uint32    field_1A0;
-    uint32    field_1A4[12];
+    uint32    eventFlags_1A0;
+    uint32    eventFlags_1A4[12];
     /*
     [3] 00 00 10 00 HEALTH_DRINK Cafee near TV
     [3] 00 00 20 00 HEALTH_DRINK Cafee near MAP
@@ -1245,18 +1251,18 @@ struct ShSaveGame {
     uint16           pickedUpItemCount;
     ubyte            field_23E;
     ubyte            field_23F;;
-    q20_12           playerHealth;       // default: 100
-    q20_12           playerPositionX;
-    q4_12_deg        playerRotationY;    // Positive Z: 0, clockwise rotation
+    q19_12           playerHealth;       // default: 100
+    q19_12           playerPositionX;
+    q3_12_deg        playerRotationY;    // Positive Z: 0, clockwise rotation
     ubyte            unk_4[2];           // clearedGamesCount?
-    q20_12           playerPositionZ;
-    q20_12           gameplayTimer;      // doesn't stop at PAUSE or inventory screen
-    q20_12           runDistance;
-    q20_12           walkDistance;
+    q19_12           playerPositionZ;
+    q19_12           gameplayTimer;      // doesn't stop at pause, inventory or map screen
+    q19_12           runDistance;
+    q19_12           walkDistance;
                      
     uint8            unk_pad;
-    uint16           meleeKills;
-    uint8            rangedKills;
+    uint16           meleeKillCount;
+    uint8            rangedKillCount;
     uint32           unkDifficulity;  // Packed data. Stores game difficulty and something else.
     /*
     dificulity modifier?
@@ -1280,15 +1286,18 @@ struct ShSaveGame {
     ubyte     continueCount;
 };
 
-struct ShSaveGameContainer {
-    ShSaveGame shSaveGame      <open=true>;
-    uint8      checksumXor[2];
-    //Assert(checksumXor[0] == checksumXor[1]
-        //&& checksumXor[1] == sHchecksumXorCheck(636));
+struct ShSaveGameContainer
+{
+    ShSaveGame       shSaveGame <open=true>;
+    ShSaveGameFooter footer;    // (636)
+};
 
-    ubyte   end_dc[2];
-    //Assert(end_dc[0] == end_dc[1]
-        //&& end_dc[1] == 0xDC);
+struct ShSaveLoadScreenContainer
+{
+    char             unkPadding[4];
+    SaveLoadScreen   saveLoadScreen[11];
+    ubyte            padding[116];
+    ShSaveGameFooter footer;  // (252)
 };
 
 //------------------------------------------------
@@ -1306,8 +1315,9 @@ int sHchecksumXorCheck(int size) {
 // Main
 //------------------------------------------------
 
-struct SilentHillSave {
-    SH1Header                 sh1Header;
+struct SilentHillSave
+{
+    ShSaveLoadScreenContainer shSaveLoadScreenContainer;
     ShSaveUserConfigContainer shSaveUserConfigContainer;
     ShSaveGameContainer       shSaveGameContainers[11];
     Sector                    unkDummySector[2];

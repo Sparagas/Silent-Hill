@@ -37,9 +37,9 @@ enum <ubyte> ShCharacterId
     CHARA_SPLITHEAD          = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
     CHARA_FLOATSTINGER       = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
     CHARA_PUPPET_NURSE       = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
-    CHARA_DUMMY_A            = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Nurse?
+    CHARA_DUMMY_NURSE        = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Nurse
     CHARA_PUPPET_DOCTOR      = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
-    CHARA_DUMMY_B            = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - another Pupet Doctor?
+    CHARA_DUMMY_DOCTOR       = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Doctor
     CHARA_TWINFEELER         = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
     CHARA_BLOODSUCKER        = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
     CHARA_INCUBUS            = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
@@ -66,47 +66,100 @@ enum <ubyte> ShCharacterId
     CHARA_PARASITE           = 43   // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "InCUbator?"
 };
 
+enum <uint8> PadTerminalType
+{
+    PadTerminalType_Mouse               = 1,
+    PadTerminalType_16ButtonAnalog      = 2,
+    PadTerminalType_GunControllerKonami = 3,
+    PadTerminalType_16Button            = 4,
+    PadTerminalType_AnalogJoystick      = 5,
+    PadTerminalType_GunControllerNamco  = 6,
+    PadTerminalType_AnalogController    = 7,
+    PadTerminalType_MultitapAdapter     = 8
+};
+
+enum <int32> GameState
+{
+    GameState_Unk0                = 0,
+    GameState_KonamiLogo          = 1,
+    GameState_KcetLogo            = 2,
+    GameState_StartMovieIntro     = 3,
+    GameState_DeathLoadScreen     = 4,
+    GameState_MovieIntroAlternate = 5,
+    GameState_MovieIntro          = 6,
+    GameState_MainMenu            = 7,
+    GameState_SaveScreen          = 8,
+    GameState_MovieOpening        = 9,
+    GameState_MainLoadScreen      = 10,
+    GameState_InGame              = 11,
+    GameState_MapEvent            = 12,
+    GameState_ExitMovie           = 13,
+    GameState_StatusScreen        = 14,
+    GameState_MapScreen           = 15,
+    GameState_Unk10               = 16,
+    GameState_DebugMoviePlayer    = 17,
+    GameState_OptionScreen        = 18,
+    GameState_LoadStatusScreen    = 19,
+    GameState_LoadMapScreen       = 20,
+    GameState_Unk15               = 21,
+    GameState_Unk16               = 22  /** Removed debug menu? Doesn't exist in function array, but `DebugMoviePlayer` state tries to switch to it. */
+};
+
 //------------------------------------------------
 // Structs
 //------------------------------------------------
 
+struct AnalogPadData
+{
+    uint8            status;
+    uint8            received_bytes : 4; /** Number of bytes received / 2. */
+    PadTerminalType  terminal_type  : 4;
+    uint16           digitalButtons;
+    uint8            right_x;
+    uint8            right_y;
+    uint8            left_x;
+    uint8            left_y;
+};
+
 struct ModelAnim
 {
-    uint8  animIdx_0;
-    uint8  maybeSomeState_1; // State says if `animTime_4` is anim time or a func ptr? That field could be a union. -- emoose
-    uint16 flags_2;          /** `e_AnimFlags` */ // Bit 1: movement unlockled(?), bit 2: visible.
-    int32  time_4;           /** Fixed-point time along keyframe timeline. */ 
-    int16  keyframeIdx0_8;
-    int16  keyframeIdx1_A;
+    uint8  animIdx;
+    uint8  maybeSomeState;  // State says if `animTime_4` is anim time or a func ptr? That field could be a union. -- emoose
+    uint16 flags_2;         /** `e_AnimFlags` */ // Bit 1: movement unlockled(?), bit 2: visible.
+    int32  time;            /** Fixed-point time along keyframe timeline. */ 
+    int16  keyframeIdx0;
+    int16  keyframeIdx1;
     int32  field_C;
     int32  field_10;
 };
 
 struct Model
 {
-    ShCharacterId shCharacterId;
+    ShCharacterId charaId;
     uint8         field_1;
     uint8         field_2;
-    uint8         isAnimStateUnchanged_3;
-    ModelAnim     anim_4;
+    uint8         isAnimStateUnchanged;
+    ModelAnim     anim;
 };
 
 struct SubCharacter
 {
-    Model     model_0;
-    q20_12    playerPositionX;  // Offset: 0xBA024
-    q20_12    playerPositionY;  // Offset: 0xBA028
-    q20_12    playerPositionZ;  // Offset: 0xBA02C
+    Model     model;
+    q19_12    positionX;           // Offset: 0xBA024
+    q19_12    positionY;           // Offset: 0xBA028
+    q19_12    positionZ;           // Offset: 0xBA02C
+                                   
+    q3_12_deg rotationX;           // Offset: 0xBA030
+    q3_12_deg rotationY;           // Offset: 0xBA032
+    q3_12_deg rotationZ;           // Offset: 0xBA034
+    q3_12_deg rotationYCopy;       // Offset: 0xBA036
+                                   
+    q3_12_deg rotationSpeedX;      // Offset: 0xBA038
+    q3_12_deg rotationSpeedY;      // Offset: 0xBA03A
+    q3_12_deg rotationSpeedZ;      // Offset: 0xBA03C
+    q3_12_deg rotationSpeedZCopy;  // Offset: 0xBA03E
 
-    q4_12_deg playerRotationX;  // Offset: 0xBA030
-    q4_12_deg playerRotationY;  // Offset: 0xBA032
-    q4_12_deg playerRotationZ;  // Offset: 0xBA034
-
-    q4_12_deg rotationSpeedX;   // Offset: 0xBA030
-    q4_12_deg rotationSpeedY;   // Offset: 0xBA032
-    q4_12_deg rotationSpeedZ;   // Offset: 0xBA034  
-
-    int32     field_34[2]; // <--- needed to pad
+    int32     field_34;
     int32     moveSpeed_38;
     int16     headingAngle_3C;
     int16     field_3E;
@@ -114,8 +167,8 @@ struct SubCharacter
     int16     field_44;
     int8      unk_46[2];
     int8      unk_48[104];
-    q20_12    health_B0; // Bits 3-4 contain `s16` associated with player's rate of heavy breathing, always set to 6. Can't split into `s16`s? Maybe packed data.
-    int8      unk_B8[12];
+    q19_12    health;
+    int8      unk_B4[16];
     uint16    dead_timer_C4; // Part of `shBattleInfo` struct in SH2, may use something similar here.
     uint16    field_C6;
     
@@ -142,25 +195,23 @@ struct SubCharacter
     int32     field_11C;
     int8      unk_120[6];
     int16     field_126;
-    
-    uint8     myPad[4];
 };
 
 struct MainCharacterExtra
 {
-    Model model_0; // For player, this is a copy of model_0 in its corresponding s_SubCharacter.
-    int32 field_18;
-    int32 field_1C; // Some kind of state. 0: nothing, 1: unknown bent over pose, 2: AFK, 8: dying, 5: forcefully turned around.
-    int32 field_20; // Some kind of anim state related to current action (running, walking, sidestepping, etc.).
-    int32 field_24; // Some kind of anim state related to current action (running, walking, sidestepping, etc.). Sometimes same as above, but not always.
-    int8  field_28; // Forcefully setting to 1 opens options menu.
-    uint8 unkPad[3];   // <-----
+    Model model;      // For player, this is a copy of model_0 in its corresponding s_SubCharacter.
+    int32 field_18;   
+    int32 field_1C;   // Some kind of state. 0: nothing, 1: unknown bent over pose, 2: AFK, 8: dying, 5: forcefully turned around.
+    int32 field_20;   // Some kind of anim state related to current action (running, walking, sidestepping, etc.).
+    int32 field_24;   // Some kind of anim state related to current action (running, walking, sidestepping, etc.). Sometimes same as above, but not always.
+    int8  field_28;   // Forcefully setting to 1 opens options menu.
+    uint8 pad[3];
 };
 
 struct MainCharacter
 {
-    SubCharacter       subCharacter;
-    MainCharacterExtra mainCharacterExtra;
+    SubCharacter       chara;
+    MainCharacterExtra extra;
 };
 
 struct GsCoordinate2
@@ -188,24 +239,29 @@ struct SysWork
     int8          field_47; // Something related to map loading.
     int8          unk_48[3];
     uint8         isPlayerInCombatMode_4B;
-    MainCharacter mainCharacter;
-    SubCharacter  npcs_1A0[6];
+    MainCharacter player;
+    SubCharacter  npcs[6];
 
-    GsCoordinate2 playerBoneCoords_890[18];
+    GsCoordinate2 playerBoneCoords[18];
     
     int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
-    int8          unk_FC0[4824]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
+    int8          unk_FC0[4802]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
+    int8          field_2282;
+    int8          unk_2283[21];
     int32         flags_2298;    // Something related to map loading.
     int8          unk_229C[4];
     int32         field_22A0;
     int32         flags_22A4;
     int8          unk_22A8[168];
-    int32         field_2350;
+    int32         field_2350_0 : 4;
+    int32         field_2350_4 : 4;
+    int32         field_2351   : 16;
+    int32         field_2353   : 8;   // Some index into npcs
     int8          unk_2354[4];
     uint8         field_2358;
     int8          unk_2359[33];
-    int16         cameraAngleY_237A;
-    int16         cameraAngleZ_237C;
+    int16         cameraAngleY;
+    int16         cameraAngleZ;
     int16         field_237E;
     int32         cameraRadiusXz_2380;
     int32         cameraY_2384;
@@ -228,24 +284,25 @@ struct GameWork
 {
     ShSaveUserConfig shSaveUserConfig;
     uint8            todoControllerData[44*2];
-    ShSaveGame       unkShSaveGame;
-    ShSaveGame       shSaveGameCurrent;
+    ShSaveGame       unkSaveGame;
+    ShSaveGame       saveGameCurrent;
     uint16           screenWidth;
     uint16           screenHeight;
     uint8            field_58C; // R?
     uint8            field_58D; // G?
     uint8            field_58E; // B?
     uint8            field_58F; // A or graphics command code?
-    int32            gameStatePrev_590;    /** `e_GameState` */
-    int32            gameState_594;        /** `e_GameState` */
-    int32            gameStateStep_598[3]; /** Temp data used by current gameState. Can be another state ID or other data. */
+    GameState        gameStatePrev_590;
+    GameState        gameState_594;
+    GameState        gameStateStep_598[3]; /** Temp data used by current gameState. Can be another state ID or other data. */
     int8             unk_5A4[4];
     int32            field_5A8;
     int32            field_5AC;
     int8             unk_5B0;
     int8             mapAnimIdx_5B1;
-    int8             unk_5B2[2];
-    uint8            todoRawPadData_5B4[8];
+    int8             unk_5B2;
+    int8             unk_5B3;
+    AnalogPadData    RawPadData;
     int8             unk_5BC[28];
 };
 
