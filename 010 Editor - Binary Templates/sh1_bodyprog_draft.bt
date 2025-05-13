@@ -168,7 +168,8 @@ struct SubCharacter
     int8      unk_46[2];
     int8      unk_48[104];
     q19_12    health;
-    int8      unk_B4[16];
+    int8      unk_B4[12];
+    int32     field_C0;
     uint16    dead_timer_C4; // Part of `shBattleInfo` struct in SH2, may use something similar here.
     uint16    field_C6;
     
@@ -176,7 +177,7 @@ struct SubCharacter
 
     int16     field_C8;
     int16     field_CA;
-    int8      unk_CC[2];
+    int16     field_CC;
     int16     field_CE;
     int8      unk_D0[4];
     int16     field_D4;
@@ -195,6 +196,27 @@ struct SubCharacter
     int32     field_11C;
     int8      unk_120[6];
     int16     field_126;
+};
+
+struct MapWork
+{
+	int32 field_0;
+    int8  unk_4[11];
+    int8  field_F;
+};
+
+struct StructUnk0
+{
+	int32 field_0;
+	int32 field_4;
+	int32 field_8;
+};
+
+struct StructUnk1
+{
+	int16 field_0;
+	int16 field_2;
+	int16 field_4;
 };
 
 struct MainCharacterExtra
@@ -234,9 +256,7 @@ struct SysWork
     int32         timer_2C;
     int32         field_30;
     int8          unk_34[4];
-    int32         field_38; // Something related to map loading.
-    int8          unk_3C[11];
-    int8          field_47; // Something related to map loading.
+    MapWork       field_38;  // Something related to map loading. Likely a struct as `func_8003CD6C` requires a struct and `GameFs_MapLoad` input it pointing here.
     int8          unk_48[3];
     uint8         isPlayerInCombatMode_4B;
     MainCharacter player;
@@ -247,19 +267,32 @@ struct SysWork
     int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
     int8          unk_FC0[4802]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
     int8          field_2282;
-    int8          unk_2283[21];
+    int8          unk_2283[7];
+    int16         field_228A;
+    int8          unk_228C[12];
     int32         flags_2298;    // Something related to map loading.
     int8          unk_229C[4];
     int32         field_22A0;
     int32         flags_22A4;
-    int8          unk_22A8[168];
+    int8          unk_22A8[160];
+    int8          field_2348;
+    int8          field_2349;
+    uint8         field_234A;
+    uint8         unk_234B[1];
+    uint8         unk_234C[4];
     int32         field_2350_0 : 4;
     int32         field_2350_4 : 4;
     int32         field_2351   : 16;
     int32         field_2353   : 8;   // Some index into npcs
     int8          unk_2354[4];
     uint8         field_2358;
-    int8          unk_2359[33];
+    int8          unk_2359[3];
+    uint32        field_235C;
+    StructUnk0    field_2360;
+    uint32        field_236C;
+    StructUnk1    field_2370;
+    int16         unk_2376;
+    int16         field_2378;
     int16         cameraAngleY;
     int16         cameraAngleZ;
     int16         field_237E;
