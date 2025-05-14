@@ -1,0 +1,37 @@
+//------------------------------------------------
+//--- 010 Editor v15.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: PS-X EXE template for Sony PlayStation 1 executables
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct PsxExeHeader
+{
+    char     magic[8];
+    Assert(magic == "PS-X EXE");
+    uchar    reserved1[8];                       // Zero-filled
+    uint32   initial_pc           <format=hex>;  // Initial PC (entry point) - usually 0x80010000 or higher
+    uint32   initial_gp           <format=hex>;  // Initial GP/R28 - usually 0
+    uint32   load_addr            <format=hex>;  // Destination address in RAM - usually 0x80010000 or higher
+    uint32   load_size;                          // Filesize (must be N*0x800), excluding 0x800-byte header
+    uint32   overlay_addr         <format=hex>;  // Unknown/Unused address (optional overlay) - usually 0
+    uint32   overlay_size;                       // Unknown/Unused size (not auto-loaded) - usually 0
+    uint32   memfill_start        <format=hex>;  // Memfill start address - usually 0 (none)
+    uint32   memfill_size;                       // Memfill size in bytes - usually 0 (none)
+    uint32   sp_base              <format=hex>;  // Initial SP/R29 & FP/R30 base - usually 0x801FFFF0 or 0 (none)
+    uint32   sp_offset            <format=hex>;  // Initial SP/R29 & FP/R30 offset - usually 0
+    uchar    reserved2[20];                      // Reserved for A(43h) function, should be zero-filled
+    char     region_marker[1972];                // ASCII region marker string or zero-filled
+};
+
+PsxExeHeader header;
+
+// The rest of the file is the program data (code + initialized data)
+FSeek(0x800);
+uchar program_data[header.load_size];
