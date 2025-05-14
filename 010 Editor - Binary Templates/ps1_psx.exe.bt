@@ -1,14 +1,15 @@
 //------------------------------------------------
 //--- 010 Editor v15.0.2 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
+//      File: ps1_psx.exe.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
 //   Purpose: PS-X EXE template for Sony PlayStation 1 executables
-//  Category: 
+//  Category: Game
 // File Mask: 
-//  ID Bytes: 
+//  ID Bytes: 50 53 2D 58 20 45 58 45 //PS-X EXE
 //   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
 struct PsxExeHeader
