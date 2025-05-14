@@ -12,27 +12,43 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-struct PsxExeHeader
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+struct EXEC
 {
-    char     magic[8];
-    Assert(magic == "PS-X EXE");
-    uchar    reserved1[8];                       // Zero-filled
-    uint32   initial_pc           <format=hex>;  // Initial PC (entry point) - usually 0x80010000 or higher
-    uint32   initial_gp           <format=hex>;  // Initial GP/R28 - usually 0
-    uint32   load_addr            <format=hex>;  // Destination address in RAM - usually 0x80010000 or higher
-    uint32   load_size;                          // Filesize (must be N*0x800), excluding 0x800-byte header
-    uint32   overlay_addr         <format=hex>;  // Unknown/Unused address (optional overlay) - usually 0
-    uint32   overlay_size;                       // Unknown/Unused size (not auto-loaded) - usually 0
-    uint32   memfill_start        <format=hex>;  // Memfill start address - usually 0 (none)
-    uint32   memfill_size;                       // Memfill size in bytes - usually 0 (none)
-    uint32   sp_base              <format=hex>;  // Initial SP/R29 & FP/R30 base - usually 0x801FFFF0 or 0 (none)
-    uint32   sp_offset            <format=hex>;  // Initial SP/R29 & FP/R30 offset - usually 0
-    uchar    reserved2[20];                      // Reserved for A(43h) function, should be zero-filled
-    char     region_marker[1972];                // ASCII region marker string or zero-filled
+    uint32   pc0    <format=hex, comment="execution start address">;                                // usually 0x80010000 or higher
+    uint32   gp0                <comment="gp register initial value">;                              // usually 0
+    uint32   t_addr <format=hex, comment="text and data section lead address with initial value">;  // Destination Address in RAM, usually 0x80010000 or higher in RAM
+    uint32   t_size             <comment="text and data section size with initial value">;          // Filesize (must be N*0x800), excluding 0x800-byte header
+    uint32   d_addr <format=hex, comment="system reserved">;                                        // usually 0
+    uint32   d_size             <comment="system reserved">;                                        // usually 0
+    uint32   b_addr <format=hex, comment="data section lead address with no initial value. Exec() clears this section; however, if b_addr is zero, the section doesn’t exist, so it doesn’t get cleared.">;  // Memfill Start Address, usually 0
+    uint32   b_size             <comment="data section size with no initial value">;                                                                                                                         // Memfill size in bytes, usually 0
+    uint32   s_addr <format=hex, comment="stack area lead address (user specified). Exec() substitutes s_addr+s_size for stack  pointer, unless s_addr is zero.">;                                           // usually 0x801FFFF0 or 0
+    uint32   s_size <format=hex, comment="stack area size (user specified)">;                                                                                                                                // usually 0
+    uint32   sp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
+    uint32   fp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
+    uint32   gp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
+    uint32   ret                <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
+    uint32   base               <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
 };
 
-PsxExeHeader header;
+struct XF_HDR
+{
+    char   key[8]                 <comment="key code">;
+    Assert(key == "PS-X EXE");
+    uint32 text       <format=hex, comment="position of text section within file">;
+    uint32 data       <format=hex, comment="position of data section within data file">;
+    EXEC   exec                   <comment="execution file information">;
+    char   tittle[60]             <comment="license code">;
+};
 
-// The rest of the file is the program data (code + initialized data)
-FSeek(0x800);
-uchar program_data[header.load_size];
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+XF_HDR header                            <comment="execution file header">;
+char   padding[1912];
+uchar  program_data[header.exec.t_size];
