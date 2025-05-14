@@ -49,6 +49,11 @@ struct XF_HDR
 // Main
 //------------------------------------------------
 
-XF_HDR header                            <comment="execution file header">;
-char   padding[1912];
-uchar  program_data[header.exec.t_size];
+struct PSX_EXE {
+    XF_HDR header                            <comment="execution file header">;
+    char   padding[1912];
+    uchar  program_data[header.exec.t_size];
+};
+
+if (GetTemplateName() == "ps1_psx.exe.bt")
+    PSX_EXE psxExe <open=true>;

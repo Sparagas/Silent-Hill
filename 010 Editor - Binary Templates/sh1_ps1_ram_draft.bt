@@ -11,6 +11,7 @@
 //   History: 
 //------------------------------------------------
 
+// #include "ps1_psx.exe.bt"
 #include "sh1_bodyprog_draft.bt"
 
 
@@ -32,7 +33,9 @@ else {
 OffsetSetLimitSize(0x200000);
 FSeek(0);
 
-uint8    ram_0[0x24B60];
+uint8    ram_0[0x10000];
+uchar    program_data[79872];  // read from PS-X EXE SLUS_007.07
+uint8    ram_23800[0x1360];
 Bodyprog bodyprog(0x24B60);
 
 uint8    ram_BCD00[29801];
@@ -52,3 +55,6 @@ uint8    WorldTintG;       // Offset: 0xC4191
 uint8    WorldTintB;       // Offset: 0xC4192
 
 uint8    ram_C4193[1293933];
+
+// 0x12F7C
+// 0x1FFFF0
