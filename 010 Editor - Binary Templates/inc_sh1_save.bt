@@ -162,12 +162,15 @@ enum <int8> Commands
 
 struct SaveLoadScreen
 {
-    uint16    totalSavesCount;    // probaly total count on all playthroughs
+    uint16    totalSavesCount;        // probaly total count on all playthroughs
     uint16    unk_02;
-    q19_12    gameplayTimer;
-    uint16    savesCount;         // only counts on current playthrough, on screen range [0, 999], real range: s16
+    q19_12    gameplayTimer;          // redo to unsigend. Max value 291:16:15, but probalby game uses up to 290:0:0
+    int16     savesCount;             // only counts on current playthrough, on screen range [0, 999], real range: s16
     SaveTitle saveTitle;
-    uint8     isTitleYellowFlag;
+    uint8     isTitleYellowFlag : 1;
+    uint8     add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
+    uint8     unknwon           : 3;
+    uint8     hyperBlasterColor : 2;  // Red: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
 };
 
 struct Buttons
@@ -1251,19 +1254,23 @@ struct ShSaveGame
     uint16          pickedUpItemCount;
     ubyte           field_23E;
     ubyte           field_23F;;
-    q19_12          playerHealth;       // default: 100
-    q19_12          playerPositionX;
-    q3_12_deg       playerRotationY;    // Positive Z: 0, clockwise rotation
-    ubyte           unk_4[2];           // clearedGamesCount?
-    q19_12          playerPositionZ;
-    q19_12          gameplayTimer;      // doesn't stop at pause, inventory or map screen
+    q19_12          playerHealth;           // default: 100
+    q19_12          playerPositionX;       
+    q3_12_deg       playerRotationY;        // Positive Z: 0, clockwise rotation
+    ubyte           clearGameCount;         // max 99 in game
+    ubyte           unk_4;
+    q19_12          playerPositionZ;       
+    q19_12          gameplayTimer;          // doesn't stop at pause, inventory or map screen
     q19_12          runDistance;
     q19_12          walkDistance;
 
-    uint8           unk_pad;
+    uint8           isTitleYellowFlag : 1;
+    uint8           add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
+    uint8           unknwon           : 3;
+    uint8           hyperBlasterColor : 2;  // Red: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
     uint16          meleeKillCount;
     uint8           rangedKillCount;
-    uint32          unkDifficulity;  // Packed data. Stores game difficulty and something else.
+    uint32          unkDifficulity;         // Packed data. Stores game difficulty and something else.
     /*
     dificulity modifier?
     Easy:   00 00 00 F0 // -16
