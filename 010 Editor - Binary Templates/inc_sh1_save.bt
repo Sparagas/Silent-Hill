@@ -13,14 +13,17 @@
 //------------------------------------------------
 
 
-typedef int32 q19_12     <read=Str("%lg", this / 4096.0),
-                         write=(this = Atof(value) * 4096.0)>;
-                     
-typedef int16 q3_12      <read=Str("%lg", this / 4096.0),
-                         write=(this = Atof(value) * 4096.0)>;
+typedef int32 q19_12      <read=Str("%g", this / 4096.0),
+                          write=(this = Atof(value) * 4096.0)>;
+
+typedef uint32 q20_12     <read=Str("%g", this / 4096.0),
+                          write=(this = Atof(value) * 4096.0)>;
+
+typedef int16 q3_12       <read=Str("%g", this / 4096.0),
+                          write=(this = Atof(value) * 4096.0)>;
                       
-typedef int16 q3_12_deg  <read=Str("%lg deg", this / 4096.0 * 360),
-                         write=(this = Atof(value) * 4096.0 / 360.0)>;
+typedef int16 q3_12_deg   <read=Str("%g deg", this / 4096.0 * 360),
+                          write=(this = Atof(value) * 4096.0 / 360.0)>;
 
 struct Sector;
 
@@ -143,7 +146,7 @@ enum <int8> InventoryItemId
 
 enum <int8> Commands
 {
-    USE_HEALTH     = 0,  // Text is "Use", but this one is used explusively on health items.
+    USE_HEALTH     = 0,  // Text is "Use", but this one is used exclusively on health items.
     USE            = 1,
     EQUIP          = 2,
     UNEQUIP        = 3,
@@ -164,13 +167,13 @@ struct SaveLoadScreen
 {
     uint16    totalSavesCount;        // probaly total count on all playthroughs
     uint16    unk_02;
-    q19_12    gameplayTimer;          // redo to unsigend. Max value 291:16:15, but probalby game uses up to 290:0:0
+    q20_12    gameplayTimer;          // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15
     int16     savesCount;             // only counts on current playthrough, on screen range [0, 999], real range: s16
     SaveTitle saveTitle;
     uint8     isTitleYellowFlag : 1;
     uint8     add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
     uint8     unknwon           : 3;
-    uint8     hyperBlasterColor : 2;  // Red: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
+    uint8     hyperBlasterColor : 2;  // Red/None: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
 };
 
 struct Buttons
@@ -1260,7 +1263,7 @@ struct ShSaveGame
     ubyte           clearGameCount;         // max 99 in game
     ubyte           unk_4;
     q19_12          playerPositionZ;       
-    q19_12          gameplayTimer;          // doesn't stop at pause, inventory or map screen
+    q20_12          gameplayTimer;          // // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
     q19_12          runDistance;
     q19_12          walkDistance;
 
