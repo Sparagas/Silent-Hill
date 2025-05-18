@@ -22,13 +22,14 @@ typedef uint8 u8_deg <read=Str("%lg deg", this / 352.0 * 360),
 
 typedef struct (ShCharacterId charaGroupIds)
 {
+    local ShCharacterId charaGroupIds = charaGroupIds;
+
     q19_12              positionX;
     ShCharacterId       charaId;
-    u8_deg              rotY;
-    int8                flags_6;     /** Copied to `isAnimStateUnchanged_3` in `s_Model`. */
+    u8_deg              rotationY;  // Multiplied by 16 to get `SubCharacter.rotation.vy` value.
+    int8                flags_6;    /** Copied to `stateStep` in `Model`, with `state = 0`. */
     int8                unk_7;
     q19_12              positionZ;
-    local ShCharacterId charaGroupIds = charaGroupIds;
 }
 SpawnInfo <read=readSpawnInfo(charaId, charaGroupIds),
            optimize=false>;
@@ -83,4 +84,5 @@ SpawnInfo      charaSpawns1(charaGroupIds[1])[16];
 TodoVcRoadData todoVcRoadData[48];
 };
 
-Map map;
+if (GetTemplateName() == "sh1_vin_map_bin_draft.bt")
+    Map map;

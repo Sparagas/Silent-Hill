@@ -136,9 +136,9 @@ struct ModelAnim
 struct Model
 {
     ShCharacterId charaId;
-    uint8         field_1;
-    uint8         field_2;
-    uint8         isAnimStateUnchanged;
+    uint8         paletteIdx;
+    uint8         state;
+    uint8         stateStep;
     ModelAnim     anim;
 };
 
@@ -154,23 +154,25 @@ struct SubCharacter
     q3_12_deg rotationZ;           // Offset: 0xBA034
     q3_12_deg rotationYCopy;       // Offset: 0xBA036
                                    
-    q3_12_deg rotationSpeedX;      // Offset: 0xBA038
-    q3_12_deg rotationSpeedY;      // Offset: 0xBA03A
+    q3_12_deg rotationSpeedX;      // Offset: 0xBA038 
+    q3_12_deg rotationSpeedY;      // Offset: 0xBA03A Range [-0x700, 0x700]. 
     q3_12_deg rotationSpeedZ;      // Offset: 0xBA03C
     q3_12_deg rotationSpeedZCopy;  // Offset: 0xBA03E
 
     int32     field_34;
-    int32     moveSpeed_38;
-    int16     headingAngle_3C;
+    int32     moveSpeed;
+    int16     headingAngle;
     int16     field_3E;
     int8      unk_40[4];
     int16     field_44;
     int8      unk_46[2];
     int8      unk_48[104];
     q19_12    health;
-    int8      unk_B4[12];
+    int32     field_B4;
+    int32     field_B8;
+    int32     field_BC;
     int32     field_C0;
-    uint16    dead_timer_C4; // Part of `shBattleInfo` struct in SH2, may use something similar here.
+    uint16    dead_timer;  // Part of `shBattleInfo` struct in SH2, may use something similar here.
     uint16    field_C6;
     
     // Fields seen used inside maps (eg. `map0_s00` `func_800D923C`)
@@ -186,8 +188,13 @@ struct SubCharacter
     int16     field_DA;
     int16     field_DC;
     int16     field_DE;
-    int32     flags_E0;
+
+    int32     unk_E0     : 8;
+    int32     field_E0_8 : 4;
+    int32     unk_E0_12  : 20;
+
     int32     properties_E4[10];
+
     int8      unk_10C;
     uint8     field_10D;
     int8      unk_10E[6];
@@ -221,7 +228,7 @@ struct StructUnk1
 
 struct MainCharacterExtra
 {
-    Model model;      // For player, this is a copy of model_0 in its corresponding s_SubCharacter.
+    Model model;      // For player, this is a copy of model in its corresponding SubCharacter.
     int32 field_18;   
     int32 field_1C;   // Some kind of state. 0: nothing, 1: unknown bent over pose, 2: AFK, 8: dying, 5: forcefully turned around.
     int32 field_20;   // Some kind of anim state related to current action (running, walking, sidestepping, etc.).
@@ -244,9 +251,9 @@ struct GsCoordinate2
 struct SysWork
 {
     int8          unk_0[8];
-    int32         sysState_8;     /** e_SysState */
-    int32         sysStateStep_C; // Current step/state of sysState_8 game is in.
-    int32         field_10;       // Sometimes assigned to same thing as sysStateStep_C.
+    int32         sysState;      /** e_SysState */
+    int32         sysStateStep;  // Current step/state of sysState_8 game is in.
+    int32         field_10;      // Sometimes assigned to same thing as sysStateStep_C.
     int32         field_14;
     int32         field_18;
     int32         timer_1C;
@@ -258,14 +265,14 @@ struct SysWork
     int8          unk_34[4];
     MapWork       field_38;  // Something related to map loading. Likely a struct as `func_8003CD6C` requires a struct and `GameFs_MapLoad` input it pointing here.
     int8          unk_48[3];
-    uint8         isPlayerInCombatMode_4B;
+    uint8         isPlayerInCombatMode;
     MainCharacter player;
     SubCharacter  npcs[6];
-
     GsCoordinate2 playerBoneCoords[18];
-    
     int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
-    int8          unk_FC0[4802]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
+    int8          unk_FC0[4800]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
+    int8          unk_2280;
+    int8          field_2281;    // Set by `Chara_PositionUpdateFromParams`.
     int8          field_2282;
     int8          unk_2283[7];
     int16         field_228A;
@@ -283,13 +290,13 @@ struct SysWork
     int32         field_2350_0 : 4;
     int32         field_2350_4 : 4;
     int32         field_2351   : 16;
-    int32         field_2353   : 8;   // Some index into npcs
+    int32         field_2353   : 8;   // Some index into `npcs`
     int8          unk_2354[4];
     uint8         field_2358;
     int8          unk_2359[3];
-    uint32        field_235C;
+    uint32        field_235C;  // offset
     StructUnk0    field_2360;
-    uint32        field_236C;
+    uint32        field_236C;  // offset
     StructUnk1    field_2370;
     int16         unk_2376;
     int16         field_2378;
@@ -315,7 +322,7 @@ struct SysWork
 
 struct GameWork
 {
-    ShSaveUserConfig shSaveUserConfig;
+    ShSaveUserConfig config;
     uint8            todoControllerData[44*2];
     ShSaveGame       unkSaveGame;
     ShSaveGame       saveGameCurrent;
@@ -335,7 +342,7 @@ struct GameWork
     int8             mapAnimIdx_5B1;
     int8             unk_5B2;
     int8             unk_5B3;
-    AnalogPadData    RawPadData;
+    AnalogPadData    rawPadData;
     int8             unk_5BC[28];
 };
 

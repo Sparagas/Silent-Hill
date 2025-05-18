@@ -62,101 +62,108 @@ enum <ubyte> SaveTitle
 
 enum <int8> InventoryItemId
 {
-    EMPTY                  = -1,
-    UNEQUIPPED             = 0,
+    INVENTORY_IITEM_ID_EMPTY                  = -1,
+    INVENTORY_IITEM_ID_UNEQUIPPED             = 0,
 
-    HEALTH_DRINK           = 0x20,
-    FIRST_AID_KIT          = 0x21,
-    AMPOULE                = 0x22,
+    INVENTORY_IITEM_ID_HEALTH_DRINK           = 0x20,
+    INVENTORY_IITEM_ID_FIRST_AID_KIT          = 0x21,
+    INVENTORY_IITEM_ID_AMPOULE                = 0x22,
 
-    LOBBY_KEY              = 0x40,
-    HOUSE_KEY              = 0x41,
-    KEY_OF_LION            = 0x42,
-    KEY_OF_WOODMAN         = 0x43,
-    KEY_OF_SCARECROW       = 0x44,
-    LIBRARY_RESERVE_KEY    = 0x45,
-    CLASSROOM_KEY          = 0x46,
-    K_GORDON_KEY           = 0x47,
-    DRAWBRIDGE_KEY         = 0x48,
-    BASEMENT_KEY           = 0x49,
-    BASEMENT_STOREROOM_KEY = 0x4A,
-    EXAMINATION_ROOM_KEY   = 0x4B,
-    ANTIQUE_SHOP_KEY       = 0x4C,
-    SEWER_KEY              = 0x4D,
-    KEY_OF_OPHIEL          = 0x4E,
-    KEY_OF_HAGITH          = 0x4F,
-    KEY_OF_PHALEG          = 0x50,
-    KEY_OF_BETHOR          = 0x51,
-    KEY_OF_ARATRON         = 0x52,
-    NOTE_TO_SCHOOL         = 0x53,
-    NOTE_DOGHOUSE          = 0x54,
-    PICTURE_CARD           = 0x55,
+    INVENTORY_IITEM_ID_LOBBY_KEY              = 0x40,
+    INVENTORY_IITEM_ID_HOUSE_KEY              = 0x41,
+    INVENTORY_IITEM_ID_KEY_OF_LION            = 0x42,
+    INVENTORY_IITEM_ID_KEY_OF_WOODMAN         = 0x43,
+    INVENTORY_IITEM_ID_KEY_OF_SCARECROW       = 0x44,
+    INVENTORY_IITEM_ID_LIBRARY_RESERVE_KEY    = 0x45,
+    INVENTORY_IITEM_ID_CLASSROOM_KEY          = 0x46,
+    INVENTORY_IITEM_ID_K_GORDON_KEY           = 0x47,
+    INVENTORY_IITEM_ID_DRAWBRIDGE_KEY         = 0x48,
+    INVENTORY_IITEM_ID_BASEMENT_KEY           = 0x49,
+    INVENTORY_IITEM_ID_BASEMENT_STOREROOM_KEY = 0x4A,
+    INVENTORY_IITEM_ID_EXAMINATION_ROOM_KEY   = 0x4B,
+    INVENTORY_IITEM_ID_ANTIQUE_SHOP_KEY       = 0x4C,
+    INVENTORY_IITEM_ID_SEWER_KEY              = 0x4D,
+    INVENTORY_IITEM_ID_KEY_OF_OPHIEL          = 0x4E,
+    INVENTORY_IITEM_ID_KEY_OF_HAGITH          = 0x4F,
+    INVENTORY_IITEM_ID_KEY_OF_PHALEG          = 0x50,
+    INVENTORY_IITEM_ID_KEY_OF_BETHOR          = 0x51,
+    INVENTORY_IITEM_ID_KEY_OF_ARATRON         = 0x52,
+    INVENTORY_IITEM_ID_NOTE_TO_SCHOOL         = 0x53,
+    INVENTORY_IITEM_ID_NOTE_DOGHOUSE          = 0x54,
+    INVENTORY_IITEM_ID_PICTURE_CARD           = 0x55,
 
-    SEWER_EXIT_KEY         = 0x57,
-    CHANNELING_STONE       = 0x58,
+    INVENTORY_IITEM_ID_SEWER_EXIT_KEY         = 0x57,
+    INVENTORY_IITEM_ID_CHANNELING_STONE       = 0x58,
 
-    CHEMICAL               = 0x60,
-    GOLD_MEDALLION         = 0x61,
-    SILVER_MEDALLION       = 0x62,
-    RUBBER_BALL            = 0x63,
-    FLAUROS                = 0x64,
-    PLASTIC_BOTTLE         = 0x65,
-    UNKNOWN_LIQUID         = 0x66,
-    PLATE_OF_TURTLE        = 0x67,
-    PLATE_OF_HATTER        = 0x68,
-    PLATE_OF_CAT           = 0x69,
-    PLATE_OF_QUEEN         = 0x6A,
-    BLOOD_PACK             = 0x6B,
-    DISINFECTING_ALCOHOL   = 0x6C,
-    LIGHTER                = 0x6D,
-    VIDEO_TAPE             = 0x6E,
+    INVENTORY_IITEM_ID_CHEMICAL               = 0x60,
+    INVENTORY_IITEM_ID_GOLD_MEDALLION         = 0x61,
+    INVENTORY_IITEM_ID_SILVER_MEDALLION       = 0x62,
+    INVENTORY_IITEM_ID_RUBBER_BALL            = 0x63,
+    INVENTORY_IITEM_ID_FLAUROS                = 0x64,
+    INVENTORY_IITEM_ID_PLASTIC_BOTTLE         = 0x65,
+    INVENTORY_IITEM_ID_UNKNOWN_LIQUID         = 0x66,
+    INVENTORY_IITEM_ID_PLATE_OF_TURTLE        = 0x67,
+    INVENTORY_IITEM_ID_PLATE_OF_HATTER        = 0x68,
+    INVENTORY_IITEM_ID_PLATE_OF_CAT           = 0x69,
+    INVENTORY_IITEM_ID_PLATE_OF_QUEEN         = 0x6A,
+    INVENTORY_IITEM_ID_BLOOD_PACK             = 0x6B,
+    INVENTORY_IITEM_ID_DISINFECTING_ALCOHOL   = 0x6C,
+    INVENTORY_IITEM_ID_LIGHTER                = 0x6D,
+    INVENTORY_IITEM_ID_VIDEO_TAPE             = 0x6E,
 
-    KAUFMANN_KEY           = 0x70,
-    RECEIPT                = 0x71,
-    SAFE_KEY               = 0x72,
-    MAGNET                 = 0x73,
-    MOTORCYCLE_KEY         = 0x74,
-    BIRD_CAGE_KEY          = 0x75,
-    PLIERS                 = 0x76,
-    SCREWDRIVER            = 0x77,
-    CAMERA                 = 0x78,
-    RING_OF_CONTRACT       = 0x79,
-    KITCHEN_KNIFE          = 0x80,
-    STEEL_PIPE             = 0x81,
-    ROCK_DRILL             = 0x82,
-    
-    HAMMER                 = 0x84,
-    CHAINSAW               = 0x85,
-    KATANA                 = 0x86,
-    AXE                    = 0x87,
+    INVENTORY_IITEM_ID_KAUFMANN_KEY           = 0x70,
+    INVENTORY_IITEM_ID_RECEIPT                = 0x71,
+    INVENTORY_IITEM_ID_SAFE_KEY               = 0x72,
+    INVENTORY_IITEM_ID_MAGNET                 = 0x73,
+    INVENTORY_IITEM_ID_MOTORCYCLE_KEY         = 0x74,
+    INVENTORY_IITEM_ID_BIRD_CAGE_KEY          = 0x75,
+    INVENTORY_IITEM_ID_PLIERS                 = 0x76,
+    INVENTORY_IITEM_ID_SCREWDRIVER            = 0x77,
+    INVENTORY_IITEM_ID_CAMERA                 = 0x78,
+    INVENTORY_IITEM_ID_RING_OF_CONTRACT       = 0x79,
+    INVENTORY_IITEM_ID_KITCHEN_KNIFE          = 0x80,
+    INVENTORY_IITEM_ID_STEEL_PIPE             = 0x81,
+    INVENTORY_IITEM_ID_ROCK_DRILL             = 0x82,
 
-    HANDGUN                = 0xA0,
-    HUNTING_RIFLE          = 0xA1,
-    SHOTGUN                = 0xA2,
-    HYPER_BLASTER          = 0xA3,
+    INVENTORY_IITEM_ID_HAMMER                 = 0x84,
+    INVENTORY_IITEM_ID_CHAINSAW               = 0x85,
+    INVENTORY_IITEM_ID_KATANA                 = 0x86,
+    INVENTORY_IITEM_ID_AXE                    = 0x87,
 
-    HANDGUN_BULLETS        = 0xC0,
-    RIFLE_SHELLS           = 0xC1,
-    SHOTGUN_SHELLS         = 0xC2,
+    INVENTORY_IITEM_ID_HANDGUN                = 0xA0,
+    INVENTORY_IITEM_ID_HUNTING_RIFLE          = 0xA1,
+    INVENTORY_IITEM_ID_SHOTGUN                = 0xA2,
+    INVENTORY_IITEM_ID_HYPER_BLASTER          = 0xA3,
 
-    FLASHLIGHT             = 0xE0,
-    POCKET_RADIO           = 0xE1,
-    GASOLINE_TANK          = 0xE2
+    INVENTORY_IITEM_ID_HANDGUN_BULLETS        = 0xC0,
+    INVENTORY_IITEM_ID_RIFLE_SHELLS           = 0xC1,
+    INVENTORY_IITEM_ID_SHOTGUN_SHELLS         = 0xC2,
+
+    INVENTORY_IITEM_ID_FLASHLIGHT             = 0xE0,
+    INVENTORY_IITEM_ID_POCKET_RADIO           = 0xE1,
+    INVENTORY_IITEM_ID_GASOLINE_TANK          = 0xE2
 };
 
 enum <int8> Commands
 {
-    USE_HEALTH     = 0,  // Text is "Use", but this one is used exclusively on health items.
-    USE            = 1,
-    EQUIP          = 2,
-    UNEQUIP        = 3,
-    EQUIP_RELOAD   = 4,
-    UNEQUIP_RELOAD = 5,
-    ON_OFF         = 6,
-    RELOAD         = 7,
-    LOOK           = 8,
-    USE_LOOK       = 9
+    INVENTORY_COMMAND_ID_USE_HEALTH     = 0,  // Text is "Use", but this one is used exclusively on health items.
+    INVENTORY_COMMAND_ID_USE            = 1,
+    INVENTORY_COMMAND_ID_EQUIP          = 2,
+    INVENTORY_COMMAND_ID_UNEQUIP        = 3,
+    INVENTORY_COMMAND_ID_EQUIP_RELOAD   = 4,
+    INVENTORY_COMMAND_ID_UNEQUIP_RELOAD = 5,
+    INVENTORY_COMMAND_ID_ON_OFF         = 6,
+    INVENTORY_COMMAND_ID_RELOAD         = 7,
+    INVENTORY_COMMAND_ID_LOOK           = 8,
+    INVENTORY_COMMAND_ID_USE_LOOK       = 9
     // flashlight 11 in day time?
+};
+
+enum <int32> GameDifficulty
+{
+    GameDifficulty_Easy   = -1,
+    GameDifficulty_Normal = 0,
+    GameDifficulty_Hard	  = 1,
 };
 
 //------------------------------------------------
@@ -173,7 +180,7 @@ struct SaveLoadScreen
     uint8     isTitleYellowFlag : 1;
     uint8     add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
     uint8     unknwon           : 3;
-    uint8     hyperBlasterColor : 2;  // Red/None: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
+    uint8     hyperBlasterColor : 2;  // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
 };
 
 struct Buttons
@@ -1146,16 +1153,16 @@ struct ShSaveGame
     ShInventoryItem items[40];
     int8            field_A0;
     int8            field_A1[3];
-    int8            mapOverlayIdx;   // only on load
+    int8            mapOverlayIdx;   // Index to overlay `*.BIN` files.
     /*
     15 - 
     16 - trigger: after exiting Kaufman cutscene room in hospital through any door
     */
     
-    int8            mapRoomIdx;      // roomIdx?
+    int8            mapRoomIdx;      // Index to local map geometry `*.IPD` files.
     uint16          saveGameCount;
     SaveTitle       saveTitle;       // mapEventIdx - only on load
-    uint8           mapIdx;          // global map index?
+    uint8           mapIdx;          // Index to global map geometry `*.PLM` files.
     InventoryItemId equippedWeapon;  // default: 0, effects only the visible player weapon model
     ubyte           field_AB;
     uint32          flags_AC;
@@ -1253,27 +1260,28 @@ struct ShSaveGame
     */
 
     MapMarkingFlags mapMarkingFlags;
-    uint32          field_238;
-    uint16          pickedUpItemCount;
-    ubyte           field_23E;
-    ubyte           field_23F;;
-    q19_12          playerHealth;           // default: 100
+    int32           field_238;
+    int16           pickedUpItemCount;       // test signess
+    int8            field_23E;
+    int8            field_23F;;
+    q19_12          playerHealth;            // default: 100
     q19_12          playerPositionX;       
-    q3_12_deg       playerRotationY;        // Positive Z: 0, clockwise rotation
-    ubyte           clearGameCount;         // max 99 in game
+    q3_12_deg       playerRotationY;         // Range [0, 0.999755859375], Positive Z: 0, clockwise rotation
+    ubyte           clearGameCount;          // max 99 in game
     ubyte           unk_4;
     q19_12          playerPositionZ;       
-    q20_12          gameplayTimer;          // // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
+    q20_12          gameplayTimer;           // // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
     q19_12          runDistance;
     q19_12          walkDistance;
 
     uint8           isTitleYellowFlag : 1;
-    uint8           add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
+    uint8           add290Hours       : 2;   // adds 290 hours per 1 bit. So 290, 580, 870
     uint8           unknwon           : 3;
-    uint8           hyperBlasterColor : 2;  // Red: 0, Yeallow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
+    uint8           hyperBlasterColor : 2;   // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
     uint16          meleeKillCount;
     uint8           rangedKillCount;
-    uint32          unkDifficulity;         // Packed data. Stores game difficulty and something else.
+    uint32          field_260         : 28;
+    GameDifficulty  gameDifficulty    : 4;
     /*
     dificulity modifier?
     Easy:   00 00 00 F0 // -16
