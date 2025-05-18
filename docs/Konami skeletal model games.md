@@ -39,13 +39,83 @@ Further inspection has revealed that many more Konami games use this format, mea
 
 ## File format specification
 
-This is not a full specification, but a breaf introduction.
-
+This is not a full specification, but just a header structure for two versions, found in official debug symbols from *Silent Hill 2* and *Silent Hill 4*.
+version 3
 ```C
-uint32 magic = 0xFFFF0003;  // written 03 00 FF FF in little endian file
-uint32 version;             // only 3, 4, 7 and 8 there found
-uint32 matricesOffset;      // usualy 0x80, but could be 0x00 if no marices exist
-uint32 matricesCount;
+struct Model
+{
+	unsigned int id;
+	unsigned int revision;
+	unsigned int initial_matrices_offset;
+	unsigned int n_skeletons;
+	unsigned int skeleton_structure_offset;
+	unsigned int n_skeleton_pairs;
+	unsigned int skeleton_pairs_offset;
+	unsigned int default_pcms_offset;
+	unsigned int n_vu1_parts;
+	unsigned int vu1_parts_offset;
+	unsigned int n_vu0_parts;
+	unsigned int vu0_parts_offset;
+	unsigned int n_texture_blocks;
+	unsigned int texture_blocks_offset;
+	unsigned int n_text_poses;
+	unsigned int text_poses_offset;
+	unsigned int text_pos_params_offset;
+	unsigned int n_cluster_nodes;
+	unsigned int cluster_nodes_offset;
+	unsigned int n_clusters;
+	unsigned int clusters_offset;
+	unsigned int n_func_data;
+	unsigned int func_data_offset;
+	unsigned int hit_offset;
+	unsigned int box_offset;
+	unsigned int flag;
+	unsigned int relative_matrices_offset;
+	unsigned int relative_transes_offset;
+	unsigned int reserved_1c;
+	unsigned int reserved_1d;
+	unsigned int reserved_1e;
+	unsigned int reserved_1f;
+};
+```
+version 4
+```C
+struct Model
+{
+	unsigned int id;
+	unsigned int revision;
+	unsigned int initial_matrices_offset;
+	unsigned int n_skeletons;
+	unsigned int skeleton_structure_offset;
+	unsigned int n_skeleton_pairs;
+	unsigned int skeleton_pairs_offset;
+	unsigned int default_pcms_offset;
+	unsigned int n_vu1_parts;
+	unsigned int vu1_parts_offset;
+	unsigned int n_vu0_parts;
+	unsigned int vu0_parts_offset;
+	unsigned int n_texture_blocks;
+	unsigned int texture_blocks_offset;
+	unsigned int n_text_poses;
+	unsigned int text_poses_offset;
+	unsigned int text_pos_params_offset;
+	unsigned int n_cluster_nodes;
+	unsigned int cluster_nodes_offset;
+	unsigned int n_clusters;
+	unsigned int clusters_offset;
+	unsigned int n_func_data;
+	unsigned int func_data_offset;
+	unsigned int hit_offset;
+	unsigned int box_offset;
+	unsigned int flag;
+	unsigned int relative_matrices_offset;
+	unsigned int relative_transes_offset;
+	unsigned int hits_offset;
+	unsigned int reserved_1d;
+	unsigned int tanmparams;
+	unsigned int textureextras;
+};
+
 ```
 
 ## Game series summary
