@@ -157,7 +157,7 @@ struct SubCharacter
     q3_12_deg rotationSpeedX;      // Offset: 0xBA038 
     q3_12_deg rotationSpeedY;      // Offset: 0xBA03A Range [-0x700, 0x700]. 
     q3_12_deg rotationSpeedZ;      // Offset: 0xBA03C
-    q3_12_deg rotationSpeedZCopy;  // Offset: 0xBA03E
+    q3_12_deg rotationSpeedYCopy;  // Offset: 0xBA03E
 
     int32     field_34;
     int32     moveSpeed;
