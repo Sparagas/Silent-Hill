@@ -346,19 +346,109 @@ struct GameWork
     int8             unk_5BC[28];
 };
 
-struct Bodyprog(uint32 ramOffset)
+struct Rodata_0(uint32 ramOffset)
 {
-    FSeek(ramOffset);
-    uint8 todoDodybrogStart;
-
+    uint8 todoFirst;
     FSeek(0x1E4 + ramOffset);
-    uint32 GameWorkPtr0   <format=hex>;  // Offset: 0x24D44
-    uint32 SaveGamePtr    <format=hex>;  // Offset: 0x24D48
-    uint32 ControllerPtr0 <format=hex>;  // Offset: 0x24D4C
-    uint32 ControllerPtr1 <format=hex>;  // Offset: 0x24D50
-    uint32 GameWorkPtr1   <format=hex>;  // Offset: 0x24D54
-    Assert(GameWorkPtr0 == GameWorkPtr1);
+    uint32 g_GameWorkConst      <format=hex>;  // Offset: 0x24D44
+    uint32 g_SaveGamePtr        <format=hex>;  // Offset: 0x24D48
+    uint32 g_ControllerPtrConst <format=hex>;  // Offset: 0x24D4C
+    uint32 g_ControllerPtr      <format=hex>;  // Offset: 0x24D50
+    uint32 g_GameWorkPtr        <format=hex>;  // Offset: 0x24D54
+    Assert(g_GameWorkConst == g_GameWorkPtr);
+    FSeek(0x8F7 + ramOffset);
+    uint8 todoLast;
+};
 
+struct Rodata_bodyprog
+{
+    uint8 todo[0x91C - 0x8F8];
+};
+
+struct Rodata_91C
+{
+    uint8 todo[0x109C - 0x91C];
+};
+
+struct Rodata_libsd_bodyprog_80045A7C
+{
+    uint8 todo[0x1158 - 0x109C];
+};
+
+struct Rodata_1158
+{
+    uint8 todo[0x11C4 - 0x1158];
+};
+
+struct Rodata_bodyprog_CD_80047D50
+{
+    uint8 todo[0x11D8 - 0x11C4];
+};
+
+struct Rodata_11D8
+{
+    uint8 todo[0x3938 - 0x11D8];
+};
+
+struct Rodata_bodyprog_8004A87C
+{
+    uint8 todo[0x39C4 - 0x3938];
+};
+
+struct Rodata_39C4
+{
+    uint8 todo[0x5CF0 - 0x39C4];
+};
+
+struct Rodata_view_vc_main_5CF0
+{
+    uint8 todo[0x5D08 - 0x5CF0];
+};
+
+struct Rodata_view_vc_main_5D08
+{
+    uint8 todo[0x5D1C - 0x5D08];
+};
+
+struct Rodata_5D1C
+{
+    uint8 todo[0x5FBC - 0x5D1C];
+};
+
+struct Rodata_bodyprog_80085D78
+{
+    uint8 todo[0x6044 - 0x5FBC];
+};
+
+struct Rodata_6044
+{
+    uint8 todo[0x9744 - 0x6044];
+};
+
+struct Rodata_libsd_smf_io_9744
+{
+    uint8 todo[0x97dc - 0x9744];
+};
+
+struct Rodata_libsd_smf_io_97DC
+{
+    uint8 todo[0x99d8 - 0x97dc];
+};
+
+struct Rodata_99D8
+{
+    uint8 todo[0x99e8 - 0x99d8];
+};
+
+struct Rodata_libsd_smf_mid
+{
+    uint8 todo[0x9ad0 - 0x99e8];
+};
+
+struct C_bodyprog(uint32 ramOffset)
+{
+    uint8 todoFirst;
+    
     FSeek(0xB054 + ramOffset);
     uint32 SaveGame_UserConfigCopyWithChecksum;  // Offset: 0x2FBB4
     FSeek(0xB16C + ramOffset);
@@ -369,15 +459,1156 @@ struct Bodyprog(uint32 ramOffset)
     uint32 SaveGame_ChecksumValidate;            // Offset: 0x2FF74
     FSeek(0xB470 + ramOffset);
     uint32 SaveGame_ChecksumGenerate;            // Offset: 0x2FFD0
+    
+    FSeek(0x1b4eb + ramOffset);
+    uint8 todoLast;
+};
 
+struct C_view_vc_util
+{
+    Opcode todo[0x1bf04 - 0x1b4ec];
+};
+
+struct C_bodyprog_80040A64
+{
+    Opcode todo[0x20F1C - 0x1bf04];
+};
+
+struct C_libsd_bodyprog_80045A7C
+{
+    Opcode todo[0x231F0 - 0x20F1C];
+};
+
+struct C_bodyprog_CD_80047D50
+{
+    Opcode todo[0x23ed8 - 0x231F0];
+};
+
+struct C_view_vw_main
+{
+    Opcode todo[0x243c8 - 0x23ed8];
+};
+
+struct C_view_vw_calc
+{
+    Opcode todo[0x25d1c - 0x243c8];
+};
+
+struct C_bodyprog_8004A87C
+{
+    Opcode todo[0x5bde0 - 0x25d1c];
+};
+
+struct C_view_vc_main
+{
+    Opcode todo[0x61218 - 0x5bde0];
+};
+
+struct C_bodyprog_80085D78
+{
+    Opcode todo[0x6cf9c - 0x61218];
+};
+
+struct Asm_psyq_libapi_a09
+{
+    Opcode todo[0x6cfac - 0x6cf9c];
+};
+
+struct Asm_psyq_libapi_a11
+{
+    Opcode todo[0x6cfbc - 0x6cfac];
+};
+
+struct Asm_psyq_libapi_a39
+{
+    Opcode todo[0x6cfcc - 0x6cfbc];
+};
+
+struct Asm_psyq_libapi_a51
+{
+    Opcode todo[0x6cfdc - 0x6cfcc];
+};
+
+struct Asm_psyq_libapi_a53
+{
+    Opcode todo[0x6cfec - 0x6cfdc];
+};
+
+struct Asm_psyq_libapi_a65
+{
+    Opcode todo[0x6cffc - 0x6cfec];
+};
+
+struct Asm_psyq_libapi_a67
+{
+    Opcode todo[0x6d00c - 0x6cffc];
+};
+
+struct Asm_psyq_libapi_a68
+{
+    Opcode todo[0x6d01c - 0x6d00c];
+};
+
+struct Asm_psyq_libapi_a69
+{
+    Opcode todo[0x6d02c - 0x6d01c];
+};
+
+struct Asm_psyq_libapi_a81
+{
+    Opcode todo[0x6d03c - 0x6d02c];
+};
+
+struct Asm_psyq_libapi_first
+{
+    Opcode todo[0x6d2dc - 0x6d03c];
+};
+
+struct Asm_psyq_libc_a66
+{
+    Opcode todo[0x6d2ec - 0x6d2dc];
+};
+
+struct Asm_psyq_libc_a56
+{
+    Opcode todo[0x6d2fc - 0x6d2ec];
+};
+
+struct Asm_psyq_libc_c24
+{
+    Opcode todo[0x6d30c - 0x6d2fc];
+};
+
+struct Asm_psyq_libc_c25
+{
+    Opcode todo[0x6d31c - 0x6d30c];
+};
+
+struct Asm_psyq_libc_c26
+{
+    Opcode todo[0x6d32c - 0x6d31c];
+};
+
+struct Asm_psyq_libc_c27
+{
+    Opcode todo[0x6d33c - 0x6d32c];
+};
+
+struct Asm_psyq_libc_c37
+{
+    Opcode todo[0x6d34c - 0x6d33c];
+};
+
+struct Asm_psyq_libc_memcmp
+{
+    Opcode todo[0x6d39c - 0x6d34c];
+};
+
+struct Asm_psyq_libcard_c171
+{
+    Opcode todo[0x6d3ac - 0x6d39c];
+};
+
+struct Asm_psyq_libcard_c172
+{
+    Opcode todo[0x6d3bc - 0x6d3ac];
+};
+
+struct Asm_psyq_libcard_a78
+{
+    Opcode todo[0x6d3cc - 0x6d3bc];
+};
+
+struct Asm_psyq_libcard_a80
+{
+    Opcode todo[0x6d3dc - 0x6d3cc];
+};
+
+struct Asm_psyq_libcard_card
+{
+    Opcode todo[0x6d41c - 0x6d3dc];
+};
+
+struct Asm_psyq_libcard_init
+{
+    Opcode todo[0x6d4ec - 0x6d41c];
+};
+
+struct Asm_psyq_libapi_pad
+{
+    Opcode todo[0x6d7ec - 0x6d4ec];
+};
+
+struct Asm_psyq_libapi_a18
+{
+    Opcode todo[0x6d7fc - 0x6d7ec];
+};
+
+struct Asm_psyq_libapi_a19
+{
+    Opcode todo[0x6d80c - 0x6d7fc];
+};
+
+struct Asm_psyq_libapi_a20
+{
+    Opcode todo[0x6d81c - 0x6d80c];
+};
+
+struct Asm_psyq_libapi_a21
+{
+    Opcode todo[0x6d82c - 0x6d81c];
+};
+
+struct Asm_psyq_libapi_l02
+{
+    Opcode todo[0x6d83c - 0x6d82c];
+};
+
+struct Asm_psyq_libapi_l03
+{
+    Opcode todo[0x6d84c - 0x6d83c];
+};
+
+struct Asm_psyq_libapi_patch
+{
+    Opcode todo[0x6d8ec - 0x6d84c];
+};
+
+struct Asm_psyq_libapi_c68
+{
+    Opcode todo[0x6d8fc - 0x6d8ec];
+};
+
+struct Asm_psyq_libapi_chclrpad
+{
+    Opcode todo[0x6d96c - 0x6d8fc];
+};
+
+struct Asm_psyq_libcard_a74
+{
+    Opcode todo[0x6d97c - 0x6d96c];
+};
+
+struct Asm_psyq_libcard_a75
+{
+    Opcode todo[0x6d98c - 0x6d97c];
+};
+
+struct Asm_psyq_libcard_a76
+{
+    Opcode todo[0x6d99c - 0x6d98c];
+};
+
+struct Asm_psyq_libcard_patch
+{
+    Opcode todo[0x6db6c - 0x6d99c];
+};
+
+struct Asm_psyq_libcard_end
+{
+    Opcode todo[0x6dbec - 0x6db6c];
+};
+
+struct Asm_psyq_libcd_cdrom
+{
+    Opcode todo[0x6dc1c - 0x6dbec];
+};
+
+struct Asm_psyq_libcd_iso9660
+{
+    Opcode todo[0x6e58c - 0x6dc1c];
+};
+
+struct Asm_psyq_libcd_cdread2
+{
+    Opcode todo[0x6e63c - 0x6e58c];
+};
+
+struct Asm_psyq_libcd_c_002
+{
+    Opcode todo[0x6e69c - 0x6e63c];
+};
+
+struct Asm_psyq_libcd_c_003
+{
+    Opcode todo[0x6e71c - 0x6e69c];
+};
+
+struct Asm_psyq_libcd_c_004
+{
+    Opcode todo[0x6e80c - 0x6e71c];
+};
+
+struct Asm_psyq_libcd_c_005
+{
+    Opcode todo[0x6e89c - 0x6e80c];
+};
+
+struct Asm_psyq_libcd_c_007
+{
+    Opcode todo[0x6e94c - 0x6e89c];
+};
+
+struct Asm_psyq_libcd_c_008
+{
+    Opcode todo[0x6e98c - 0x6e94c];
+};
+
+struct Asm_psyq_libcd_c_009
+{
+    Opcode todo[0x6ea4c - 0x6e98c];
+};
+
+struct Asm_psyq_libcd_c_010
+{
+    Opcode todo[0x6ea6c - 0x6ea4c];
+};
+
+struct Asm_psyq_libcd_c_011
+{
+    Opcode todo[0x6f55c - 0x6ea6c];
+};
+
+struct Asm_psyq_libgpu_e00
+{
+    Opcode todo[0x6f644 - 0x6f55c];
+};
+
+struct Asm_psyq_libgpu_e01
+{
+    Opcode todo[0x6f6a8 - 0x6f644];
+};
+
+struct Asm_psyq_libgpu_e02
+{
+    Opcode todo[0x6f70c - 0x6f6a8];
+};
+
+struct Asm_psyq_libgpu_e03
+{
+    Opcode todo[0x6f7c0 - 0x6f70c];
+};
+
+struct Asm_psyq_libgpu_e04
+{
+    Opcode todo[0x6f7fc - 0x6f7c0];
+};
+
+struct Asm_psyq_libgpu_p00
+{
+    Opcode todo[0x6f83c - 0x6f7fc];
+};
+
+struct Asm_psyq_libgpu_p01
+{
+    Opcode todo[0x6f85c - 0x6f83c];
+};
+
+struct Asm_psyq_libgpu_p06
+{
+    Opcode todo[0x6f89c - 0x6f85c];
+};
+
+struct Asm_psyq_libgpu_p09
+{
+    Opcode todo[0x6f8bc - 0x6f89c];
+};
+
+struct Asm_psyq_libgpu_p14
+{
+    Opcode todo[0x6f8dc - 0x6f8bc];
+};
+
+struct Asm_psyq_libgpu_p16
+{
+    Opcode todo[0x6f8fc - 0x6f8dc];
+};
+
+struct Asm_psyq_libgpu_p17
+{
+    Opcode todo[0x6f91c - 0x6f8fc];
+};
+
+struct Asm_psyq_libgpu_p18
+{
+    Opcode todo[0x6f93c - 0x6f91c];
+};
+
+struct Asm_psyq_libgpu_p26
+{
+    Opcode todo[0x6f95c - 0x6f93c];
+};
+
+struct Asm_psyq_libgpu_p33
+{
+    Opcode todo[0x6f98c - 0x6f95c];
+};
+
+struct Asm_psyq_libgpu_p34
+{
+    Opcode todo[0x6f9ec - 0x6f98c];
+};
+
+struct Asm_psyq_libgs_2d_sp1
+{
+    Opcode todo[0x6fb6c - 0x6f9ec];
+};
+
+struct Asm_psyq_libgs_gs_001
+{
+    Opcode todo[0x700bc - 0x6fb6c];
+};
+
+struct Asm_psyq_libgs_gs_002
+{
+    Opcode todo[0x701dc - 0x700bc];
+};
+
+struct Asm_psyq_libgs_gs_003
+{
+    Opcode todo[0x7025c - 0x701dc];
+};
+
+struct Asm_psyq_libgs_gs_007
+{
+    Opcode todo[0x7029c - 0x7025c];
+};
+
+struct Asm_psyq_libapi_counter
+{
+    Opcode todo[0x7040c - 0x7029c];
+};
+
+struct Asm_psyq_libgs_gs_008
+{
+    Opcode todo[0x7043c - 0x7040c];
+};
+
+struct Asm_psyq_libgs_gs_009
+{
+    Opcode todo[0x7046c - 0x7043c];
+};
+
+struct Asm_psyq_libgs_gs_010
+{
+    Opcode todo[0x7051c - 0x7046c];
+};
+
+struct Asm_psyq_libgs_matrix
+{
+    Opcode todo[0x708dc - 0x7051c];
+};
+
+struct Asm_psyq_libgs_gs_104
+{
+    Opcode todo[0x7095c - 0x708dc];
+};
+
+struct Asm_psyq_libgs_gs_105
+{
+    Opcode todo[0x709cc - 0x7095c];
+};
+
+struct Asm_psyq_libgs_gs_106
+{
+    Opcode todo[0x709ec - 0x709cc];
+};
+
+struct Asm_psyq_libgs_gs_107
+{
+    Opcode todo[0x70f5c - 0x709ec];
+};
+
+struct Asm_psyq_libgs_gs_108
+{
+    Opcode todo[0x70fdc - 0x70f5c];
+};
+
+struct Asm_psyq_libgs_gs_110
+{
+    Opcode todo[0x7100c - 0x70fdc];
+};
+
+struct Asm_psyq_libgs_gs_111
+{
+    Opcode todo[0x7103c - 0x7100c];
+};
+
+struct Asm_psyq_libgs_gs_113
+{
+    Opcode todo[0x7109c - 0x7103c];
+};
+
+struct Asm_psyq_libgs_gs_114
+{
+    Opcode todo[0x7115c - 0x7109c];
+};
+
+struct Asm_psyq_libgs_gs_121
+{
+    Opcode todo[0x711ac - 0x7115c];
+};
+
+struct Asm_psyq_libgs_gs_123
+{
+    Opcode todo[0x7127c - 0x711ac];
+};
+
+struct Asm_psyq_libgs_gs_127
+{
+    Opcode todo[0x712fc - 0x7127c];
+};
+
+struct Asm_psyq_libgs_objt
+{
+    Opcode todo[0x7148c - 0x712fc];
+};
+
+struct Asm_psyq_libgs_objt3
+{
+    Opcode todo[0x71d1c - 0x7148c];
+};
+
+struct Asm_lib_unk_lib_8009687C
+{
+    Opcode todo[0x72368 - 0x71d1c];
+};
+
+struct Asm_psyq_libgte_msc00
+{
+    Opcode todo[0x723f8 - 0x72368];
+};
+
+struct Asm_psyq_libgte_msc01
+{
+    Opcode todo[0x72488 - 0x723f8];
+};
+
+struct Asm_psyq_libgte_msc02
+{
+    Opcode todo[0x72738 - 0x72488];
+};
+
+struct Asm_psyq_libgte_msc06
+{
+    Opcode todo[0x729c8 - 0x72738];
+};
+
+struct Asm_psyq_libgte_msc09
+{
+    Opcode todo[0x72a68 - 0x729c8];
+};
+
+struct Asm_psyq_libgte_mtx_000
+{
+    Opcode todo[0x72b78 - 0x72a68];
+};
+
+struct Asm_psyq_libgte_mtx_001
+{
+    Opcode todo[0x72c68 - 0x72b78];
+};
+
+struct Asm_psyq_libgte_mtx_003
+{
+    Opcode todo[0x72dc8 - 0x72c68];
+};
+
+struct Asm_psyq_libgte_mtx_004
+{
+    Opcode todo[0x72f28 - 0x72dc8];
+};
+
+struct Asm_psyq_libgte_mtx_005
+{
+    Opcode todo[0x72f58 - 0x72f28];
+};
+
+struct Asm_psyq_libgte_mtx_006
+{
+    Opcode todo[0x730a8 - 0x72f58];
+};
+
+struct Asm_psyq_libgte_mtx_007
+{
+    Opcode todo[0x730f8 - 0x730a8];
+};
+
+struct Asm_psyq_libgte_mtx_01
+{
+    Opcode todo[0x73238 - 0x730f8];
+};
+
+struct Asm_psyq_libgte_mtx_02
+{
+    Opcode todo[0x73328 - 0x73238];
+};
+
+struct Asm_psyq_libgte_mtx_03
+{
+    Opcode todo[0x73438 - 0x73328];
+};
+
+struct Asm_psyq_libgte_mtx_04
+{
+    Opcode todo[0x73548 - 0x73438];
+};
+
+struct Asm_psyq_libgte_mtx_05
+{
+    Opcode todo[0x73598 - 0x73548];
+};
+
+struct Asm_psyq_libgte_mtx_06
+{
+    Opcode todo[0x735f8 - 0x73598];
+};
+
+struct Asm_psyq_libgte_mtx_07
+{
+    Opcode todo[0x73628 - 0x735f8];
+};
+
+struct Asm_psyq_libgte_mtx_08
+{
+    Opcode todo[0x73768 - 0x73628];
+};
+
+struct Asm_psyq_libgte_mtx_09
+{
+    Opcode todo[0x73798 - 0x73768];
+};
+
+struct Asm_psyq_libgte_mtx_10
+{
+    Opcode todo[0x737c8 - 0x73798];
+};
+
+struct Asm_psyq_libgte_mtx_11
+{
+    Opcode todo[0x737f8 - 0x737c8];
+};
+
+struct Asm_psyq_libgte_mtx_12
+{
+    Opcode todo[0x73818 - 0x737f8];
+};
+
+struct Asm_psyq_libgte_reg08
+{
+    Opcode todo[0x73838 - 0x73818];
+};
+
+struct Asm_psyq_libgte_reg09
+{
+    Opcode todo[0x73848 - 0x73838];
+};
+
+struct Asm_psyq_libgte_reg10
+{
+    Opcode todo[0x73868 - 0x73848];
+};
+
+struct Asm_psyq_libgte_reg11
+{
+    Opcode todo[0x73888 - 0x73868];
+};
+
+struct Asm_psyq_libgte_reg12
+{
+    Opcode todo[0x738a8 - 0x73888];
+};
+
+struct Asm_psyq_libgte_reg13
+{
+    Opcode todo[0x738b8 - 0x738a8];
+};
+
+struct Asm_psyq_libgte_smp
+{
+    Opcode todo[0x73a98 - 0x738b8];
+};
+
+struct Asm_psyq_libgte_smp_00
+{
+    Opcode todo[0x73ca8 - 0x73a98];
+};
+
+struct Asm_psyq_libgte_smp_02
+{
+    Opcode todo[0x73cd8 - 0x73ca8];
+};
+
+struct Asm_psyq_libgte_smp_03
+{
+    Opcode todo[0x73d38 - 0x73cd8];
+};
+
+struct Asm_psyq_libgte_smp_04
+{
+    Opcode todo[0x73d68 - 0x73d38];
+};
+
+struct Asm_psyq_libgte_cmb_00
+{
+    Opcode todo[0x73de8 - 0x73d68];
+};
+
+struct Asm_psyq_libgte_fgo_00
+{
+    Opcode todo[0x73e28 - 0x73de8];
+};
+
+struct Asm_psyq_libgte_g3
+{
+    Opcode todo[0x743d8 - 0x73e28];
+};
+
+struct Asm_psyq_libgte_g4
+{
+    Opcode todo[0x74a98 - 0x743d8];
+};
+
+struct Asm_psyq_libgte_gt3
+{
+    Opcode todo[0x750d8 - 0x74a98];
+};
+
+struct Asm_psyq_libgte_gt4
+{
+    Opcode todo[0x75848 - 0x750d8];
+};
+
+struct Asm_psyq_libgte_ratan
+{
+    Opcode todo[0x759c8 - 0x75848];
+};
+
+struct Asm_psyq_libgte_patchgte
+{
+    Opcode todo[0x75aa8 - 0x759c8];
+};
+
+struct Asm_psyq_libpad_padentry
+{
+    Opcode todo[0x75f58 - 0x75aa8];
+};
+
+struct Asm_psyq_libpad_padmain
+{
+    Opcode todo[0x76c58 - 0x75f58];
+};
+
+struct Asm_psyq_libpad_padcmd
+{
+    Opcode todo[0x775b8 - 0x76c58];
+};
+
+struct Asm_psyq_libpad_padif
+{
+    Opcode todo[0x77ba8 - 0x775b8];
+};
+
+struct Asm_psyq_libpad_padportd
+{
+    Opcode todo[0x78208 - 0x77ba8];
+};
+
+struct Asm_psyq_libpad_padseqd
+{
+    Opcode todo[0x78698 - 0x78208];
+};
+
+struct Asm_psyq_libpad_waitrc2
+{
+    Opcode todo[0x78758 - 0x78698];
+};
+
+struct Asm_psyq_libspu_s_crwa
+{
+    Opcode todo[0x788f8 - 0x78758];
+};
+
+struct Asm_psyq_libapi_a10
+{
+    Opcode todo[0x78908 - 0x788f8];
+};
+
+struct Asm_psyq_libspu_s_m_util
+{
+    Opcode todo[0x78a18 - 0x78908];
+};
+
+struct Asm_psyq_libspu_s_stm
+{
+    Opcode todo[0x78a48 - 0x78a18];
+};
+
+struct Asm_psyq_libspu_s_sva
+{
+    Opcode todo[0x79048 - 0x78a48];
+};
+
+struct Asm_psyq_libspu_s_n2p
+{
+    Opcode todo[0x79248 - 0x79048];
+};
+
+struct Asm_psyq_libspu_s_gva
+{
+    Opcode todo[0x79638 - 0x79248];
+};
+
+struct Asm_lib_unk_lib_8009E198
+{
+    Opcode todo[0x7a244 - 0x79638];
+};
+
+struct C_libsd_smf_snd
+{
+    Opcode todo[0x7d7fc - 0x7a244];
+};
+
+struct Asm_psyq_libspu_s_q
+{
+    Opcode todo[0x7d87c - 0x7d7fc];
+};
+
+struct Asm_psyq_libapi_a13
+{
+    Opcode todo[0x7d88c - 0x7d87c];
+};
+
+struct Asm_psyq_libspu_s_m_init
+{
+    Opcode todo[0x7d8ec - 0x7d88c];
+};
+
+struct Asm_psyq_libspu_s_sr
+{
+    Opcode todo[0x7d9bc - 0x7d8ec];
+};
+
+struct Asm_psyq_libspu_s_srmp
+{
+    Opcode todo[0x7de9c - 0x7d9bc];
+};
+
+struct Asm_psyq_libspu_s_sra
+{
+    Opcode todo[0x7e36c - 0x7de9c];
+};
+
+struct Asm_psyq_libspu_s_rrwa
+{
+    Opcode todo[0x7e3bc - 0x7e36c];
+};
+
+struct Asm_psyq_libspu_s_srv
+{
+    Opcode todo[0x7e3ec - 0x7e3bc];
+};
+
+struct Asm_psyq_libspu_s_sav
+{
+    Opcode todo[0x7e6ac - 0x7e3ec];
+};
+
+struct Asm_psyq_libspu_s_sk
+{
+    Opcode todo[0x7e86c - 0x7e6ac];
+};
+
+struct Asm_psyq_libspu_s_gks
+{
+    Opcode todo[0x7e8fc - 0x7e86c];
+};
+
+struct Asm_psyq_libspu_s_skowa
+{
+    Opcode todo[0x7e92c - 0x7e8fc];
+};
+
+struct Asm_psyq_libspu_s_w
+{
+    Opcode todo[0x7e98c - 0x7e92c];
+};
+
+struct Asm_psyq_libspu_s_stsa
+{
+    Opcode todo[0x7e9ec - 0x7e98c];
+};
+
+struct Asm_psyq_libspu_s_itc
+{
+    Opcode todo[0x7ea9c - 0x7e9ec];
+};
+
+struct Asm_psyq_libspu_s_sca
+{
+    Opcode todo[0x7ee1c - 0x7ea9c];
+};
+
+struct C_libsd_smf_io
+{
+    Opcode todo[0x82158 - 0x7ee1c];
+};
+
+struct Asm_psyq_libspu_s_grv
+{
+    Opcode todo[0x82188 - 0x82158];
+};
+
+struct Asm_psyq_libspu_s_gav
+{
+    Opcode todo[0x821b8 - 0x82188];
+};
+
+struct C_libsd_smf_main
+{
+    Opcode todo[0x82458 - 0x821b8];
+};
+
+struct C_libsd_smf_mid
+{
+    Opcode todo[0x84238 - 0x82458];
+};
+
+struct BodyprogRodata(uint32 ramOffset)
+{
+    Rodata_0                       rodata_0(ramOffset);
+    Rodata_bodyprog                rodata_bodyprog;
+    Rodata_91C                     rodata_91C;
+    Rodata_libsd_bodyprog_80045A7C rodata_libsd_bodyprog_80045A7C;
+    Rodata_1158                    rodata_1158;
+    Rodata_bodyprog_CD_80047D50    rodata_bodyprog_CD_80047D50;
+    Rodata_11D8                    rodata_11D8;
+    Rodata_bodyprog_8004A87C       rodata_bodyprog_8004A87C;
+    Rodata_39C4                    rodata_39C4;
+    Rodata_view_vc_main_5CF0       rodata_view_vc_main_5CF0;
+    Rodata_view_vc_main_5D08       rodata_view_vc_main_5D08;
+    Rodata_5D1C                    rodata_5D1C;
+    Rodata_bodyprog_80085D78       rodata_bodyprog_80085D78;
+    Rodata_6044                    rodata_6044;
+    Rodata_libsd_smf_io_9744       rodata_libsd_smf_io_9744;
+    Rodata_libsd_smf_io_97DC       rodata_libsd_smf_io_97DC;
+    Rodata_99D8                    rodata_99D8;
+    Rodata_libsd_smf_mid           rodata_libsd_smf_mid;
+};
+
+struct BodyprogText(uint32 ramOffset)
+{
+    C_bodyprog                     c_bodyprog(ramOffset);
+    C_view_vc_util                 c_view_vc_util;
+    C_bodyprog_80040A64            c_bodyprog_80040A64;
+    C_libsd_bodyprog_80045A7C      c_libsd_bodyprog_80045A7C;
+    C_bodyprog_CD_80047D50         c_bodyprog_CD_80047D50;
+    C_view_vw_main                 c_view_vw_main;
+    C_view_vw_calc                 c_view_vw_calc;
+    C_bodyprog_8004A87C            c_bodyprog_8004A87C;
+    C_view_vc_main                 c_view_vc_main;
+    C_bodyprog_80085D78            c_bodyprog_80085D78;
+    Asm_psyq_libapi_a09            asm_psyq_libapi_a09;
+    Asm_psyq_libapi_a11            asm_psyq_libapi_a11;
+    Asm_psyq_libapi_a39            asm_psyq_libapi_a39;
+    Asm_psyq_libapi_a51            asm_psyq_libapi_a51;
+    Asm_psyq_libapi_a53            asm_psyq_libapi_a53;
+    Asm_psyq_libapi_a65            asm_psyq_libapi_a65;
+    Asm_psyq_libapi_a67            asm_psyq_libapi_a67;
+    Asm_psyq_libapi_a68            asm_psyq_libapi_a68;
+    Asm_psyq_libapi_a69            asm_psyq_libapi_a69;
+    Asm_psyq_libapi_a81            asm_psyq_libapi_a81;
+    Asm_psyq_libapi_first          asm_psyq_libapi_first;
+    Asm_psyq_libc_a66              asm_psyq_libc_a66;
+    Asm_psyq_libc_a56              asm_psyq_libc_a56;
+    Asm_psyq_libc_c24              asm_psyq_libc_c24;
+    Asm_psyq_libc_c25              asm_psyq_libc_c25;
+    Asm_psyq_libc_c26              asm_psyq_libc_c26;
+    Asm_psyq_libc_c27              asm_psyq_libc_c27;
+    Asm_psyq_libc_c37              asm_psyq_libc_c37;
+    Asm_psyq_libc_memcmp           asm_psyq_libc_memcmp;
+    Asm_psyq_libcard_c171          asm_psyq_libcard_c171;
+    Asm_psyq_libcard_c172          asm_psyq_libcard_c172;
+    Asm_psyq_libcard_a78           asm_psyq_libcard_a78;
+    Asm_psyq_libcard_a80           asm_psyq_libcard_a80;
+    Asm_psyq_libcard_card          asm_psyq_libcard_card;
+    Asm_psyq_libcard_init          asm_psyq_libcard_init;
+    Asm_psyq_libapi_pad            asm_psyq_libapi_pad;
+    Asm_psyq_libapi_a18            asm_psyq_libapi_a18;
+    Asm_psyq_libapi_a19            asm_psyq_libapi_a19;
+    Asm_psyq_libapi_a20            asm_psyq_libapi_a20;
+    Asm_psyq_libapi_a21            asm_psyq_libapi_a21;
+    Asm_psyq_libapi_l02            asm_psyq_libapi_l02;
+    Asm_psyq_libapi_l03            asm_psyq_libapi_l03;
+    Asm_psyq_libapi_patch          asm_psyq_libapi_patch;
+    Asm_psyq_libapi_c68            asm_psyq_libapi_c68;
+    Asm_psyq_libapi_chclrpad       asm_psyq_libapi_chclrpad;
+    Asm_psyq_libcard_a74           asm_psyq_libcard_a74;
+    Asm_psyq_libcard_a75           asm_psyq_libcard_a75;
+    Asm_psyq_libcard_a76           asm_psyq_libcard_a76;
+    Asm_psyq_libcard_patch         asm_psyq_libcard_patch;
+    Asm_psyq_libcard_end           asm_psyq_libcard_end;
+    Asm_psyq_libcd_cdrom           asm_psyq_libcd_cdrom;
+    Asm_psyq_libcd_iso9660         asm_psyq_libcd_iso9660;
+    Asm_psyq_libcd_cdread2         asm_psyq_libcd_cdread2;
+    Asm_psyq_libcd_c_002           asm_psyq_libcd_c_002;
+    Asm_psyq_libcd_c_003           asm_psyq_libcd_c_003;
+    Asm_psyq_libcd_c_004           asm_psyq_libcd_c_004;
+    Asm_psyq_libcd_c_005           asm_psyq_libcd_c_005;
+    Asm_psyq_libcd_c_007           asm_psyq_libcd_c_007;
+    Asm_psyq_libcd_c_008           asm_psyq_libcd_c_008;
+    Asm_psyq_libcd_c_009           asm_psyq_libcd_c_009;
+    Asm_psyq_libcd_c_010           asm_psyq_libcd_c_010;
+    Asm_psyq_libcd_c_011           asm_psyq_libcd_c_011;
+    Asm_psyq_libgpu_e00            asm_psyq_libgpu_e00;
+    Asm_psyq_libgpu_e01            asm_psyq_libgpu_e01;
+    Asm_psyq_libgpu_e02            asm_psyq_libgpu_e02;
+    Asm_psyq_libgpu_e03            asm_psyq_libgpu_e03;
+    Asm_psyq_libgpu_e04            asm_psyq_libgpu_e04;
+    Asm_psyq_libgpu_p00            asm_psyq_libgpu_p00;
+    Asm_psyq_libgpu_p01            asm_psyq_libgpu_p01;
+    Asm_psyq_libgpu_p06            asm_psyq_libgpu_p06;
+    Asm_psyq_libgpu_p09            asm_psyq_libgpu_p09;
+    Asm_psyq_libgpu_p14            asm_psyq_libgpu_p14;
+    Asm_psyq_libgpu_p16            asm_psyq_libgpu_p16;
+    Asm_psyq_libgpu_p17            asm_psyq_libgpu_p17;
+    Asm_psyq_libgpu_p18            asm_psyq_libgpu_p18;
+    Asm_psyq_libgpu_p26            asm_psyq_libgpu_p26;
+    Asm_psyq_libgpu_p33            asm_psyq_libgpu_p33;
+    Asm_psyq_libgpu_p34            asm_psyq_libgpu_p34;
+    Asm_psyq_libgs_2d_sp1          asm_psyq_libgs_2d_sp1;
+    Asm_psyq_libgs_gs_001          asm_psyq_libgs_gs_001;
+    Asm_psyq_libgs_gs_002          asm_psyq_libgs_gs_002;
+    Asm_psyq_libgs_gs_003          asm_psyq_libgs_gs_003;
+    Asm_psyq_libgs_gs_007          asm_psyq_libgs_gs_007;
+    Asm_psyq_libapi_counter        asm_psyq_libapi_counter;
+    Asm_psyq_libgs_gs_008          asm_psyq_libgs_gs_008;
+    Asm_psyq_libgs_gs_009          asm_psyq_libgs_gs_009;
+    Asm_psyq_libgs_gs_010          asm_psyq_libgs_gs_010;
+    Asm_psyq_libgs_matrix          asm_psyq_libgs_matrix;
+    Asm_psyq_libgs_gs_104          asm_psyq_libgs_gs_104;
+    Asm_psyq_libgs_gs_105          asm_psyq_libgs_gs_105;
+    Asm_psyq_libgs_gs_106          asm_psyq_libgs_gs_106;
+    Asm_psyq_libgs_gs_107          asm_psyq_libgs_gs_107;
+    Asm_psyq_libgs_gs_108          asm_psyq_libgs_gs_108;
+    Asm_psyq_libgs_gs_110          asm_psyq_libgs_gs_110;
+    Asm_psyq_libgs_gs_111          asm_psyq_libgs_gs_111;
+    Asm_psyq_libgs_gs_113          asm_psyq_libgs_gs_113;
+    Asm_psyq_libgs_gs_114          asm_psyq_libgs_gs_114;
+    Asm_psyq_libgs_gs_121          asm_psyq_libgs_gs_121;
+    Asm_psyq_libgs_gs_123          asm_psyq_libgs_gs_123;
+    Asm_psyq_libgs_gs_127          asm_psyq_libgs_gs_127;
+    Asm_psyq_libgs_objt            asm_psyq_libgs_objt;
+    Asm_psyq_libgs_objt3           asm_psyq_libgs_objt3;
+    Asm_lib_unk_lib_8009687C       aasm_lib_unk_lib_8009687C;
+    Asm_psyq_libgte_msc00          asm_psyq_libgte_msc00;
+    Asm_psyq_libgte_msc01          asm_psyq_libgte_msc01;
+    Asm_psyq_libgte_msc02          asm_psyq_libgte_msc02;
+    Asm_psyq_libgte_msc06          asm_psyq_libgte_msc06;
+    Asm_psyq_libgte_msc09          asm_psyq_libgte_msc09;
+    Asm_psyq_libgte_mtx_000        asm_psyq_libgte_mtx_000;
+    Asm_psyq_libgte_mtx_001        asm_psyq_libgte_mtx_001;
+    Asm_psyq_libgte_mtx_003        asm_psyq_libgte_mtx_003;
+    Asm_psyq_libgte_mtx_004        asm_psyq_libgte_mtx_004;
+    Asm_psyq_libgte_mtx_005        asm_psyq_libgte_mtx_005;
+    Asm_psyq_libgte_mtx_006        asm_psyq_libgte_mtx_006;
+    Asm_psyq_libgte_mtx_007        asm_psyq_libgte_mtx_007;
+    Asm_psyq_libgte_mtx_01         asm_psyq_libgte_mtx_01;
+    Asm_psyq_libgte_mtx_02         asm_psyq_libgte_mtx_02;
+    Asm_psyq_libgte_mtx_03         asm_psyq_libgte_mtx_03;
+    Asm_psyq_libgte_mtx_04         asm_psyq_libgte_mtx_04;
+    Asm_psyq_libgte_mtx_05         asm_psyq_libgte_mtx_05;
+    Asm_psyq_libgte_mtx_06         asm_psyq_libgte_mtx_06;
+    Asm_psyq_libgte_mtx_07         asm_psyq_libgte_mtx_07;
+    Asm_psyq_libgte_mtx_08         asm_psyq_libgte_mtx_08;
+    Asm_psyq_libgte_mtx_09         asm_psyq_libgte_mtx_09;
+    Asm_psyq_libgte_mtx_10         asm_psyq_libgte_mtx_10;
+    Asm_psyq_libgte_mtx_11         asm_psyq_libgte_mtx_11;
+    Asm_psyq_libgte_mtx_12         asm_psyq_libgte_mtx_12;
+    Asm_psyq_libgte_reg08          asm_psyq_libgte_reg08;
+    Asm_psyq_libgte_reg09          asm_psyq_libgte_reg09;
+    Asm_psyq_libgte_reg10          asm_psyq_libgte_reg10;
+    Asm_psyq_libgte_reg11          asm_psyq_libgte_reg11;
+    Asm_psyq_libgte_reg12          asm_psyq_libgte_reg12;
+    Asm_psyq_libgte_reg13          asm_psyq_libgte_reg13;
+    Asm_psyq_libgte_smp            asm_psyq_libgte_smp;
+    Asm_psyq_libgte_smp_00         asm_psyq_libgte_smp_00;
+    Asm_psyq_libgte_smp_02         asm_psyq_libgte_smp_02;
+    Asm_psyq_libgte_smp_03         asm_psyq_libgte_smp_03;
+    Asm_psyq_libgte_smp_04         asm_psyq_libgte_smp_04;
+    Asm_psyq_libgte_cmb_00         asm_psyq_libgte_cmb_00;
+    Asm_psyq_libgte_fgo_00         asm_psyq_libgte_fgo_00;
+    Asm_psyq_libgte_g3             asm_psyq_libgte_g3;
+    Asm_psyq_libgte_g4             asm_psyq_libgte_g4;
+    Asm_psyq_libgte_gt3            asm_psyq_libgte_gt3;
+    Asm_psyq_libgte_gt4            asm_psyq_libgte_gt4;
+    Asm_psyq_libgte_ratan          asm_psyq_libgte_ratan;
+    Asm_psyq_libgte_patchgte       asm_psyq_libgte_patchgte;
+    Asm_psyq_libpad_padentry       asm_psyq_libpad_padentry;
+    Asm_psyq_libpad_padmain        asm_psyq_libpad_padmain;
+    Asm_psyq_libpad_padcmd         asm_psyq_libpad_padcmd;
+    Asm_psyq_libpad_padif          asm_psyq_libpad_padif;
+    Asm_psyq_libpad_padportd       asm_psyq_libpad_padportd;
+    Asm_psyq_libpad_padseqd        asm_psyq_libpad_padseqd;
+    Asm_psyq_libpad_waitrc2        asm_psyq_libpad_waitrc2;
+    Asm_psyq_libspu_s_crwa         asm_psyq_libspu_s_crwa;
+    Asm_psyq_libapi_a10            asm_psyq_libapi_a10;
+    Asm_psyq_libspu_s_m_util       aasm_psyq_libspu_s_m_util;
+    Asm_psyq_libspu_s_stm          asm_psyq_libspu_s_stm;
+    Asm_psyq_libspu_s_sva          asm_psyq_libspu_s_sva;
+    Asm_psyq_libspu_s_n2p          asm_psyq_libspu_s_n2p;
+    Asm_psyq_libspu_s_gva          asm_psyq_libspu_s_gva;
+    Asm_lib_unk_lib_8009E198       asm_lib_unk_lib_8009E198;
+    C_libsd_smf_snd                c_libsd_smf_snd;
+    Asm_psyq_libspu_s_q            asm_psyq_libspu_s_q;
+    Asm_psyq_libapi_a13            asm_psyq_libapi_a13;
+    Asm_psyq_libspu_s_m_init       asm_psyq_libspu_s_m_init;
+    Asm_psyq_libspu_s_sr           asm_psyq_libspu_s_sr;
+    Asm_psyq_libspu_s_srmp         asm_psyq_libspu_s_srmp;
+    Asm_psyq_libspu_s_sra          asm_psyq_libspu_s_sra;
+    Asm_psyq_libspu_s_rrwa         asm_psyq_libspu_s_rrwa;
+    Asm_psyq_libspu_s_srv          asm_psyq_libspu_s_srv;
+    Asm_psyq_libspu_s_sav          asm_psyq_libspu_s_sav;
+    Asm_psyq_libspu_s_sk           asm_psyq_libspu_s_sk;
+    Asm_psyq_libspu_s_gks          asm_psyq_libspu_s_gks;
+    Asm_psyq_libspu_s_skowa        asm_psyq_libspu_s_skowa;
+    Asm_psyq_libspu_s_w            asm_psyq_libspu_s_w;
+    Asm_psyq_libspu_s_stsa         asm_psyq_libspu_s_stsa;
+    Asm_psyq_libspu_s_itc          asm_psyq_libspu_s_itc;
+    Asm_psyq_libspu_s_sca          asm_psyq_libspu_s_sca;
+    C_libsd_smf_io                 c_libsd_smf_io;
+    Asm_psyq_libspu_s_grv          asm_psyq_libspu_s_grv;
+    Asm_psyq_libspu_s_gav          asm_psyq_libspu_s_gav;
+    C_libsd_smf_main               c_libsd_smf_main;
+    C_libsd_smf_mid                c_libsd_smf_mid;
+};
+
+struct BodyprogData(uint32 ramOffset)
+{
+    uint8 todoFirst;
+    
     FSeek(0x95460 + ramOffset);
     SysWork  sysWork;          // Offset: 0xB9FC0
     GameWork gameWork;         // Offset: 0xBC728
+    
+    FSeek(0xA4A17 + ramOffset);
+    uint8 todoLast;
+};
+
+struct Bodyprog(uint32 ramOffset)
+{
+    FSeek(ramOffset);
+    BodyprogRodata rodata(ramOffset);
+    BodyprogText   text(ramOffset);
+    BodyprogData   data(ramOffset);
 };
 
 //------------------------------------------------
 // Main
 //------------------------------------------------
 
-if (GetTemplateName() == "sh1_bodyprog_draft.bt")
-    Bodyprog bodyprog(0);
+DisasmSetMode( DISASM_MIPS_32 );
+if (GetTemplateName() == "sh1_bodyprog_draft.bt") {
+    Bodyprog bodyprog(0) <open=true>;
+    uint8    footerJunk[0xE8];
+}

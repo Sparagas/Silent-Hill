@@ -26,13 +26,43 @@ struct EXEC
     uint32   d_size             <comment="system reserved">;                                        // usually 0
     uint32   b_addr <format=hex, comment="data section lead address with no initial value. Exec() clears this section; however, if b_addr is zero, the section doesn’t exist, so it doesn’t get cleared.">;  // Memfill Start Address, usually 0
     uint32   b_size             <comment="data section size with no initial value">;                                                                                                                         // Memfill size in bytes, usually 0
-    uint32   s_addr <format=hex, comment="stack area lead address (user specified). Exec() substitutes s_addr+s_size for stack  pointer, unless s_addr is zero.">;                                           // usually 0x801FFFF0 or 0
+    uint32   s_addr <format=hex, comment="stack area lead address (user specified). Exec() substitutes s_addr+s_size for stack pointer, unless s_addr is zero.">;                                            // usually 0x801FFFF0 or 0
     uint32   s_size <format=hex, comment="stack area size (user specified)">;                                                                                                                                // usually 0
-    uint32   sp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
-    uint32   fp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
-    uint32   gp                 <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
-    uint32   ret                <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
-    uint32   base               <comment="register shunt area for  executing Exec()">;  // should be zero-filled in exefile
+    uint32   sp                 <comment="register shunt area for executing Exec()">;  // should be zero-filled in exefile
+    uint32   fp                 <comment="register shunt area for executing Exec()">;  // should be zero-filled in exefile
+    uint32   gp                 <comment="register shunt area for executing Exec()">;  // should be zero-filled in exefile
+    uint32   ret                <comment="register shunt area for executing Exec()">;  // should be zero-filled in exefile
+    uint32   base               <comment="register shunt area for executing Exec()">;  // should be zero-filled in exefile
+};
+
+struct MainRodata
+{
+    uint8 todo[0xF70 - 0x800];
+};
+
+struct MainText
+{
+    uint8 todo[0xB91C - 0xF70];
+};
+
+struct MainData
+{
+    uint8 todo[0x133B0 - 0xB91C];
+};
+
+struct MainSdata
+{
+    uint8 todo[0x13494 - 0x133B0];
+};
+
+struct MainSbss
+{
+    uint8 todo[0x13498 - 0x13494];
+};
+
+struct MainBss
+{
+    uint8 todo[0x14000 - 0x13498];
 };
 
 struct XF_HDR
@@ -45,15 +75,27 @@ struct XF_HDR
     char   tittle[60]             <comment="license code">;
 };
 
+struct Main
+{
+    MainRodata  rodata;
+    MainText    text;
+    MainData    data;
+    MainSdata   sdata;
+    MainSbss    sbss;
+    MainBss     bss;
+};
+
 //------------------------------------------------
 // Main
 //------------------------------------------------
 
-struct PSX_EXE {
+struct PSX_EXE
+{
     XF_HDR header                            <comment="execution file header">;
     char   padding[1912];
-    uchar  program_data[header.exec.t_size];
+    //uchar program_data[header.exec.t_size];
+    Main   main;
 };
 
 if (GetTemplateName() == "ps1_psx.exe.bt")
-    PSX_EXE psxExe <open=true>;
+    PSX_EXE SLUS_077_07 <open=true>;

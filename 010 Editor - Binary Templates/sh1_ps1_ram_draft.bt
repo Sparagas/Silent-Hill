@@ -11,7 +11,7 @@
 //   History: 
 //------------------------------------------------
 
-// #include "ps1_psx.exe.bt"
+#include "ps1_psx.exe.bt"
 #include "sh1_vin_map_bin_draft.bt"
 
 
@@ -34,30 +34,28 @@ OffsetSetLimitSize(0x200000);
 FSeek(0);
 
 uint8    ram_0[0x10000];
-uchar    program_data[79872];  // read from PS-X EXE SLUS_007.07
+Main     main;
 uint8    ram_23800[0x1360];
 Bodyprog bodyprog(0x24B60);
 
-uint8    ram_BCD00[29801];
-
-uint8    isFogEnabled;     // Offset: 0xC4169
-
-uint8    ram_C416A[26];
-
-uint8    FogColorR;        // Offset: 0xC4184
-uint8    FogColorG;        // Offset: 0xC4185
-uint8    FogColorB;        // Offset: 0xC4186
-
-uint8    ram_C4187[9];
-
-uint8    WorldTintR;       // Offset: 0xC4190
-uint8    WorldTintG;       // Offset: 0xC4191
-uint8    WorldTintB;       // Offset: 0xC4192
-
-//uint8    ram_C4193[1293933];
+    FSeek(0xC4169);
+    uint8    isFogEnabled;     // Offset: 0xC4169
+             
+    uint8    ram_C416A[26];
+             
+    uint8    FogColorR;        // Offset: 0xC4184
+    uint8    FogColorG;        // Offset: 0xC4185
+    uint8    FogColorB;        // Offset: 0xC4186
+             
+    uint8    ram_C4187[9];
+             
+    uint8    WorldTintR;       // Offset: 0xC4190
+    uint8    WorldTintG;       // Offset: 0xC4191
+    uint8    WorldTintB;       // Offset: 0xC4192
 
 FSeek(0xC9578);
-Map map;
+Map map; // or B_KONAMI.BIN
 
-// 0x12F7C
-// 0x1FFFF0
+
+FSeek(0x1E2600);
+uint32 todoScreenOverlay;

@@ -20,7 +20,8 @@
 // Enums
 //------------------------------------------------
 
-enum BlockListInformation {
+enum BlockListInformation
+{
     HEADER_BLOCK               = 0x51,
     INTERMEDIATE_BLOCK         = 0x52,
     END_BLOCK                  = 0x53,
@@ -30,14 +31,16 @@ enum BlockListInformation {
     DELETED_END_BLOCK          = 0xA3
 };
 
-enum <uint8> IconDisplayFlag {
+enum <uint8> IconDisplayFlag
+{
     NO_ICON                    = 0x00,
     ICON_HAS_1_STATIC_FRAME    = 0x11,
     ICON_HAS_2_ANIMATED_FRAMES = 0x12,
     ICON_HAS_3_ANIMATED_FRAMES = 0x13
 };
 
-enum <char> CountryCode {
+enum <char> CountryCode
+{
     USA_CANADA       = 'A',
     EUROPE_AUSTRALIA = 'E',
     JAPAN            = 'I'
@@ -47,7 +50,8 @@ enum <char> CountryCode {
 // Structs
 //------------------------------------------------
 
-struct HeaderSector {
+struct HeaderSector
+{
     char  magic[2];
     Assert(magic == "MC");
     ubyte padding[125];
@@ -55,7 +59,8 @@ struct HeaderSector {
     Assert(checksumXor == checksumXorCheck(127));
 };
 
-struct BlockInformationSector {
+struct BlockInformationSector
+{
     BlockListInformation blockListInformation;
     int32                fileSize;
     Assert(fileSize % 8192 == 0);
@@ -73,7 +78,8 @@ struct BlockInformationSector {
     Assert(checksumXor == checksumXorCheck(127));
 };
 
-struct AlternateInformationSector {
+struct AlternateInformationSector
+{
     int32 substitutedSectorNumber;
     int32 fileSize;
     int16 nextBlock;
@@ -82,13 +88,15 @@ struct AlternateInformationSector {
     Assert(checksumXor == checksumXorCheck(127));
 };
 
-struct Sector{
+struct Sector
+{
     ubyte data[127];
     uint8 checksumXor;
     //Assert(checksumXor == checksumXorCheck(127));
 };
 
-struct HeaderBlock {
+struct HeaderBlock
+{
     HeaderSector               headerSector;
     BlockInformationSector     blockInformationSectors[15]     <optimize=false>;
     AlternateInformationSector alternateInformationSectors[20] <optimize=false>;
@@ -97,19 +105,22 @@ struct HeaderBlock {
     Sector                     dummyWriteSector;
 };
 
-struct color {
+struct color
+{
     uint16 r : 5;
     uint16 g : 5;
     uint16 b : 5;
     uint16 a : 1;
 };
 
-struct index {
+struct index
+{
     uint8 index1 : 4;
     uint8 index2 : 4;
 };
 
-struct SaveBlock {
+struct SaveBlock
+{
     if (ReadString(FTell(), 2) != "SC")
         Sector unformatedSectors[64];
     else {
@@ -138,7 +149,8 @@ struct SaveBlock {
 // Functions
 //------------------------------------------------
 
-int checksumXorGenerate(int size) {
+int checksumXorGenerate(int size)
+{
     FSkip(-size);
     local uint8  checksum;
     local int    i;
@@ -149,7 +161,8 @@ int checksumXorGenerate(int size) {
     return checksum;
 };
 
-int checksumXorCheck(int size) {
+int checksumXorCheck(int size)
+{
     FSkip(-1);
     local uint8 checksum = checksumXorGenerate(size);
     FSkip(1);

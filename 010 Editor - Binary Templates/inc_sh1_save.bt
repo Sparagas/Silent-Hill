@@ -31,131 +31,206 @@ struct Sector;
 // Enums
 //------------------------------------------------
 
-enum <ubyte> SaveTitle
+enum <uint8> MapOverlayId
 {
-    ANYWHERE     = 0,
-    CAFE         = 1,
-    BUS          = 2,
-    STORE        = 3,
-    INFIRMARY    = 4,
-    DOGHOUSE     = 5,
-    GORDON       = 6,
-    CHURCH       = 7,
-    GARAGE       = 8,
-    POLICE       = 9,
-    RECEPTION    = 10,
-    ROOM_302     = 11,
-    DIRECTORS    = 12,
-    JEWELRY_SHOP = 13,
-    POOL_HALL    = 14,
-    ANTIQUE_SHOP = 15,
-    THEME_PARK   = 16,
-    BOAT         = 17,
-    BRIDGE       = 18,
-    MOTEL        = 19,
-    LIGHTHOUSE   = 20,
-    SEWER        = 21,
-    NOWHERE      = 22,
-    CHILDS_ROOM  = 23,
-    NEXT_FEAR    = 24
+    MapOverlayId_MAP0_S00 = 0,
+    MapOverlayId_MAP0_S01 = 1,
+    MapOverlayId_MAP0_S02 = 2,
+    MapOverlayId_MAP1_S00 = 3,
+    MapOverlayId_MAP1_S01 = 4,
+    MapOverlayId_MAP1_S02 = 5,
+    MapOverlayId_MAP1_S03 = 6,
+    MapOverlayId_MAP1_S04 = 7,
+    MapOverlayId_MAP1_S05 = 8,
+    MapOverlayId_MAP1_S06 = 9,
+    MapOverlayId_MAP2_S00 = 10,
+    MapOverlayId_MAP2_S01 = 11,
+    MapOverlayId_MAP2_S02 = 12,
+    MapOverlayId_MAP2_S03 = 13,
+    MapOverlayId_MAP2_S04 = 14,
+    MapOverlayId_MAP3_S00 = 15,
+    MapOverlayId_MAP3_S01 = 16,
+    MapOverlayId_MAP3_S02 = 17,
+    MapOverlayId_MAP3_S03 = 18,
+    MapOverlayId_MAP3_S04 = 19,
+    MapOverlayId_MAP3_S05 = 20,
+    MapOverlayId_MAP3_S06 = 21,
+    MapOverlayId_MAP4_S00 = 22,
+    MapOverlayId_MAP4_S01 = 23,
+    MapOverlayId_MAP4_S02 = 24,
+    MapOverlayId_MAP4_S03 = 25,
+    MapOverlayId_MAP4_S04 = 26,
+    MapOverlayId_MAP4_S05 = 27,
+    MapOverlayId_MAP4_S06 = 28,
+    MapOverlayId_MAP5_S00 = 29,
+    MapOverlayId_MAP5_S01 = 30,
+    MapOverlayId_MAP5_S02 = 31,
+    MapOverlayId_MAP5_S03 = 32,
+    MapOverlayId_MAP6_S00 = 33,
+    MapOverlayId_MAP6_S01 = 34,
+    MapOverlayId_MAP6_S02 = 35,
+    MapOverlayId_MAP6_S03 = 36,
+    MapOverlayId_MAP6_S04 = 37,
+    MapOverlayId_MAP6_S05 = 38,
+    MapOverlayId_MAP7_S00 = 39,
+    MapOverlayId_MAP7_S01 = 40,
+    MapOverlayId_MAP7_S02 = 41,
+    MapOverlayId_MAP7_S03 = 42,
+};
+
+enum <uint8> SaveTitleId
+{
+    SaveTitleId_Anywhere     = 0,
+    SaveTitleId_Cafe         = 1,
+    SaveTitleId_Bus          = 2,
+    SaveTitleId_Store        = 3,
+    SaveTitleId_Infirmary    = 4,
+    SaveTitleId_Doghouse     = 5,
+    SaveTitleId_Gordon       = 6,
+    SaveTitleId_Church       = 7,
+    SaveTitleId_Garage       = 8,
+    SaveTitleId_Police       = 9,
+    SaveTitleId_Reception    = 10,
+    SaveTitleId_Room302      = 11,
+    SaveTitleId_Directors    = 12,
+    SaveTitleId_JewelryShop  = 13,
+    SaveTitleId_PoolHall     = 14,
+    SaveTitleId_AntiqueShop  = 15,
+    SaveTitleId_ThemePark    = 16,
+    SaveTitleId_Boat         = 17,
+    SaveTitleId_Bridge       = 18,
+    SaveTitleId_Motel        = 19,
+    SaveTitleId_Lighthouse   = 20,
+    SaveTitleId_Sewer        = 21,
+    SaveTitleId_Nowhere      = 22,
+    SaveTitleId_ChildsRoom   = 23,
+    SaveTitleId_NextFear     = 24
+};
+
+enum <uint8> Current2dMap
+{
+    Current2dMap_OtherPlaces    = 0,
+    Current2dMap_OldTown        = 1,
+    Current2dMap_FogCentralTown = 2,
+    Current2dMap_AltCentralTown = 3,
+    Current2dMap_ResortTown     = 4,
+    Current2dMap_FogSchoolBF    = 5,
+    Current2dMap_FogSchool1F    = 6,
+    Current2dMap_FogSchool2F    = 7,
+    Current2dMap_FogSchoolRF    = 8,
+    Current2dMap_AltSchoolBF    = 9,
+    Current2dMap_AltSchool1F    = 10,
+    Current2dMap_AltSchool2F    = 11,
+    Current2dMap_AltSchoolRF    = 12,
+    Current2dMap_FogSewer1F     = 13,
+    Current2dMap_FogSewer2F     = 14,
+    Current2dMap_AltSewer       = 15,
+    Current2dMap_FogHospitalBF  = 16,
+    Current2dMap_FogHospital1F  = 17,
+    Current2dMap_FogHospital2F  = 18,
+    Current2dMap_FogHospital3F  = 19,
+    Current2dMap_AltHospitalBF  = 20,
+    Current2dMap_AltHospital1F  = 21,
+    Current2dMap_AltHospital2F  = 22,
+    Current2dMap_AltHospital3F  = 23
 };
 
 enum <int8> InventoryItemId
 {
-    INVENTORY_IITEM_ID_EMPTY                  = -1,
-    INVENTORY_IITEM_ID_UNEQUIPPED             = 0,
+    InventoryItemId_Empty                = -1,
+    InventoryItemId_Unequipped           = 0,
 
-    INVENTORY_IITEM_ID_HEALTH_DRINK           = 0x20,
-    INVENTORY_IITEM_ID_FIRST_AID_KIT          = 0x21,
-    INVENTORY_IITEM_ID_AMPOULE                = 0x22,
+    InventoryItemId_HealthDrink          = 32,
+    InventoryItemId_FirstAidKit          = 33,
+    InventoryItemId_Ampoule              = 34,
 
-    INVENTORY_IITEM_ID_LOBBY_KEY              = 0x40,
-    INVENTORY_IITEM_ID_HOUSE_KEY              = 0x41,
-    INVENTORY_IITEM_ID_KEY_OF_LION            = 0x42,
-    INVENTORY_IITEM_ID_KEY_OF_WOODMAN         = 0x43,
-    INVENTORY_IITEM_ID_KEY_OF_SCARECROW       = 0x44,
-    INVENTORY_IITEM_ID_LIBRARY_RESERVE_KEY    = 0x45,
-    INVENTORY_IITEM_ID_CLASSROOM_KEY          = 0x46,
-    INVENTORY_IITEM_ID_K_GORDON_KEY           = 0x47,
-    INVENTORY_IITEM_ID_DRAWBRIDGE_KEY         = 0x48,
-    INVENTORY_IITEM_ID_BASEMENT_KEY           = 0x49,
-    INVENTORY_IITEM_ID_BASEMENT_STOREROOM_KEY = 0x4A,
-    INVENTORY_IITEM_ID_EXAMINATION_ROOM_KEY   = 0x4B,
-    INVENTORY_IITEM_ID_ANTIQUE_SHOP_KEY       = 0x4C,
-    INVENTORY_IITEM_ID_SEWER_KEY              = 0x4D,
-    INVENTORY_IITEM_ID_KEY_OF_OPHIEL          = 0x4E,
-    INVENTORY_IITEM_ID_KEY_OF_HAGITH          = 0x4F,
-    INVENTORY_IITEM_ID_KEY_OF_PHALEG          = 0x50,
-    INVENTORY_IITEM_ID_KEY_OF_BETHOR          = 0x51,
-    INVENTORY_IITEM_ID_KEY_OF_ARATRON         = 0x52,
-    INVENTORY_IITEM_ID_NOTE_TO_SCHOOL         = 0x53,
-    INVENTORY_IITEM_ID_NOTE_DOGHOUSE          = 0x54,
-    INVENTORY_IITEM_ID_PICTURE_CARD           = 0x55,
+    InventoryItemId_LobbyKey             = 64,
+    InventoryItemId_HouseKey             = 65,
+    InventoryItemId_KeyOfLion            = 66,
+    InventoryItemId_KeyOfWoodman         = 67,
+    InventoryItemId_KeyOfScarecrow       = 68,
+    InventoryItemId_LibraryReserveKey    = 69,
+    InventoryItemId_ClassroomKey         = 70,
+    InventoryItemId_KGordonKey           = 71,
+    InventoryItemId_DrawbridgeKey        = 72,
+    InventoryItemId_BasementKey          = 73,
+    InventoryItemId_BasementStoreroomKey = 74,
+    InventoryItemId_ExaminationRoomKey   = 75,
+    InventoryItemId_AntiqueShopKey       = 76,
+    InventoryItemId_SewerKey             = 77,
+    InventoryItemId_KeyOfOphiel          = 78,
+    InventoryItemId_KeyOfHagith          = 79,
+    InventoryItemId_KeyOfPhaleg          = 80,
+    InventoryItemId_KeyOfBethor          = 81,
+    InventoryItemId_KeyOfAratron         = 82,
+    InventoryItemId_NoteToSchool         = 83,
+    InventoryItemId_NoteDoghouse         = 84,
+    InventoryItemId_PictureCard          = 85,
 
-    INVENTORY_IITEM_ID_SEWER_EXIT_KEY         = 0x57,
-    INVENTORY_IITEM_ID_CHANNELING_STONE       = 0x58,
+    InventoryItemId_SewerExitKey         = 87,
+    InventoryItemId_ChannelingStone      = 88,
 
-    INVENTORY_IITEM_ID_CHEMICAL               = 0x60,
-    INVENTORY_IITEM_ID_GOLD_MEDALLION         = 0x61,
-    INVENTORY_IITEM_ID_SILVER_MEDALLION       = 0x62,
-    INVENTORY_IITEM_ID_RUBBER_BALL            = 0x63,
-    INVENTORY_IITEM_ID_FLAUROS                = 0x64,
-    INVENTORY_IITEM_ID_PLASTIC_BOTTLE         = 0x65,
-    INVENTORY_IITEM_ID_UNKNOWN_LIQUID         = 0x66,
-    INVENTORY_IITEM_ID_PLATE_OF_TURTLE        = 0x67,
-    INVENTORY_IITEM_ID_PLATE_OF_HATTER        = 0x68,
-    INVENTORY_IITEM_ID_PLATE_OF_CAT           = 0x69,
-    INVENTORY_IITEM_ID_PLATE_OF_QUEEN         = 0x6A,
-    INVENTORY_IITEM_ID_BLOOD_PACK             = 0x6B,
-    INVENTORY_IITEM_ID_DISINFECTING_ALCOHOL   = 0x6C,
-    INVENTORY_IITEM_ID_LIGHTER                = 0x6D,
-    INVENTORY_IITEM_ID_VIDEO_TAPE             = 0x6E,
+    InventoryItemId_Chemical             = 96,
+    InventoryItemId_GoldMedallion        = 97,
+    InventoryItemId_SilverMedallion      = 98,
+    InventoryItemId_RubberBall           = 99,
+    InventoryItemId_Flauros              = 100,
+    InventoryItemId_PlasticBottle        = 101,
+    InventoryItemId_UnknownLiquid        = 102,
+    InventoryItemId_PlateOfTurtle        = 103,
+    InventoryItemId_PlateOfHatter        = 104,
+    InventoryItemId_PlateOfCat           = 105,
+    InventoryItemId_PlateOfQueen         = 106,
+    InventoryItemId_BloodPack            = 107,
+    InventoryItemId_DisinfectingAlcohol  = 108,
+    InventoryItemId_Lighter              = 109,
+    InventoryItemId_VideoTape            = 110,
 
-    INVENTORY_IITEM_ID_KAUFMANN_KEY           = 0x70,
-    INVENTORY_IITEM_ID_RECEIPT                = 0x71,
-    INVENTORY_IITEM_ID_SAFE_KEY               = 0x72,
-    INVENTORY_IITEM_ID_MAGNET                 = 0x73,
-    INVENTORY_IITEM_ID_MOTORCYCLE_KEY         = 0x74,
-    INVENTORY_IITEM_ID_BIRD_CAGE_KEY          = 0x75,
-    INVENTORY_IITEM_ID_PLIERS                 = 0x76,
-    INVENTORY_IITEM_ID_SCREWDRIVER            = 0x77,
-    INVENTORY_IITEM_ID_CAMERA                 = 0x78,
-    INVENTORY_IITEM_ID_RING_OF_CONTRACT       = 0x79,
-    INVENTORY_IITEM_ID_KITCHEN_KNIFE          = 0x80,
-    INVENTORY_IITEM_ID_STEEL_PIPE             = 0x81,
-    INVENTORY_IITEM_ID_ROCK_DRILL             = 0x82,
+    InventoryItemId_KaufmannKey          = 112,
+    InventoryItemId_Receipt              = 113,
+    InventoryItemId_SafeKey              = 114,
+    InventoryItemId_Magnet               = 115,
+    InventoryItemId_MotorcycleKey        = 116,
+    InventoryItemId_BirdCageKey          = 117,
+    InventoryItemId_Pliers               = 118,
+    InventoryItemId_Screwdriver          = 119,
+    InventoryItemId_Camera               = 120,
+    InventoryItemId_RingOfContract       = 121,
+    InventoryItemId_KitchenKnife         = 128,
+    InventoryItemId_SteelPipe            = 129,
+    InventoryItemId_RockDrill            = 130,
 
-    INVENTORY_IITEM_ID_HAMMER                 = 0x84,
-    INVENTORY_IITEM_ID_CHAINSAW               = 0x85,
-    INVENTORY_IITEM_ID_KATANA                 = 0x86,
-    INVENTORY_IITEM_ID_AXE                    = 0x87,
+    InventoryItemId_Hammer               = 132,
+    InventoryItemId_Chainsaw             = 133,
+    InventoryItemId_Katana               = 134,
+    InventoryItemId_Axe                  = 135,
 
-    INVENTORY_IITEM_ID_HANDGUN                = 0xA0,
-    INVENTORY_IITEM_ID_HUNTING_RIFLE          = 0xA1,
-    INVENTORY_IITEM_ID_SHOTGUN                = 0xA2,
-    INVENTORY_IITEM_ID_HYPER_BLASTER          = 0xA3,
+    InventoryItemId_Handgun              = 160,
+    InventoryItemId_HuntingRifle         = 161,
+    InventoryItemId_Shotgun              = 162,
+    InventoryItemId_HyperBlaster         = 163,
 
-    INVENTORY_IITEM_ID_HANDGUN_BULLETS        = 0xC0,
-    INVENTORY_IITEM_ID_RIFLE_SHELLS           = 0xC1,
-    INVENTORY_IITEM_ID_SHOTGUN_SHELLS         = 0xC2,
+    InventoryItemId_HandgunBullets       = 192,
+    InventoryItemId_RifleShells          = 193,
+    InventoryItemId_ShotgunShells        = 194,
 
-    INVENTORY_IITEM_ID_FLASHLIGHT             = 0xE0,
-    INVENTORY_IITEM_ID_POCKET_RADIO           = 0xE1,
-    INVENTORY_IITEM_ID_GASOLINE_TANK          = 0xE2
+    InventoryItemId_Flashlight           = 224,
+    InventoryItemId_PocketRadio          = 225,
+    InventoryItemId_GasolineTank         = 226
 };
 
-enum <int8> Commands
+enum <int8> InventoryCmdId
 {
-    INVENTORY_COMMAND_ID_USE_HEALTH     = 0,  // Text is "Use", but this one is used exclusively on health items.
-    INVENTORY_COMMAND_ID_USE            = 1,
-    INVENTORY_COMMAND_ID_EQUIP          = 2,
-    INVENTORY_COMMAND_ID_UNEQUIP        = 3,
-    INVENTORY_COMMAND_ID_EQUIP_RELOAD   = 4,
-    INVENTORY_COMMAND_ID_UNEQUIP_RELOAD = 5,
-    INVENTORY_COMMAND_ID_ON_OFF         = 6,
-    INVENTORY_COMMAND_ID_RELOAD         = 7,
-    INVENTORY_COMMAND_ID_LOOK           = 8,
-    INVENTORY_COMMAND_ID_USE_LOOK       = 9
+    InventoryCmdId_UseHealth     = 0,  /** Text is "Use", but this one is used exclusively on health items. */
+    InventoryCmdId_Use           = 1,
+    InventoryCmdId_Equip         = 2,
+    InventoryCmdId_Unequip       = 3,
+    InventoryCmdId_EquipReload   = 4,
+    InventoryCmdId_UnequipReload = 5,
+    InventoryCmdId_OnOff         = 6,
+    InventoryCmdId_Reload        = 7,
+    InventoryCmdId_Look          = 8,
+    InventoryCmdId_UseLook       = 9
     // flashlight 11 in day time?
 };
 
@@ -172,15 +247,14 @@ enum <int32> GameDifficulty
 
 struct SaveLoadScreen
 {
-    uint16    totalSavesCount;        // probaly total count on all playthroughs
-    uint16    unk_02;
-    q20_12    gameplayTimer;          // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15
-    int16     savesCount;             // only counts on current playthrough, on screen range [0, 999], real range: s16
-    SaveTitle saveTitle;
-    uint8     isTitleYellowFlag : 1;
-    uint8     add290Hours       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
-    uint8     unknwon           : 3;
-    uint8     hyperBlasterColor : 2;  // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
+    uint16      totalSavesCount;            // probaly total count on all playthroughs
+    uint16      unk_02;
+    q20_12      gameplayTimer_4;            // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15
+    int16       savegameCount_8;            // only counts on current playthrough, on screen range [0, 999], real range: s16
+    SaveTitleId saveTitleId_A;
+    uint8       isTitleYellowFlag_B_0 : 1;
+    uint8       add290Hours_B_1       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
+    uint8       hyperBlasterFlags_B_3 : 5;  // Red/None: 0?, Yellow: 8, Green: 16, Rainbow: 24 (unobtainable). Maybe it better to split to bit fields, because you can't have all colors at the same time, but only one.
 };
 
 struct Buttons
@@ -206,51 +280,46 @@ struct Buttons
 
 struct ControllerConfig
 {
-    Buttons enter;
-    Buttons cancel;
-    Buttons skip;
-    Buttons action;
-    Buttons aim;
-    Buttons light;
-    Buttons run;
-    Buttons view;
-    Buttons stepL;
-    Buttons stepR;
-    Buttons pause;
-    Buttons item;
-    Buttons map;
-    Buttons option;
-};
-
-struct ScreenPosition
-{
-    int8 screenPosX;  // Range: [-11, 11], default: 0
-    int8 screenPosY;  // Range: [-8, 8], default: 0
+    Buttons enter_0;
+    Buttons cancel_2;
+    Buttons skip_4;
+    Buttons action_6;
+    Buttons aim_8;
+    Buttons light_A;
+    Buttons run_C;
+    Buttons view_E;
+    Buttons stepL_10;
+    Buttons stepR_12;
+    Buttons pause_14;
+    Buttons item_16;
+    Buttons map_18;
+    Buttons option_1A;
 };
 
 struct ShSaveUserConfig
 {
-    ControllerConfig controllerConfig;
-    ScreenPosition   screenPosition;
-    uint8            sound;                // Stereo: 0, Monaural: 1, default: Stereo
-    uint8            bgmVolume;            // Range: [0, 128] with steps of 8, default: 16
-    uint8            seVoume;              // Range: [0, 128] with steps of 8, default: 16
-    uint8            vibration;            // Off: 0, On: 128, default: On
-    uint8            brighntess;           // Range: [0, 7], default: 3
-    uint8            weaponControl;        // Switch: 0, Press: 1, default: Press
-    uint8            bloodColor;           // Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal
-    uint8            autoLoad;             // Off: 0, On: 1, default: Off
+    ControllerConfig controllerConfig_0;
+    int8             screenPosX_1C;             /** Range: [-11, 11], default: 0. */
+    int8             screenPosY_1D;             /** Range: [-8, 8], default: 0. */
+    uint8            optSoundType_1E;           /** Stereo: 0, Monaural: 1, default: Stereo. */
+    uint8            optVolumeBgm_1F;           /** Range: [0, 128] with steps of 8, default: 16. */
+    uint8            optVolumeSe_20;            /** Range: [0, 128] with steps of 8, default: 16. */
+    uint8            optVibrationEnabled_21;    /** Off: 0, On: 128, default: On. */
+    uint8            optBrightness_22;          /** Range: [0, 7], default: 3. */
+    uint8            optExtraWeaponCtrl_23;     /** Switch: 0, Press: 1, default: Press. */
+    uint8            optExtraBloodColor_24;     /** Normal: 0, Green: 2, Violet: 5, Black: 13, default: Normal */
+    uint8            optAutoLoad_25;            /** Off: 0, On: 1, default: Off. */
     ubyte            unk_26;
-    uint8            ExtraOptionsEnabled;  // for some reason it is not 1 when enabled?
-    int8             viewControl;          // Normal: 0, Reverse: 1, default: Normal
-    byte             secretViewMode;       // Normal: 0, Self View: 1, default: Normal
-    int8             retreatTurn;          // Normal: 0, Reverse: 1, default: Normal
-    int8             walkRunControl;       // Normal: 0, Reverse: 1, default: Normal
-    int8             autoAiming;           // On: 0, Off: 1, default: On
-    int8             secretBulletAdjust;   // x1-x5: Range [0, 5], default: x1.
-    uint16           seenGameOverTips;     // resets after picking all 15
-    ubyte            padding_30[4];
-    uint32           palLanguageId;
+    uint8            optExtraOptionsEnabled_27;
+    int8             optExtraViewCtrl_28;       /** Normal: 0, Reverse: 1, default: Normal. */
+    int8             optExtraViewMode_29;       /** Normal: 0, Self View: 1, default: Normal. */
+    int8             optExtraRetreatTurn_2A;    /** Normal: 0, Reverse: 1, default: Normal. */
+    int8             optExtraWalkRunCtrl_2B;    /** Normal: 0, Reverse: 1, default: Normal. */
+    int8             optExtraAutoAiming_2C;     /** On: 0, Off: 1, default: On. */
+    int8             optExtraBulletAdjust_2D;   /** x1-x6: Range [0, 5], default: x1. */
+    uint16           seenGameOverTips_2E;       /** Bitfield tracking seen game-over tips. Each bit corresponds to a tip index (0–14), set bits indicate seen tips. Resets after picking all 15. */
+    ubyte            unk_30[4];
+    uint32           palLanguageId_34;
 };
 
 struct ShSaveGameFooter
@@ -274,10 +343,10 @@ struct ShSaveUserConfigContainer
 
 struct ShInventoryItem
 {
-    InventoryItemId id;
-    uint8           count;
-    Commands        commands;
-    uint8           unk_index;
+    InventoryItemId id_0;
+    uint8           count_1;
+    InventoryCmdId  command_2;
+    uint8           unk_3;     // Some sort of index?
 };
 
 struct HasMapsFlags
@@ -1150,24 +1219,19 @@ struct MapMarkingFlags
 
 struct ShSaveGame
 {
-    ShInventoryItem items[40];
+    ShInventoryItem items_0[40];
     int8            field_A0;
     int8            field_A1[3];
-    int8            mapOverlayIdx;   // Index to overlay `*.BIN` files.
-    /*
-    15 - 
-    16 - trigger: after exiting Kaufman cutscene room in hospital through any door
-    */
-    
-    int8            mapRoomIdx;      // Index to local map geometry `*.IPD` files.
-    uint16          saveGameCount;
-    SaveTitle       saveTitle;       // mapEventIdx - only on load
-    uint8           mapIdx;          // Index to global map geometry `*.PLM` files.
-    InventoryItemId equippedWeapon;  // default: 0, effects only the visible player weapon model
+    MapOverlayId    mapOverlayId_A4;          /** Index to overlay `*.BIN` files. */
+    int8            mapRoomIdx_A5;            /** Index to local map geometry `*.IPD` files. */
+    uint16          savegameCount_A6;
+    SaveTitleId     SaveTitleId_A8;
+    Current2dMap    current2dMap_A9;          /** Index to 2D map showned than opening the map screen. */
+    InventoryItemId equippedWeapon_AA;        /** Default: 0. Effects only the visible player weapon model. */
     ubyte           field_AB;
     uint32          flags_AC;
     int32           field_B0[45];    // FF
-    HasMapsFlags    hasMapsFlags;
+    HasMapsFlags    hasMapsFlags_164;
     uint32          eventFlags_168[6];
     /*
     [0] 01 00 00 00 Event: Brahams Rd. top cross reading // alley map back gate reading // retuirning to alley 2 from alley 3 // resets to 0x1 in cofe after examining the door
@@ -1261,47 +1325,38 @@ struct ShSaveGame
 
     MapMarkingFlags mapMarkingFlags;
     int32           field_238;
-    int16           pickedUpItemCount;       // test signess
+    int16           pickedUpItemCount_23C;    // test signess
     int8            field_23E;
     int8            field_23F;;
-    q19_12          playerHealth;            // default: 100
-    q19_12          playerPositionX;       
-    q3_12_deg       playerRotationY;         // Range [0, 0.999755859375], Positive Z: 0, clockwise rotation
-    ubyte           clearGameCount;          // max 99 in game
-    ubyte           unk_4;
-    q19_12          playerPositionZ;       
-    q20_12          gameplayTimer;           // // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
-    q19_12          runDistance;
-    q19_12          walkDistance;
-
-    uint8           isTitleYellowFlag : 1;
-    uint8           add290Hours       : 2;   // adds 290 hours per 1 bit. So 290, 580, 870
-    uint8           unknwon           : 3;
-    uint8           hyperBlasterColor : 2;   // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (imposible to obtain)
-    uint16          meleeKillCount;
-    uint8           rangedKillCount;
-    uint32          field_260         : 28;
-    GameDifficulty  gameDifficulty    : 4;
-    /*
-    dificulity modifier?
-    Easy:   00 00 00 F0 // -16
-    Normal: 00 00 00 00
-    Hard:   00 00 00 10 //  16
-    */
-    
-    uint16    firedShotCount;
-    uint16    closeRangeShotCount;
-    uint16    midRangeShotCount;
-    uint16    longRangeShotCount;
-    uint16    field_26C;
-    uint16    field_26E;  // related to enemy kills.
-    uint16    field_270;
-    uint16    field_272;
-    uint16    field_274;
-    uint16    field_276;
-    uint16    field_278;
-    ubyte     field_27A;
-    ubyte     continueCount;
+    q19_12          playerHealth_240;         /** Default: 100 */
+    q19_12          playerPositionX_244;       
+    q3_12_deg       playerRotationY_248;      /** Range [0, 0.999755859375], positive Z: 0, clockwise rotation. It can be multiplied by 360 to get degrees. */
+    ubyte           clearGameCount_24A;       /** Range [0, 99] */
+    ubyte           field_24B;
+    q19_12          playerPositionZ_24C;       
+    q20_12          gameplayTimer_250;        // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
+    q19_12          runDistance_254;
+    q19_12          walkDistance_258;
+    uint8           isTitleYellowFlag_25C_0 : 1;  // Is title in save-load screen is yellow (next fear mode).
+    uint8           add290Hours_25C_1       : 2;  // Adds 290 hours per 1 bit. So 290, 580, 870
+    uint8           hyperBlasterFlags_25C_3 : 5;  // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (unobtainable).
+    uint16          meleeKillCount_25D;
+    uint8           rangedKillCount_25F;
+    uint32          field_260          : 28;
+    GameDifficulty  gameDifficulty_260 : 4;
+    uint16          firedShotCount_264;       /** Missed shot count = firedShotCount - (closeRangeShotCount + midRangeShotCount + longRangeShotCount). */
+    uint16          closeRangeShotCount_266;  /** Only hits counted. */
+    uint16          midRangeShotCount_268;    /** Only hits counted. */
+    uint16          longRangeShotCount_26A;   /** Only hits counted. */
+    uint16          field_26C;
+    uint16          field_26E;  // related to enemy kills.
+    uint16          field_270;
+    uint16          field_272;
+    uint16          field_274;
+    uint16          field_276;
+    uint16          field_278;
+    uint8           field_27A;
+    uint8           continueCount_27B;
 };
 
 struct ShSaveGameContainer
@@ -1322,7 +1377,8 @@ struct ShSaveLoadScreenContainer
 // Functions
 //------------------------------------------------
 
-int sHchecksumXorCheck(int size) {
+int sHchecksumXorCheck(int size)
+{
     FSkip(-2);
     local uint8 checksum = checksumXorGenerate(size);
     FSkip(2);

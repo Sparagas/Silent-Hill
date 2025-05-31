@@ -85,4 +85,4 @@ TodoVcRoadData todoVcRoadData[48];
 };
 
 if (GetTemplateName() == "sh1_vin_map_bin_draft.bt")
-    Map map;
+    Map map <open=true>;
