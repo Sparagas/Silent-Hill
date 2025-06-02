@@ -78,33 +78,33 @@ enum <uint8> MapOverlayId
     MapOverlayId_MAP7_S03 = 42,
 };
 
-enum <uint8> SaveTitleId
+enum <uint8> SaveLocationId
 {
-    SaveTitleId_Anywhere     = 0,
-    SaveTitleId_Cafe         = 1,
-    SaveTitleId_Bus          = 2,
-    SaveTitleId_Store        = 3,
-    SaveTitleId_Infirmary    = 4,
-    SaveTitleId_Doghouse     = 5,
-    SaveTitleId_Gordon       = 6,
-    SaveTitleId_Church       = 7,
-    SaveTitleId_Garage       = 8,
-    SaveTitleId_Police       = 9,
-    SaveTitleId_Reception    = 10,
-    SaveTitleId_Room302      = 11,
-    SaveTitleId_Directors    = 12,
-    SaveTitleId_JewelryShop  = 13,
-    SaveTitleId_PoolHall     = 14,
-    SaveTitleId_AntiqueShop  = 15,
-    SaveTitleId_ThemePark    = 16,
-    SaveTitleId_Boat         = 17,
-    SaveTitleId_Bridge       = 18,
-    SaveTitleId_Motel        = 19,
-    SaveTitleId_Lighthouse   = 20,
-    SaveTitleId_Sewer        = 21,
-    SaveTitleId_Nowhere      = 22,
-    SaveTitleId_ChildsRoom   = 23,
-    SaveTitleId_NextFear     = 24
+    SaveLocationId_Anywhere     = 0,
+    SaveLocationId_Cafe         = 1,
+    SaveLocationId_Bus          = 2,
+    SaveLocationId_Store        = 3,
+    SaveLocationId_Infirmary    = 4,
+    SaveLocationId_Doghouse     = 5,
+    SaveLocationId_Gordon       = 6,
+    SaveLocationId_Church       = 7,
+    SaveLocationId_Garage       = 8,
+    SaveLocationId_Police       = 9,
+    SaveLocationId_Reception    = 10,
+    SaveLocationId_Room302      = 11,
+    SaveLocationId_Directors    = 12,
+    SaveLocationId_JewelryShop  = 13,
+    SaveLocationId_PoolHall     = 14,
+    SaveLocationId_AntiqueShop  = 15,
+    SaveLocationId_ThemePark    = 16,
+    SaveLocationId_Boat         = 17,
+    SaveLocationId_Bridge       = 18,
+    SaveLocationId_Motel        = 19,
+    SaveLocationId_Lighthouse   = 20,
+    SaveLocationId_Sewer        = 21,
+    SaveLocationId_Nowhere      = 22,
+    SaveLocationId_ChildsRoom   = 23,
+    SaveLocationId_NextFear     = 24
 };
 
 enum <uint8> Current2dMap
@@ -253,14 +253,14 @@ enum <int32> GameDifficulty
 
 struct SaveLoadScreen
 {
-    uint16      totalSavesCount;            // probaly total count on all playthroughs
-    uint16      unk_02;
-    q20_12      gameplayTimer_4;            // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15
-    int16       savegameCount_8;            // only counts on current playthrough, on screen range [0, 999], real range: s16
-    SaveTitleId saveTitleId_A;
-    uint8       isTitleYellowFlag_B_0 : 1;
-    uint8       add290Hours_B_1       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
-    uint8       hyperBlasterFlags_B_3 : 5;  // Red/None: 0?, Yellow: 8, Green: 16, Rainbow: 24 (unobtainable). Maybe it better to split to bit fields, because you can't have all colors at the same time, but only one.
+    uint16         totalSavegameCount_0;       // probaly total count on all playthroughs
+    uint16         unk_02;
+    q20_12         gameplayTimer_4;            // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15
+    int16          savegameCount_8;            // only counts on current playthrough, on screen range [0, 999], real range: s16
+    SaveLocationId locationId_A;
+    uint8          isNextFearMode_B      : 1;
+    uint8          add290Hours_B_1       : 2;  // adds 290 hours per 1 bit. So 290, 580, 870
+    uint8          hyperBlasterFlags_B_3 : 5;  // Red/None: 0?, Yellow: 8, Green: 16, Rainbow: 24 (unobtainable). Maybe it better to split to bit fields, because you can't have all colors at the same time, but only one.
 };
 
 struct Buttons
@@ -1231,7 +1231,7 @@ struct ShSaveGame
     MapOverlayId    mapOverlayId_A4;          /** Index to overlay `*.BIN` files. */
     int8            mapRoomIdx_A5;            /** Index to local map geometry `*.IPD` files. */
     uint16          savegameCount_A6;
-    SaveTitleId     SaveTitleId_A8;
+    SaveLocationId  locationId_A8;
     Current2dMap    current2dMap_A9;          /** Index to 2D map showned than opening the map screen. */
     InventoryItemId equippedWeapon_AA;        /** Default: 0. Effects only the visible player weapon model. */
     ubyte           field_AB;
@@ -1343,9 +1343,9 @@ struct ShSaveGame
     q20_12          gameplayTimer_250;        // After 260:0:0 resets and flips 1 `add290Hours`. After 3 `add290Hours` `gameplayTimer` stops at 130:0:0, with total time 1000:0:0. Max value by force: 291:16:15. Doesn't stop at pause, inventory or map screen
     q19_12          runDistance_254;
     q19_12          walkDistance_258;
-    uint8           isTitleYellowFlag_25C_0 : 1;  // Is title in save-load screen is yellow (next fear mode).
+    uint8           isNextFearMode_25C      : 1;  // Is title in save-load screen is yellow (next fear mode).
     uint8           add290Hours_25C_1       : 2;  // Adds 290 hours per 1 bit. So 290, 580, 870
-    uint8           hyperBlasterFlags_25C_3 : 5;  // Red/None: 0, Yellow: 1, Green: 2, Rainbow: 4 (unobtainable).
+    uint8           hyperBlasterFlags_25C_3 : 5;  // Red/None: 0?, Yellow: 8, Green: 16, Rainbow: 24 (unobtainable). Maybe it better to split to bit fields, because you can't have all colors at the same time, but only one.
     uint16          meleeKillCount_25D;
     uint8           rangedKillCount_25F;
     uint32          field_260          : 28;
