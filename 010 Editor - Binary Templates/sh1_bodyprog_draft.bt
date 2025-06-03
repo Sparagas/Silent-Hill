@@ -13,6 +13,8 @@
 
 #include "inc_sh1_save.bt"
 
+#define NPC_COUNT_MAX            6
+
 //------------------------------------------------
 // Enums
 //------------------------------------------------
@@ -252,9 +254,9 @@ struct GsCoordinate2
 struct SysWork
 {
     int8          unk_0[8];
-    int32         sysState;      /** e_SysState */
-    int32         sysStateStep;  // Current step/state of sysState_8 game is in.
-    int32         field_10;      // Sometimes assigned to same thing as sysStateStep_C.
+    int32         sysState_8;     /** e_SysState */
+    int32         sysStateStep_C; // Current step/state of sysState_8 game is in.
+    int32         field_10;       // Sometimes assigned to same thing as sysStateStep_C.
     int32         field_14;
     int32         field_18;
     int32         timer_1C;
@@ -264,14 +266,14 @@ struct SysWork
     int32         timer_2C;
     int32         field_30;
     int8          unk_34[4];
-    MapWork       field_38;  // Something related to map loading. Likely a struct as `func_8003CD6C` requires a struct and `GameFs_MapLoad` input it pointing here.
+    MapWork       field_38; // Something related to map loading. Likely a struct as `func_8003CD6C` requires one and `GameFs_MapLoad` input is pointing
     int8          unk_48[3];
-    uint8         isPlayerInCombatMode;
-    MainCharacter player;
-    SubCharacter  npcs[6];
-    GsCoordinate2 playerBoneCoords[18];
+    uint8         isPlayerInCombatMode_4B;
+    MainCharacter player_4C;
+    SubCharacter  npcs_1A0[NPC_COUNT_MAX];
+    GsCoordinate2 playerBoneCoords_890[18];
     int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
-    int8          unk_FC0[4800]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be AI data.
+    int8          unk_FC0[4800]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be 
     int8          unk_2280;
     int8          field_2281;    // Set by `Chara_PositionUpdateFromParams`.
     int8          field_2282;
@@ -290,19 +292,20 @@ struct SysWork
     uint8         unk_234C[4];
     int32         field_2350_0 : 4;
     int32         field_2350_4 : 4;
-    int32         field_2351   : 16;
-    int32         field_2353   : 8;   // Some index into `npcs`
+    uint32        field_2351 : 8;
+    uint32        flags_2352 : 8;
+    uint32        field_2353 : 8; // Some index into `npcs_1A0`.
     int8          unk_2354[4];
     uint8         field_2358;
     int8          unk_2359[3];
-    uint32        field_235C;  // offset
+    uint32        field_235C; // offset
     StructUnk0    field_2360;
-    uint32        field_236C;  // offset
+    uint32        field_236C; // offset
     StructUnk1    field_2370;
     int16         unk_2376;
     int16         field_2378;
-    int16         cameraAngleY;
-    int16         cameraAngleZ;
+    int16         cameraAngleY_237A;
+    int16         cameraAngleZ_237C;
     int16         field_237E;
     int32         cameraRadiusXz_2380;
     int32         cameraY_2384;
@@ -313,7 +316,7 @@ struct SysWork
     int32         field_24DC;
     int8          unk_24E0[48];
     int32         field_2510;
-    int32         field_2514[10];
+    int32         field_2514[10]; // This is supossed to be a struct.
     uint8         unk_253C[524];
     int16         field_2748[9];
     uint8         unk_275A[2];
@@ -325,10 +328,10 @@ struct GameWork
 {
     ShSaveUserConfig config;
     uint8            todoControllerData[44*2];
-    ShSaveGame       unkSaveGame;
-    ShSaveGame       saveGameCurrent;
-    uint16           screenWidth;
-    uint16           screenHeight;
+    ShSaveGame       savegame_90; // Backup savegame?
+    ShSaveGame       savegame_30C;
+    uint16           gsScreenWidth_588;
+    uint16           gsScreenHeight_58A;
     uint8            field_58C; // R?
     uint8            field_58D; // G?
     uint8            field_58E; // B?
@@ -352,7 +355,7 @@ struct Rodata_0(uint32 ramOffset)
     uint8 todoFirst;
     FSeek(0x1E4 + ramOffset);
     uint32 g_GameWorkConst      <format=hex>;  // Offset: 0x24D44
-    uint32 g_SaveGamePtr        <format=hex>;  // Offset: 0x24D48
+    uint32 g_SavegamePtr        <format=hex>;  // Offset: 0x24D48
     uint32 g_ControllerPtrConst <format=hex>;  // Offset: 0x24D4C
     uint32 g_ControllerPtr      <format=hex>;  // Offset: 0x24D50
     uint32 g_GameWorkPtr        <format=hex>;  // Offset: 0x24D54
