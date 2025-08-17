@@ -12,7 +12,7 @@
 //------------------------------------------------
 
 #include "ps1_psx.exe.bt"
-#include "sh1_vin_map_bin_draft.bt"
+#include "sh1_bodyprog_draft.bt"
 
 
 //------------------------------------------------
@@ -54,7 +54,9 @@ Bodyprog bodyprog(0x24B60);
     uint8    WorldTintB;       // Offset: 0xC4192
 
 FSeek(0xC9578);
-Map map; // or B_KONAMI.BIN
+//Map map; // or B_KONAMI.BIN
+uint8              padding[4];
+s_MapOverlayHeader g_MapOverlayHeader;
 
 
 FSeek(0x1E2600);

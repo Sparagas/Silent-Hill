@@ -1,0 +1,3094 @@
+//------------------------------------------------
+//--- 010 Editor v16.0 Binary Template
+//
+//      File: sh1_overlays.bt
+//   Authors: Laurynas Zubavičius (Sparagas), emoose
+//   Version: 0.0
+//   Purpose: Parse Silent Hill executable overlays for Sony - PlayStation.
+//  Category: Executable
+// File Mask: *.BIN     
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+typedef int16 q7_8;
+typedef int32 q19_12      <read=Str("%g", this / 4096.0),
+                          write=(this = Atof(value) * 4096.0)>;
+
+typedef uint8 u8_deg <read=Str("%lg deg", this / 352.0 * 360),
+                     write=(this = Atof(value) * 352.0 / 360.0)>;
+
+const int MapOverlayAddress = 0x800C9578;
+
+//------------------------------------------------
+// Enums
+//------------------------------------------------
+
+// abbreviations are in japanese dialect
+enum <ubyte> ShCharacterId
+{
+    Chara_None             = 0,   // 0x00 : -1          , 0         , 0          -
+    Chara_Hero             = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
+    Chara_AirScreamer      = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
+    Chara_NightFlutter     = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
+    Chara_Groaner          = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
+    Chara_Wormhead         = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
+    Chara_LarvalStalker    = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
+    Chara_Stalker          = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
+    Chara_GreyChild        = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
+    Chara_Mumbler          = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
+    Chara_HangedScratcher  = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
+    Chara_Creaper          = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
+    Chara_Romper           = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
+    Chara_UnusedChicken    = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
+    Chara_Splithead        = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
+    Chara_Floatstinger     = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
+    Chara_PuppetNurse      = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
+    Chara_DummyNurse       = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Nurse
+    Chara_PuppetDoctor     = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
+    Chara_DummyDoctor      = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Doctor
+    Chara_Twinfeeler       = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
+    Chara_Bloodsucker      = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
+    Chara_Incubus          = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
+    Chara_Unknown23        = 23,  // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
+    Chara_MonsterCybil     = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
+    Chara_LockerDeadBody   = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
+    Chara_Cybil            = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
+    Chara_EndingCybil      = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
+    Chara_Cheryl           = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
+    Chara_Cat              = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
+    Chara_Dahlia           = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
+    Chara_EndingDahlia     = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
+    Chara_Lisa             = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
+    Chara_BloodyLisa       = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
+    Chara_Alessa           = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
+    Chara_GhostChildAlessa = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
+    Chara_Incubator        = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
+    Chara_BloodyIncubator  = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
+    Chara_Kaufmann         = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
+    Chara_EndingKaufmann   = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
+    Chara_Flauros          = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
+    Chara_LittleIncubus    = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
+    Chara_GhostDoctor      = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
+    Chara_Parasite         = 43,  // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "InCUbator?"
+    Chara_Padlock          = 44
+};
+
+typedef enum _VC_ROAD_FLAGS
+{
+    VC_RD_NOFLAG            = 0,
+    VC_RD_END_DATA_F        = 1 << 0,
+    VC_RD_WARP_IN_F         = 1 << 1,
+    VC_RD_WARP_OUT_F        = 1 << 2,
+    VC_RD_WARP_IN_OUT_FS    = VC_RD_WARP_IN_F | VC_RD_WARP_OUT_F,
+    VC_RD_NO_FRONT_FLIP_F   = 1 << 3,
+    VC_RD_LIM_UP_FAR_VIEW_F = 1 << 4,
+    VC_RD_USE_NO_ENEMY_F    = 1 << 5,
+    VC_RD_USE_NEAR_ENEMY_F  = 1 << 6,
+    VC_RD_MARGE_ROAD_F      = 1 << 7
+} VC_ROAD_FLAGS;
+
+typedef enum _VC_AREA_SIZE_TYPE
+{
+    VC_AREA_TINY    = 0,
+    VC_AREA_SMALL   = 1,
+    VC_AREA_WIDE    = 2,
+    VC_AREA_OUTDOOR = 3,
+//    VC_AREA_SUU     = 4 // Count. Disabled to remove size warning since it's unused.
+} VC_AREA_SIZE_TYPE;
+
+typedef enum _VC_ROAD_TYPE
+{
+    VC_RD_TYPE_ROAD           = 0,
+    VC_RD_TYPE_EFFECT         = 1,
+    VC_RD_TYPE_EVENT          = 2,
+    VC_RD_TYPE_ROAD_PRIO_LOW  = 3,
+    VC_RD_TYPE_ROAD_PRIO_HIGH = 4,
+    VC_RD_TYPE_SV_ONLY        = 5,
+    VC_RD_TYPE_SUU            = 6
+} VC_ROAD_TYPE;
+
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+typedef struct _VC_LIMIT_AREA
+{
+    q7_8 min_hx;
+    q7_8 max_hx;
+    q7_8 min_hz;
+    q7_8 max_hz;
+} VC_LIMIT_AREA;
+
+typedef struct _SpawnInfo (ShCharacterId charaGroupIds)
+{
+    local ShCharacterId local_charaGroupIds = charaGroupIds;
+
+    q19_12              positionX_0;
+    ShCharacterId       charaId_4;
+    u8_deg              rotationY_5;  // Multiplied by 16 to get `SubCharacter.rotation.vy` value.
+    int8                flags_6;    /** Copied to `stateStep` in `Model`, with `state = 0`. */
+    int8                unk_7;
+    q19_12              positionZ_8;
+}
+SpawnInfo <read=readSpawnInfo(charaId, local_charaGroupIds),
+           optimize=false>;
+
+string readSpawnInfo (ShCharacterId charaId, ShCharacterId charaGroupIds)
+{
+    if (charaId == 0)
+        return EnumToString(charaGroupIds);
+    else 
+        return EnumToString(charaId);
+};
+
+typedef struct _VC_ROAD_DATA
+{
+    VC_LIMIT_AREA     lim_sw_0;
+    VC_LIMIT_AREA     lim_rd_8;
+
+    VC_ROAD_FLAGS     flags_10          : 8; /** `VC_ROAD_FLAGS` | Path flags. */
+    VC_AREA_SIZE_TYPE area_size_type_11 : 2;
+    VC_ROAD_TYPE      rd_type_11        : 3; /** Path type. */
+    uint32            mv_y_type_11      : 3; /** `VC_CAM_MV_TYPE`? */
+    int32             lim_rd_max_hy_12  : 8; // In SH2 `max_hy/min_hy` are part of `VC_LIMIT_AREA`, in SH1 these are separate for some reason.
+    int32             lim_rd_min_hy_13  : 8;
+
+    int16             ofs_watch_hy_14   : 8;
+    uint16            field_15          : 4;
+    int16             cam_mv_type_14    : 4; /** `VC_CAM_MV_TYPE` */
+
+    int8              fix_ang_x_16;          /** NOTE: Part of union in SH2 `VC_ROAD_DATA`. */
+    int8              fix_ang_y_17;
+} VC_ROAD_DATA;
+
+
+enum <byte> POIType
+{
+    POIType_Unk0       = 0,
+    POIType_TouchAabb  = 1,
+    POIType_ButtonOmni = 2,
+    POIType_ButtonYaw  = 3,
+    POIType_TouchObb   = 4,
+    POIType_Dummy      = 15
+};
+
+struct PointOfInterest_Button // ButtonOmni / ButtonYaw
+{
+    q19_12 positionX_0;
+    uint32 unk_4_0 : 12;
+    uint32 geo     : 12; // TODO: not sure how this is meant to be decoded yet
+    uint32 unk_24  : 8;
+    q19_12 positionZ_8;
+};
+
+struct PointOfInterest_TouchAabb // TouchAabb
+{
+    q19_12 positionX_0;
+    uint32 unk_4_0 : 16;
+    u8_deg radiusX : 8;
+    u8_deg radiusZ : 8;
+    q19_12 positionZ_8;
+};
+
+struct PointOfInterest_TouchObb // TouchObb
+{
+    q19_12 positionX_0;
+    uint32 unk_4_0 : 16;
+    uint32 geoA    : 8;
+    uint32 geoB    : 8;
+    q19_12 positionZ_8;
+};
+
+struct PointOfInterest
+{
+    q19_12 positionX_0;
+    uint8  triggerData_4[4]; // Likely a union, but we split to different structs above to make struct reading easier.
+    q19_12 positionZ_8;
+};
+
+enum <uint32> TriggerType
+{
+    TriggerType_Unk0         = 0,
+    TriggerType_Unk1         = 1,
+    TriggerType_Unk2         = 2,
+    TriggerType_Unk3         = 3,
+    TriggerType_Unk4         = 4,
+    TriggerType_Door1        = 5,
+    TriggerType_Door2        = 6,
+    TriggerType_Text         = 7,
+    TriggerType_Save0        = 8,
+    TriggerType_Save1        = 9,
+    TriggerType_Function    = 10,
+    TriggerType_MapScribble = 11,
+    TriggerType_Unk12       = 12,
+    TriggerType_Unk13       = 13,
+    TriggerType_Unk14       = 14,
+    TriggerType_Unk15       = 15
+};
+
+typedef struct(uint poiAddress)
+{
+    // Fields from https://github.com/ItEndsWithTens/SilentHillMapExaminer/blob/master/src/SHME.ExternalTool.Guts/Trigger.cs
+
+    uint8 Thing0   : 7;
+    uint8 Disabled : 1;
+
+    // Byte 1
+    uint8 Thing1;
+
+    uint16 FiredBitShift : 5;
+    uint16 FiredGroup    : 11;
+
+    // Byte 4
+    POIType PoiType : 4;
+    uint8 Thing2    : 4;
+
+    // Byte 5
+    uint8 PoiIndex;
+
+    // Byte 6
+    uint8 Thing3;
+
+    // Byte 7
+    uint8 Thing4;
+
+    TriggerType Type   : 5;
+    uint32 TargetIndex : 8;
+    uint32 Thing5      : 6;
+    uint32 Thing6      : 6;
+    uint32 StageIndex  : 6;
+    uint32 SomeBool    : 1;
+	
+	// Read in POI data as part of this struct
+
+    local long pos = FTell();
+    
+    FSeek(poiAddress + (12 * PoiIndex));
+    if (PoiType == POIType_ButtonOmni || PoiType == POIType_ButtonYaw)
+        PointOfInterest_Button POI_Button;
+    else if(PoiType == POIType_TouchAabb)
+        PointOfInterest_TouchAabb POI_TouchAabb;
+    else if(PoiType == POIType_TouchObb)
+        PointOfInterest_TouchObb POI_TouchObb;
+    else
+        PointOfInterest POI;
+        
+    FSeek(pos);
+} Trigger<read=ReadTrigger>;
+
+string ReadTrigger(Trigger& t)
+{
+    string s;
+    SPrintf(s, "%s POI #%d %s", EnumToString(t.Type), t.PoiIndex, EnumToString(t.PoiType));
+    return s;
+}
+
+struct s_MapOverlayHeader
+{
+    uint32          field_0                  <format=hex>; // s_UnkStruct2_Mo*
+    uint32          getMapRoomIdxFunc_4      <format=hex>; // Called by `Savegame_MapRoomIdxSet`.
+    int8            field_8;
+    int8            unk_9[3];
+    int8            unk_C[4];
+    int32           func_10                  <format=hex>;
+    int8            field_14;                              // Flags?
+    uint8           field_15;
+    int8            field_16;
+    int8            field_17;
+    uint32          loadingScreenFuncs_18    <format=hex>;
+    uint32          poiArrayPtr_1C           <format=hex>; // mapAreaLoadParams_1C in decomp
+    uint32          mapEventFuncs_20         <format=hex>; // Points to array of event functions.
+    uint32          triggerArrayPtr_24       <format=hex>; // s8 unk_24[4] in decomp
+    uint32          field_28                 <format=hex>; // GsCOORDINATE2*
+    uint32          field_2C                 <format=hex>; // s_UnkStruct_MO*
+    uint32          mapMessageStrings_30     <format=hex>; // Points to array of `char*` for each displayed message in the map.
+    uint32          animInfo_34              <format=hex>; // s_AnimInfo*
+    uint32          field_38                 <format=hex>; // s_UnkStruct3_Mo*
+    uint32          func_40                  <format=hex>;
+    uint32          func_44                  <format=hex>;
+    int8            unk_48[4];
+    uint32          field_4C                 <format=hex>; // s_func_800625F4*
+    int8            unk_50[16];
+    int8            unk_60[88];
+    uint32          func_B8                  <format=hex>;
+    uint32          func_BC                  <format=hex>;
+    int8            unk_C0[8];
+    uint32          func_C8                  <format=hex>;
+    uint32          func_CC                  <format=hex>;
+    uint32          func_D0                  <format=hex>; // 0x800C964C
+    uint32          func_D4                  <format=hex>; // Assumed return type.
+    uint32          func_D8                  <format=hex>; // Assumed return type.
+    uint32          func_DC                  <format=hex>; // Assumed return type.
+    int8            unk_E0[4]                <format=hex>;
+    uint32          func_E4                  <format=hex>; // Assumed return type.
+    uint64          func_E8                  <format=hex>; // Is it really `s64`???
+    uint32          func_EC                  <format=hex>;
+    uint8           unk_F0[24]               <format=hex>;
+    uint32          func_108                 <format=hex>;
+    int8            unk_10C[24];
+    uint32          func_124                 <format=hex>; // Assumed return type.
+    uint32          func_128                 <format=hex>; // Assumed return type.
+    uint32          func_12C                 <format=hex>; // Assumed return type.
+    int8            unk_130[4];
+    uint32          func_134                 <format=hex>; // Assumed return type.
+    uint32          func_138                 <format=hex>; // Assumed return type.
+    uint32          func_13C                 <format=hex>; // 0x800C96B8
+    int8            unk_140[24];
+    uint32          func_158                 <format=hex>;
+    int8            unk_15C[12];
+    uint32          func_168                 <format=hex>;
+    uint32          func_16C                 <format=hex>;
+    int8            unk_170[8];
+    uint32          func_178                 <format=hex>;
+    uint32          func_17C                 <format=hex>;
+    int8            unk_180[20];
+    uint32          charaUpdateFuncs_194[45] <format=hex>;
+    ShCharacterId   charaGroupIds_248[4];
+    SpawnInfo       charaSpawns_24C_0(charaGroupIds_248[0])[16];
+    SpawnInfo       charaSpawns_24C_1(charaGroupIds_248[1])[16];
+    VC_ROAD_DATA    roadDataList_3CC[48];
+};
+
+
+struct Rodata_map0_s00
+{
+    FSkip(0x13DC - 0x1328);
+};
+struct Rodata_map0_s00_2
+{
+    FSkip(0x15A4 - 0x1568);
+};
+struct Rodata_map0_s00_msg
+{
+    FSkip(0x1F34 - 0x1910);
+};
+struct Text_map0_s00
+{
+    FSkip(0x9990 - 0x2138);
+};
+struct Text_map0_s00_2
+{
+    FSkip(0x13D44 - 0x9990);
+};
+struct Data_map0_s00
+{
+    //FSkip(0x16140 - 0x13D44);
+    todoPointOfInterest();
+    FSeek(0x16140);
+};
+struct Data_map0_s00_msg
+{
+    FSkip(0x161DC - 0x16140);
+};
+
+struct Rodata_map0_s01
+{
+    FSkip(0x1288 - 0x1238);
+};
+struct Rodata_map0_s01_msg
+{
+    FSkip(0x3384 - 0x2568);
+};
+struct Text_map0_s01
+{
+    FSkip(0x13EB8 - 0x3614);
+};
+struct Data_map0_s01
+{
+    //FSkip(0x14910 - 0x13EB8);
+    todoPointOfInterest();
+    FSeek(0x14910);
+};
+struct Data_map0_s01_msg
+{
+    FSkip(0x14A40 - 0x14910);
+};
+
+struct Rodata_map0_s02
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map0_s02_msg
+{
+    FSkip(0x16D0 - 0x12C8);
+};
+struct Text_map0_s02
+{
+    FSkip(0x6414 - 0x1778);
+};
+struct Data_map0_s02
+{
+    //FSkip(0x67C0 - 0x6414);
+    todoPointOfInterest();
+    FSeek(0x67C0);
+};
+struct Data_map0_s02_msg
+{
+    FSkip(0x6818 - 0x67C0);
+};
+
+struct Rodata_map1_s00
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map1_s00_2
+{
+    FSkip(0x14DC - 0x14A0);
+};
+struct Rodata_map1_s00_msg
+{
+    FSkip(0x200C - 0x1800);
+};
+struct Text_map1_s00
+{
+    FSkip(0x8F80 - 0x2230);
+};
+struct Text_map1_s00_2
+{
+    FSkip(0x10ED4 - 0x8F80);
+};
+struct Data_map1_s00
+{
+    //FSkip(0x13C44 - 0x10ED4);
+    todoPointOfInterest();
+    FSeek(0x13C44);
+};
+struct Data_map1_s00_msg
+{
+    FSkip(0x13CE4 - 0x13C44);
+};
+
+struct Rodata_map1_s01
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map1_s01_2
+{
+    FSkip(0x1304 - 0x12C8);
+};
+struct Rodata_map1_s01_msg
+{
+    FSkip(0x2014 - 0x1628);
+};
+struct Text_map1_s01
+{
+    FSkip(0x8578 - 0x227C);
+};
+struct Text_map1_s01_2
+{
+    FSkip(0x10B78 - 0x8578);
+};
+struct Data_map1_s01
+{
+    //FSkip(0x139E4 - 0x10B78);
+    todoPointOfInterest();
+    FSeek(0x139E4);
+};
+struct Data_map1_s01_msg
+{
+    FSkip(0x13AA4 - 0x139E4);
+};
+
+struct Rodata_map1_s02
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map1_s02_2
+{
+    FSkip(0x1524 - 0x14E8);
+};
+struct Rodata_map1_s02_msg
+{
+    FSkip(0x21F0 - 0x1970);
+};
+struct Text_map1_s02
+{
+    FSkip(0x93D0 - 0x24D4);
+};
+struct Text_map1_s02_2
+{
+    FSkip(0x157E0 - 0x93D0);
+};
+struct Data_map1_s02
+{
+    //FSkip(0x182DC - 0x157E0);
+    todoPointOfInterest();
+    FSeek(0x182DC);
+};
+struct Data_map1_s02_msg
+{
+    FSkip(0x183B8 - 0x182DC);
+};
+
+struct Rodata_map1_s03
+{
+    FSkip(0x121C - 0x1168);
+};
+struct Rodata_map1_s03_2
+{
+    FSkip(0x164C - 0x1610);
+};
+struct Rodata_map1_s03_msg
+{
+    FSkip(0x24C0 - 0x1A98);
+};
+struct Text_map1_s03
+{
+    FSkip(0x9848 - 0x2768);
+};
+struct Text_map1_s03_2
+{
+    FSkip(0x15A00 - 0x9848);
+};
+struct Data_map1_s03
+{
+    //FSkip(0x18468 - 0x15A00);
+    todoPointOfInterest();
+    FSeek(0x18468);
+};
+struct Data_map1_s03_msg
+{
+    FSkip(0x18528 - 0x18468);
+};
+
+struct Rodata_map1_s04
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Text_map1_s04
+{
+    FSkip(0x3938 - 0x13E4);
+};
+struct Data_map1_s04
+{
+    //FSkip(0x4B00 - 0x3938);
+    todoPointOfInterest();
+    todoTrigers();
+    FSeek(0x4B00);
+};
+
+struct Rodata_map1_s05
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map1_s05_msg
+{
+    FSkip(0x1508 - 0x125C);
+};
+struct Text_map1_s05
+{
+    FSkip(0xC10C - 0x1558);
+};
+struct Data_map1_s05
+{
+    //FSkip(0xC734 - 0xC10C);
+    todoPointOfInterest();
+    FSeek(0xC734);
+};
+struct Data_map1_s05_msg
+{
+    FSkip(0xC770 - 0xC734);
+};
+
+struct Rodata_map1_s06
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map1_s06_msg
+{
+    FSkip(0x1974 - 0x1434);
+};
+struct Text_map1_s06
+{
+    FSkip(0xD7C8 - 0x1A4C);
+};
+struct Data_map1_s06
+{
+    //FSkip(0xDF1C - 0xD7C8);
+    todoPointOfInterest();
+    FSeek(0xDF1C);
+};
+struct Data_map1_s06_msg
+{
+    FSkip(0xDF98 - 0xDF1C);
+};
+
+struct Rodata_map2_s00
+{
+    FSkip(0x12E8 - 0x1298);
+};
+struct Rodata_map2_s00_msg
+{
+    FSkip(0x3BE4 - 0x2F08);
+};
+struct Text_map2_s00
+{
+    FSkip(0x25134 - 0x4048);
+};
+struct Data_map2_s00
+{
+    //FSkip(0x279F0 - 0x25134);
+    todoPointOfInterest();
+    FSeek(0x279F0);
+};
+struct Data_map2_s00_msg
+{
+    FSkip(0x27B2C - 0x279F0);
+};
+
+struct Rodata_map2_s01
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map2_s01_msg
+{
+    FSkip(0x19D8 - 0x11F0);
+};
+struct Text_map2_s01
+{
+    FSkip(0x6768 - 0x1A98);
+};
+struct Data_map2_s01
+{
+    //FSkip(0x6D84 - 0x6768);
+    todoPointOfInterest();
+    FSeek(0x6D84);
+};
+struct Data_map2_s01_msg
+{
+    FSkip(0x6E34 - 0x6D84);
+};
+
+struct Rodata_map2_s02
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map2_s02_msg
+{
+    FSkip(0x3314 - 0x300C);
+};
+struct Text_map2_s02
+{
+    FSkip(0x21524 - 0x332C);
+};
+struct Data_map2_s02
+{
+    //FSkip(0x2411C - 0x21524);
+    todoPointOfInterest();
+    FSeek(0x2411C);
+};
+struct Data_map2_s02_msg
+{
+    FSkip(0x24164 - 0x2411C);
+};
+
+struct Rodata_map2_s03
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Text_map2_s03
+{
+    FSkip(0x35C4 - 0x138C);
+};
+struct Data_map2_s03
+{
+    //FSkip(0x4A00 - 0x35C4);
+    todoPointOfInterest();
+    todoTrigers();
+    FSeek(0x4A00);
+};
+
+struct Rodata_map2_s04
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map2_s04_msg
+{
+    FSkip(0x1620 - 0x10F0);
+};
+struct Text_map2_s04
+{
+    FSkip(0x4564 - 0x1654);
+};
+struct Data_map2_s04
+{
+    //FSkip(0x48F0 - 0x4564);
+    todoPointOfInterest();
+    FSeek(0x48F0);
+};
+struct Data_map2_s04_msg
+{
+    FSkip(0x495C - 0x48F0);
+};
+
+struct Rodata_map3_s00
+{
+    FSkip(0x12C8 - 0x1278);
+};
+struct Rodata_map3_s00_msg
+{
+    FSkip(0x1D6C - 0x13BC);
+};
+struct Text_map3_s00
+{
+    FSkip(0x884C - 0x1E90);
+};
+struct Data_map3_s00
+{
+    //FSkip(0x8DDC - 0x884C);
+    todoPointOfInterest();
+    FSeek(0x8DDC);
+};
+struct Data_map3_s00_msg
+{
+    FSkip(0x8EAC - 0x8DDC);
+};
+
+struct Rodata_map3_s01
+{
+    FSkip(0x12C8 - 0x1278);
+};
+struct Rodata_map3_s01_msg
+{
+    FSkip(0x1B10 - 0x1368);
+};
+struct Text_map3_s01
+{
+    FSkip(0xA494 - 0x1C9C);
+};
+struct Data_map3_s01
+{
+    //FSkip(0xB184 - 0xA494);
+    todoPointOfInterest();
+    FSeek(0xB184);
+};
+struct Data_map3_s01_msg
+{
+    FSkip(0xB228 - 0xB184);
+};
+
+struct Rodata_map3_s02
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map3_s02_msg
+{
+    FSkip(0x1580 - 0x1280);
+};
+struct Text_map3_s02
+{
+    FSkip(0x7F0C - 0x15E0);
+};
+struct Data_map3_s02
+{
+    //FSkip(0x8904 - 0x7F0C);
+    todoPointOfInterest();
+    FSeek(0x8904);
+};
+struct Data_map3_s02_msg
+{
+    FSkip(0x8948 - 0x8904);
+};
+
+struct Rodata_map3_s03
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map3_s03_2
+{
+    FSkip(0x117C - 0x1148);
+};
+struct Rodata_map3_s03_msg
+{
+    FSkip(0x1CA8 - 0x1268);
+};
+struct Text_map3_s03
+{
+    FSkip(0x4138 - 0x1EE8);
+};
+struct Text_map3_s03_2
+{
+    FSkip(0xB910 - 0x4138);
+};
+struct Data_map3_s03
+{
+    //FSkip(0xCE6C - 0xB910);
+    todoPointOfInterest();
+    FSeek(0xCE6C);
+};
+struct Data_map3_s03_msg
+{
+    FSkip(0xCF68 - 0xCE6C);
+};
+
+struct Rodata_map3_s04
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map3_s04_2
+{
+    FSkip(0x10EC - 0x10B8);
+};
+struct Rodata_map3_s04_msg
+{
+    FSkip(0x1C68 - 0x12A0);
+};
+struct Text_map3_s04
+{
+    FSkip(0x3FFC - 0x1E04);
+};
+struct Text_map3_s04_2
+{
+    FSkip(0xAE90 - 0x3FFC);
+};
+struct Data_map3_s04
+{
+    //FSkip(0xC0CC - 0xAE90);
+    todoPointOfInterest();
+    FSeek(0xC0CC);
+};
+struct Data_map3_s04_msg
+{
+    FSkip(0xC1A8 - 0xC0CC);
+};
+
+struct Rodata_map3_s05
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map3_s05_2
+{
+    FSkip(0x15A4 - 0x1570);
+};
+struct Rodata_map3_s05_msg
+{
+    FSkip(0x1DB4 - 0x1690);
+};
+struct Text_map3_s05
+{
+    FSkip(0x8BA8 - 0x207C);
+};
+struct Text_map3_s05_2
+{
+    FSkip(0xFA68 - 0x8BA8);
+};
+struct Data_map3_s05
+{
+    //FSkip(0x11178 - 0xFA68);
+    todoPointOfInterest();
+    FSeek(0x11178);
+};
+struct Data_map3_s05_msg
+{
+    FSkip(0x11218 - 0x11178);
+};
+
+struct Rodata_map3_s06
+{
+    FSkip(0x12C8 - 0x1278);
+};
+struct Rodata_map3_s06_msg
+{
+    FSkip(0x1CA4 - 0x13C4);
+};
+struct Text_map3_s06
+{
+    FSkip(0x8648 - 0x1D68);
+};
+struct Data_map3_s06
+{
+    //FSkip(0x8E44 - 0x8648);
+    todoPointOfInterest();
+    FSeek(0x8E44);
+};
+struct Data_map3_s06_msg
+{
+    FSkip(0x8F00 - 0x8E44);
+};
+
+struct Rodata_map4_s00
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Text_map4_s00
+{
+    FSkip(0x3528 - 0x135C);
+};
+struct Data_map4_s00
+{
+    //FSkip(0x4000 - 0x3528);
+    todoPointOfInterest();
+    todoTrigers();
+    FSeek(0x4000);
+};
+
+struct Rodata_map4_s01
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map4_s01_msg
+{
+    FSkip(0x29F0 - 0x1548);
+};
+struct Text_map4_s01
+{
+    FSkip(0xB93C - 0x2C24);
+};
+struct Data_map4_s01
+{
+    //FSkip(0xC1A0 - 0xB93C);
+    todoPointOfInterest();
+    FSeek(0xC1A0);
+};
+struct Data_map4_s01_msg
+{
+    FSkip(0xC378 - 0xC1A0);
+};
+
+struct Rodata_map4_s02
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map4_s02_msg
+{
+    FSkip(0x3270 - 0x2F94);
+};
+struct Text_map4_s02
+{
+    FSkip(0x214D8 - 0x3290);
+};
+struct Data_map4_s02
+{
+    //FSkip(0x24150 - 0x214D8);
+    todoPointOfInterest();
+    FSeek(0x24150);
+};
+struct Data_map4_s02_msg
+{
+    FSkip(0x24194 - 0x24150);
+};
+
+struct Rodata_map4_s03
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map4_s03_msg
+{
+    FSkip(0x1670 - 0x12EC);
+};
+struct Text_map4_s03
+{
+    FSkip(0x11224 - 0x1B2C);
+};
+struct Data_map4_s03
+{
+    //FSkip(0x12088 - 0x11224);
+    todoPointOfInterest();
+    FSeek(0x12088);
+};
+struct Data_map4_s03_msg
+{
+    FSkip(0x120DC - 0x12088);
+};
+
+struct Rodata_map4_s04
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map4_s04_msg
+{
+    FSkip(0x2600 - 0x14D8);
+};
+struct Text_map4_s04
+{
+    FSkip(0x9A18 - 0x26E8);
+};
+struct Data_map4_s04
+{
+    //FSkip(0x9F54 - 0x9A18);
+    todoPointOfInterest();
+    FSeek(0x9F54);
+};
+struct Data_map4_s04_msg
+{
+    FSkip(0xA09C - 0x9F54);
+};
+
+struct Rodata_map4_s05
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map4_s05_msg
+{
+    FSkip(0x166C - 0x1354);
+};
+struct Text_map4_s05
+{
+    FSkip(0xE05C - 0x172C);
+};
+struct Data_map4_s05
+{
+    //FSkip(0xE6C8 - 0xE05C);
+    todoPointOfInterest();
+    FSeek(0xE6C8);
+};
+struct Data_map4_s05_msg
+{
+    FSkip(0xE714 - 0xE6C8);
+};
+
+struct Rodata_map4_s06
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Text_map4_s06
+{
+    FSkip(0x3528 - 0x135C);
+};
+struct Data_map4_s06
+{
+    //FSkip(0x4000 - 0x3528);
+    todoPointOfInterest();
+    todoTrigers();
+    FSeek(0x4000);
+};
+
+struct Rodata_map5_s00
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map5_s00_2
+{
+    FSkip(0x1370 - 0x1328);
+};
+struct Rodata_map5_s00_msg
+{
+    FSkip(0x1A6C - 0x1670);
+};
+struct Text_map5_s00
+{
+    FSkip(0x66AC - 0x1B60);
+};
+struct Text_map5_s00_2
+{
+    FSkip(0xF980 - 0x66AC);
+};
+struct Data_map5_s00
+{
+    //FSkip(0x11294 - 0xF980);
+    todoPointOfInterest();
+    FSeek(0x11294);
+};
+struct Data_map5_s00_msg
+{
+    FSkip(0x112E8 - 0x11294);
+};
+
+struct Rodata_map5_s01
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map5_s01_msg
+{
+    FSkip(0x3364 - 0x300C);
+};
+struct Text_map5_s01
+{
+    FSkip(0x23D6C - 0x3518);
+};
+struct Data_map5_s01
+{
+    //FSkip(0x26980 - 0x23D6C);
+    todoPointOfInterest();
+    FSeek(0x26980);
+};
+struct Data_map5_s01_msg
+{
+    FSkip(0x269D0 - 0x26980);
+};
+
+struct Rodata_map5_s02
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map5_s02_2
+{
+    FSkip(0x117C - 0x1140);
+};
+struct Rodata_map5_s02_msg
+{
+    FSkip(0x1EEC - 0x15D8);
+};
+struct Text_map5_s02
+{
+    FSkip(0x4690 - 0x2154);
+};
+struct Text_map5_s02_2
+{
+    FSkip(0xD9C0 - 0x4690);
+};
+struct Data_map5_s02
+{
+    //FSkip(0xFD3C - 0xD9C0);
+    todoPointOfInterest();
+    FSeek(0xFD3C);
+};
+struct Data_map5_s02_msg
+{
+    FSkip(0xFE08 - 0xFD3C);
+};
+
+struct Rodata_map5_s03
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map5_s03_msg
+{
+    FSkip(0x222C - 0x14E0);
+};
+struct Text_map5_s03
+{
+    FSkip(0x9B18 - 0x237C);
+};
+struct Data_map5_s03
+{
+    //FSkip(0xA32C - 0x9B18);
+    todoPointOfInterest();
+    FSeek(0xA32C);
+};
+struct Data_map5_s03_msg
+{
+    FSkip(0xA43C - 0xA32C);
+};
+
+struct Rodata_map6_s00
+{
+    FSkip(0x12DC - 0x1228);
+};
+struct Rodata_map6_s00_msg
+{
+    FSkip(0x3528 - 0x306C);
+};
+struct Text_map6_s00
+{
+    FSkip(0x23D54 - 0x35B8);
+};
+struct Data_map6_s00
+{
+    //FSkip(0x26934 - 0x23D54);
+    todoPointOfInterest();
+    FSeek(0x26934);
+};
+struct Data_map6_s00_msg
+{
+    FSkip(0x269A0 - 0x26934);
+};
+
+struct Rodata_map6_s01
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map6_s01_msg
+{
+    FSkip(0x2410 - 0x12E0);
+};
+struct Text_map6_s01
+{
+    FSkip(0x9EF4 - 0x25E8);
+};
+struct Data_map6_s01
+{
+    //FSkip(0xA8C0 - 0x9EF4);
+    todoPointOfInterest();
+    FSeek(0xA8C0);
+};
+struct Data_map6_s01_msg
+{
+    FSkip(0xAA2C - 0xA8C0);
+};
+
+struct Rodata_map6_s02
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map6_s02_msg
+{
+    FSkip(0x14C4 - 0x10F4);
+};
+struct Text_map6_s02
+{
+    FSkip(0x9EA4 - 0x1628);
+};
+struct Data_map6_s02
+{
+    //FSkip(0xA4D4 - 0x9EA4);
+    todoPointOfInterest();
+    FSeek(0xA4D4);
+};
+struct Data_map6_s02_msg
+{
+    FSkip(0xA538 - 0xA4D4);
+};
+
+struct Rodata_map6_s03
+{
+    FSkip(0x1204 - 0x1150);
+};
+struct Rodata_map6_s03_2
+{
+    FSkip(0x1364 - 0x1328);
+};
+struct Rodata_map6_s03_3
+{
+    FSkip(0x16D0 - 0x1688);
+};
+struct Rodata_map6_s03_msg
+{
+    FSkip(0x1C80 - 0x1948);
+};
+struct Text_map6_s03
+{
+    FSkip(0x5A54 - 0x1CF4);
+};
+struct Text_map6_s03_2
+{
+    FSkip(0xACEC - 0x5A54);
+};
+struct Text_map6_s03_3
+{
+    FSkip(0xFDFC - 0xACEC);
+};
+struct Data_map6_s03
+{
+    //FSkip(0x12868 - 0xFDFC);
+    todoPointOfInterest();
+    FSeek(0x12868);
+};
+struct Data_map6_s03_msg
+{
+    FSkip(0x128AC - 0x12868);
+};
+
+struct Rodata_map6_s04
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map6_s04_2
+{
+    FSkip(0x187C - 0x1840);
+};
+struct Rodata_map6_s04_msg
+{
+    FSkip(0x2EAC - 0x21D4);
+};
+struct Text_map6_s04
+{
+    FSkip(0x9FE8 - 0x3268);
+};
+struct Text_map6_s04_2
+{
+    FSkip(0x1E620 - 0x9FE8);
+};
+struct Data_map6_s04
+{
+    //FSkip(0x222A4 - 0x1E620);
+    todoPointOfInterest();
+    FSeek(0x222A4);
+};
+struct Data_map6_s04_msg
+{
+    FSkip(0x223D4 - 0x222A4);
+};
+
+struct Rodata_map6_s05
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Text_map6_s05
+{
+    FSkip(0x368C - 0x1370);
+};
+struct Data_map6_s05
+{
+    //FSkip(0x4100 - 0x368C);
+    todoPointOfInterest();
+    todoTrigers();
+    FSeek(0x4100);
+};
+
+struct Rodata_map7_s00
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map7_s00_msg
+{
+    FSkip(0x1F88 - 0x16DC);
+};
+struct Text_map7_s00
+{
+    FSkip(0x959C - 0x20AC);
+};
+struct Data_map7_s00
+{
+    //FSkip(0x9ABC - 0x959C);
+    todoPointOfInterest();
+    FSeek(0x9ABC);
+};
+struct Data_map7_s00_msg
+{
+    FSkip(0x9B80 - 0x9ABC);
+};
+
+struct Rodata_map7_s01
+{
+    FSkip(0x10B0 - 0x1060);
+};
+struct Rodata_map7_s01_2
+{
+    FSkip(0x1824 - 0x17F0);
+};
+struct Rodata_map7_s01_msg
+{
+    FSkip(0x2EAC - 0x1A3C);
+};
+struct Text_map7_s01
+{
+    FSkip(0x812C - 0x342C);
+};
+struct Text_map7_s01_2
+{
+    FSkip(0x159D0 - 0x812C);
+};
+struct Data_map7_s01
+{
+    //FSkip(0x17468 - 0x159D0);
+    todoPointOfInterest();
+    FSeek(0x17468);
+};
+struct Data_map7_s01_msg
+{
+    FSkip(0x175EC - 0x17468);
+};
+
+struct Rodata_map7_s02
+{
+    FSkip(0x10A0 - 0x1050);
+};
+struct Rodata_map7_s02_2
+{
+    FSkip(0x170C - 0x16D0);
+};
+struct Rodata_map7_s02_msg
+{
+    FSkip(0x3EB4 - 0x1E14);
+};
+struct Text_map7_s02
+{
+    FSkip(0x7180 - 0x46EC);
+};
+struct Text_map7_s02_2
+{
+    FSkip(0x1C1B8 - 0x7180);
+};
+struct Data_map7_s02
+{
+    //FSkip(0x1F92C - 0x1C1B8);
+    todoPointOfInterest();
+    FSeek(0x1F92C);
+};
+struct Data_map7_s02_msg
+{
+    FSkip(0x1FBA8 - 0x1F92C);
+};
+
+struct Rodata_map7_s03
+{
+    FSkip(0x1278 - 0x1228);
+};
+struct Rodata_map7_s03_msg
+{
+    FSkip(0x2B04 - 0x1B0C);
+};
+struct Text_map7_s03
+{
+    FSkip(0x20828 - 0x3BF8);
+};
+struct Data_map7_s03
+{
+    //FSkip(0x23A74 - 0x20828);
+    todoPointOfInterest();
+    FSeek(0x23A74);
+};
+struct Data_map7_s03_msg
+{
+    FSkip(0x23C04 - 0x23A74);
+};
+
+//------------------------------------------------
+
+struct RODATA_SECTION_B_KONAMI
+{
+    FSkip(0x34 - 0x8);
+};
+struct TEXT_SECTION_B_KONAMI
+{
+    FSkip(0xF78 - 0x34);
+};
+struct DATA_SECTION_B_KONAMI
+{
+    FSkip(0xF9C - 0xF78);
+};
+
+struct RODATA_SECTION_BODYPROG
+{
+    FSkip(0x9AD0);
+};
+struct TEXT_SECTION_BODYPROG
+{
+    FSkip(0x84238 - 0x9AD0);
+};
+struct DATA_SECTION_BODYPROG
+{
+    FSkip(0x9FD98 - 0x84238);
+};
+struct BSS_SECTION_BODYPROG
+{
+    FSkip(0xA4A18 - 0x9FD98);
+};
+
+struct RODATA_SECTION_MAP0_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1328 - 2128);
+    Rodata_map0_s00     rodata_map0_s00;
+    FSkip(0x1568 - 0x13DC);
+    Rodata_map0_s00_2   rodata_map0_s00_2;
+    FSkip(0x1910 - 0x15A4);
+    Rodata_map0_s00_msg rodata_map0_s00_msg;
+    FSkip(0x2138 - 0x1F34);
+};
+struct TEXT_SECTION_MAP0_S00
+{
+    Text_map0_s00   text_map0_s00;
+    Text_map0_s00_2 text_map0_s00_2;
+};
+struct DATA_SECTION_MAP0_S00
+{
+    Data_map0_s00     data_map0_s00;
+    Data_map0_s00_msg data_map0_s00_msg;
+    todoTrigers();
+    //FSkip(0x1A600 - 0x161DC);
+};
+
+struct RODATA_SECTION_MAP0_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1238 - 2128);
+    Rodata_map0_s01     rodata_map0_s01;
+    FSkip(0x2568 - 0x1288);
+    Rodata_map0_s01_msg rodata_map0_s01_msg;
+    FSkip(0x3614 - 0x3384);
+};
+struct TEXT_SECTION_MAP0_S01
+{
+    Text_map0_s01 text_map0_s01;
+};
+struct DATA_SECTION_MAP0_S01
+{
+    Data_map0_s01     data_map0_s01;
+    Data_map0_s01_msg data_map0_s01_msg;
+    todoTrigers();
+    //FSkip(0x19100 - 0x14A40);
+};
+
+struct RODATA_SECTION_MAP0_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map0_s02     rodata_map0_s02;
+    FSkip(0x12C8 - 0x1278);
+    Rodata_map0_s02_msg rodata_map0_s02_msg;
+    FSkip(0x1778 - 0x16D0);
+};
+struct TEXT_SECTION_MAP0_S02
+{
+    Text_map0_s02 text_map0_s02;
+};
+struct DATA_SECTION_MAP0_S02
+{
+    Data_map0_s02     data_map0_s02;
+    Data_map0_s02_msg data_map0_s02_msg;
+    todoTrigers();
+    //FSkip(0xA000 - 0x6818);
+};
+
+struct RODATA_SECTION_MAP1_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map1_s00     rodata_map1_s00;
+    FSkip(0x14A0 - 0x1278);
+    Rodata_map1_s00_2   rodata_map1_s00_2;
+    FSkip(0x1800 - 0x14DC);
+    Rodata_map1_s00_msg rodata_map1_s00_msg;
+    FSkip(0x2230 - 0x200C);
+};
+struct TEXT_SECTION_MAP1_S00
+{
+    Text_map1_s00   text_map1_s00;
+    Text_map1_s00_2 text_map1_s00_2;
+};
+struct DATA_SECTION_MAP1_S00
+{
+    Data_map1_s00     data_map1_s00;
+    Data_map1_s00_msg data_map1_s00_msg;
+    todoTrigers();
+    //FSkip(0x17D00 - 0x13CE4);
+};
+
+struct RODATA_SECTION_MAP1_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map1_s01     rodata_map1_s01;
+    FSkip(0x12C8 - 0x10A0);
+    Rodata_map1_s01_2   rodata_map1_s01_2;
+    FSkip(0x1628 - 0x1304);
+    Rodata_map1_s01_msg rodata_map1_s01_msg;
+    FSkip(0x227C - 0x2014);
+};
+struct TEXT_SECTION_MAP1_S01
+{
+    Text_map1_s01   text_map1_s01;
+    Text_map1_s01_2 text_map1_s01_2;
+};
+struct DATA_SECTION_MAP1_S01
+{
+    Data_map1_s01     data_map1_s01;
+    Data_map1_s01_msg data_map1_s01_msg;
+    todoTrigers();
+    //FSkip(0x15D00 - 0x13AA4);
+};
+
+struct RODATA_SECTION_MAP1_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map1_s02     rodata_map1_s02;
+    FSkip(0x14E8 - 0x1204);
+    Rodata_map1_s02_2   rodata_map1_s02_2;
+    FSkip(0x1970 - 0x1524);
+    Rodata_map1_s02_msg rodata_map1_s02_msg;
+    FSkip(0x24D4 - 0x21F0);
+};
+struct TEXT_SECTION_MAP1_S02
+{
+    Text_map1_s01   text_map1_s02;
+    Text_map1_s01_2 text_map1_s02_2;
+};
+struct DATA_SECTION_MAP1_S02
+{
+    Data_map1_s01     data_map1_s02;
+    Data_map1_s01_msg data_map1_s02_msg;
+    todoTrigers();
+    //FSkip(0x1C600 - 0x183B8);
+};
+
+struct RODATA_SECTION_MAP1_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1168 - 2128);
+    Rodata_map1_s03     rodata_map1_s03;
+    FSkip(0x1610 - 0x121C);
+    Rodata_map1_s03_2   rodata_map1_s03_2;
+    FSkip(0x1A98 - 0x164C);
+    Rodata_map1_s03_msg rodata_map1_s03_msg;
+    FSkip(0x2768 - 0x24C0);
+};
+struct TEXT_SECTION_MAP1_S03
+{
+    Text_map1_s03   text_map1_s03;
+    Text_map1_s03_2 text_map1_s03_2;
+};
+struct DATA_SECTION_MAP1_S03
+{
+    Data_map1_s03     data_map1_s03;
+    Data_map1_s03_msg data_map1_s03_msg;
+    todoTrigers();
+    //FSkip(0x1CF00 - 0x18528);
+};
+
+struct RODATA_SECTION_MAP1_S04
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map1_s04 rodata_map1_s04;
+    FSkip(0x13E4 - 0x10A0);
+};
+struct TEXT_SECTION_MAP1_S04
+{
+    Text_map1_s04 text_map1_s04;
+};
+struct DATA_SECTION_MAP1_S04
+{
+    Data_map1_s04 data_map1_s04;
+};
+
+struct RODATA_SECTION_MAP1_S05
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map1_s05     rodata_map1_s05;
+    FSkip(0x125C - 0x10A0);
+    Rodata_map1_s05_msg rodata_map1_s05_msg;
+    FSkip(0x1558 - 0x1508);
+};
+struct TEXT_SECTION_MAP1_S05
+{
+    Text_map1_s05 text_map1_s05;
+};
+struct DATA_SECTION_MAP1_S05
+{
+    Data_map1_s05     data_map1_s05;
+    Data_map1_s05_msg data_map1_s05_msg;
+    todoTrigers();
+    //FSkip(0xF200 - 0xC770);
+};
+
+struct RODATA_SECTION_MAP1_S06
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map1_s06     rodata_map1_s06;
+    FSkip(0x1434 - 0x1278);
+    Rodata_map1_s06_msg rodata_map1_s06_msg;
+    FSkip(0x1A4C - 0x1974);
+};
+struct TEXT_SECTION_MAP1_S06
+{
+    Text_map1_s06 text_map1_s06;
+};
+struct DATA_SECTION_MAP1_S06
+{
+    Data_map1_s06     data_map1_s06;
+    Data_map1_s06_msg data_map1_s06_msg;
+    todoTrigers();
+    //FSkip(0x11C00 - 0xDF98);
+};
+
+struct RODATA_SECTION_MAP2_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1298 - 2128);
+    Rodata_map2_s00     rodata_map2_s00;
+    FSkip(0x2F08 - 0x12E8);
+    Rodata_map2_s00_msg rodata_map2_s00_msg;
+    FSkip(0x4048 - 0x3BE4);
+};
+struct TEXT_SECTION_MAP2_S00
+{
+    Text_map2_s00 text_map2_s00;
+};
+struct DATA_SECTION_MAP2_S00
+{
+    Data_map2_s00     data_map2_s00;
+    Data_map2_s00_msg data_map2_s00_msg;
+    todoTrigers();
+    //FSkip(0x2C400 - 0x27B2C);
+};
+
+struct RODATA_SECTION_MAP2_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map2_s01     rodata_map2_s01;
+    FSkip(0x11F0 - 0x10A0);
+    Rodata_map2_s01_msg rodata_map2_s01_msg;
+    FSkip(0x1A98 - 0x19D8);
+};
+struct TEXT_SECTION_MAP2_S01
+{
+    Text_map2_s01 text_map2_s01;
+};
+struct DATA_SECTION_MAP2_S01
+{
+    Data_map2_s01     data_map2_s01;
+    Data_map2_s01_msg data_map2_s01_msg;
+    todoTrigers();
+    //FSkip(0x8300 - 0x6E34);
+};
+
+struct RODATA_SECTION_MAP2_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map2_s02     rodata_map2_s02;
+    FSkip(0x300C - 0x1278);
+    Rodata_map2_s02_msg rodata_map2_s02_msg;
+    FSkip(0x332C - 0x3314);
+};
+struct TEXT_SECTION_MAP2_S02
+{
+    Text_map2_s02 text_map2_s02;
+};
+struct DATA_SECTION_MAP2_S02
+{
+    Data_map2_s02     data_map2_s02;
+    Data_map2_s02_msg data_map2_s02_msg;
+    todoTrigers();
+    //FSkip(0x27700 - 0x24164);
+};
+
+struct RODATA_SECTION_MAP2_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map2_s03 rodata_map2_s03;
+    FSkip(0x138C - 0x10A0);
+};
+struct TEXT_SECTION_MAP2_S03
+{
+    Text_map2_s03 text_map2_s03;
+};
+struct DATA_SECTION_MAP2_S03
+{
+    Data_map2_s03 data_map2_s03;
+};
+
+struct RODATA_SECTION_MAP2_S04
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map2_s04     rodata_map2_s04;
+    FSkip(0x10F0 - 0x10A0);
+    Rodata_map2_s04_msg rodata_map2_s04_msg;
+    FSkip(0x1654 - 0x1620);
+};
+struct TEXT_SECTION_MAP2_S04
+{
+    Text_map2_s04 text_map2_s04;
+};
+struct DATA_SECTION_MAP2_S04
+{
+    Data_map2_s04     data_map2_s04;
+    Data_map2_s04_msg data_map2_s04_msg;
+    todoTrigers();
+    //FSkip(0x5F00 - 0x495C);
+};
+
+struct RODATA_SECTION_MAP3_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1278 - 2128);
+    Rodata_map3_s00     rodata_map3_s00;
+    FSkip(0x13BC - 0x12C8);
+    Rodata_map3_s00_msg rodata_map3_s00_msg;
+    FSkip(0x1E90 - 0x1D6C);
+};
+struct TEXT_SECTION_MAP3_S00
+{
+    Text_map3_s00 text_map3_s00;
+};
+struct DATA_SECTION_MAP3_S00
+{
+    Data_map3_s00     data_map3_s00;
+    Data_map3_s00_msg data_map3_s00_msg;
+    todoTrigers();
+    //FSkip(0xC900 - 0x8EAC);
+};
+
+struct RODATA_SECTION_MAP3_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1278 - 2128);
+    Rodata_map3_s01     rodata_map3_s01;
+    FSkip(0x1368 - 0x12C8);
+    Rodata_map3_s01_msg rodata_map3_s01_msg;
+    FSkip(0x1C9C - 0x1B10);
+};
+struct TEXT_SECTION_MAP3_S01
+{
+    Text_map3_s01 text_map3_s01;
+};
+struct DATA_SECTION_MAP3_S01
+{
+    Data_map3_s01     data_map3_s01;
+    Data_map3_s01_msg data_map3_s01_msg;
+    todoTrigers();
+    //FSkip(0xF300 - 0xB228);
+};
+
+struct RODATA_SECTION_MAP3_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map3_s02     rodata_map3_s02;
+    FSkip(0x1280 - 0x10A0);
+    Rodata_map3_s02_msg rodata_map3_s02_msg;
+    FSkip(0x15E0 - 0x1580);
+};
+struct TEXT_SECTION_MAP3_S02
+{
+    Text_map3_s02 text_map3_s02;
+};
+struct DATA_SECTION_MAP3_S02
+{
+    Data_map3_s02     data_map3_s02;
+    Data_map3_s02_msg data_map3_s02_msg;
+    todoTrigers();
+    //FSkip(0x9C00 - 0x8948);
+};
+
+struct RODATA_SECTION_MAP3_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map3_s03     rodata_map3_s03;
+    FSkip(0x1148 - 0x10A0);
+    Rodata_map3_s03_2   rodata_map3_s03_2;
+    FSkip(0x1268 - 0x117C);
+    Rodata_map3_s03_msg rodata_map3_s03_msg;
+    FSkip(0x1EE8 - 0x1CA8);
+};
+struct TEXT_SECTION_MAP3_S03
+{
+    Text_map3_s03   text_map3_s03;
+    Text_map3_s03_2 text_map3_s03_2;
+};
+struct DATA_SECTION_MAP3_S03
+{
+    Data_map3_s03     data_map3_s03;
+    Data_map3_s03_msg data_map3_s03_msg;
+    todoTrigers();
+    //FSkip(0xF000 - 0xCF68);
+};
+
+struct RODATA_SECTION_MAP3_S04
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map3_s04     rodata_map3_s04;
+    FSkip(0x10B8 - 0x10A0);
+    Rodata_map3_s04_2   rodata_map3_s04_2;
+    FSkip(0x12A0 - 0x10EC);
+    Rodata_map3_s04_msg rodata_map3_s04_msg;
+    FSkip(0x1E04 - 0x1C68);
+};
+struct TEXT_SECTION_MAP3_S04
+{
+    Text_map3_s04   text_map3_s04;
+    Text_map3_s04_2 text_map3_s04_2;
+};
+struct DATA_SECTION_MAP3_S04
+{
+    Data_map3_s04     data_map3_s04;
+    Data_map3_s04_msg data_map3_s04_msg;
+    todoTrigers();
+    //FSkip(0xD900 - 0xC1A8);
+};
+
+struct RODATA_SECTION_MAP3_S05
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map3_s05     rodata_map3_s05;
+    FSkip(0x1570 - 0x10A0);
+    Rodata_map3_s05_2   rodata_map3_s05_2;
+    FSkip(0x1690 - 0x15A4);
+    Rodata_map3_s05_msg rodata_map3_s05_msg;
+    FSkip(0x207C - 0x1DB4);
+};
+struct TEXT_SECTION_MAP3_S05
+{
+    Text_map3_s05   text_map3_s05;
+    Text_map3_s05_2 text_map3_s05_2;
+};
+struct DATA_SECTION_MAP3_S05
+{
+    Data_map3_s05     data_map3_s05;
+    Data_map3_s05_msg data_map3_s05_msg;
+    todoTrigers();
+    //FSkip(0x14000 - 0x11218);
+};
+
+struct RODATA_SECTION_MAP3_S06
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1278 - 2128);
+    Rodata_map3_s06     rodata_map3_s06;
+    FSkip(0x13C4 - 0x12C8);
+    Rodata_map3_s06_msg rodata_map3_s06_msg;
+    FSkip(0x1D68 - 0x1CA4);
+};
+struct TEXT_SECTION_MAP3_S06
+{
+    Text_map3_s06 text_map3_s06;
+};
+struct DATA_SECTION_MAP3_S06
+{
+    Data_map3_s06     data_map3_s06;
+    Data_map3_s06_msg data_map3_s06_msg;
+    todoTrigers();
+    //FSkip(0xCB00 - 0x8F00);
+};
+
+struct RODATA_SECTION_MAP4_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map4_s00 rodata_map4_s00;
+    FSkip(0x135C - 0x10A0);
+};
+struct TEXT_SECTION_MAP4_S00
+{
+    Text_map4_s00 text_map4_s00;
+};
+struct DATA_SECTION_MAP4_S00
+{
+    Data_map4_s00 data_map4_s00;
+};
+
+struct RODATA_SECTION_MAP4_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map4_s01     rodata_map4_s01;
+    FSkip(0x1548 - 0x10A0);
+    Rodata_map4_s01_msg rodata_map4_s01_msg;
+    FSkip(0x2C24 - 0x29F0);
+};
+struct TEXT_SECTION_MAP4_S01
+{
+    Text_map4_s01 text_map4_s01;
+};
+struct DATA_SECTION_MAP4_S01
+{
+    Data_map4_s01     data_map4_s01;
+    Data_map4_s01_msg data_map4_s01_msg;
+    todoTrigers();
+    //FSkip(0xEC00 - 0xC378);
+};
+
+struct RODATA_SECTION_MAP4_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map4_s02     rodata_map4_s02;
+    FSkip(0x2F94 - 0x1204);
+    Rodata_map4_s02_msg rodata_map4_s02_msg;
+    FSkip(0x3290 - 0x3270);
+};
+struct TEXT_SECTION_MAP4_S02
+{
+    Text_map4_s02 text_map4_s02;
+};
+struct DATA_SECTION_MAP4_S02
+{
+    Data_map4_s02     data_map4_s02;
+    Data_map4_s02_msg data_map4_s02_msg;
+    todoTrigers();
+    //FSkip(0x27F00 - 0x24194);
+};
+
+struct RODATA_SECTION_MAP4_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map4_s03     rodata_map4_s03;
+    FSkip(0x12EC - 0x1204);
+    Rodata_map4_s03_msg rodata_map4_s03_msg;
+    FSkip(0x1B2C - 0x1670);
+};
+struct TEXT_SECTION_MAP4_S03
+{
+    Text_map4_s03 text_map4_s03;
+};
+struct DATA_SECTION_MAP4_S03
+{
+    Data_map4_s03     data_map4_s03;
+    Data_map4_s03_msg data_map4_s03_msg;
+    todoTrigers();
+    //FSkip(0x17500 - 0x120DC);
+};
+
+struct RODATA_SECTION_MAP4_S04
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map4_s04     rodata_map4_s04;
+    FSkip(0x14D8 - 0x1204);
+    Rodata_map4_s04_msg rodata_map4_s04_msg;
+    FSkip(0x26E8 - 0x2600);
+};
+struct TEXT_SECTION_MAP4_S04
+{
+    Text_map4_s04 text_map4_s04;
+};
+struct DATA_SECTION_MAP4_S04
+{
+    Data_map4_s04     data_map4_s04;
+    Data_map4_s04_msg data_map4_s04_msg;
+    todoTrigers();
+    //FSkip(0xDA00 - 0xA09C);
+};
+
+struct RODATA_SECTION_MAP4_S05
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map4_s05     rodata_map4_s05;
+    FSkip(0x1354 - 0x1204);
+    Rodata_map4_s05_msg rodata_map4_s05_msg;
+    FSkip(0x172C - 0x166C);
+};
+struct TEXT_SECTION_MAP4_S05
+{
+    Text_map4_s05 text_map4_s05;
+};
+struct DATA_SECTION_MAP4_S05
+{
+    Data_map4_s05     data_map4_s05;
+    Data_map4_s05_msg data_map4_s05_msg;
+    todoTrigers();
+    //FSkip(0x12500 - 0xE714);
+};
+
+struct RODATA_SECTION_MAP4_S06
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map4_s06 rodata_map4_s06;
+    FSkip(0x135C - 0x10A0);
+};
+struct TEXT_SECTION_MAP4_S06
+{
+    Text_map4_s06 text_map4_s06;
+};
+struct DATA_SECTION_MAP4_S06
+{
+    Data_map4_s06 data_map4_s06;
+};
+
+struct RODATA_SECTION_MAP5_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map5_s00     rodata_map5_s00;
+    FSkip(0x1328 - 0x1204);
+    Rodata_map5_s00_2   rodata_map5_s00_2;
+    FSkip(0x1670 - 0x1370);
+    Rodata_map5_s00_msg rodata_map5_s00_msg;
+    FSkip(0x1B60 - 0x1A6C);
+};
+struct TEXT_SECTION_MAP5_S00
+{
+    Text_map5_s00   text_map5_s00;
+    Text_map5_s00_2 text_map5_s00_2;
+};
+struct DATA_SECTION_MAP5_S00
+{
+    Data_map5_s00     data_map5_s00;
+    Data_map5_s00_msg data_map5_s00_msg;
+    todoTrigers();
+    //FSkip(0x14F00 - 0x112E8);
+};
+
+struct RODATA_SECTION_MAP5_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map5_s01     rodata_map5_s01;
+    FSkip(0x300C - 0x1278);
+    Rodata_map5_s01_msg rodata_map5_s01_msg;
+    FSkip(0x3518 - 0x3364);
+};
+struct TEXT_SECTION_MAP5_S01
+{
+    Text_map5_s01 text_map5_s01;
+};
+struct DATA_SECTION_MAP5_S01
+{
+    Data_map5_s01     data_map5_s01;
+    Data_map5_s01_msg data_map5_s01_msg;
+    todoTrigers();
+    //FSkip(0x2AA00 - 0x269D0);
+};
+
+struct RODATA_SECTION_MAP5_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map5_s02     rodata_map5_s02;
+    FSkip(0x1140 - 0x10A0);
+    Rodata_map5_s02_2   rodata_map5_s02_2;
+    FSkip(0x15D8 - 0x117C);
+    Rodata_map5_s02_msg rodata_map5_s02_msg;
+    FSkip(0x2154 - 0x1EEC);
+};
+struct TEXT_SECTION_MAP5_S02
+{
+    Text_map5_s02   text_map5_s02;
+    Text_map5_s02_2 text_map5_s02_2;
+};
+struct DATA_SECTION_MAP5_S02
+{
+    Data_map5_s02     data_map5_s02;
+    Data_map5_s02_msg data_map5_s02_msg;
+    todoTrigers();
+    //FSkip(0x11500 - 0xFE08);
+};
+
+struct RODATA_SECTION_MAP5_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map5_s03     rodata_map5_s03;
+    FSkip(0x14E0 - 0x1278);
+    Rodata_map5_s03_msg rodata_map5_s03_msg;
+    FSkip(0x237C - 0x222C);
+};
+struct TEXT_SECTION_MAP5_S03
+{
+    Text_map5_s03 text_map5_s03;
+};
+struct DATA_SECTION_MAP5_S03
+{
+    Data_map5_s03     data_map5_s03;
+    Data_map5_s03_msg data_map5_s03_msg;
+    todoTrigers();
+    //FSkip(0xDC00 - 0xA43C);
+};
+
+struct RODATA_SECTION_MAP6_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map6_s00     rodata_map6_s00;
+    FSkip(0x306C - 0x12DC);
+    Rodata_map6_s00_msg rodata_map6_s00_msg;
+    FSkip(0x35B8 - 0x3528);
+};
+struct TEXT_SECTION_MAP6_S00
+{
+    Text_map6_s00 text_map6_s00;
+};
+struct DATA_SECTION_MAP6_S00
+{
+    Data_map6_s00     data_map6_s00;
+    Data_map6_s00_msg data_map6_s00_msg;
+    todoTrigers();
+    //FSkip(0x2AC00 - 0x269A0);
+};
+
+struct RODATA_SECTION_MAP6_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map6_s01     rodata_map6_s01;
+    FSkip(0x12E0 - 0x10A0);
+    Rodata_map6_s01_msg rodata_map6_s01_msg;
+    FSkip(0x25E8 - 0x2410);
+};
+struct TEXT_SECTION_MAP6_S01
+{
+    Text_map6_s01 text_map6_s01;
+};
+struct DATA_SECTION_MAP6_S01
+{
+    Data_map6_s01     data_map6_s01;
+    Data_map6_s01_msg data_map6_s01_msg;
+    todoTrigers();
+    //FSkip(0xC100 - 0xAA2C);
+};
+
+struct RODATA_SECTION_MAP6_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map6_s02     rodata_map6_s02;
+    FSkip(0x10F4 - 0x10A0);
+    Rodata_map6_s02_msg rodata_map6_s02_msg;
+    FSkip(0x1628 - 0x14C4);
+};
+struct TEXT_SECTION_MAP6_S02
+{
+    Text_map6_s02 text_map6_s02;
+};
+struct DATA_SECTION_MAP6_S02
+{
+    Data_map6_s02     data_map6_s02;
+    Data_map6_s02_msg data_map6_s02_msg;
+    todoTrigers();
+    //FSkip(0xB900 - 0xA538);
+};
+
+struct RODATA_SECTION_MAP6_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1150 - 2128);
+    Rodata_map6_s03     rodata_map6_s03;
+    FSkip(0x1328 - 0x1204);
+    Rodata_map6_s03_2   rodata_map6_s03_2;
+    FSkip(0x1688 - 0x1364);
+    Rodata_map6_s03_3   rodata_map6_s03_3;
+    FSkip(0x1948 - 0x16D0);
+    Rodata_map6_s03_msg rodata_map6_s03_msg;
+    FSkip(0x1CF4 - 0x1C80);
+};
+struct TEXT_SECTION_MAP6_S03
+{
+    Text_map6_s03   text_map6_s03;
+    Text_map6_s03_2 text_map6_s03_2;
+    Text_map6_s03_3 text_map6_s03_3;
+};
+struct DATA_SECTION_MAP6_S03
+{
+    Data_map6_s03     data_map6_s03;
+    Data_map6_s03_msg data_map6_s03_msg;
+    todoTrigers();
+    //FSkip(0x16B00 - 0x128AC);
+};
+
+struct RODATA_SECTION_MAP6_S04
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map6_s04     rodata_map6_s04;
+    FSkip(0x1840 - 0x10A0);
+    Rodata_map6_s04_2   rodata_map6_s04_2;
+    FSkip(0x21D4 - 0x187C);
+    Rodata_map6_s04_msg rodata_map6_s04_msg;
+    FSkip(0x3268 - 0x2EAC);
+};
+struct TEXT_SECTION_MAP6_S04
+{
+    Text_map6_s04   text_map6_s04;
+    Text_map6_s04_2 text_map6_s04_2;
+};
+struct DATA_SECTION_MAP6_S04
+{
+    Data_map6_s04     data_map6_s04;
+    Data_map6_s04_msg data_map6_s04_msg;
+    //todoTrigers();
+    FSkip(0x24A00 - 0x223D4);
+};
+
+struct RODATA_SECTION_MAP6_S05
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map6_s05 rodata_map6_s05;
+    FSkip(0x1370 - 0x10A0);
+};
+struct TEXT_SECTION_MAP6_S05
+{
+    Text_map6_s05 text_map6_s05;
+};
+struct DATA_SECTION_MAP6_S05
+{
+    Data_map6_s05 data_map6_s05;
+};
+
+struct RODATA_SECTION_MAP7_S00
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map7_s00     rodata_map7_s00;
+    FSkip(0x16DC - 0x10A0);
+    Rodata_map7_s00_msg rodata_map7_s00_msg;
+    FSkip(0x20AC - 0x1F88);
+};
+struct TEXT_SECTION_MAP7_S00
+{
+    Text_map7_s00 text_map7_s00;
+};
+struct DATA_SECTION_MAP7_S00
+{
+    Data_map7_s00     data_map7_s00;
+    Data_map7_s00_msg data_map7_s00_msg;
+    todoTrigers();
+    //FSkip(0xAF00 - 0x9B80);
+};
+
+struct RODATA_SECTION_MAP7_S01
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1060 - 2128);
+    Rodata_map7_s01     rodata_map7_s01;
+    FSkip(0x17F0 - 0x10B0);
+    Rodata_map7_s01_2   rodata_map7_s01_2;
+    FSkip(0x1A3C - 0x1824);
+    Rodata_map7_s01_msg rodata_map7_s01_msg;
+    FSkip(0x342C - 0x2EAC);
+};
+struct TEXT_SECTION_MAP7_S01
+{
+    Text_map7_s01   text_map7_s01;
+    Text_map7_s01_2 text_map7_s01_2;
+};
+struct DATA_SECTION_MAP7_S01
+{
+    Data_map7_s01     data_map7_s01;
+    Data_map7_s01_msg data_map7_s01_msg;
+    todoTrigers();
+    //FSkip(0x19F00 - 0x175EC);
+};
+
+struct RODATA_SECTION_MAP7_S02
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1050 - 2128);
+    Rodata_map7_s02     rodata_map7_s02;
+    FSkip(0x16D0 - 0x10A0);
+    Rodata_map7_s02_2   rodata_map7_s02_2;
+    FSkip(0x1E14 - 0x170C);
+    Rodata_map7_s02_msg rodata_map7_s02_msg;
+    FSkip(0x46EC - 0x3EB4);
+};
+struct TEXT_SECTION_MAP7_S02
+{
+    Text_map7_s02   text_map7_s02;
+    Text_map7_s02_2 text_map7_s02_2;
+};
+struct DATA_SECTION_MAP7_S02
+{
+    Data_map7_s02     data_map7_s02;
+    Data_map7_s02_msg data_map7_s02_msg;
+    todoTrigers();
+    //FSkip(0x22F00 - 0x1FBA8);
+};
+
+struct RODATA_SECTION_MAP7_S03
+{
+    uint8               padding[4];
+    s_MapOverlayHeader  g_MapOverlayHeader;
+    FSkip(0x1228 - 2128);
+    Rodata_map7_s03     rodata_map7_s03;
+    FSkip(0x1B0C - 0x1278);
+    Rodata_map7_s03_msg rodata_map7_s03_msg;
+    FSkip(0x3BF8 - 0x2B04);
+};
+struct TEXT_SECTION_MAP7_S03
+{
+    Text_map7_s03 text_map7_s03;
+};
+struct DATA_SECTION_MAP7_S03
+{
+    Data_map7_s03     data_map7_s03;
+    Data_map7_s03_msg data_map7_s03_msg;
+    todoTrigers();
+    //FSkip(0x2BA00 - 0x23C04);
+};
+
+struct RODATA_SECTION_OPTION
+{
+    FSkip(0x744 - 0x8);
+};
+struct TEXT_SECTION_OPTION
+{
+    FSkip(0x4CF4 - 0x744);
+};
+struct DATA_SECTION_OPTION
+{
+    FSkip(0x4DF4 - 0x4CF4);
+};
+
+struct RODATA_SECTION_SAVELOAD
+{
+    FSkip(0x78C);
+};
+struct TEXT_SECTION_SAVELOAD
+{
+    FSkip(0x4EA8 - 0x78C);
+};
+struct DATA_SECTION_SAVELOAD
+{
+    FSkip(0x50D8 - 0x4EA8);
+};
+
+struct RODATA_SECTION_CREDITS
+{
+    FSkip(0x828 - 0x8);
+};
+struct TEXT_SECTION_CREDITS
+{
+    FSkip(0x2F58 - 0x828);
+};
+struct DATA_SECTION_CREDITS
+{
+    FSkip(0x3A10 - 0x2F58);
+};
+
+struct RODATA_SECTION_STREAM
+{
+    FSkip(0x54);
+};
+struct TEXT_SECTION_STREAM
+{
+    FSkip(0x193C - 0x54);
+};
+struct DATA_SECTION_STREAM
+{
+    FSkip(0x12AE0 - 0x193C);
+};
+struct BSS_SECTION_STREAM
+{
+    FSkip(0x12AF4 - 0x12AE0);
+};
+
+//------------------------------------------------
+
+struct OVERLAY_B_KONAMI
+{
+    byte                    pad[8];
+    RODATA_SECTION_B_KONAMI rodataSection;
+    TEXT_SECTION_B_KONAMI   textSection;
+    DATA_SECTION_B_KONAMI   dataSection;
+};
+struct FOOTER_DATA_B_KONAMI
+{
+    FSkip(0x1000 - 0xF9C);
+};
+struct OVERLAY_BODYPROG
+{
+    RODATA_SECTION_BODYPROG rodataSection;
+    TEXT_SECTION_BODYPROG   textSection;
+    DATA_SECTION_BODYPROG   dataSection;
+    BSS_SECTION_BODYPROG    bssSection;
+};
+struct FOOTER_DATA_BODYPROG
+{
+    FSkip(0xA4B00 - 0xA4A18);
+};
+struct OVERLAY_MAP0_S00
+{
+    RODATA_SECTION_MAP0_S00 rodataSection;
+    TEXT_SECTION_MAP0_S00   textSection;
+    DATA_SECTION_MAP0_S00   dataSection;
+};
+struct OVERLAY_MAP0_S01
+{
+    RODATA_SECTION_MAP0_S01 rodataSection;
+    TEXT_SECTION_MAP0_S01   textSection;
+    DATA_SECTION_MAP0_S01   dataSection;
+};
+struct OVERLAY_MAP0_S02
+{
+    RODATA_SECTION_MAP0_S02 rodataSection;
+    TEXT_SECTION_MAP0_S02   textSection;
+    DATA_SECTION_MAP0_S02   dataSection;
+};
+struct OVERLAY_MAP1_S00
+{
+    RODATA_SECTION_MAP1_S00 rodataSection;
+    TEXT_SECTION_MAP1_S00   textSection;
+    DATA_SECTION_MAP1_S00   dataSection;
+};
+struct OVERLAY_MAP1_S01
+{
+    RODATA_SECTION_MAP1_S01 rodataSection;
+    TEXT_SECTION_MAP1_S01   textSection;
+    DATA_SECTION_MAP1_S01   dataSection;
+};
+struct OVERLAY_MAP1_S02
+{
+    RODATA_SECTION_MAP1_S02 rodataSection;
+    TEXT_SECTION_MAP1_S02   textSection;
+    DATA_SECTION_MAP1_S02   dataSection;
+};
+struct OVERLAY_MAP1_S03
+{
+    RODATA_SECTION_MAP1_S03 rodataSection;
+    TEXT_SECTION_MAP1_S03   textSection;
+    DATA_SECTION_MAP1_S03   dataSection;
+};
+struct OVERLAY_MAP1_S04
+{
+    RODATA_SECTION_MAP1_S04 rodataSection;
+    TEXT_SECTION_MAP1_S04   textSection;
+    DATA_SECTION_MAP1_S04   dataSection;
+};
+struct OVERLAY_MAP1_S05
+{
+    RODATA_SECTION_MAP1_S05 rodataSection;
+    TEXT_SECTION_MAP1_S05   textSection;
+    DATA_SECTION_MAP1_S05   dataSection;
+};
+struct OVERLAY_MAP1_S06
+{
+    RODATA_SECTION_MAP1_S06 rodataSection;
+    TEXT_SECTION_MAP1_S06   textSection;
+    DATA_SECTION_MAP1_S06   dataSection;
+};
+struct OVERLAY_MAP2_S00
+{
+    RODATA_SECTION_MAP2_S00 rodataSection;
+    TEXT_SECTION_MAP2_S00   textSection;
+    DATA_SECTION_MAP2_S00   dataSection;
+};
+struct OVERLAY_MAP2_S01
+{
+    RODATA_SECTION_MAP2_S01 rodataSection;
+    TEXT_SECTION_MAP2_S01   textSection;
+    DATA_SECTION_MAP2_S01   dataSection;
+};
+struct OVERLAY_MAP2_S02
+{
+    RODATA_SECTION_MAP2_S02 rodataSection;
+    TEXT_SECTION_MAP2_S02   textSection;
+    DATA_SECTION_MAP2_S02   dataSection;
+};
+struct OVERLAY_MAP2_S03
+{
+    RODATA_SECTION_MAP2_S03 rodataSection;
+    TEXT_SECTION_MAP2_S03   textSection;
+    DATA_SECTION_MAP2_S03   dataSection;
+};
+struct OVERLAY_MAP2_S04
+{
+    RODATA_SECTION_MAP2_S04 rodataSection;
+    TEXT_SECTION_MAP2_S04   textSection;
+    DATA_SECTION_MAP2_S04   dataSection;
+};
+struct OVERLAY_MAP3_S00
+{
+    RODATA_SECTION_MAP3_S00 rodataSection;
+    TEXT_SECTION_MAP3_S00   textSection;
+    DATA_SECTION_MAP3_S00   dataSection;
+};
+struct OVERLAY_MAP3_S01
+{
+    RODATA_SECTION_MAP3_S01 rodataSection;
+    TEXT_SECTION_MAP3_S01   textSection;
+    DATA_SECTION_MAP3_S01   dataSection;
+};
+struct OVERLAY_MAP3_S02
+{
+    RODATA_SECTION_MAP3_S02 rodataSection;
+    TEXT_SECTION_MAP3_S02   textSection;
+    DATA_SECTION_MAP3_S02   dataSection;
+};
+struct OVERLAY_MAP3_S03
+{
+    RODATA_SECTION_MAP3_S03 rodataSection;
+    TEXT_SECTION_MAP3_S03   textSection;
+    DATA_SECTION_MAP3_S03   dataSection;
+};
+struct OVERLAY_MAP3_S04
+{
+    RODATA_SECTION_MAP3_S04 rodataSection;
+    TEXT_SECTION_MAP3_S04   textSection;
+    DATA_SECTION_MAP3_S04   dataSection;
+};
+struct OVERLAY_MAP3_S05
+{
+    RODATA_SECTION_MAP3_S05 rodataSection;
+    TEXT_SECTION_MAP3_S05   textSection;
+    DATA_SECTION_MAP3_S05   dataSection;
+};
+struct OVERLAY_MAP3_S06
+{
+    RODATA_SECTION_MAP3_S06 rodataSection;
+    TEXT_SECTION_MAP3_S06   textSection;
+    DATA_SECTION_MAP3_S06   dataSection;
+};
+struct OVERLAY_MAP4_S00
+{
+    RODATA_SECTION_MAP4_S00 rodataSection;
+    TEXT_SECTION_MAP4_S00   textSection;
+    DATA_SECTION_MAP4_S00   dataSection;
+};
+struct OVERLAY_MAP4_S01
+{
+    RODATA_SECTION_MAP4_S01 rodataSection;
+    TEXT_SECTION_MAP4_S01   textSection;
+    DATA_SECTION_MAP4_S01   dataSection;
+};
+struct OVERLAY_MAP4_S02
+{
+    RODATA_SECTION_MAP4_S02 rodataSection;
+    TEXT_SECTION_MAP4_S02   textSection;
+    DATA_SECTION_MAP4_S02   dataSection;
+};
+struct OVERLAY_MAP4_S03
+{
+    RODATA_SECTION_MAP4_S03 rodataSection;
+    TEXT_SECTION_MAP4_S03   textSection;
+    DATA_SECTION_MAP4_S03   dataSection;
+};
+struct OVERLAY_MAP4_S04
+{
+    RODATA_SECTION_MAP4_S04 rodataSection;
+    TEXT_SECTION_MAP4_S04   textSection;
+    DATA_SECTION_MAP4_S04   dataSection;
+};
+struct OVERLAY_MAP4_S05
+{
+    RODATA_SECTION_MAP4_S05 rodataSection;
+    TEXT_SECTION_MAP4_S05   textSection;
+    DATA_SECTION_MAP4_S05   dataSection;
+};
+struct OVERLAY_MAP4_S06
+{
+    RODATA_SECTION_MAP4_S06 rodataSection;
+    TEXT_SECTION_MAP4_S06   textSection;
+    DATA_SECTION_MAP4_S06   dataSection;
+};
+struct OVERLAY_MAP5_S00
+{
+    RODATA_SECTION_MAP5_S00 rodataSection;
+    TEXT_SECTION_MAP5_S00   textSection;
+    DATA_SECTION_MAP5_S00   dataSection;
+};
+struct OVERLAY_MAP5_S01
+{
+    RODATA_SECTION_MAP5_S01 rodataSection;
+    TEXT_SECTION_MAP5_S01   textSection;
+    DATA_SECTION_MAP5_S01   dataSection;
+};
+struct OVERLAY_MAP5_S02
+{
+    RODATA_SECTION_MAP5_S02 rodataSection;
+    TEXT_SECTION_MAP5_S02   textSection;
+    DATA_SECTION_MAP5_S02   dataSection;
+};
+struct OVERLAY_MAP5_S03
+{
+    RODATA_SECTION_MAP5_S03 rodataSection;
+    TEXT_SECTION_MAP5_S03   textSection;
+    DATA_SECTION_MAP5_S03   dataSection;
+};
+struct OVERLAY_MAP6_S00
+{
+    RODATA_SECTION_MAP6_S00 rodataSection;
+    TEXT_SECTION_MAP6_S00   textSection;
+    DATA_SECTION_MAP6_S00   dataSection;
+};
+struct OVERLAY_MAP6_S01
+{
+    RODATA_SECTION_MAP6_S01 rodataSection;
+    TEXT_SECTION_MAP6_S01   textSection;
+    DATA_SECTION_MAP6_S01   dataSection;
+};
+struct OVERLAY_MAP6_S02
+{
+    RODATA_SECTION_MAP6_S02 rodataSection;
+    TEXT_SECTION_MAP6_S02   textSection;
+    DATA_SECTION_MAP6_S02   dataSection;
+};
+struct OVERLAY_MAP6_S03
+{
+    RODATA_SECTION_MAP6_S03 rodataSection;
+    TEXT_SECTION_MAP6_S03   textSection;
+    DATA_SECTION_MAP6_S03   dataSection;
+};
+struct OVERLAY_MAP6_S04
+{
+    RODATA_SECTION_MAP6_S04 rodataSection;
+    TEXT_SECTION_MAP6_S04   textSection;
+    DATA_SECTION_MAP6_S04   dataSection;
+};
+struct OVERLAY_MAP6_S05
+{
+    RODATA_SECTION_MAP6_S05 rodataSection;
+    TEXT_SECTION_MAP6_S05   textSection;
+    DATA_SECTION_MAP6_S05   dataSection;
+};
+struct OVERLAY_MAP7_S00
+{
+    RODATA_SECTION_MAP7_S00 rodataSection;
+    TEXT_SECTION_MAP7_S00   textSection;
+    DATA_SECTION_MAP7_S00   dataSection;
+};
+struct OVERLAY_MAP7_S01
+{
+    RODATA_SECTION_MAP7_S01 rodataSection;
+    TEXT_SECTION_MAP7_S01   textSection;
+    DATA_SECTION_MAP7_S01   dataSection;
+};
+struct OVERLAY_MAP7_S02
+{
+    RODATA_SECTION_MAP7_S02 rodataSection;
+    TEXT_SECTION_MAP7_S02   textSection;
+    DATA_SECTION_MAP7_S02   dataSection;
+};
+struct OVERLAY_MAP7_S03
+{
+    RODATA_SECTION_MAP7_S03 rodataSection;
+    TEXT_SECTION_MAP7_S03   textSection;
+    DATA_SECTION_MAP7_S03   dataSection;
+};
+struct OVERLAY_OPTION
+{
+    byte                  pad[8];
+    RODATA_SECTION_OPTION rodataSection;
+    TEXT_SECTION_OPTION   textSection;
+    DATA_SECTION_OPTION   dataSection;
+};
+struct FOOTER_DATA_OPTION
+{
+    FSkip(0x4E00 - 0x4DF4);
+};
+struct OVERLAY_SAVELOAD
+{
+    RODATA_SECTION_SAVELOAD rodataSection;
+    TEXT_SECTION_SAVELOAD   textSection;
+    DATA_SECTION_SAVELOAD   dataSection;
+};
+struct FOOTER_DATA_SAVELOAD
+{
+    FSkip(0x5100 - 0x50D8);
+};
+struct OVERLAY_CREDITS
+{
+    byte                   pad[8];
+    RODATA_SECTION_CREDITS rodataSection;
+    TEXT_SECTION_CREDITS   textSection;
+    DATA_SECTION_CREDITS   dataSection;
+};
+struct FOOTER_DATA_CREDITS
+{
+    FSkip(0x3B00 - 0x3A10);
+};
+struct OVERLAY_STREAM
+{
+    RODATA_SECTION_STREAM rodataSection;
+    TEXT_SECTION_STREAM   textSection;
+    DATA_SECTION_STREAM   dataSection;
+    BSS_SECTION_STREAM    bssSection;
+};
+struct FOOTER_DATA_STREAM
+{
+    FSkip(0x12B00 - 0x12AF4);
+};
+
+struct TriggerFolder(uint32 poi_start)
+{
+    local int i = 0;
+    for(i = 0; i < 256; i++) // Doesn't seem trigger count is stored in header, need to loop until we find end value
+    {
+        Trigger triggers(poi_start);
+        if (triggers.PoiType == POIType_Dummy)
+            break;
+    }
+};
+
+void todoPointOfInterest()
+{
+    local uint32 poi_start = 4 + rodataSection.g_MapOverlayHeader.poiArrayPtr_1C - MapOverlayAddress;
+    local uint32 poi_end   = 4 + rodataSection.g_MapOverlayHeader.mapEventFuncs_20 - MapOverlayAddress;
+    local uint32 poi_size  = poi_end - poi_start;
+    
+    FSeek(poi_start);
+    PointOfInterest pointsOfInterest[poi_size / 12];
+}
+
+void todoTrigers()
+{
+    local uint32 poi_start = 4 + rodataSection.g_MapOverlayHeader.poiArrayPtr_1C - MapOverlayAddress;
+    local uint32 trigger_start = 4 + rodataSection.g_MapOverlayHeader.triggerArrayPtr_24 - MapOverlayAddress;
+    FSeek(trigger_start);
+    TriggerFolder triggerFolder(poi_start);
+}
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+local string fileName = FileNameGetBase(GetFileName());
+
+if (fileName == "B_KONAMI.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_B_KONAMI     overlay <open=true>;
+    FOOTER_DATA_B_KONAMI footer_data;
+}
+else if (fileName == "BODYPROG.BIN")
+{
+    SetStartingAddress(0x80024B60);
+    OVERLAY_BODYPROG     overlay <open=true>;
+    FOOTER_DATA_BODYPROG footer_data;
+}
+else if (fileName == "MAP0_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP0_S00 overlay <open=true>;
+}
+else if (fileName == "MAP0_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP0_S01 overlay <open=true>;
+}
+else if (fileName == "MAP0_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP0_S02 overlay <open=true>;
+}
+else if (fileName == "MAP1_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S00 overlay <open=true>;
+}
+else if (fileName == "MAP1_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S01 overlay <open=true>;
+}
+else if (fileName == "MAP1_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S02 overlay <open=true>;
+}
+else if (fileName == "MAP1_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S03 overlay <open=true>;
+}
+else if (fileName == "MAP1_S04.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S04 overlay <open=true>;
+}
+else if (fileName == "MAP1_S05.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S05 overlay <open=true>;
+}
+else if (fileName == "MAP1_S06.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP1_S06 overlay <open=true>;
+}
+else if (fileName == "MAP2_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP2_S00 overlay <open=true>;
+}
+else if (fileName == "MAP2_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP2_S01 overlay <open=true>;
+}
+else if (fileName == "MAP2_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP2_S02 overlay <open=true>;
+}
+else if (fileName == "MAP2_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP2_S03 overlay <open=true>;
+}
+else if (fileName == "MAP2_S04.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP2_S04 overlay <open=true>;
+}
+else if (fileName == "MAP3_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S00 overlay <open=true>;
+}
+else if (fileName == "MAP3_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S01 overlay <open=true>;
+}
+else if (fileName == "MAP3_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S02 overlay <open=true>;
+}
+else if (fileName == "MAP3_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S03 overlay <open=true>;
+}
+else if (fileName == "MAP3_S04.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S04 overlay <open=true>;
+}
+else if (fileName == "MAP3_S05.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S05 overlay <open=true>;
+}
+else if (fileName == "MAP3_S06.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP3_S06 overlay <open=true>;
+}
+else if (fileName == "MAP4_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S00 overlay <open=true>;
+}
+else if (fileName == "MAP4_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S01 overlay <open=true>;
+}
+else if (fileName == "MAP4_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S02 overlay <open=true>;
+}
+else if (fileName == "MAP4_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S03 overlay <open=true>;
+}
+else if (fileName == "MAP4_S04.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S04 overlay <open=true>;
+}
+else if (fileName == "MAP4_S05.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S05 overlay <open=true>;
+}
+else if (fileName == "MAP4_S06.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP4_S06 overlay <open=true>;
+}
+else if (fileName == "MAP5_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP5_S00 overlay <open=true>;
+}
+else if (fileName == "MAP5_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP5_S01 overlay <open=true>;
+}
+else if (fileName == "MAP5_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP5_S02 overlay <open=true>;
+}
+else if (fileName == "MAP5_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP5_S03 overlay <open=true>;
+}
+else if (fileName == "MAP6_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S00 overlay <open=true>;
+}
+else if (fileName == "MAP6_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S01 overlay <open=true>;
+}
+else if (fileName == "MAP6_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S02 overlay <open=true>;
+}
+else if (fileName == "MAP6_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S03 overlay <open=true>;
+}
+else if (fileName == "MAP6_S04.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S04 overlay <open=true>;
+}
+else if (fileName == "MAP6_S05.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP6_S05 overlay <open=true>;
+}
+else if (fileName == "MAP7_S00.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP7_S00 overlay <open=true>;
+}
+else if (fileName == "MAP7_S01.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP7_S01 overlay <open=true>;
+}
+else if (fileName == "MAP7_S02.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP7_S02 overlay <open=true>;
+}
+else if (fileName == "MAP7_S03.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_MAP7_S03 overlay <open=true>;
+}
+else if (fileName == "OPTION.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_OPTION     overlay <open=true>;
+    FOOTER_DATA_OPTION footer_data;
+}
+else if (fileName == "SAVELOAD.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_SAVELOAD     overlay <open=true>;
+    FOOTER_DATA_SAVELOAD footer_data;
+}
+else if (fileName == "STF_ROLL.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_CREDITS     overlay <open=true>;
+    FOOTER_DATA_CREDITS footer_data;
+}
+else if (fileName == "STREAM.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_STREAM     overlay <open=true>;
+    FOOTER_DATA_STREAM footer_data;
+}
