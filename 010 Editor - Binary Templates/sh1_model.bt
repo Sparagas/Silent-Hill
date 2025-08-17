@@ -1,0 +1,342 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh1_model.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill (1) 3D models for Sony - PlayStation. *.ILM are skeletal models, *.IPD are local, and *.PLM are global static models.
+//  Category: CAD
+// File Mask: *.ILM, *.IPD, *.PLM
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+typedef struct _FsImageDesc
+{
+    uint8 tPage[2];
+    uint8 u;
+    uint8 v;
+    int16 clutX;
+    int16 clutY;
+} s_FsImageDesc;
+
+
+typedef struct DVECTOR
+{
+	int16 vx, vy;
+} DVECTOR;
+
+
+typedef struct _ObjNormal
+{
+    int8  nx;
+    int8  ny;
+    int8  nz;
+    uint8 count;
+} s_ObjNormal;
+
+
+/** @brief 8-character string usually used for filenames. Can be compared via the `u32` field. */
+typedef union
+{
+    char   str[8];
+    uint32 u32[2];
+} u_Filename;
+
+
+/*
+typedef struct _ObjPrimitive
+{
+    uint16 field_0;
+    uint16 field_2;
+    uint16 field_4;
+
+    uint8  field_6_0 : 8;
+
+    int8   field_6_8 : 7;
+    uint8  unk_6_15  : 1;
+
+    uint16 field_8;
+    uint16 field_A;
+    uint8  unk_C[8];
+} s_ObjPrimitive;
+*/
+typedef struct _ObjPrimitive
+{
+    uint8  u1;
+    uint8  v1;
+    uint16 bits;
+    uint8  u2;
+    uint8  v2;
+    uint16 bits;
+    uint8  u3;
+    uint8  v3;
+    uint8  u4;
+    uint8  v4;
+    uint8  face1;
+    uint8  face2;
+    uint8  face3;
+    uint8  face4;
+    uint8  unk_10[4];
+} s_ObjPrimitive;
+
+
+typedef struct _ObjHeader
+{
+    uint8 primitiveCount_0;
+    uint8 vertexCount_1;
+    uint8 normalCount_2;
+    uint8 unkCount_3;
+
+    uint32 primitivesPtr_4 <format=hex>; // s_ObjPrimitive*
+    uint32 vertexXyPtr_8   <format=hex>; // DVECTOR*
+    uint32 vertexZPtr_C    <format=hex>; // s16*
+    uint32 normalsPtr_10   <format=hex>; // s_ObjNormal*
+    uint32 unkPtr_14       <format=hex>; // u8*
+} s_ObjHeader;
+
+
+typedef struct _ObjList
+{
+    char       objName_0[8];
+    uint8      meshCount_8;
+    uint8      vertexOffset_9;
+    uint8      normalOffset_A;
+    uint8      field_B_0 : 1;
+    uint8      field_B_1 : 3;
+    uint8      field_B_4 : 2;
+    uint8      unk_B_6   : 2;
+    uint32     meshesPtr_C <format=hex>; // s_ObjHeader*
+} s_ObjList;
+
+
+typedef struct _PlmTexList_8
+{
+    s_FsImageDesc imageDesc_0;
+    uint8         unk_8[8];
+    uint32        queueIdx_10;
+    int8          field_14;
+} s_PlmTexList_8;
+
+
+typedef struct _PlmTexList
+{
+    char       texName_0[8];
+    uint32     fieldPtr_8 <format=hex>; // s_PlmTexList_8*
+    uint8      field_C;
+    uint8      unk_D[1];
+    uint8      field_E;
+    uint8      field_F;
+    uint16     field_10;
+    uint16     field_12;
+    union
+    {
+        uint8  u8[2];
+        uint16 u16;
+    } field_14;
+    union
+    {
+        uint8  u8[2];
+        uint16 u16;
+    } field_16;
+} s_PlmTexList;
+
+
+typedef struct _PlmHeader
+{
+    uint8  magic_0;
+    Assert(magic_0 == 0x30);
+    uint8  version_1;
+    Assert(version_1 == 6);
+    uint8  isLoaded_2;
+    uint8  textureCount_3;
+    uint32 textureListPtr_4  <format=hex>; // s_PlmTexList*
+    uint8  objectCount_8;
+    uint8  unk_9[3];
+    uint32 objectListPtr_C   <format=hex>; // s_ObjList*
+    uint32 objectOrdsPtr_10  <format=hex>; // u8*
+    // File header ends, extra data below. Might be separate from this struct?
+    //int8   unk_11[4075];
+    //int32  queueIdx_1000;
+} s_PlmHeader;
+
+
+ typedef struct _IpdColData_10
+ {
+    int16  field_0;
+    int16  field_2;
+    int16  field_4;
+    uint16 field_6_0  : 5; // TODO: Might be using `s_IpdColData_18` substruct here? Won't fit though.
+    uint16 field_6_5  : 3;
+    uint16 field_6_8  : 3;
+    uint16 field_6_11 : 4;
+    uint16 field_6_15 : 1;
+    int16  field_8;
+    int16  field_A;
+} s_IpdColData_10;
+
+
+typedef struct _IpdColData_18
+{
+    uint16 field_0_0  : 5;
+    uint16 field_0_5  : 3;
+    uint16 field_0_8  : 3;
+    uint16 field_0_11 : 4;
+    uint16 field_0_15 : 1;
+    uint8  unk_2[2];
+    uint8  unk_4[6];
+} s_IpdColData_18;
+
+
+typedef struct _IpdColData
+{
+    int32  posX_0;
+    int32  posZ_4;
+    uint32 field_8_0  : 8;
+    uint32 field_8_8  : 8;
+    uint32 field_8_16 : 8;
+    uint32 field_8_24 : 8;
+    uint32 ptr_C           <format=hex>; // void*
+    uint32 ptr_10          <format=hex>; // s_IpdColData_10*
+    uint32 ptr_14          <format=hex>; // void*
+    uint32 ptr_18          <format=hex>; // s_IpdColData_18*
+    uint8  unk_1C[2];
+    uint8  field_1E;
+    uint8  unk_1F[1];
+    uint32 ptr_20          <format=hex>; // Might point to `s_func_8006B1C8`?
+    uint16 field_24;                     // field_24/field_26 defined in ipd2obj but haven't seen used yet, might be size of `ptr_28`/`ptr_2C`.
+    uint16 field_26;
+    uint32 ptr_28          <format=hex>; // u8*
+    uint32 ptr_2C          <format=hex>; // void*
+    uint8  field_30;
+    uint8  unk_31[3];
+    uint8  field_34[256];
+} s_IpdColData;
+
+
+typedef struct _IpdModelBuffer
+{
+    uint8  unk_0[12];
+    uint32 field_C;   // void*
+    uint32 field_10;  // void*
+    uint32 field_14;  // void*
+} s_IpdModelBuffer;
+
+
+typedef struct _IpdModelInfo
+{
+    uint8      isGlobalPlm_0;                // `false` if loaded from inside IPD, `true` if loaded from `*_GLB.PLM`
+    uint8      unk_1[3];
+    char       modelName_4[8];
+    uint32     objListPtr_C    <format=hex>; // s_ObjList*
+} s_IpdModelInfo;
+
+
+typedef struct _IpdHeader
+{
+    uint8        magic_0;
+    Assert(magic_0 == 0x14);
+    uint8        isLoaded_1;
+    int8         levelGridX_2;
+    int8         levelGridY_3;
+    uint32       plmHeaderPtr_4       <format=hex>; // s_PlmHeader*
+    uint8        modelCount_8;
+    uint8        modelBufferCount_9;
+    uint8        modelOrderCount_A;
+    uint8        unk_B[1];
+    uint8        unk_C[8];
+    uint32       modelInfoPtr_14      <format=hex>; // s_IpdModelInfo*
+    uint32       modelBuffersPtr_18   <format=hex>; // s_IpdModelBuffer*
+    uint8        textureCount_1C;                   // Should it be `u32`?
+                                                    // "`u8` - Relative pointer to textures list"
+                                                    // "`u32` - Relative pointer to object order"
+    uint8        unk_1D[3];
+    uint8        unk_20[48];
+    uint32       modelOrderListPtr_50 <format=hex>; // u8*
+    s_IpdColData colData_54;
+} s_IpdHeader;
+
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+
+if (ReadShort() == 0x14)
+{
+    s_IpdHeader      ipdHeader;
+
+    FSeek            ( ipdHeader.modelInfoPtr_14 );
+    s_IpdModelInfo   modelInfo [ ipdHeader.modelCount_8 ];
+    
+    FSeek            ( ipdHeader.modelBuffersPtr_18 );
+    s_IpdModelBuffer modelBuffer [ ipdHeader.modelBufferCount_9 ];
+
+    FSeek            ( ipdHeader.plmHeaderPtr_4 );  
+    OffsetSetStart   ( FTell() );
+}
+
+s_PlmHeader  plmHeader; 
+
+FSeek        ( plmHeader.textureListPtr_4 );
+s_PlmTexList textureList[plmHeader.textureCount_3 ];
+
+FSeek        ( plmHeader.objectListPtr_C );
+s_ObjList    objectList [ plmHeader.objectCount_8 ];
+
+//struct PADDING {
+//    byte pad;
+//} padding[plmHeader.objectCount_8];
+
+FSeek        ( plmHeader.objectOrdsPtr_10 );
+uint8        obj_order [ plmHeader.objectCount_8 ];
+
+FSeek        ( objectList.meshesPtr_C );
+struct OBJF
+{
+    for (int i = 0; i < plmHeader.objectCount_8; i++ )
+    {
+        FSeek ( objectList [ i ] .meshesPtr_C );
+        struct OBJ
+        {
+        
+            FSeek       ( objectList [ i ] .meshesPtr_C );
+            s_ObjHeader meshes [ objectList [ i ] .meshCount_8 ];
+        
+            FSeek ( meshes .primitivesPtr_4 );
+            struct OBJDATAF
+            {
+                for ( int j = 0; j < objectList [ i ] .meshCount_8; j++ )
+                {
+	                FSeek ( meshes [ j ] .primitivesPtr_4 );
+                    struct OBJDATA
+                    {
+                
+                        FSeek          ( meshes [ j ] .primitivesPtr_4 );
+                        s_ObjPrimitive primitive [ meshes[ j ] .primitiveCount_0 ];
+                        
+                        FSeek   ( meshes [ j ] .vertexXyPtr_8 );
+                        DVECTOR pos_xy [meshes [ j ] .vertexCount_1 ];
+                
+                        
+                        FSeek ( meshes [ j ] .vertexZPtr_C );
+                        int16 pos_z[meshes[j].vertexCount_1];
+
+
+                        FSeek       ( meshes [ j ] .normalsPtr_10 );
+                        s_ObjNormal norm [ meshes [ j ] .normalCount_2 ];
+
+
+                        FSeek ( meshes [ j ] .unkPtr_14 );
+                        ubyte unkn_index [ meshes [ j ] .unkCount_3 ];
+
+                    } obj_data;
+                };
+                
+            } obj_data_folder;
+            
+        } obj;
+    };
+} obj_folder;
