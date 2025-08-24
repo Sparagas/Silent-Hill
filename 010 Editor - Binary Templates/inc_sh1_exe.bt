@@ -1,0 +1,1001 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: inc_sh1_exe.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: PS-X EXE template for Sony PlayStation 1 executables
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 50 53 2D 58 20 45 58 45 //PS-X EXE
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+// Function to decode 4 characters from a 24-bit field
+string DecodeNameField(uint32 nameField) {
+    local uint32 char6bit;
+    local string result = "";
+    
+    char6bit = (nameField >> 0) & 0x3F;
+    result += (char)(char6bit + 0x20);
+    
+    char6bit = (nameField >> 6) & 0x3F;
+    result += (char)(char6bit + 0x20);
+    
+    char6bit = (nameField >> 12) & 0x3F;
+    result += (char)(char6bit + 0x20);
+    
+    char6bit = (nameField >> 18) & 0x3F;
+    result += (char)(char6bit + 0x20);
+    
+    return result;
+}
+
+/*
+ * Rectangle:
+ */
+typedef struct {
+	int16 x, y; /* offset point on VRAM */
+	int16 w, h; /* width and height */
+} RECT;
+
+/*
+ * Environment 
+ */
+typedef struct {
+	uint32 tag;
+	uint32 code[15];
+} DR_ENV;            /* Packed Drawing Environment */
+
+//------------------------------------------------
+
+typedef struct s_FsMemBlock
+{
+    uint32 start <format=hex, comment="u8*">;                  /** Start address. */
+    uint32 size;                                               /** Size in bytes. */
+    uint32 next  <format=hex, comment="struct s_FsMemBlock*">; /** Next block in list. */
+} s_FsMemBlock;
+
+/** @brief State of the FS memory heap.
+ * This heap seems to only be used by the FS code.
+ */
+typedef struct
+{
+    uint8        start <format=hex, comment="u8*">; /** Heap base. */
+    uint32       size;                              /** Total heap size in bytes. */
+    s_FsMemBlock allocList;                         /** Head of list of allocated memory blocks. */
+    s_FsMemBlock freeList;                          /** Head of list of free memory blocks. */
+    s_FsMemBlock blocks[16];                        /** Block pool. */
+} s_FsMemState;
+
+typedef struct _FsImageDesc
+{
+    uint8 tPage[2];
+    uint8 u;
+    uint8 v;
+    int16 clutX;
+    int16 clutY;
+} s_FsImageDesc;
+
+typedef struct _FsAnmDesc
+{
+    uint32 field_0;   // Unknown index.
+    uint32 charaId_4;
+    uint32 coords_8;  /** `GsCOORDINATE2` pointer. */
+} s_FsAnmDesc;
+
+typedef union _FsQueueExtra
+{
+    s_FsImageDesc image; /** Location in VRAM where to upload a TIM during post-load. */
+    s_FsAnmDesc   anm;   /** Unknown. Used when loading some ANM files. */
+} s_FsQueueExtra;
+
+typedef struct _FsQueueEntry
+{
+    const uint32    info         <format=hex, comment="s_FileInfo*">; /** Pointer to the file table entry of the file this entry is for. */
+    uint8           operation;                                        /** What to do. See `FsQueueOperation`. */
+    uint8           postLoad;                                         /** What to do after `operation` is done. See `FsQueuePostLoadType`. */
+    uint8           allocate;                                         /** Boolean. If `true`, allocate a buffer for `data` from `g_FsMemory`, otherwise use `externalData` */
+    uint8           unused0;                                          /** Unused or padding. */
+    uint32          externalData <format=hex, comment="void*">;       /** Pointer to an external buffer. */
+    uint32          unused1;                                          /** Unused but set by `Fs_QueueEnqueue`. */
+    s_FsQueueExtra  extra;                                            /** Extra data, used during post load. */
+    uint32          data         <format=hex, comment="void*">;       /** Output buffer. Either allocated or same as `externalData`. */
+} s_FsQueueEntry;
+
+typedef struct _FsQueuePtr
+{
+    int32  idx;                                         /** Index in `entries` this is pointing to. */
+    uint32 ptr <format=hex, comment="s_FsQueueEntry*">; /** Entry in `entries` this is pointing to. */
+} s_FsQueuePtr;
+
+typedef struct _FsQueue
+{
+    s_FsQueueEntry entries[32];              /** Circular buffer for the queue itself. */
+    s_FsQueuePtr   last;                     /** Index and address of the last added entry. */
+    s_FsQueuePtr   read;                     /** Index and address the current operation entry to process. */
+    s_FsQueuePtr   postLoad;                 /** Index and address of the current operation entry to post-process. */
+    uint32         state;                    /** Current processing stage. `FsQueueReadState` for reads, `FsQueueSeekState` for seeks. */
+    uint32         postLoadState;            /** Current postprocessing stage. See `FsQueuePostLoadState`. */
+    uint32         resetTimer0;              /** Reset timer (lo). Increments up to 8, then incrementss `reset_timer_1`. See `Fs_QueueResetTick`. */
+    uint32         resetTimer1;              /** Reset timer (hi). When it reaches 9, `CdReset` is called. See `Fs_QueueResetTick`. */
+} s_FsQueue;
+
+typedef struct {
+	RECT   clip;       /* clip area */
+	int16  ofs[2];     /* drawing offset */
+	RECT   tw;         /* texture window */
+	uint16 tpage;      /* texture page */	
+	uint8  dtd;        /* dither flag (0:off, 1:on) */
+	uint8  dfe;        /* flag to draw on display area (0:off 1:on) */
+	uint8  isbg;       /* enable to auto-clear */
+	uint8  r0, g0, b0; /* initital background color */
+	DR_ENV dr_env;     /* reserved */
+} DRAWENV;
+
+typedef struct {
+	RECT  disp;       /* display area */
+	RECT  screen;     /* display start point */
+	uint8 isinter;    /* interlace 0: off 1: on */
+	uint8 isrgb24;    /* RGB24 bit mode */
+	uint8 pad0, pad1; /* reserved */
+} DISPENV;
+
+typedef struct _FileInfo
+{
+    // byte1
+    uint32 startSector_0_0 : 19 <format=hex>;                 /** Index of CD sector where file starts. */
+    uint32 blockCount_0_13 : 12;                              /** Size of file in 256-byte blocks. */
+
+    // byte1
+    uint32 pathIdx_4_0     : 4;                               /** Index of path to file in `g_FilePaths`. */
+    uint32 name0123_4_4    : 24 <read=DecodeNameField(this)>; /** First four 6-bit characters of file name. */
+
+    // byte1
+    uint32 name4567_8_0    : 24 <read=DecodeNameField(this)>; /** Second four 6-bit characters of file name. */
+    uint32 type_8_18       : 4;                               /** File type (and index of extension in `g_FileExts`). */
+} s_FileInfo;
+
+//------------------------------------------------
+
+struct Rodata_main
+{
+    uint32 g_OvlDynamic  <format=hex>;
+    uint32 g_OvlBodyprog <format=hex>;
+};
+struct Rodata_fsqueue_3
+{
+    string a_PcDrvPath;
+    uint8  padding;
+};
+struct Pad_fsqueue_3
+{
+    FSkip(0x818 - 0x814);
+};
+struct Rodata_fsqueue_2
+{
+    FSkip(0x830 - 0x818);
+};
+struct Rodata_lib_libspu_spu
+{
+    FSkip(0x880 - 0x830);
+};
+struct Rodata_lib_libetc_vsync
+{
+    FSkip(0x890 - 0x880);
+};
+struct Rodata_lib_libetc_intr
+{
+    FSkip(0x900 - 0x890);
+};
+struct Rodata_lib_libetc_intr_dma
+{
+    FSkip(0x930 - 0x900);
+};
+struct Rodata_lib_libcd_event
+{
+    FSkip(0x950 - 0x930);
+};
+struct Rodata_lib_libcd_sys
+{
+    FSkip(0x960 - 0x950);
+};
+struct Rodata_lib_libcd_bios
+{
+    FSkip(0xBC0 - 0x960);
+};
+struct Rodata_lib_libcd_cdread
+{
+    FSkip(0xC10 - 0xBC0);
+};
+struct Rodata_lib_libgpu_tmd
+{
+    FSkip(0xD50 - 0xC10);
+};
+struct Rodata_lib_libgpu_sys
+{
+    FSkip(0xF70 - 0xD50);
+};
+
+//------------------------------------------------
+
+struct Text_main
+{
+    Opcode main[0x12D0 - 0xF70];
+};
+struct Text_fileinfo
+{
+    Opcode Fs_DecryptOverlay[0x80010B24 - 0x80010AD0];
+    Opcode Fs_GetFileSize[0x80010B54 - 0x80010B24];
+    Opcode Fs_GetFileName[0x80010B88 - 0x80010B54];
+    Opcode Fs_GetFileInfoName[0x80010C60 - 0x80010B88];
+    Opcode Fs_EncodeFileName[0x80010CD4 - 0x80010C60];
+    Opcode Fs_GetFileSectorAlignedSize[0x80010D0C - 0x80010CD4];
+    Opcode Fs_FindNextFileOfType[0x80010D80 - 0x80010D0C];
+    Opcode Fs_FindNextFile[0x80010E58 - 0x80010D80];
+};
+struct Text_fsqueue_1
+{
+    Opcode Fs_QueueIsEntryLoaded[0x80010E68 - 0x80010E58];
+    Opcode Fs_QueueGetLength[0x80010E84 - 0x80010E68];
+    Opcode Fs_QueueDoThingWhenEmpty[0x80010ECC - 0x80010E84];
+    Opcode Fs_QueueWaitForEmpty[0x80010F34 - 0x80010ECC];
+    Opcode Fs_QueueStartSeek[0x80010F68 - 0x80010F34];
+    Opcode Fs_QueueStartRead[0x80010F9C - 0x80010F68];
+    Opcode Fs_QueueStartReadTim[0x80011018 - 0x80010F9C];
+    Opcode Fs_QueueStartReadAnm[0x80011074 - 0x80011018];
+    Opcode Fs_QueueEnqueue[0x80011170 - 0x80011074];
+    Opcode Fs_QueueInitialize[0x800111DC - 0x80011170];
+    Opcode Fs_QueueReset[0x80011260 - 0x800111DC];
+    Opcode Fs_QueueUpdate[0x8001137C - 0x80011260];
+    Opcode Fs_QueueUpdateSeek[0x800114C4 - 0x8001137C];
+};
+struct Text_fsqueue_2
+{
+    Opcode Fs_QueueUpdateSeek[0x1E30 - 0x1CC4];
+};
+struct Text_fsqueue_3
+{
+    Opcode Fs_QueueAllocEntryData[0x800116BC - 0x80011630];
+    Opcode Fs_QueueCanRead[0x800117AC - 0x800116BC];
+    Opcode Fs_QueueDoBuffersOverlap[0x800117E8 - 0x800117AC];
+    Opcode Fs_QueueTickSetLoc[0x8001182C - 0x800117E8];
+    Opcode Fs_QueueTickRead[0x80011884 - 0x8001182C];
+    Opcode Fs_QueueResetTick[0x8001190C - 0x80011884];
+    Opcode Fs_QueueTickReadPcDvr[0x80011A4C - 0x8001190C];
+    Opcode Fs_QueueUpdatePostLoad[0x80011B24 - 0x80011A4C];
+    Opcode Fs_QueuePostLoadTim[0x80011C3C - 0x80011B24];
+    Opcode Fs_QueuePostLoadAnm[0x80011C70 - 0x80011C3C];
+};
+struct Text_fsmem
+{
+    Opcode Fs_InitializeMem[0x80011CFC - 0x80011C70];
+    Opcode nullsub_80011cfc[0x80011D04 - 0x80011CFC];
+    Opcode Fs_AllocMem[0x80011E4C - 0x80011D04];
+    Opcode Fs_ClampMemBlock[0x80011ED0 - 0x80011E4C];
+    Opcode Fs_FreeMem[0x80011F48 - 0x80011ED0];
+    Opcode Fs_RelinkMemBlock[0x80011F78 - 0x80011F48];
+};
+struct Text_memcpy
+{
+    Opcode memcpy[0x800120B0 - 0x80011F78];
+    Opcode nullsub_800120b0[0x800120B8 - 0x800120B0];
+};
+struct Text_rng
+{
+    Opcode Rng_Rand32[0x800120E4 - 0x800120B8];
+    Opcode Rng_Rand16[0x80012104 - 0x800120E4];
+    Opcode Rng_GetSeed[0x80012110 - 0x80012104];
+    Opcode Rng_SetSeed[0x8001211C - 0x80012110];
+    Opcode Rng_Rand12[0x8001213C - 0x8001211C];
+};
+struct Text_memmove32
+{
+    Opcode Mem_Move32[0x29BC - 0x293C];
+};
+struct Text_lib_libapi_a36
+{
+    Opcode EnterCriticalSection[0x29CC - 0x29BC];
+};
+struct Text_lib_libapi_a37
+{
+    Opcode ExitCriticalSection[0x29DC - 0x29CC];
+};
+struct Text_lib_libapi_a50
+{
+    Opcode open[0x29EC - 0x29DC];
+};
+struct Text_lib_libapi_a52
+{
+    Opcode read[0x29FC - 0x29EC];
+};
+struct Text_lib_libapi_a54
+{
+    Opcode close[0x2A0C - 0x29FC];
+};
+struct Text_lib_libapi_a08
+{
+    Opcode OpenEvent[0x2A1C - 0x2A0C];
+};
+struct Text_lib_libapi_a12
+{
+    Opcode EnableEvent[0x2A2C - 0x2A1C];
+};
+struct Text_lib_libc_c21
+{
+    Opcode strcat[0x2A3C - 0x2A2C];
+};
+struct Text_lib_libc_c23
+{
+    Opcode strcmp[0x2A4C - 0x2A3C];
+};
+struct Text_lib_libc_c40
+{
+    Opcode bzero[0x2A5C - 0x2A4C];
+};
+struct Text_lib_libc_c43
+{
+    Opcode memset[0x2A6C - 0x2A5C];
+};
+struct Text_lib_libspu_s_i
+{
+    Opcode SpuInit[0x2A8C - 0x2A6C];
+};
+struct Text_lib_libspu_s_ini
+{
+    Opcode _SpuInit[0x80012374 - 0x8001228C];
+    Opcode SpuStart[0x800123EC - 0x80012374];
+};
+struct Text_lib_libspu_spu
+{
+    Opcode _spu_init[0x8001266C - 0x800123EC];
+    Opcode _spu_FwriteByIO[0x8001282C - 0x8001266C];
+    Opcode _spu_FiDMA[0x800128E8 - 0x8001282C];
+    Opcode _spu_Fr_[0x80012990 - 0x800128E8];
+    Opcode _spu_t[0x80012C10 - 0x80012990];
+    Opcode _spu_Fw[0x80012C94 - 0x80012C10];
+    Opcode _spu_Fr[0x80012CF8 - 0x80012C94];
+    Opcode _spu_FsetRXX[0x80012D3C - 0x80012CF8];
+    Opcode _spu_FsetRXXa[0x80012DE0 - 0x80012D3C];
+    Opcode _spu_FgetRXXa[0x80012E1C - 0x80012DE0];
+    Opcode _spu_FsetPCR[0x80012E74 - 0x80012E1C];
+    Opcode _spu_FsetDelayW[0x80012E9C - 0x80012E74];
+    Opcode _spu_FsetDelayR[0x80012EC4 - 0x80012E9C];
+    Opcode _spu_Fw1ts[0x80012F2C - 0x80012EC4];
+};
+struct Text_lib_libapi_a07
+{
+    Opcode DeliverEvent[0x373C - 0x372C];
+};
+struct Text_lib_libc_c63
+{
+    Opcode printf[0x374C - 0x373C];
+};
+struct Text_lib_libspu_s_dcb
+{
+    Opcode _SpuDataCallback[0x377C - 0x374C];
+};
+struct Text_asm_psyq_libsn_snmain
+{
+    Opcode __SN_ENTRY_POINT[0x80013024 - 0x80012F7C];
+    Opcode __main[0x80013094 - 0x80013024];
+    Opcode __do_global_dtors[0x800130FC - 0x80013094];
+};
+struct Text_lib_libapi_c57
+{
+    Opcode InitHeap[0x390C - 0x38FC];
+};
+struct Text_lib_libetc_vsync
+{
+    Opcode VSync[0x80013284 - 0x8001310C];
+    Opcode v_wait[0x8001331C - 0x80013284];
+};
+struct Text_lib_libapi_a91
+{
+    Opcode ChangeClearPAD[0x3B2C - 0x3B1C];
+};
+struct Text_lib_libapi_l10
+{
+    Opcode ChangeClearRCnt[0x3B3C - 0x3B2C];
+};
+struct Text_lib_libc_a63
+{
+    Opcode __ps_libinfo__libc__[0x80013344 - 0x8001333C];
+    Opcode puts[0x8001335C - 0x80013344];
+};
+struct Text_lib_libetc_intr
+{
+    Opcode ResetCallback[0x8001338C - 0x8001335C];
+    Opcode InterruptCallback[0x800133BC - 0x8001338C];
+    Opcode DMACallback[0x800133EC - 0x800133BC];
+    Opcode VSyncCallback[0x80013420 - 0x800133EC];
+    Opcode VSyncCallbacks[0x80013450 - 0x80013420];
+    Opcode StopCallback[0x80013480 - 0x80013450];
+    Opcode RestartCallback[0x800134B0 - 0x80013480];
+    Opcode CheckCallback[0x800134C0 - 0x800134B0];
+    Opcode GetIntrMask[0x800134D8 - 0x800134C0];
+    Opcode SetIntrMask[0x800134F0 - 0x800134D8];
+    Opcode startIntr[0x800135C8 - 0x800134F0];
+    Opcode trapIntr[0x80013798 - 0x800135C8];
+    Opcode setIntr[0x800138E0 - 0x80013798];
+    Opcode stopIntr[0x80013980 - 0x800138E0];
+    Opcode restartIntr[0x800139F8 - 0x80013980];
+    Opcode memclr_0[0x80013A1C - 0x800139F8];
+};
+struct Text_lib_libapi_c114
+{
+    Opcode __ps_libinfo__libapi__[0x80013A24 - 0x80013A1C];
+    Opcode _96_remove[0x80013A3C - 0x80013A24];
+};
+struct Text_lib_libapi_a23
+{
+    Opcode ReturnFromException[0x424C - 0x423C];
+};
+struct Text_lib_libapi_a24
+{
+    Opcode ResetEntryInt[0x425C - 0x424C];
+};
+struct Text_lib_libapi_a25
+{
+    Opcode HookEntryInt[0x426C - 0x425C];
+};
+struct Text_lib_libc_c19
+{
+    Opcode setjmp[0x427C - 0x426C];
+};
+struct Text_lib_libetc_intr_vb
+{
+    Opcode startIntrVSync[0x80013AD4 - 0x80013A7C];
+    Opcode trapIntrVSync[0x80013B40 - 0x80013AD4];
+    Opcode setIntrVSync[0x80013B6C - 0x80013B40];
+    Opcode memclr_1[0x80013B9C - 0x80013B6C];
+};
+struct Text_lib_libetc_intr_dma
+{
+    Opcode startIntrDMA[0x80013BE8 - 0x80013B9C];
+    Opcode trapIntrDMA[0x80013D68 - 0x80013BE8];
+    Opcode setIntrDMA[0x80013E14 - 0x80013D68];
+    Opcode memclr_2[0x80013E3C - 0x80013E14];
+};
+struct Text_lib_libetc_vmode
+{
+    Opcode SetVideoMode[0x80013E50 - 0x80013E3C];
+    Opcode GetVideoMode[0x80013E6C - 0x80013E50];
+};
+struct Text_lib_libcd_event
+{
+    Opcode CdInit[0x80013EFC - 0x80013E6C];
+    Opcode CdReset2[0x80013F38 - 0x80013EFC];
+    Opcode def_cbsync[0x80013F60 - 0x80013F38];
+    Opcode def_cbready[0x80013F88 - 0x80013F60];
+    Opcode def_cbread[0x80013FBC - 0x80013F88];
+};
+struct Text_lib_libcd_sys
+{
+    Opcode CdStatus[0x80013FCC - 0x80013FBC];
+    Opcode CdMode[0x80013FDC - 0x80013FCC];
+    Opcode CdLastCom[0x80013FEC - 0x80013FDC];
+    Opcode CdLastPos[0x80013FF8 - 0x80013FEC];
+    Opcode CdReset[0x80014064 - 0x80013FF8];
+    Opcode CdFlush[0x80014084 - 0x80014064];
+    Opcode CdSetDebug[0x80014098 - 0x80014084];
+    Opcode CdComstr[0x800140CC - 0x80014098];
+    Opcode CdIntstr[0x80014100 - 0x800140CC];
+    Opcode CdSync[0x80014120 - 0x80014100];
+    Opcode CdReady[0x80014140 - 0x80014120];
+    Opcode CdSyncCallback[0x80014154 - 0x80014140];
+    Opcode CdReadyCallback[0x80014168 - 0x80014154];
+    Opcode CdControl[0x800142A4 - 0x80014168];
+    Opcode CdControlF[0x800143D8 - 0x800142A4];
+    Opcode CdControlB[0x80014524 - 0x800143D8];
+    Opcode CdMix[0x80014544 - 0x80014524];
+    Opcode CdGetSector[0x80014564 - 0x80014544];
+    Opcode CdGetSector2[0x80014584 - 0x80014564];
+    Opcode CdDataCallback[0x800145A8 - 0x80014584];
+    Opcode CdDataSync[0x800145C8 - 0x800145A8];
+    Opcode CdIntToPos[0x800146CC - 0x800145C8];
+    Opcode CdPosToInt[0x8001474C - 0x800146CC];
+};
+struct Text_lib_libcd_bios
+{
+    Opcode getintr[0x80014CA8 - 0x8001474C];
+    Opcode CD_sync[0x80014F28 - 0x80014CA8];
+    Opcode CD_ready[0x800151F0 - 0x80014F28];
+    Opcode CD_cw[0x800155FC - 0x800151F0];
+    Opcode CD_vol[0x80015684 - 0x800155FC];
+    Opcode CD_flush[0x80015758 - 0x80015684];
+    Opcode CD_initvol[0x80015848 - 0x80015758];
+    Opcode CD_initintr[0x80015894 - 0x80015848];
+    Opcode CD_init[0x80015A74 - 0x80015894];
+    Opcode CD_datasync[0x80015BDC - 0x80015A74];
+    Opcode CD_getsector[0x80015CDC - 0x80015BDC];
+    Opcode CD_getsector2[0x80015DC8 - 0x80015CDC];
+    Opcode CD_set_test_parmnum[0x80015DD4 - 0x80015DC8];
+    Opcode callback[0x80015EAC - 0x80015DD4];
+};
+struct Text_lib_libcd_cdread
+{
+    Opcode cb_pause[0x80015EE0 - 0x80015EAC];
+    Opcode cb_read[0x80016154 - 0x80015EE0];
+    Opcode cb_data[0x80016224 - 0x80016154];
+    Opcode cd_read_entry[0x8001640C - 0x80016224];
+    Opcode CdReadBreak[0x800165AC - 0x8001640C];
+    Opcode CdRead[0x80016748 - 0x800165AC];
+    Opcode CdReadSync[0x8001684C - 0x80016748];
+    Opcode CdReadCallback[0x80016860 - 0x8001684C];
+    Opcode CdReadMode[0x8001687C - 0x80016860];
+};
+struct Text_lib_libgpu_tmd
+{
+    Opcode OpenTIM[0x8001688C - 0x8001687C];
+    Opcode ReadTIM[0x800168F0 - 0x8001688C];
+    Opcode OpenTMD[0x80016930 - 0x800168F0];
+    Opcode ReadTMD[0x80016BD8 - 0x80016930];
+    Opcode get_tim_addr[0x80016CF0 - 0x80016BD8];
+    Opcode get_tmd_addr[0x80016E64 - 0x80016CF0];
+    Opcode unpack_packet[0x800180FC - 0x80016E64];
+};
+struct Text_lib_libgpu_sys
+{
+    Opcode ResetGraph[0x80018270 - 0x800180FC];
+    Opcode SetGraphDebug[0x800182CC - 0x80018270];
+    Opcode SetGraphQueue[0x80018370 - 0x800182CC];
+    Opcode GetGraphDebug[0x80018380 - 0x80018370];
+    Opcode DrawSyncCallback[0x800183E0 - 0x80018380];
+    Opcode SetDispMask[0x80018478 - 0x800183E0];
+    Opcode DrawSync[0x800184E0 - 0x80018478];
+    Opcode checkRECT[0x800185FC - 0x800184E0];
+    Opcode ClearImage[0x8001868C - 0x800185FC];
+    Opcode ClearImage2[0x80018724 - 0x8001868C];
+    Opcode LoadImage[0x80018784 - 0x80018724];
+    Opcode StoreImage[0x800187E4 - 0x80018784];
+    Opcode MoveImage[0x8001889C - 0x800187E4];
+    Opcode ClearOTag[0x80018964 - 0x8001889C];
+    Opcode ClearOTagR[0x80018A10 - 0x80018964];
+    Opcode DrawPrim[0x80018A6C - 0x80018A10];
+    Opcode DrawOTag[0x80018ADC - 0x80018A6C];
+    Opcode PutDrawEnv[0x80018B9C - 0x80018ADC];
+    Opcode DrawOTagEnv[0x80018C74 - 0x80018B9C];
+    Opcode GetDrawEnv[0x80018CA8 - 0x80018C74];
+    Opcode PutDispEnv[0x800191A0 - 0x80018CA8];
+    Opcode GetDispEnv[0x800191D4 - 0x800191A0];
+    Opcode GetODE[0x80019204 - 0x800191D4];
+    Opcode SetTexWindow[0x8001923C - 0x80019204];
+    Opcode SetDrawArea[0x800192BC - 0x8001923C];
+    Opcode SetDrawOffset[0x800192FC - 0x800192BC];
+    Opcode SetPriority[0x80019324 - 0x800192FC];
+    Opcode SetDrawStp[0x8001934C - 0x80019324];
+    Opcode SetDrawMode[0x800193A0 - 0x8001934C];
+    Opcode SetDrawEnv[0x80019598 - 0x800193A0];
+    Opcode SetDrawEnv2[0x80019808 - 0x80019598];
+    Opcode get_mode[0x80019828 - 0x80019808];
+    Opcode get_cs[0x800198C0 - 0x80019828];
+    Opcode get_ce[0x80019958 - 0x800198C0];
+    Opcode get_ofs[0x80019974 - 0x80019958];
+    Opcode get_tw[0x800199F4 - 0x80019974];
+    Opcode _status[0x80019A0C - 0x800199F4];
+    Opcode _otc[0x80019AEC - 0x80019A0C];
+    Opcode _clr[0x80019D1C - 0x80019AEC];
+    Opcode _dws[0x80019F58 - 0x80019D1C];
+    Opcode _drs[0x8001A1D8 - 0x80019F58];
+    Opcode _ctl[0x8001A1FC - 0x8001A1D8];
+    Opcode _getctl[0x8001A210 - 0x8001A1FC];
+    Opcode _cwb[0x8001A250 - 0x8001A210];
+    Opcode _cwc[0x8001A298 - 0x8001A250];
+    Opcode _param[0x8001A2C8 - 0x8001A298];
+    Opcode _addque[0x8001A2EC - 0x8001A2C8];
+    Opcode _addque2[0x8001A59C - 0x8001A2EC];
+    Opcode _exeque[0x8001A7FC - 0x8001A59C];
+    Opcode _reset[0x8001A94C - 0x8001A7FC];
+    Opcode _sync[0x8001AA88 - 0x8001A94C];
+    Opcode set_alarm[0x8001AABC - 0x8001AA88];
+    Opcode get_alarm[0x8001AC00 - 0x8001AABC];
+    Opcode _version[0x8001ACA0 - 0x8001AC00];
+    Opcode LoadImage2[0x8001AD8C - 0x8001ACA0];
+    Opcode StoreImage2[0x8001AE78 - 0x8001AD8C];
+    Opcode MoveImage2[0x8001AFBC - 0x8001AE78];
+    Opcode DrawOTag2[0x8001B0B8 - 0x8001AFBC];
+    Opcode _GPU_ResetCallback[0x8001B0E0 - 0x8001B0B8];
+    Opcode memset_0[0x8001B10C - 0x8001B0E0];
+};
+struct Text_lib_libapi_c73
+{
+    Opcode GPU_cw[0xB91C - 0xB90C];
+};
+
+//------------------------------------------------
+
+struct Data_fileinfo
+{
+    s_FileInfo g_FileTable[2074];
+    uint32     g_FilePaths[11]    <format=hex>;
+    uint32     g_FileExts[12]     <format=hex>;
+    uint32     g_FileXaLoc[11]    <format=hex>;
+};
+struct Data_main
+{
+    DISPENV g_MainDispEnv;
+    DRAWENV g_MainDrawEnv;
+};
+struct Data_lib_libspu_s_ini
+{
+    uint8 __ps_libinfo__libspu__[8];
+    uint8 _spu_EVdma[4];
+    uint8 _spu_keystat[4];
+    uint8 _spu_trans_mode[4];
+    uint8 _spu_rev_flag[4];
+    uint8 _spu_rev_reserve_wa[4];
+    uint8 _spu_rev_offsetaddr[4];
+    uint8 _spu_rev_attr[20];
+    uint8 _spu_RQvoice[4];
+    uint8 _spu_RQmask[4];
+    uint8 _spu_voice_centerNote[48];
+    uint8 _spu_env[4];
+    uint8 _spu_isCalled[16];
+};
+struct Data_lib_libspu_spu {};
+struct Data_lib_libspu_s_rmp0
+{
+    uint8 _spu_RXX[4];
+    uint8 _spu_madr[4];
+    uint8 _spu_bcr[4];
+    uint8 _spu_chcr[4];
+    uint8 _spu_sys_pcr[4];
+    uint8 _spu_delay[4];
+    uint8 _spu_tsa[4];
+    uint8 _spu_transMode[4];
+    uint8 _spu_addrMode[4];
+    uint8 _spu_mem_mode[4];
+    uint8 _spu_mem_mode_plus[4];
+    uint8 _spu_mem_mode_unit[4];
+    uint8 _spu_mem_mode_unitM[4];
+    uint8 _spu_inTransfer[4];
+    uint8 _spu_transferCallback[4];
+    uint8 _spu_IRQCallback[4];
+    uint8 _spu_dummy_2[16];
+    uint8 _spu_dma_mode[4];
+    uint8 _spu_transfer_startaddr[4];
+    uint8 _spu_transfer_time[8];
+};
+struct Data_lib_libspu_s_m
+{
+    uint8 _spu_rev_startaddr[48];
+    uint8 _spu_AllocBlockNum[4];
+    uint8 _spu_AllocLastNum[4];
+    uint8 _spu_memList[8];
+};
+struct Data_psyq_libsn_snmain
+{
+    uint8 __initialised[4];
+    uint8 __heapbase[4];
+    uint8 __heapsize[4];
+    uint8 __text[4];
+    uint8 __textlen[4];
+    uint8 __data[4];
+    uint8 __datalen[4];
+    uint8 __bss[4];
+    uint8 __bsslen[4];
+};
+struct Data_lib_libetc_vsync
+{
+    uint8 __ps_libinfo__libetc__[8];
+    uint8 gp1_0[4];
+    uint8 t1_count[4];
+    uint8 Hcount[16];
+};
+struct Data_lib_libetc_intr {};
+struct Data_lib_libetc_intr_vb
+{
+    uint8 copyright[88];
+    uint8 intrEnv[4200];
+    uint8 jtb_0[32];
+    uint8 jtbp_0[4];
+    uint8 i_reg[4];
+    uint8 i_mask[4];
+    uint8 d_pcr_0[20];
+    uint8 cbIntrVSync[32];
+    uint8 Vcount[16];
+};
+struct Data_lib_libetc_intr_dma
+{
+    uint8 d_icr[4];
+    uint8 cbIntrDMA[32];
+    uint8 madr_top[12];
+};
+struct Data_lib_libetc_vmode
+{
+    uint8 _etc_vmode[16];
+};
+struct Data_lib_libcd_event
+{
+    uint8 CD_cbread[4];
+    uint8 CD_read_dma_mode[12];
+};
+struct Data_lib_libcd_sys
+{
+    uint8 setloc[128];
+};
+struct Data_lib_libcd_bios
+{
+    uint8 __ps_libinfo__libcd__[8];
+    uint8 CD_cbsync[4];
+    uint8 CD_cbready[4];
+    uint8 CD_debug[4];
+    uint8 CD_status[4];
+    uint8 CD_status1[4];
+    uint8 CD_nopen[4];
+    uint8 CD_pos[4];
+    uint8 CD_mode[1];
+    uint8 CD_com[3];
+    uint8 DS_active[4];
+    uint8 CD_comstr[128];
+    uint8 CD_intstr[32];
+    uint8 ComAttr[484];
+    uint8 CD_test_parmnum[28];
+    uint8 reg0[4];
+    uint8 reg1[4];
+    uint8 reg2[4];
+    uint8 reg3[4];
+    uint8 com_delay[4];
+    uint8 spu[4];
+    uint8 Intr[28];
+    uint8 dv5_delay[4];
+    uint8 d_pcr_1[4];
+    uint8 d3_madr[4];
+    uint8 d3_bcr[4];
+    uint8 d3_chcr[16];
+};
+struct Data_lib_libcd_cdread {};
+struct Data_lib_libgpu_sys
+{
+    uint8 ReadAttr[64];
+    uint8 __ps_libinfo__libgpu__[8];
+    uint8 jtb_1[64];
+    uint8 jtbp_1[4];
+    uint8 GPU_printf[4];
+    uint8 GEnv[152];
+    uint8 com[20];
+    uint8 nop[20];
+    uint8 nop2[68];
+    uint8 gp0[4];
+    uint8 gp1_1[4];
+    uint8 d2_madr[4];
+    uint8 d2_bcr[4];
+    uint8 d2_chcr[4];
+    uint8 d6_madr[4];
+    uint8 d6_bcr[4];
+    uint8 d6_chcr[4];
+    uint8 d_pcr_2[4];
+    uint8 _qin[4];
+    uint8 _qout[16];
+    uint8 target[4];
+    uint8 nenter[16];
+};
+
+//------------------------------------------------
+
+struct SData_fileinfo
+{
+    struct __sdata_start__ {
+        char __sdata_start__[4];
+    } _sdata_start__[46];
+    int32 pad;
+    int32 _ramsize;
+    int32 _stacksize;
+};
+struct SData_main
+{
+    s_FsImageDesc g_MainImg0;
+    s_FsImageDesc g_MainImg1;
+    uint32        g_MainFbIdx;
+};
+struct Pad_main
+{
+    uint8 pad[8];
+};
+struct SData_rng
+{
+    uint32 g_RngSeed;
+    int32  __ra_temp;
+};
+
+//------------------------------------------------
+
+struct SBss_psyq_libsn_snmain
+{
+    uint8 sBss_psyq_libsn_snmain[4];
+};
+
+//------------------------------------------------
+
+struct Bss_fsqueue_1
+{
+    //s_FsQueue g_FsQueue; // 0x428
+    uint8  g_FsQueue[0x428];
+};
+struct Bss_fsmem
+{
+    //s_FsMemState g_FsMem;
+    uint8 g_FsMem[224]; //
+};
+struct Bss_lib_libspu_spu
+{
+    uint8 _spu_RQ[20];
+};
+struct Bss_psyq_unk
+{
+    FSkip(4);
+};
+struct Bss_lib_libcd_event {};
+struct Bss_lib_libcd_sys {};
+struct Bss_lib_libcd_bios {};
+struct Bss_lib_libcd_cdread
+{
+    int32 Result[6];
+    int32 Alarm[6];
+    int32 StMode;
+};
+struct Bss_psyq_unk2
+{
+    FSkip(4);
+};
+struct Bss_lib_libgpu_tmd
+{
+    uint32 tim[8];
+};
+struct Bss_lib_libgpu_sys
+{
+    FSkip(0x14000 - 0x13A10);
+    //uint8 ctlbuf[0x108];
+    //uint8 _que[0x18200];
+    //uint8 g_bodyProg[0x5DD94];
+    //uint8 g_Font16AtlasImg[8];
+    //uint8 g_KonamiLogoImg[8];
+    //uint8 g_KcetLogoImg[16];
+    //uint8 g_TitleImg[8];
+    //uint8 g_MapImg[8];
+    //uint8 g_MapMarkerAtlasImg[8];
+    //uint8 g_ItemInspectionImg[16];
+    //uint8 g_ControllerButtonAtlasImg[8];
+    //uint8 g_BrightnessScreenImg0[8];
+    //uint8 g_BrightnessScreenImg1[8];
+    //uint8 g_DeathTipImg[8];
+    //uint8 g_HealthPortraitImg[8];
+    //uint8 g_InventoryKeyItemTextureImg[8];
+    //uint8 g_FirstAidKitItemTextureImg[48];
+    //uint8 g_Font24AtlasImg[8];
+};
+
+//------------------------------------------------
+
+struct RODATA_SECTION_MAIN
+{
+    Rodata_main                rodata_main;
+    Rodata_fsqueue_3           rodata_fsqueue_3;
+    Pad_fsqueue_3              rad_fsqueue_3;
+    Rodata_fsqueue_2           rodata_fsqueue_2;
+    Rodata_lib_libspu_spu      rodata_lib_libspu_spu;
+    Rodata_lib_libetc_vsync    rodata_lib_libetc_vsync;
+    Rodata_lib_libetc_intr     rodata_lib_libetc_intr;
+    Rodata_lib_libetc_intr_dma rodata_lib_libetc_intr_dma; 
+    Rodata_lib_libcd_event     rodata_lib_libcd_event;
+    Rodata_lib_libcd_sys       rodata_lib_libcd_sys;
+    Rodata_lib_libcd_bios      rodata_lib_libcd_bios;
+    Rodata_lib_libcd_cdread    rodata_lib_libcd_cdread;
+    Rodata_lib_libgpu_tmd      rodata_lib_libgpu_tmd;
+    Rodata_lib_libgpu_sys      rodata_lib_libgpu_sys;
+};
+
+struct TEXT_SECTION_MAIN
+{
+    Text_main                  text_main;
+    Text_fileinfo              text_fileinfo;
+    Text_fsqueue_1             text_fsqueue_1;
+    Text_fsqueue_2             text_fsqueue_2;
+    Text_fsqueue_3             text_fsqueue_3;
+    Text_fsmem                 text_fsmem;
+    Text_memcpy                text_memcpy;
+    Text_rng                   text_rng;
+    Text_memmove32             text_memmove32;
+    Text_lib_libapi_a36        text_lib_libapi_a36;
+    Text_lib_libapi_a37        text_lib_libapi_a37;
+    Text_lib_libapi_a50        text_lib_libapi_a50;
+    Text_lib_libapi_a52        text_lib_libapi_a52;
+    Text_lib_libapi_a54        text_lib_libapi_a54;
+    Text_lib_libapi_a08        text_lib_libapi_a08;
+    Text_lib_libapi_a12        text_lib_libapi_a12;
+    Text_lib_libc_c21          text_lib_libc_c21;
+    Text_lib_libc_c23          text_lib_libc_c23;
+    Text_lib_libc_c40          text_lib_libc_c40;
+    Text_lib_libc_c43          text_lib_libc_c43;
+    Text_lib_libspu_s_i        text_lib_libspu_s_i;
+    Text_lib_libspu_s_ini      text_lib_libspu_s_ini;
+    Text_lib_libspu_spu        text_lib_libspu_spu;
+    Text_lib_libapi_a07        text_lib_libapi_a07;
+    Text_lib_libc_c63          text_lib_libc_c63;
+    Text_lib_libspu_s_dcb      text_lib_libspu_s_dcb;
+    Text_asm_psyq_libsn_snmain text_asm_psyq_libsn_snmain;
+    Text_lib_libapi_c57        text_lib_libapi_c57;
+    Text_lib_libetc_vsync      text_lib_libetc_vsync;
+    Text_lib_libapi_a91        text_lib_libapi_a91;
+    Text_lib_libapi_l10        text_lib_libapi_l10;
+    Text_lib_libc_a63          text_lib_libc_a63;
+    Text_lib_libetc_intr       text_lib_libetc_intr;
+    Text_lib_libapi_c114       text_lib_libapi_c114;
+    Text_lib_libapi_a23        text_lib_libapi_a23;
+    Text_lib_libapi_a24        text_lib_libapi_a24;
+    Text_lib_libapi_a25        text_lib_libapi_a25;
+    Text_lib_libc_c19          text_lib_libc_c19;
+    Text_lib_libetc_intr_vb    text_lib_libetc_intr_vb;
+    Text_lib_libetc_intr_dma   text_lib_libetc_intr_dma;
+    Text_lib_libetc_vmode      text_lib_libetc_vmode;
+    Text_lib_libcd_event       text_lib_libcd_event;
+    Text_lib_libcd_sys         text_lib_libcd_sys;
+    Text_lib_libcd_bios        text_lib_libcd_bios;
+    Text_lib_libcd_cdread      text_lib_libcd_cdread;
+    Text_lib_libgpu_tmd        text_lib_libgpu_tmd;
+    Text_lib_libgpu_sys        text_lib_libgpu_sys;
+    Text_lib_libapi_c73        text_lib_libapi_c73;
+};
+
+struct DATA_SECTION_MAIN
+{
+    Data_fileinfo            data_fileinfo;
+    Data_main                data_main;
+    Data_lib_libspu_s_ini    data_lib_libspu_s_ini;
+    Data_lib_libspu_spu      data_lib_libspu_spu       <warn=false>;
+    Data_lib_libspu_s_rmp0   data_lib_libspu_s_rmp0;
+    Data_lib_libspu_s_m      data_lib_libspu_s_m;
+    Data_psyq_libsn_snmain   data_psyq_libsn_snmain;
+    Data_lib_libetc_vsync    data_lib_libetc_vsync;
+    Data_lib_libetc_intr     data_lib_libetc_intr      <warn=false>;
+    Data_lib_libetc_intr_vb  data_lib_libetc_intr_vb;
+    Data_lib_libetc_intr_dma data_lib_libetc_intr_dma;
+    Data_lib_libetc_vmode    data_lib_libetc_vmode;
+    Data_lib_libcd_event     data_lib_libcd_event;
+    Data_lib_libcd_sys       data_lib_libcd_sys;
+    Data_lib_libcd_bios      data_lib_libcd_bios;
+    Data_lib_libcd_cdread    data_lib_libcd_cdread     <warn=false>;
+    Data_lib_libgpu_sys      data_lib_libgpu_sys;
+};
+
+struct SDATA_SECTION_MAIN
+{
+    SData_fileinfo sdata_fileinfo;
+    SData_main     sdata_main;
+    Pad_main       pad_main;
+    SData_rng      sdata_rng;
+};
+
+struct SBSS_SECTION_MAIN
+{
+    SBss_psyq_libsn_snmain sbss_psyq_libsn_snmain;
+};
+
+struct BSS_SECTION_MAIN
+{
+    Bss_fsqueue_1        bss_fsqueue_1;
+    Bss_fsmem            bss_fsmem;
+    Bss_lib_libspu_spu   bss_lib_libspu_spu;
+    Bss_psyq_unk         bss_psyq_unk;
+    Bss_lib_libcd_event  bss_lib_libcd_event   <warn=false>;
+    Bss_lib_libcd_sys    bss_lib_libcd_sys     <warn=false>;
+    Bss_lib_libcd_bios   bss_lib_libcd_bios    <warn=false>;
+    Bss_lib_libcd_cdread bss_lib_libcd_cdread;
+    Bss_psyq_unk2        bss_psyq_unk2;
+    Bss_lib_libgpu_tmd   bss_lib_libgpu_tmd;
+    Bss_lib_libgpu_sys   bss_lib_libgpu_sys;
+};
+
+//------------------------------------------------
+
+struct SH1_EXE
+{
+    RODATA_SECTION_MAIN rodataSection;
+    TEXT_SECTION_MAIN   textSection;
+    DATA_SECTION_MAIN   dataSection;
+    SDATA_SECTION_MAIN  sdataSection;
+    // SBSS_SECTION_MAIN   sbssSection;
+    BSS_SECTION_MAIN    bssSection;
+};

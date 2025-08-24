@@ -11,7 +11,7 @@
 //   History: 
 //------------------------------------------------
 
-#include "ps1_psx.exe.bt"
+#include "psx_exe.bt"
 #include "sh1_bodyprog_draft.bt"
 
 
@@ -34,7 +34,7 @@ OffsetSetLimitSize(0x200000);
 FSeek(0);
 
 uint8    ram_0[0x10000];
-Main     main;
+SH1_EXE  sh1_exe;
 uint8    ram_23800[0x1360];
 Bodyprog bodyprog(0x24B60);
 
