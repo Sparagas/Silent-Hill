@@ -33,7 +33,10 @@ else {
 OffsetSetLimitSize(0x200000);
 FSeek(0);
 
-uint8    ram_0[0x10000];
+FSeek(45168);
+XF_HDR header;
+uint8  padding[1912];
+FSeek(0x10000);
 SH1_EXE  sh1_exe;
 uint8    ram_23800[0x1360];
 Bodyprog bodyprog(0x24B60);
@@ -55,7 +58,7 @@ Bodyprog bodyprog(0x24B60);
 
 FSeek(0xC9578);
 //Map map; // or B_KONAMI.BIN
-uint8              padding[4];
+uint8              pad[4];
 s_MapOverlayHeader g_MapOverlayHeader;
 
 
