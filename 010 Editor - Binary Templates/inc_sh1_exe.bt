@@ -778,9 +778,15 @@ struct Data_lib_libgpu_sys
 struct SData_fileinfo
 {
     struct __sdata_start__ {
-        char __sdata_start__[4];
-    } _sdata_start__[46];
-    int32 pad;
+        char __sdata_start__[8];
+    } _sdata_start__[23];
+};
+struct Pad_fileinfo
+{
+    uint8 pad[4];
+};
+struct SData_start
+{
     int32 _ramsize;
     int32 _stacksize;
 };
@@ -797,14 +803,13 @@ struct Pad_main
 struct SData_rng
 {
     uint32 g_RngSeed;
-    int32  __ra_temp;
 };
 
 //------------------------------------------------
 
 struct SBss_psyq_libsn_snmain
 {
-    uint8 sBss_psyq_libsn_snmain[4];
+    int32  __ra_temp;
 };
 
 //------------------------------------------------
@@ -963,6 +968,8 @@ struct DATA_SECTION_MAIN
 struct SDATA_SECTION_MAIN
 {
     SData_fileinfo sdata_fileinfo;
+    Pad_fileinfo   pad_fileinfo;
+    SData_start    sdata_start;
     SData_main     sdata_main;
     Pad_main       pad_main;
     SData_rng      sdata_rng;
@@ -996,6 +1003,6 @@ struct SH1_EXE
     TEXT_SECTION_MAIN   textSection;
     DATA_SECTION_MAIN   dataSection;
     SDATA_SECTION_MAIN  sdataSection;
-    // SBSS_SECTION_MAIN   sbssSection;
+    SBSS_SECTION_MAIN   sbssSection;
     BSS_SECTION_MAIN    bssSection;
 };
