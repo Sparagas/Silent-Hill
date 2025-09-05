@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#ifndef FIXED
+#define FIXED
+
+typedef uint8  u8_deg    <read=Str("%lg deg", this / 352.0 * 360),
+                         write=(this = Atof(value) * 352.0 / 360.0)>;
+
+typedef int16  q7_8      <read=Str("%g", this / 256.0),
+                         write=(this = Atof(value) * 256.0)>;
+
+typedef int16  q3_12     <read=Str("%g", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+                      
+typedef int16  q3_12_deg <read=Str("%g deg", this / 4096.0 * 360),
+                         write=(this = Atof(value) * 4096.0 / 360.0)>;
+
+typedef int32  q19_12    <read=Str("%g", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+
+typedef uint32 q20_12    <read=Str("%g", this / 4096.0),
+                         write=(this = Atof(value) * 4096.0)>;
+
+#endif

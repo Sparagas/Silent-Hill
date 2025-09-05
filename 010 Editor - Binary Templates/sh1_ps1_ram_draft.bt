@@ -11,9 +11,10 @@
 //   History: 
 //------------------------------------------------
 
-#include "psx_exe.bt"
-#include "sh1_bodyprog_draft.bt"
 
+#include "psx_exe.bt"
+#include "sh1_overlay_bodyprog.bt"
+#include "sh1_overlays.bt"
 
 //------------------------------------------------
 // Main
@@ -38,8 +39,8 @@ XF_HDR header;
 uint8  padding[1912];
 FSeek(0x10000);
 SH1_EXE  sh1_exe;
-uint8    ram_23800[0x1360];
-Bodyprog bodyprog(0x24B60);
+FSeek(0x24B60);
+OVERLAY_BODYPROG overlay_bodyprog;
 
     FSeek(0xC4169);
     uint8    isFogEnabled;     // Offset: 0xC4169

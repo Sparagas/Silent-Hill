@@ -12,12 +12,9 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-typedef int16 q7_8;
-typedef int32 q19_12      <read=Str("%g", this / 4096.0),
-                          write=(this = Atof(value) * 4096.0)>;
 
-typedef uint8 u8_deg <read=Str("%lg deg", this / 352.0 * 360),
-                     write=(this = Atof(value) * 352.0 / 360.0)>;
+#include "inc_fixed_point.bt"
+#include "inc_sh1.bt"
 
 const int MapOverlayAddress = 0x800C9578;
 
@@ -25,55 +22,7 @@ const int MapOverlayAddress = 0x800C9578;
 // Enums
 //------------------------------------------------
 
-// abbreviations are in japanese dialect
-enum <ubyte> ShCharacterId
-{
-    Chara_None             = 0,   // 0x00 : -1          , 0         , 0          -
-    Chara_Hero             = 1,   // 0x01 : HB_BASE.ANM , HERO.ILM  , HERO.TIM   -
-    Chara_AirScreamer      = 2,   // 0x02 : BIRD.ANM    , BIRD.ILM  , REBIRD.TIM - fog bird
-    Chara_NightFlutter     = 3,   // 0x03 : BIRD.ANM    , BD2.ILM   , BD2.TIM    - alt bird
-    Chara_Groaner          = 4,   // 0x04 : DOG.ANM     , DOG.ILM   , DOG.TIM    - fog dog
-    Chara_Wormhead         = 5,   // 0x05 : DOG.ANM     , DG2.ILM   , DG2.TIM    - alt dog
-    Chara_LarvalStalker    = 6,   // 0x06 : CLD1.ANM    , CLD1.ILM  , CLD1.TIM   - "ChiLD" harmless child shadow
-    Chara_Stalker          = 7,   // 0x07 : CLD2.ANM    , CLD2.ILM  , CLD2.TIM   - "ChiLD" invisible enemy
-    Chara_GreyChild        = 8,   // 0x08 : CLD2.ANM    , CLD3.ILM  , CLD3.TIM   - "ChiLD" 
-    Chara_Mumbler          = 9,   // 0x09 : CLD2.ANM    , CLD4.ILM  , CLD4.TIM   - "ChiLD" censored GREY_CHILD
-    Chara_HangedScratcher  = 10,  // 0x0A : SLT.ANM     , SLT.ILM   , SLT.TIM    - sewer enemy
-    Chara_Creaper          = 11,  // 0x0B : COC.ANM     , COC.ILM   , COC.TIM    - "COCkroach"
-    Chara_Romper           = 12,  // 0x0C : JACK.ANM    , JACK.ILM  , JACK.TIM   -
-    Chara_UnusedChicken    = 13,  // 0x0D : CKN.ANM     , CKN.ILM   , CKN.TIM    - need more tests
-    Chara_Splithead        = 14,  // 0x0E : FAT.ANM     , FAT.ILM   , FAT.TIM    - school boss
-    Chara_Floatstinger     = 15,  // 0x0F : MTH.ANM     , MTH.ILM   , MOTH.TIM   - moth boss
-    Chara_PuppetNurse      = 16,  // 0x10 : PRS.ANM     , PRS.ILM   , PRS.TIM    - "PaRaSite"
-    Chara_DummyNurse       = 17,  // 0x11 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Nurse
-    Chara_PuppetDoctor     = 18,  // 0x12 : PRS.ANM     , PRSD.ILM  , PRSD.TIM   - "PaRaSite Doctor"
-    Chara_DummyDoctor      = 19,  // 0x13 : DUMMY.ANM   , DUMMY.ILM , -1         - unused Pupet Doctor
-    Chara_Twinfeeler       = 20,  // 0x14 : WRM.ANM     , WRM.ILM   , WORM.TIM   - worm boss and small ones before fall
-    Chara_Bloodsucker      = 21,  // 0x15 : ROD.ANM     , ROD.ILM   , ROD.TIM    -
-    Chara_Incubus          = 22,  // 0x16 : BOS.ANM     , BOS.ILM   , BOS.TIM    - "BOSs?" good ending bad satan boss
-    Chara_Unknown23        = 23,  // 0x17 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" another Incubator?
-    Chara_MonsterCybil     = 24,  // 0x18 : MSB.ANM     , MSB.ILM   , MSB.TIM    - "Monester SyBil"
-    Chara_LockerDeadBody   = 25,  // 0x19 : DEAD.ANM    , DEAD.ILM  , DEAD.TIM   -
-    Chara_Cybil            = 26,  // 0x1A : SBL.ANM     , SIBYL.ILM , SIBYL.TIM  -
-    Chara_EndingCybil      = 27,  // 0x1B : SBL2.ANM    , SIBYL.ILM , SIBYL.TIM  - only in final boss cutscene
-    Chara_Cheryl           = 28,  // 0x1C : SRL.ANM     , SRL.ILM   , SRL.TIM    - "SheRyL"
-    Chara_Cat              = 29,  // 0x1D : CAT.ANM     , CAT.ILM   , CAT.TIM    -
-    Chara_Dahlia           = 30,  // 0x1E : DA.ANM      , DARIA.ILM , DARIA.TIM  - normal and ghost
-    Chara_EndingDahlia     = 31,  // 0x1F : DA2.ANM     , DARIA.ILM , DARIA.TIM  - only in final boss cutscene
-    Chara_Lisa             = 32,  // 0x20 : LS.ANM      , LISA.ILM  , LISA.TIM   -
-    Chara_BloodyLisa       = 33,  // 0x21 : BLS.ANM     , BLISA.ILM , BLISA.TIM  - "Bloody LiSa"
-    Chara_Alessa           = 34,  // 0x22 : AR.ANM      , AR.ILM    , AR.TIM     - "ARessa"
-    Chara_GhostChildAlessa = 35,  // 0x23 : TAR.ANM     , TAR.ILM   , TAR.TIM    - "Teen? ARessa"
-    Chara_Incubator        = 36,  // 0x24 : MAR.ANM     , MAR.ILM   , MAR.TIM    - "Mature? Mother? ARessa" bad ending good god boss
-    Chara_BloodyIncubator  = 37,  // 0x25 : BAR.ANM     , BAR.ILM   , BAR.TIM    - "Bloody ARessa" bloody INCUBATOR
-    Chara_Kaufmann         = 38,  // 0x26 : KAU.ANM     , KAU.ILM   , KAU.TIM    -
-    Chara_EndingKaufmann   = 39,  // 0x27 : KAU2.ANM    , KAU.ILM   , KAU.TIM    - only in final boss cutscene
-    Chara_Flauros          = 40,  // 0x28 : BFLU.ANM    , BFLU.ILM  , BFLU.TIM   - "B? FLaUros" moving FLAUROS
-    Chara_LittleIncubus    = 41,  // 0x29 : LITL.ANM    , LITL.ILM  , LITL.TIM   - "LITtLe" INCUBUS getting out of INCUBATOR
-    Chara_GhostDoctor      = 42,  // 0x2A : DOC.ANM     , DOC.ILM   , DOC.TIM    -
-    Chara_Parasite         = 43,  // 0x2B : ICU.ANM     , ICU.ILM   , ICU.TIM    - "InCUbator?"
-    Chara_Padlock          = 44
-};
+
 
 typedef enum _VC_ROAD_FLAGS
 {
@@ -1502,25 +1451,6 @@ struct DATA_SECTION_B_KONAMI
 {
     FSkip(0xF9C - 0xF78);
 };
-
-struct RODATA_SECTION_BODYPROG
-{
-    FSkip(0x9AD0);
-};
-struct TEXT_SECTION_BODYPROG
-{
-    FSkip(0x84238 - 0x9AD0);
-};
-struct DATA_SECTION_BODYPROG
-{
-    FSkip(0x9FD98 - 0x84238);
-};
-struct BSS_SECTION_BODYPROG
-{
-    FSkip(0xA4A18 - 0x9FD98);
-};
-
-
 struct RODATA_SECTION_MAP0_S00
 {
     Rodata_map0_s00_header  rodata_map0_s00_header;
@@ -2559,17 +2489,6 @@ struct FOOTER_DATA_B_KONAMI
 {
     FSkip(0x1000 - 0xF9C);
 };
-struct OVERLAY_BODYPROG
-{
-    RODATA_SECTION_BODYPROG rodataSection;
-    TEXT_SECTION_BODYPROG   textSection;
-    DATA_SECTION_BODYPROG   dataSection;
-    BSS_SECTION_BODYPROG    bssSection;
-};
-struct FOOTER_DATA_BODYPROG
-{
-    FSkip(0xA4B00 - 0xA4A18);
-};
 struct OVERLAY_MAP0_S00
 {
     RODATA_SECTION_MAP0_S00 rodataSection;
@@ -2912,12 +2831,6 @@ if (fileName == "B_KONAMI.BIN")
     SetStartingAddress(0x800C9578);
     OVERLAY_B_KONAMI     overlay <open=true>;
     FOOTER_DATA_B_KONAMI footer_data;
-}
-else if (fileName == "BODYPROG.BIN")
-{
-    SetStartingAddress(0x80024B60);
-    OVERLAY_BODYPROG     overlay <open=true>;
-    FOOTER_DATA_BODYPROG footer_data;
 }
 else if (fileName == "MAP0_S00.BIN")
 {

@@ -1,0 +1,4149 @@
+//------------------------------------------------
+//--- 010 Editor v15.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: BODYPROG.BIN
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+
+#include "inc_fixed_point.bt"
+#include "inc_sh1.bt"
+#include "inc_sh1_save.bt"
+
+#define NPC_COUNT_MAX            6
+
+//------------------------------------------------
+// Enums
+//------------------------------------------------
+
+enum <uint8> PadTerminalType
+{
+    PadTerminalType_Mouse               = 1,
+    PadTerminalType_16ButtonAnalog      = 2,
+    PadTerminalType_GunControllerKonami = 3,
+    PadTerminalType_16Button            = 4,
+    PadTerminalType_AnalogJoystick      = 5,
+    PadTerminalType_GunControllerNamco  = 6,
+    PadTerminalType_AnalogController    = 7,
+    PadTerminalType_MultitapAdapter     = 8
+};
+
+enum <int32> GameState
+{
+    GameState_Unk0                = 0,
+    GameState_KonamiLogo          = 1,
+    GameState_KcetLogo            = 2,
+    GameState_StartMovieIntro     = 3,
+    GameState_DeathLoadScreen     = 4,
+    GameState_MovieIntroAlternate = 5,
+    GameState_MovieIntro          = 6,
+    GameState_MainMenu            = 7,
+    GameState_SaveScreen          = 8,
+    GameState_MovieOpening        = 9,
+    GameState_MainLoadScreen      = 10,
+    GameState_InGame              = 11,
+    GameState_MapEvent            = 12,
+    GameState_ExitMovie           = 13,
+    GameState_StatusScreen        = 14,
+    GameState_MapScreen           = 15,
+    GameState_Unk10               = 16,
+    GameState_DebugMoviePlayer    = 17,
+    GameState_OptionScreen        = 18,
+    GameState_LoadStatusScreen    = 19,
+    GameState_LoadMapScreen       = 20,
+    GameState_Unk15               = 21,
+    GameState_Unk16               = 22  /** Removed debug menu? Doesn't exist in function array, but `DebugMoviePlayer` state tries to switch to it. */
+};
+
+//------------------------------------------------
+// Structs
+//------------------------------------------------
+
+typedef struct _MapType
+{
+    int16  id_0;
+    char   tag_2[4];
+    uint8  flags_6;
+    uint8  flags_7;
+    uint32 waterZones_8 <format=hex, comment="s_WaterZone*">;
+    uint32 speedZones_C <format=hex, comment="s_SpeedZone*">;
+} s_MapType;
+
+struct AnalogPadData
+{
+    uint8            status;
+    uint8            received_bytes : 4; /** Number of bytes received / 2. */
+    PadTerminalType  terminal_type  : 4;
+    uint16           digitalButtons;
+    uint8            right_x;
+    uint8            right_y;
+    uint8            left_x;
+    uint8            left_y;
+};
+
+struct ModelAnim
+{
+    uint8  animIdx;
+    uint8  maybeSomeState;  // State says if `animTime_4` is anim time or a func ptr? That field could be a union. -- emoose
+    uint16 flags_2;         /** `e_AnimFlags` */ // Bit 1: movement unlockled(?), bit 2: visible.
+    int32  time;            /** Fixed-point time along keyframe timeline. */ 
+    int16  keyframeIdx0;
+    int16  keyframeIdx1;
+    int32  field_C;
+    int32  field_10;
+};
+
+struct Model
+{
+    ShCharacterId charaId;
+    uint8         paletteIdx;
+    uint8         state;
+    uint8         stateStep;
+    ModelAnim     anim;
+};
+
+struct SubCharacter
+{
+    Model     model;
+    q19_12    positionX;           // Offset: 0xBA024
+    q19_12    positionY;           // Offset: 0xBA028
+    q19_12    positionZ;           // Offset: 0xBA02C
+                                   
+    q3_12_deg rotationX;           // Offset: 0xBA030
+    q3_12_deg rotationY;           // Offset: 0xBA032
+    q3_12_deg rotationZ;           // Offset: 0xBA034
+    q3_12_deg rotationYCopy;       // Offset: 0xBA036
+                                   
+    q3_12_deg rotationSpeedX;      // Offset: 0xBA038 
+    q3_12_deg rotationSpeedY;      // Offset: 0xBA03A Range [-0x700, 0x700]. 
+    q3_12_deg rotationSpeedZ;      // Offset: 0xBA03C
+    q3_12_deg rotationSpeedYCopy;  // Offset: 0xBA03E
+
+    int32     field_34;
+    int32     moveSpeed;
+    int16     headingAngle;
+    int16     field_3E;
+    int8      unk_40[4];
+    int16     field_44;
+    int8      unk_46[2];
+    int8      unk_48[104];
+    q19_12    health;
+    int32     field_B4;
+    int32     field_B8;
+    int32     field_BC;
+    int32     field_C0;
+    uint16    dead_timer;  // Part of `shBattleInfo` struct in SH2, may use something similar here.
+    uint16    field_C6;
+    
+    // Fields seen used inside maps (eg. `map0_s00` `func_800D923C`)
+
+    int16     field_C8;
+    int16     field_CA;
+    int16     field_CC;
+    int16     field_CE;
+    int8      unk_D0[4];
+    int16     field_D4;
+    int16     field_D6;
+    int16     field_D8;
+    int16     field_DA;
+    int16     field_DC;
+    int16     field_DE;
+
+    int32     unk_E0     : 8;
+    int32     field_E0_8 : 4;
+    int32     unk_E0_12  : 20;
+
+    int32     properties_E4[10];
+
+    int8      unk_10C;
+    uint8     field_10D;
+    int8      unk_10E[6];
+    int32     field_114;
+    int8      unk_118[4];
+    int32     field_11C;
+    int8      unk_120[6];
+    int16     field_126;
+};
+
+struct MapWork
+{
+	int32 field_0;
+    int8  unk_4[11];
+    int8  field_F;
+};
+
+struct StructUnk0
+{
+	int32 field_0;
+	int32 field_4;
+	int32 field_8;
+};
+
+struct StructUnk1
+{
+	int16 field_0;
+	int16 field_2;
+	int16 field_4;
+};
+
+struct MainCharacterExtra
+{
+    Model model;      // For player, this is a copy of model in its corresponding SubCharacter.
+    int32 field_18;   
+    int32 field_1C;   // Some kind of state. 0: nothing, 1: unknown bent over pose, 2: AFK, 8: dying, 5: forcefully turned around.
+    int32 field_20;   // Some kind of anim state related to current action (running, walking, sidestepping, etc.).
+    int32 field_24;   // Some kind of anim state related to current action (running, walking, sidestepping, etc.). Sometimes same as above, but not always.
+    int8  field_28;   // Forcefully setting to 1 opens options menu.
+    uint8 pad[3];
+};
+
+struct MainCharacter
+{
+    SubCharacter       chara;
+    MainCharacterExtra extra;
+};
+
+struct GsCoordinate2
+{
+    uint8 ram[80];
+};
+
+typedef struct _SysWork
+{
+    int8          unk_0[8];
+    int32         sysState_8;     /** e_SysState */
+    int32         sysStateStep_C; // Current step/state of sysState_8 game is in.
+    int32         field_10;       // Sometimes assigned to same thing as sysStateStep_C.
+    int32         field_14;
+    int32         field_18;
+    int32         timer_1C;
+    int32         timer_20;
+    int32         timer_24;
+    int32         field_28;
+    int32         timer_2C;
+    int32         field_30;
+    int8          unk_34[4];
+    MapWork       field_38; // Something related to map loading. Likely a struct as `func_8003CD6C` requires one and `GameFs_MapLoad` input is pointing
+    int8          unk_48[3];
+    uint8         isPlayerInCombatMode_4B;
+    MainCharacter player_4C;
+    SubCharacter  npcs_1A0[NPC_COUNT_MAX];
+    GsCoordinate2 playerBoneCoords_890[18];
+    int8          pad_E30[400];  // Might be part of previous array for 5 exra coords which go unused.
+    int8          unk_FC0[4800]; // Start is tightly-packed buffer for NPC bone coords. Size unclear, appears to be enough for 60 before what might be 
+    int8          unk_2280;
+    int8          field_2281;    // Set by `Chara_PositionUpdateFromParams`.
+    int8          field_2282;
+    int8          unk_2283[7];
+    int16         field_228A;
+    int8          unk_228C[12];
+    int32         flags_2298;    // Something related to map loading.
+    int8          unk_229C[4];
+    int32         field_22A0;
+    int32         flags_22A4;
+    int8          unk_22A8[160];
+    int8          field_2348;
+    int8          field_2349;
+    uint8         field_234A;
+    uint8         unk_234B[1];
+    uint8         unk_234C[4];
+    int32         field_2350_0 : 4;
+    int32         field_2350_4 : 4;
+    uint32        field_2351 : 8;
+    uint32        flags_2352 : 8;
+    uint32        field_2353 : 8; // Some index into `npcs_1A0`.
+    int8          unk_2354[4];
+    uint8         field_2358;
+    int8          unk_2359[3];
+    uint32        field_235C; // offset
+    StructUnk0    field_2360;
+    uint32        field_236C; // offset
+    StructUnk1    field_2370;
+    int16         unk_2376;
+    int16         field_2378;
+    int16         cameraAngleY_237A;
+    int16         cameraAngleZ_237C;
+    int16         field_237E;
+    int32         cameraRadiusXz_2380;
+    int32         cameraY_2384;
+    int8          unk_2388[20];
+    int8          field_239C;
+    uint8         field_239D; // Index?
+    int8          unk_239E[318];
+    int32         field_24DC;
+    int8          unk_24E0[48];
+    int32         field_2510;
+    int32         field_2514[10]; // This is supossed to be a struct.
+    uint8         unk_253C[524];
+    int16         field_2748[9];
+    uint8         unk_275A[2];
+    int32         field_275C;
+    uint8         unk_2760[8];
+} s_SysWork;
+
+typedef struct _GameWork
+{
+    ShSaveUserConfig config;
+    uint8            todoControllerData[44*2];
+    ShSaveGame       savegame_90; // Backup savegame?
+    ShSaveGame       savegame_30C;
+    uint16           gsScreenWidth_588;
+    uint16           gsScreenHeight_58A;
+    uint8            field_58C; // R?
+    uint8            field_58D; // G?
+    uint8            field_58E; // B?
+    uint8            field_58F; // A or graphics command code?
+    GameState        gameStatePrev_590;
+    GameState        gameState_594;
+    GameState        gameStateStep_598[3]; /** Temp data used by current gameState. Can be another state ID or other data. */
+    int8             unk_5A4[4];
+    int32            field_5A8;
+    int32            field_5AC;
+    int8             unk_5B0;
+    int8             mapAnimIdx_5B1;
+    int8             unk_5B2;
+    int8             unk_5B3;
+    AnalogPadData    rawPadData;
+    int8             unk_5BC[28];
+} s_GameWork;
+
+//------------------------------------------------
+
+struct Rodata_bodyprog
+{
+    int32 g_bodyProg;
+};
+
+struct Rodata_memcard
+{
+    int8   D_80024B64[8];
+    uint32 jtbl_80024B6C[8]  <format=hex>;
+    uint32 jtbl_80024B8C[10] <format=hex>;
+    uint32 jtbl_80024BB4[10] <format=hex>;
+    uint32 jtbl_80024BDC[12] <format=hex>;
+    char   D_80024C0C[4];
+    char   D_80024C10[12];
+    char   D_80024C1C[8];
+    int32  D_80024C24[2];
+    int32  D_80024C2C[6];
+    int32  D_80024C44[4];
+    uint32 jtbl_80024C54[6] <format=hex>;
+    uint32 jtbl_80024C6C[8] <format=hex>;
+    char   D_80024C8C[4];
+    char   D_80024C90[8];
+    uint32 D_80024C98[2];
+};
+
+struct Rodata_bodyprog_800314EC
+{
+    int32  D_80024CA0;
+    uint32 jtbl_80024CA4[16] <format=hex>;
+    uint32 jtbl_80024CE4[24] <format=hex>;
+};
+
+struct Rodata_globals
+{
+    uint32    g_GameWorkConst  <format=hex, comment="g_GameWork*">;
+    uint32    g_SavegamePtr    <format=hex, comment="g_GameWork* + 0x30C">;
+    uint32    g_Controller0    <format=hex, comment="g_GameWork* + 0x38">;
+    uint32    g_Controller1    <format=hex, comment="g_GameWork* + 0x64">;
+    uint32    g_GameWorkPtr[2] <format=hex, comment="g_GameWork*, NULL">;
+    int32     D_80024D5C[9];
+    int32     D_80024D80[9];
+    int32     D_80024DA4[10];
+    int32     D_80024DCC[13];
+    int32     D_80024E00[8];
+    int32     D_80024E20[8];
+    int32     D_80024E40[8];
+    int32     D_80024E60[5];
+    int32     D_80024E74[23];
+    int32     D_80024ED0[23];
+    int32     D_80024F2C[8];
+    int32     D_80024F4C[28];
+    int32     D_80024FBC[15];
+    int32     D_80024FF8[5];
+    s_MapType g_MapType[16];
+};
+
+struct Rodata_bodyprog_80032D1C
+{
+    char  D_8002510C[4*4];
+    int16 D_8002511C[46];
+};
+
+struct Rodata_bodyprog_80033548
+{
+    uint32 jtbl_80025178[6]  <format=hex>;
+    uint32 jtbl_80025190[25] <format=hex>;
+    int32  D_800251F4[3];
+    uint32 jtbl_80025200[13] <format=hex>;
+    int32  D_80025234[2];
+    int32  D_8002523C[9];
+    uint32 jtbl_80025260[23] <format=hex>;
+    int16  D_800252BC[94];
+    uint32 jtbl_80025378[7]  <format=hex>;
+    char   D_80025394[4*3];
+    uint32 jtbl_800253A0[42] <format=hex>;
+    char   D_80025448[4*4];
+    uint32 jtbl_80025458[9]  <format=hex>;
+};
+
+struct Rodata_bodyprog_8003AB28
+{
+    int32  D_8002547C;
+    int32  nextGameStates[5];
+    uint32 jtbl_80025494[6] <format=hex>;
+    uint32 jtbl_800254AC[5] <format=hex>;
+    struct {
+        char D_800254C0_EXTRA[8];
+        char D_800254C0_OPTION[8];
+        char D_800254C0_START[8];
+        char D_800254C0_CONTINUE[12];
+        char D_800254C0_LOAD[8];
+    } D_800254C0;
+    uint8  MAIN_MENU_STR_OFFSETS_X[8];
+    struct {
+        char D_80025500_OPEN[4];
+        char D_80025500_SPACE[4];
+        char D_80025500_CLOSE[4];
+        char D_80025500_NEWLINE[4];
+        char D_80025500_HARD[8];
+        char D_80025500_NORMAL[8];
+        char D_80025500_EASY[8];
+    } D_80025500;
+    uint8  DIFFICULTY_MENU_STR_OFFSETS_X[4];
+    uint8  DIFFICULTY_MENU_UNUSED[2*4];
+    struct {
+        char D_80025528_TIM00[8];
+        char D_80025528_BG_ETC[8];
+        char D_80025528_HERO[8];
+        char D_80025528_PIPE[8];
+        char D_80025528_PHONE[8];
+        char D_80025528_FLAUROS[8];
+        char D_80025528_AGLA[8];
+        char D_80025528_BOTL[8];
+        char D_80025528_BABY[8];
+        char D_80025528_BLOOD[8];
+        char D_80025528_CSAW[8];
+        char D_80025528_HPRGUN[8];
+        char D_80025528_DRILL[8];
+        char D_80025528_KATANA[8];
+        char D_80025528_EMPTY[4];
+    } D_80025528;
+    uint32 jtbl_8002559C[172] <format=hex>;
+    uint32 jtbl_8002584C[172] <format=hex>;
+    uint32 jtbl_80025AFC[40]  <format=hex>;
+    uint32 jtbl_80025B9C[6]   <format=hex>;
+    uint32 jtbl_80025BB4[6]   <format=hex>;
+    uint32 jtbl_80025BCC[6]   <format=hex>;
+    int32  D_80025BE4[4];
+};
+
+struct Rodata_libsd_bodyprog_80045A7C
+{
+    int32  D_80025BF4[2];
+    uint32 jtbl_80025BFC[24] <format=hex>;
+    uint32 jtbl_80025C5C[24] <format=hex>;
+    uint32 jtbl_80025CBC[8]  <format=hex>;
+    uint32 jtbl_80025CDC[8]  <format=hex>;
+    uint32 jtbl_80025CFC[10] <format=hex>;
+};
+
+struct Rodata_libsd_bodyprog_CD_80047D50
+{
+    uint32 jtbl_80025D24[6] <format=hex>;
+    uint32 jtbl_80025D3C[9] <format=hex>;
+    int32  D_80025D60[2];
+};
+
+struct Rodata_text_draw
+{
+    int32  D_80025D68;
+    uint8  g_12x16FontWidths[84];
+    uint32 g_MapMsg_Colors[8];
+    uint32 jtbl_80025DE0[18] <format=hex>;
+    uint32 jtbl_80025E28[6]  <format=hex>;
+    uint32 jtbl_80025E40[18] <format=hex>;
+    int32  D_80025E88[2];
+};
+
+struct Rodata_items_item_screens_1
+{
+    int32  D_80025E90;
+    uint32 jtbl_80025E94[7] <format=hex>;
+};
+
+struct Rodata_items_item_screens_2
+{
+    int8   D_80025EB0[228];
+    uint32 jtbl_80025F94[26] <format=hex>;
+    int32  D_80025FFC[24];
+    char   D_8002605C[5*4];
+    char   D_80026070[5*4];
+    char   D_80026084[16];
+    char   D_80026094[8];
+    char   D_8002609C[8];
+    uint32 jtbl_800260A4[10] <format=hex>;
+    uint32 jtbl_800260CC[12] <format=hex>;
+    uint32 jtbl_800260FC[10] <format=hex>;
+    uint32 jtbl_80026124[47] <format=hex>;
+    char   D_800261E0[4];
+    char   D_800261E4[8];
+    char   D_800261EC[8];
+    char   D_800261F4[8];
+    char   D_800261FC[8];
+    char   D_80026204[4];
+    char   D_80026208[4];
+    char   D_8002620C[8];
+    int32  D_80026214[8];
+    uint32 jtbl_80026234[12] <format=hex>;
+    int32  D_80026264[18];
+    char   D_800262AC[36];
+};
+
+struct Rodata_items_item_screens_3
+{
+    char   D_800262D0[11*4];
+    int32  g_InventoryItemRotations[1719]; // <--
+    int32  D_80027DF8[8];
+    char   D_80027E04[12];
+    char   D_80027E0C[8];
+    char   D_80027E14[8];
+    char   D_80027E18[4];
+    char   D_80027E20[8];
+    char   D_80027E28[8];
+    char   D_80027E2C[4];
+    char   D_8002620C[8];
+    int32  D_80027E34[8];
+    int32  D_80027E54[18];
+    int32  D_80027E9C[19];
+    uint32 jtbl_80027EE8[7] <format=hex>;
+    int32  D_80027F04[4];
+    char   D_80027F14[20];
+    char   D_80027F28[40];
+    char   D_80027F50[8];
+    char   D_80027F58[8];
+    char   D_80027F60[8];
+    char   D_80027F68[12];
+    char   D_80027F74[12];
+    char   D_80027F80[12];
+    char   D_80027F8C[8];
+    int32  D_80027F94[7];
+    int32  D_80027FB0[12];
+    uint32 jtbl_80027FE0[16]  <format=hex>;
+    uint32 jtbl_80028020[196] <format=hex>;
+    uint32 jtbl_80028330[44]  <format=hex>;
+    uint32 jtbl_800283E0[43]  <format=hex>;
+    int32  D_8002848C[3];
+    uint32 jtbl_80028498[37] <format=hex>;
+};
+
+struct Rodata_bodyprog_80055028
+{
+    uint32 jtbl_8002852C[6] <format=hex>;
+    int32  D_80028544[4];
+    uint32 jtbl_80028554[8]       <format=hex>;
+    uint32 jtbl_80028574[46]      <format=hex>;
+    uint32 jtbl_8002862C[22]      <format=hex>;
+    uint32 jtbl_80028684[36]      <format=hex>;
+    uint32 jtbl_80028714[12]      <format=hex>;
+    uint32 jtbl_80028744[14]      <format=hex>;
+    uint32 jtbl_8002877C[12]      <format=hex>;
+    uint32 jtbl_800287AC[10]      <format=hex>;
+    uint32 jtbl_800287D4[70]      <format=hex>;
+    uint32 jtbl_800288EC[70]      <format=hex>;
+    uint32 jtbl_80028A04[5]       <format=hex>;
+    int32  hack_D_80028A18_fix[2] <format=hex>; // <--
+    int32  D_80028A20[3];
+    uint32 jtbl_80028A2C[6]  <format=hex>;
+    uint32 jtbl_80028A44[24] <format=hex>;
+    uint32 jtbl_80028AA4[12] <format=hex>;
+    uint32 jtbl_80028AD4[6]  <format=hex>;
+    uint32 jtbl_80028AEC[16] <format=hex>;
+    int32  D_80028B2C[2];
+    int32  D_80028B34[4];
+    uint32 jtbl_80028B44[20] <format=hex, comment="..., Gfx_Items_Render*, NULL">;
+};
+
+struct Rodata_bodyprog_4034
+{
+    int32  D_80028B94[600] <format=hex, comment="Anim_Update0, Anim_Update1, Anim_Update2">; // <-
+    int32  D_800294F4[151];
+};
+
+struct Rodata_bodyprog_800706E4
+{
+    uint32 jtbl_80029750[26]      <format=hex>;
+    int32  D_800297B8[2]          <format=hex, comment="g_MaybePlayerAnims">;
+    uint32 jtbl_800297C0[164]     <format=hex>;
+    uint32 jtbl_80029A50[36]      <format=hex>;
+    uint32 jtbl_80029AE0[36]      <format=hex>;
+    uint32 jtbl_80029B70[36]      <format=hex>;
+    uint32 jtbl_80029C00[36]      <format=hex>;
+    uint32 jtbl_80029C90[52]      <format=hex>;
+    uint32 jtbl_80029D60[40]      <format=hex>;
+    uint32 jtbl_80029E00[32]      <format=hex>;
+    uint32 jtbl_80029E80[48]      <format=hex>;
+    uint32 jtbl_80029F40[48]      <format=hex>;
+    uint32 jtbl_8002A000[8]       <format=hex>;
+    uint32 jtbl_8002A020[18]      <format=hex>;
+    uint32 jtbl_8002A068[6]       <format=hex>;
+    uint32 jtbl_8002A080[8]       <format=hex>;
+    uint32 jtbl_8002A0A0[28]      <format=hex>;
+    uint32 jtbl_8002A110[14]      <format=hex>;
+    uint32 jtbl_8002A148[20]      <format=hex>;
+    uint32 jtbl_8002A198[36]      <format=hex>;
+    uint32 jtbl_8002A228[36]      <format=hex>;
+    uint32 jtbl_8002A2B8[36]      <format=hex>;
+    uint32 jtbl_8002A348[22]      <format=hex>;
+    uint32 jtbl_8002A3A0[32]      <format=hex>;
+    uint32 jtbl_8002A420[48]      <format=hex>;
+    uint32 jtbl_8002A4E0[30]      <format=hex>;
+    uint32 jtbl_8002A558[22]      <format=hex>;
+    uint32 jtbl_8002A5B0[22]      <format=hex>;
+    uint32 jtbl_8002A608[8]       <format=hex>;
+    uint32 jtbl_8002A628[38]      <format=hex>;
+    uint32 jtbl_8002A6C0[36]      <format=hex>;
+    uint32 jtbl_8002A750[36]      <format=hex>;
+    uint32 jtbl_8002A7E0[12]      <format=hex>;
+    uint32 jtbl_8002A810[13]      <format=hex>;
+    int32  hack_D_8002A844_fix[3] <format=hex>; // <-
+};
+
+struct Rodata_view_vc_main
+{
+    uint32 jtbl_8002A850[6]  <format=hex>;
+    uint32 jtbl_8002A868[6]  <format=hex>;
+    uint32 jtbl_8002A880[50] <format=hex>;
+    uint32 jtbl_8002A948[52] <format=hex>;
+    uint32 jtbl_8002AA18[50] <format=hex>;
+    int32  D_8002AAE0[7];
+};
+
+struct Rodata_bodyprog_80085D78
+{
+    uint32 jtbl_8002AAFC[5] <format=hex>;
+    int32  D_8002AB10[3];
+    uint32 jtbl_8002AB1C[8] <format=hex>;
+    uint32 jtbl_8002AB3C[6] <format=hex>;
+    uint32 jtbl_8002AB54[6] <format=hex>;
+    uint32 jtbl_8002AB6C[8] <format=hex>;
+    uint32 jtbl_8002AB8C[6] <format=hex>;
+    int32  D_8002ABA4[2];
+    uint32 jtbl_8002ABAC[6]  <format=hex>;
+    uint32 jtbl_8002ABC4[16] <format=hex>;
+    int32  D_8002AC04[20];
+    int32  D_8002AC54[4];
+    int32  D_8002AC64[64];
+    int32  D_8002AD64[4];
+    int32  D_8002AD74[4];
+    int32  D_8002AD84[4];
+    int32  D_8002AD94[4];
+    int32  D_8002ADA4[4];
+    int32  D_8002ADB4[4];
+    int32  D_8002ADC4[4];
+    int32  D_8002ADD4[8];
+    int32  D_8002ADF4[12];
+    int32  D_8002AE24[12];
+    int32  D_8002AE54[12];
+    int32  D_8002AE84[12];
+    int32  D_8002AEB4[12];
+    int32  D_8002AEE4[4];
+    int32  D_8002AEF4[4];
+    int32  D_8002AF04;
+    int32  D_8002AF08[6];
+    int32  D_8002AF20;
+    int32  D_8002AF24;
+    int32  D_8002AF28;
+    int32  D_8002AF2C[2];
+    int32  D_8002AF34[2];
+    int32  D_8002AF3C[3];
+    int32  D_8002AF48[3];
+    int32  D_8002AF54[2];
+    int32  D_8002AF5C[2];
+    int32  D_8002AF64[3];
+    int32  D_8002AF70[3];
+    uint32 jtbl_8002AF7C[10]              <format=hex>;
+    uint32 jtbl_8002AFA4[24]              <format=hex>;
+    uint32 jtbl_8002B004[24]              <format=hex>;
+    uint32 jtbl_8002B064[34]              <format=hex>;
+    uint32 jtbl_8002B0EC[36]              <format=hex>;
+    uint32 jtbl_8002B17C[34]              <format=hex>;
+    uint32 jtbl_8002B204[44]              <format=hex>;
+    int32  hack_vcSetWatchTgtXzPos_fix[2] <format=hex>;
+    int32  D_8002B2BC[4];
+    int32  D_8002B2CC[3];
+};
+
+struct Rodata_demo
+{
+    char D_8002B2D8[16];
+    char D_8002B2E8[8];
+    char D_8002B2F0[8];
+};
+
+struct Rodata_credits
+{
+    int32  D_8002B2F8;
+    uint32 jtbl_8002B2FC[16] <format=hex>;
+    char   D_8002B33C[12];
+    char   D_8002B348[8];
+    char   D_8002B350[8];
+    char   D_8002B358[8];
+    char   D_8002B360[8];
+    char   D_8002B368[8];
+    char   D_8002B370[12];
+    char   D_8002B37C[12];
+    char   D_8002B388[4];
+    char   D_8002B38C[4];
+    char   D_8002B390[4];
+    char   D_8002B394[4];
+    char   D_8002B398[4];
+    char   D_8002B39C[20];
+    char   D_8002B3B0[20];
+    char   D_8002B3C4[8];
+    char   D_8002B3CC[4];
+    char   D_8002B3D0[4];
+    char   D_8002B3D4[12];
+    char   D_8002B3E0[8];
+    char   D_8002B3E8[8];
+    char   D_8002B3F0[8];
+    char   D_8002B3F8[8];
+    char   D_8002B400[4];
+    char   D_8002B404[4];
+    char   D_8002B408[16];
+    char   D_8002B418[4];
+    char   D_8002B41C[36];
+    char   D_8002B440[36];
+    char   D_8002B464[16];
+    char   D_8002B474[20];
+    char   D_8002B488[20];
+    char   D_8002B49C[20];
+    char   D_8002B4B0[16];
+    int32  D_8002B4C0[34] <format=hex>; // <-
+    char   D_8002B548[4];
+    char   D_8002B54C_0[4]; // <-
+    char   D_8002B54C_1[4]; // <-
+    uint32 jtbl_8002B554[16] <format=hex>;
+    uint32 jtbl_8002B594[8]  <format=hex>;
+    uint32 jtbl_8002B5B4[6]  <format=hex>;
+    int32  D_8002B5CC[2];
+};
+
+struct Rodata_lib_libcd_iso9660
+{
+    FSkip(0x6C64 - 0x6A74);
+};
+
+struct Rodata_lib_libcd_c_011
+{
+    FSkip(0x6C84 - 0x6C64);
+};
+
+struct Rodata_lib_libgs_matrix
+{
+    FSkip(0x6CB4 - 0x6C84);
+};
+
+struct Rodata_lib_libgs_gs_108
+{
+    FSkip(0x6CD4 - 0x6CB4);
+};
+
+struct Rodata_lib_libgs_gs_123
+{
+    FSkip(0x6D64 - 0x6CD4);
+};
+
+struct Rodata_lib_libgs_objt
+{
+    FSkip(0x6E04 - 0x6D64);
+};
+
+struct Rodata_lib_libgs_objt3
+{
+    FSkip(0x6EA4 - 0x6E04);
+};
+
+struct Rodata_lib_unk_lib_8009687C
+{
+    int16 D_8002BA04[5120];
+};
+
+struct Rodata_lib_libpad_padentry
+{
+    FSkip(0x96C4 - 0x96A4);
+};
+
+struct Rodata_lib_libspu_s_sva
+{
+    FSkip(0x9704 - 0x96C4);
+};
+
+struct Rodata_lib_libspu_s_sca
+{
+    FSkip(0x9744 - 0x9704);
+};
+
+struct Rodata_libsd_smf_io
+{
+    uint32 jtbl_8002E2A4[14]  <format=hex>;
+    uint32 jtbl_8002E2DC[24]  <format=hex>;
+    uint32 jtbl_8002E33C[127] <format=hex>;
+};
+
+struct Rodata_libsd_smf_mid
+{
+    char   D_8002E538[8];
+    char   D_8002E540[8];
+    uint32 jtbl_8002E548[58] <format=hex>;
+};
+
+//------------------------------------------------
+
+struct Text_memcard
+{
+    Opcode Savegame_CardCleanInit[180];
+    Opcode Savegame_GameMemDataClear[76];
+    Opcode Savegame_CardFileUsageClear[60];
+    Opcode Savegame_CardFilesAreAllUnused[80];
+    Opcode func_8002E7BC[116];
+    Opcode func_8002E830[44];
+    Opcode func_8002E85C[16];
+    Opcode func_8002E86C[44];
+    Opcode func_8002E898[60];
+    Opcode func_8002E8D4[16];
+    Opcode func_8002E8E4[48];
+    Opcode func_8002E914[56];
+    Opcode func_8002E94C[68];
+    Opcode func_8002E990[16];
+    Opcode Savegame_CardFilesGetUsageBits[76];
+    Opcode Savegame_MetadataGet[60];
+    Opcode Savegame_CardFileUsageCount[80];
+    Opcode Savegame_CardFileUsageFreeCount[68];
+    Opcode func_8002EABC[204];
+    Opcode func_8002EB88[344];
+    Opcode func_8002ECE0[156];
+    Opcode func_8002ED7C[1276];
+    Opcode func_8002F278[76];
+    Opcode func_8002F2C4[856];
+    Opcode func_8002F61C[1352];
+    Opcode func_8002FB64[80];
+    Opcode Savegame_UserConfigCopyWithChecksum[136];
+    Opcode func_8002FC3C[144];
+    Opcode Savegame_CopyWithChecksum[144];
+    Opcode func_8002FD5C[84];
+    Opcode func_8002FDB0[192];
+    Opcode func_8002FE70[192];
+    Opcode Savegame_ChecksumUpdate[68];
+    Opcode Savegame_ChecksumValidate[92];
+    Opcode Savegame_ChecksumGenerate[48];
+    Opcode Savegame_FilenameGenerate[180];
+    Opcode Savegame_SaveBlockInit[468];
+    Opcode Savegame_CardDeviceTest[132];
+    Opcode Savegame_CardDeviceFormat[40];
+    Opcode Savegame_CardFileErase[60];
+    Opcode Savegame_CardFileRename[116];
+    Opcode Savegame_CardInit[48];
+    Opcode Savegame_CardEventsInit[48];
+    Opcode Savegame_CardStateInit[24];
+    Opcode Savegame_CardSwEventsInit[212];
+    Opcode Savegame_CardHwEventsInit[272];
+    Opcode Savegame_CardEventsClose[40];
+    Opcode Savegame_CardSwEventsClose[96];
+    Opcode Savegame_CardHwEventsClose[108];
+    Opcode Savegame_CardSwEventsTest[136];
+    Opcode Savegame_CardSwEventsReset[84];
+    Opcode Savegame_CardHwEventsTest[16];
+    Opcode Savegame_CardHwEventsReset[100];
+    Opcode Savegame_CardHwEventSpIOE[16];
+    Opcode Savegame_CardHwEventSpERROR[16];
+    Opcode Savegame_CardHwEventSpNEW[16];
+    Opcode Savegame_CardHwEventSpTIMOUT[16];
+    Opcode Savegame_CardHwEventSpUNKNOWN[16];
+    Opcode Savegame_CardResult[16];
+    Opcode Savegame_CardRequest[280];
+    Opcode Savegame_CardIsIdle[16];
+    Opcode Savegame_CardUpdate[204];
+    Opcode Savegame_CardState_Init[432];
+    Opcode Savegame_CardState_Check[320];
+    Opcode Savegame_CardState_Load[436];
+    Opcode Savegame_CardState_DirRead[312];
+    Opcode Savegame_CardState_FileCreate[208];
+    Opcode Savegame_CardState_FileOpen[220];
+    Opcode Savegame_CardState_FileReadWrite[580];
+    Opcode Savegame_DevicePathGenerate[72];
+};
+
+struct Text_bodyprog_800314EC
+{
+    Opcode Gfx_BackgroundSpriteDraw[736];
+    Opcode func_800317CC[736];
+    Opcode func_80031AAC[544];
+    Opcode Gfx_MotionBlur[560];
+    Opcode Gfx_DebugStringPosition[68];
+    Opcode Gfx_DebugStringDraw[532];
+    Opcode Math_IntegerToString[152];
+    Opcode func_800321EC[364];
+    Opcode Gfx_ClearRectInterlaced[112];
+    Opcode Gfx_ScreenRefresh[96];
+    Opcode Gfx_Init[204];
+    Opcode Settings_ScreenXYSet[48];
+    Opcode Settings_DispEnvXYSet[128];
+    Opcode func_800325A4[84];
+    Opcode Gfx_FadeInProgress[20];
+    Opcode func_8003260C[656];
+    Opcode func_8003289C_70[104];
+    Opcode func_80032904[636];
+    Opcode Gfx_VSyncCallback[80];
+    Opcode GameFs_TitleGfxSeek[32];
+    Opcode GameFs_TitleGfxLoad[48];
+    Opcode GameFs_StreamBinSeek[32];
+    Opcode GameFs_StreamBinLoad[40];
+    Opcode GameFs_OptionBinLoad[64];
+    Opcode GameFs_SaveLoadBinLoad[64];
+};
+
+struct Text_bodyprog_80032D1C
+{
+    Opcode func_80032CE8[52];
+    Opcode GameState_Unk0_Update[452];
+    Opcode MainLoop[1260];
+    Opcode Settings_ScreenAndVolUpdate[96];
+    Opcode Settings_RestoreDefaults[84];
+    Opcode Settings_RestoreControlDefaults[72];
+    Opcode nullsub_800334C8[8];
+    Opcode func_800334D0[8];
+    Opcode func_800334D8[112];
+};
+
+struct Text_bodyprog_80033548
+{
+    Opcode func_80033548[2968];
+    Opcode SysWork_Clear[40];
+    Opcode MainLoop_ShouldWarmReset[348];
+    Opcode Game_WarmBoot[440];
+    Opcode Joy_Init[52];
+    Opcode Joy_ReadP1[28];
+    Opcode Joy_Update[40];
+    Opcode Joy_ControllerDataUpdate[476];
+    Opcode ControllerData_AnalogToDigital[460];
+    Opcode func_8003483C[132];
+    Opcode func_800348C0[40];
+    Opcode GameState_LoadScreen_Update[124];
+    Opcode GameFs_MapStartup[1268];
+    Opcode Gfx_LoadingScreenDraw[112];
+    Opcode func_80034EC8[80];
+    Opcode func_80034F18[160];
+    Opcode Game_InGameInit[260];
+    Opcode Game_SavegameInitialize[188];
+    Opcode Game_PlayerInit[164];
+    Opcode GameFs_MapLoad[112];
+    Opcode func_8003528C[108];
+    Opcode func_800352F8[64];
+    Opcode func_80035338[552];
+    Opcode func_80035560[316];
+    Opcode func_8003569C[228];
+    Opcode func_80035780[296];
+    Opcode func_800358A8[52];
+    Opcode func_800358DC[72];
+    Opcode func_80035924[72];
+    Opcode func_8003596C[48];
+    Opcode func_8003599C[276];
+    Opcode func_80035AB0[24];
+    Opcode func_80035AC8[60];
+    Opcode func_80035B04[84];
+    Opcode func_80035B58[64];
+    Opcode func_80035B98[36];
+    Opcode Gfx_LoadingScreen_BackgroundTexture[36];
+    Opcode Gfx_LoadingScreen_PlayerRun[468];
+    Opcode func_80035DB4[104];
+    Opcode func_80035E1C[40];
+    Opcode func_80035E44[140];
+    Opcode func_80035ED0[124];
+    Opcode func_80035F4C[1156];
+    Opcode func_800363D0[60];
+    Opcode func_8003640C[20];
+    Opcode Savegame_MapRoomIdxSet[92];
+    Opcode func_8003647C[28];
+    Opcode func_80036498[36];
+    Opcode func_800364BC[112];
+    Opcode func_8003652C[140];
+    Opcode Gfx_MapMsg_Draw[1444];
+    Opcode Gfx_MapMsg_SelectionUpdate[748];
+    Opcode func_80036E48[580];
+    Opcode func_8003708C[152];
+    Opcode func_80037124[48];
+    Opcode func_80037154[52];
+    Opcode func_80037188[96];
+    Opcode Chara_PositionUpdateFromParams[332];
+    Opcode func_80037334[84];
+    Opcode func_80037388[68];
+    Opcode func_800373CC[1288];
+    Opcode func_800378D4[376];
+    Opcode func_80037A4C[528];
+    Opcode func_80037C5C[360];
+    Opcode func_80037DC4[124];
+    Opcode func_80037E40[56];
+    Opcode func_80037E78[172];
+    Opcode func_80037F24[908];
+    Opcode func_800382B0[60];
+    Opcode func_800382EC[104];
+    Opcode func_80038354[1816];
+    Opcode Math_Distance2dCheck[216];
+    Opcode Camera_Distance2dGet[144];
+    Opcode GameState_InGame_Update[920];
+    Opcode SysState_Gameplay_Update[636];
+    Opcode SysState_GamePaused_Update[348];
+    Opcode SysState_OptionsMenu_Update[248];
+    Opcode func_8003943C[300];
+    Opcode SysState_StatusMenu_Update[88];
+    Opcode GameState_LoadStatusScreen_Update[276];
+    Opcode SysState_MapScreen_Update[584];
+    Opcode GameState_LoadMapScreen_Update[316];
+    Opcode SysState_Fmv_Update[488];
+    Opcode SysState_LoadArea_Update[752];
+    Opcode AreaLoad_UpdatePlayerPosition[36];
+    Opcode func_80039F54[60];
+    Opcode func_80039F90[40];
+    Opcode SysState_ReadMessage_Update[360];
+    Opcode SysWork_SavegameUpdatePlayer[76];
+    Opcode func_8003A16C[136];
+    Opcode SysWork_SavegameReadPlayer[60];
+    Opcode SysState_SaveMenu_Update[408];
+    Opcode SysState_EventCallFunc_Update[152];
+    Opcode SysState_EventSetFlag_Update[84];
+    Opcode SysState_EventPlaySound_Update[120];
+    Opcode SysState_GameOver_Update[1312];
+    Opcode GameState_MapEvent_Update[220];
+};
+
+struct Text_bodyprog_8003AB28
+{
+    Opcode GameState_MainMenu_Update[2600];
+    Opcode MainMenu_SelectedOptionIdxReset[16];
+    Opcode func_8003B560[8];
+    Opcode Gfx_MainMenu_MainTextDraw[272];
+    Opcode Gfx_MainMenu_DifficultyTextDraw[224];
+    Opcode Gfx_MainMenu_BackgroundDraw[100];
+    Opcode func_8003B7BC[64];
+    Opcode func_8003B7FC[60];
+    Opcode Gfx_MainMenu_FogPacketGet[464];
+    Opcode Gfx_MainMenu_FogDraw[188];
+    Opcode Gfx_MainMenu_FogRandomize[304];
+    Opcode Gfx_MainMenu_FogScatter[152];
+    Opcode Gfx_MainMenu_FogUpdate[104];
+    Opcode func_8003BCF4[56];
+    Opcode MapTypeGet[28];
+    Opcode func_8003BD48[224];
+    Opcode func_8003BE28[40];
+    Opcode func_8003BE50[28];
+    Opcode GameFs_BgEtcGfxLoad[48];
+    Opcode GameFs_BgItemLoad[52];
+    Opcode func_8003BED0[144];
+    Opcode Map_GetSpeedZone[232];
+    Opcode func_8003C048[120];
+    Opcode func_8003C0C0[80];
+    Opcode func_8003C110[156];
+    Opcode func_8003C1AC[116];
+    Opcode func_8003C220[204];
+    Opcode func_8003C2EC[32];
+    Opcode func_8003C30C[92];
+    Opcode func_8003C368[56];
+    Opcode func_8003C3A0[12];
+    Opcode func_8003C3AC[1188];
+    Opcode func_8003C850[40];
+    Opcode func_8003C878[128];
+    Opcode func_8003C8F8[52];
+    Opcode func_8003C92C[528];
+    Opcode func_8003CB3C[8];
+    Opcode func_8003CB44[96];
+    Opcode func_8003CBA4[216];
+    Opcode func_8003CC7C[224];
+    Opcode func_8003CD5C[16];
+    Opcode func_8003CD6C[52];
+    Opcode func_8003CDA0[636];
+    Opcode func_8003D01C[32];
+    Opcode func_8003D03C[28];
+    Opcode func_8003D058[264];
+    Opcode func_8003D160[188];
+    Opcode func_8003D21C[312];
+    Opcode func_8003D354[104];
+    Opcode func_8003D3BC[136];
+    Opcode func_8003D444[28];
+    Opcode func_8003D460[8];
+    Opcode func_8003D468[232];
+    Opcode func_8003D550[100];
+    Opcode func_8003D5B4[240];
+    Opcode func_8003D6A4[60];
+    Opcode func_8003D6E0[244];
+    Opcode func_8003D7D4[356];
+    Opcode func_8003D938[36];
+    Opcode func_8003D95C[108];
+    Opcode func_8003D9C8[212];
+    Opcode func_8003DA9C[728];
+    Opcode func_8003DD74[12];
+    Opcode func_8003DD80[224];
+    Opcode func_8003DE60[292];
+    Opcode func_8003DF84[264];
+    Opcode func_8003E08C[264];
+    Opcode func_8003E194[164];
+    Opcode func_8003E238[336];
+    Opcode func_8003E388[140];
+    Opcode func_8003E414[140];
+    Opcode func_8003E4A0[164];
+    Opcode func_8003E544[164];
+    Opcode func_8003E5E8[296];
+    Opcode GameFs_FlameGfxLoad[48];
+    Opcode func_8003E740[1044];
+    Opcode func_8003EB54[76];
+    Opcode func_8003EBA0[84];
+    Opcode func_8003EBF4[200];
+    Opcode Game_TurnFlashlightOn[40];
+    Opcode Game_TurnFlashlightOff[36];
+    Opcode func_8003ED08[92];
+    Opcode func_8003ED64[16];
+    Opcode func_8003ED74[52];
+    Opcode func_8003EDA8[16];
+    Opcode func_8003EDB8[120];
+    Opcode func_8003EE30[172];
+    Opcode func_8003EEDC[52];
+    Opcode func_8003EF10[100];
+    Opcode func_8003EF74[280];
+    Opcode func_8003F08C[228];
+    Opcode func_8003F170[876];
+    Opcode func_8003F4DC[376];
+    Opcode func_8003F654[156];
+    Opcode func_8003F6F0[244];
+    Opcode Math_WeightedAverageGet[84];
+    Opcode func_8003F838[1144];
+    Opcode func_8003FCB0[136];
+    Opcode func_8003FD38[204];
+    Opcode func_8003FE04[188];
+    Opcode func_8003FEC0[108];
+    Opcode func_8003FF2C[216];
+    Opcode func_80040004[16];
+    Opcode func_80040014[56];
+};
+
+struct Text_view_vc_util
+{
+    Opcode vcInitCamera[136];
+    Opcode vcSetCameraUseWarp[188];
+    Opcode vcRetCamMvSmoothF[16];
+    Opcode func_800401A0[32];
+    Opcode vcSetEvCamRate[12];
+    Opcode func_800401CC[32];
+    Opcode vcMoveAndSetCamera[656];
+    Opcode vcMakeHeroHeadPos[156];
+    Opcode vcAddOfsToPos[172];
+    Opcode vcSetRefPosAndSysRef2CamParam[272];
+    Opcode vcSetRefPosAndCamPosAngByPad[912];
+};
+
+struct Text_bodyprog_80040A64
+{
+    Opcode Sound_StereoBalanceGet[264];
+    Opcode func_80040B6C[8];
+    Opcode func_80040B74[56];
+    Opcode func_80040BAC[720];
+    Opcode func_80040E7C[504];
+    Opcode func_80041074[100];
+    Opcode func_800410D8[340];
+    Opcode func_8004122C[336];
+    Opcode func_8004137C[356];
+    Opcode func_800414E0[1532];
+    Opcode Fs_QueueEntryLoadStatusGet[64];
+    Opcode IpdHeader_LoadStateGet[132];
+    Opcode PlmHeader_LoadStateGet[132];
+    Opcode func_80041C24[144];
+    Opcode func_80041CB4[56];
+    Opcode func_80041CEC[36];
+    Opcode func_80041D10[56];
+    Opcode func_80041D48[336];
+    Opcode func_80041E98[56];
+    Opcode func_80041ED0[288];
+    Opcode func_80041FF0[44];
+    Opcode func_8004201C[164];
+    Opcode func_800420C0[60];
+    Opcode func_800420FC[124];
+    Opcode func_80042178[96];
+    Opcode func_800421D8[296];
+    Opcode func_80042300[244];
+    Opcode func_800423F4[360];
+    Opcode func_8004255C[124];
+    Opcode func_800425D8[268];
+    Opcode func_800426E4[408];
+    Opcode func_8004287C[904];
+    Opcode IpdHeader_IsLoaded[56];
+    Opcode func_80042C3C[428];
+    Opcode func_80042DE8[68];
+    Opcode func_80042E2C[144];
+    Opcode func_80042EBC[808];
+    Opcode func_800431E4[340];
+    Opcode func_80043338[128];
+    Opcode func_800433B8[412];
+    Opcode func_80043554[36];
+    Opcode func_80043578[108];
+    Opcode func_800435E4[244];
+    Opcode func_800436D8[104];
+    Opcode func_80043740[240];
+    Opcode func_80043830[268];
+    Opcode func_8004393C[232];
+    Opcode func_80043A24[272];
+    Opcode func_80043B34[60];
+    Opcode IpdHeader_IsTextureLoaded[52];
+    Opcode IpdHeader_CollisionDataGet[32];
+    Opcode IpdHeader_FixOffsets[184];
+    Opcode func_80043C7C[132];
+    Opcode func_80043D00[68];
+    Opcode func_80043D44[32];
+    Opcode func_80043D64[64];
+    Opcode IpdHeader_FixHeaderOffsets[172];
+    Opcode IpdHeader_ModelLinkObjectLists[220];
+    Opcode PlmHeader_ObjectListSearch[92];
+    Opcode func_80043F88[188];
+    Opcode func_80044044[76];
+    Opcode func_80044090[912];
+    Opcode func_80044420[388];
+    Opcode func_800445A4[308];
+    Opcode func_800446D8[576];
+    Opcode func_80044918[56];
+    Opcode func_80044950[92];
+    Opcode func_800449AC[68];
+    Opcode Anim_Update0[328];
+    Opcode Anim_Update1[364];
+    Opcode Anim_Update2[332];
+    Opcode Anim_Update3[292];
+    Opcode func_80044F14[88];
+    Opcode func_80044F6C[116];
+    Opcode func_80044FE0[52];
+    Opcode func_80045014[88];
+    Opcode func_8004506C[156];
+    Opcode func_80045108[168];
+    Opcode func_800451B0[168];
+    Opcode func_80045258[148];
+    Opcode func_800452EC[116];
+    Opcode func_80045360[136];
+    Opcode func_800453E8[128];
+    Opcode func_80045468[204];
+    Opcode func_80045534[1352];
+};
+
+struct Text_libsd_bodyprog_80045A7C
+{
+    Opcode Sd_EngineCmd[172];
+    Opcode func_80045B28[160];
+    Opcode func_80045BC8[16];
+    Opcode func_80045BD8[336];
+    Opcode func_80045D28[172];
+    Opcode sd_init[112];
+    Opcode sd_work_init[436];
+    Opcode func_80045FF8[80];
+    Opcode Sd_PlaySfx[888];
+    Opcode func_800463C0[608];
+    Opcode func_80046620[716];
+    Opcode func_800468EC[32];
+    Opcode func_8004690C[32];
+    Opcode func_8004692C[128];
+    Opcode func_800469AC[60];
+    Opcode func_800469E8[60];
+    Opcode func_80046A24[76];
+    Opcode func_80046A70[104];
+    Opcode func_80046AD8[44];
+    Opcode func_80046B04[116];
+    Opcode func_80046B78[60];
+    Opcode func_80046BB4[160];
+    Opcode func_80046C54[232];
+    Opcode func_80046D3C[144];
+    Opcode func_80046DCC[52];
+    Opcode func_80046E00[1180];
+    Opcode func_8004729C[32];
+    Opcode func_800472BC[76];
+    Opcode func_80047308[772];
+    Opcode func_8004760C[40];
+    Opcode func_80047634[356];
+    Opcode Sd_SetVolume[112];
+    Opcode Sd_SetVolBgm[88];
+    Opcode Sd_SetVolXa[88];
+    Opcode Sd_GetVolSe[36];
+    Opcode func_800478DC[404];
+    Opcode func_80047A70[96];
+    Opcode Sd_SetReverbDepth[44];
+    Opcode Sd_SetReverbEnable[40];
+    Opcode func_80047B24[92];
+    Opcode func_80047B80[412];
+    Opcode func_80047D1C[52];
+};
+struct Text_libsd_bodyprog_CD_80047D50
+{
+    Opcode func_80047D50[96];
+    Opcode func_80047DB0[140];
+    Opcode func_80047E3C[220];
+    Opcode func_80047F18[232];
+    Opcode func_80048000[124];
+    Opcode func_8004807C[128];
+    Opcode func_800480FC[252];
+    Opcode func_800481F8[76];
+    Opcode func_80048244[148];
+    Opcode func_800482D8[196];
+    Opcode Sd_StopSeq[56];
+    Opcode func_800483D4[80];
+    Opcode func_80048424[116];
+    Opcode func_80048498[280];
+    Opcode func_800485B0[8];
+    Opcode func_800485B8[8];
+    Opcode func_800485C0[24];
+    Opcode func_800485D8[892];
+    Opcode func_80048954[228];
+};
+
+struct Text_view_vw_main
+{
+    Opcode vwInitViewInfo[88];
+    Opcode vwGetViewCoord[12];
+    Opcode vwGetViewPosition[40];
+    Opcode vwGetViewAngle[48];
+    Opcode Vw_SetLookAtMatrix[236];
+    Opcode vwSetCoordRefAndEntou[272];
+    Opcode vwSetViewInfoDirectMatrix[88];
+    Opcode vwSetViewInfo[96];
+    Opcode Vw_ClampAngleRange[148];
+    Opcode func_80048E3C[236];
+};
+
+struct Text_view_vw_calc
+{
+    Opcode vwRenewalXZVelocityToTargetPos[548];
+    Opcode vwLimitOverLimVector[220];
+    Opcode vwDecreaseSideOfVector[352];
+    Opcode vwRetNewVelocityToTargetVal[220];
+    Opcode vwRetNewAngSpdToTargetAng[76];
+    Opcode func_800494B0[128];
+    Opcode func_80049530[164];
+    Opcode vwMatrixToAngleYXZ[216];
+    Opcode Vw_MultiplyAndTransformMatrix[312];
+    Opcode vbSetWorldScreenMatrix[244];
+    Opcode vbSetRefView[172];
+    Opcode Vw_CoordHierarchyMatrixCompute[372];
+    Opcode func_80049AF8[116];
+    Opcode func_80049B6C[192];
+    Opcode func_80049C2C[216];
+    Opcode Vw_AabbVisibleInScreenCheck[564];
+    Opcode Vw_AabbVisibleInFrustumCheck[1556];
+    Opcode func_8004A54C[288];
+    Opcode vwAngleToVector[168];
+    Opcode vwVectorToAngle[180];
+    Opcode vwOresenHokan[180];
+};
+
+struct Text_text_draw
+{
+    Opcode Gfx_StringSetPosition[68];
+    Opcode func_8004A8C0[12];
+    Opcode func_8004A8CC[16];
+    Opcode Gfx_StringSetColor[12];
+    Opcode Gfx_StringDraw[1036];
+    Opcode Gfx_MapMsg_CalculateWidths[548];
+    Opcode Gfx_MapMsg_StringDraw[1856];
+    Opcode func_8004B658[44];
+    Opcode func_8004B684[80];
+    Opcode func_8004B6D4[120];
+    Opcode func_8004B74C[32];
+    Opcode func_8004B76C[652];
+    Opcode Gfx_StringDrawInt[280];
+    Opcode func_8004BB10[60];
+};
+
+struct Text_items_item_screens_cam
+{
+    Opcode Gfx_ItemScreens_CameraSet[168];
+    Opcode func_8004BBF4[200];
+    Opcode GameFs_TmdDataAlloc[32];
+    Opcode Gfx_Items_ItemRotate[152];
+    Opcode func_8004BD74[628];
+    Opcode func_8004BFE8[88];
+    Opcode func_8004C040[72];
+};
+
+struct Text_items_item_screens_1
+{
+    Opcode Inventory_ExitAnimEquippedItemUpdate[672];
+    Opcode func_8004C328[308];
+    Opcode Inventory_HyperBlasterUnlockTest[156];
+    Opcode Inventory_HyperBlasterFunctionalTest[84];
+    Opcode Game_HyperBlasterBeamColorGet[24];
+    Opcode func_8004C564[888];
+};
+
+struct Text_items_item_screens_2
+{
+    Opcode Game_TimerUpdate[212];
+    Opcode GameState_ItemScreens_Update[2032];
+    Opcode Gfx_Results_Save[888];
+    Opcode Inventory_Logic[4540];
+    Opcode Inventory_ItemUse[400];
+    Opcode Gfx_Inventory_CmdOptionsDraw[1048];
+    Opcode Gfx_Inventory_ScrollArrowsDraw[536];
+    Opcode func_8004EE94[180];
+    Opcode func_8004EF48[452];
+    Opcode func_8004F10C[132];
+    Opcode func_8004F190[1004];
+    Opcode Gfx_Inventory_UnavailableMapText[96];
+};
+
+struct Text_items_item_screens_3
+{
+    Opcode Inventory_DirectionalInputSet[392];
+    Opcode Gfx_ItemScreens_RenderInit[936];
+    Opcode func_8004FB0C[192];
+    Opcode Gfx_Inventory_2dBackgroundDraw[5204];
+    Opcode Gfx_Inventory_HealthStatusDraw[2316];
+    Opcode Gfx_Inventory_ItemDescriptionDraw[1884];
+    Opcode Gfx_Primitive2dTextureSet[288];
+    Opcode Gfx_Results_ItemsDisplay[212];
+    Opcode Gfx_Results_ItemsPosition[348];
+    Opcode Inventory_PlayerItemScroll[5580];
+    Opcode func_800539A4[356];
+    Opcode GameFs_UniqueItemModelLoad[664];
+    Opcode GameFs_Tim00TIMLoad[92];
+    Opcode GameFs_MapItemsModelLoad[552];
+    Opcode GameFs_MapItemsTextureLoad[128];
+    Opcode func_800540A4[348];
+    Opcode Gfx_Items_Render[856];
+    Opcode Gfx_Items_RenderInit[220];
+    Opcode Inventory_ExitAnimFixes[116];
+    Opcode func_800546A8[120];
+    Opcode Gfx_Items_Display[348];
+    Opcode func_8005487C[92];
+    Opcode func_800548D8[80];
+    Opcode Gfx_Items_SetAmbientLighting[120];
+    Opcode func_800549A0[100];
+    Opcode func_80054A04[212];
+    Opcode Gfx_PickupItemAnimate[468];
+    Opcode Inventory_AddSpecialItem[788];
+    Opcode Items_AmmoReloadCalculation[104];
+};
+
+struct Text_bodyprog_80055028
+{
+    Opcode func_80055028[168];
+    Opcode func_800550D0[608];
+    Opcode func_80055330[148];
+    Opcode Gfx_FogParamsSet[28];
+    Opcode func_800553E0[84];
+    Opcode func_80055434[40];
+    Opcode func_8005545C[52];
+    Opcode func_80055490[52];
+    Opcode func_800554C4[388];
+    Opcode func_80055648[404];
+    Opcode func_800557DC[56];
+    Opcode func_80055814[44];
+    Opcode func_80055840[360];
+    Opcode func_800559A8[168];
+    Opcode func_80055A50[64];
+    Opcode func_80055A90[228];
+    Opcode func_80055B74[200];
+    Opcode func_80055C3C[316];
+    Opcode func_80055D78[280];
+    Opcode func_80055E90[60];
+    Opcode func_80055ECC[60];
+    Opcode func_80055F08[500];
+    Opcode PlmHeader_FixOffsets[168];
+    Opcode ObjList_FixOffsets[160];
+    Opcode func_80056244[260];
+    Opcode func_80056348[160];
+    Opcode func_800563E8[124];
+    Opcode func_80056464[160];
+    Opcode func_80056504[84];
+    Opcode func_80056558[180];
+    Opcode func_8005660C[168];
+    Opcode func_800566B4[192];
+    Opcode func_80056774[276];
+    Opcode PlmHeader_IsTextureLoaded[204];
+    Opcode func_80056954[308];
+    Opcode func_80056A88[368];
+    Opcode func_80056BF8[136];
+    Opcode PlmHeader_ObjectCountGet[12];
+    Opcode func_80056C8C[40];
+    Opcode func_80056CB4[176];
+    Opcode StringCopy[40];
+    Opcode func_80056D8C[772];
+    Opcode func_80057090[320];
+    Opcode func_800571D0[88];
+    Opcode func_80057228[284];
+    Opcode func_80057344[400];
+    Opcode func_800574D4[200];
+    Opcode func_8005759C[188];
+    Opcode func_80057658[996];
+    Opcode func_80057A3C[320];
+    Opcode func_80057B7C[1184];
+    Opcode func_8005801C[7476];
+    Opcode func_80059D50[228];
+    Opcode func_80059E34[1000];
+    Opcode func_8005A21C[528];
+    Opcode func_8005A42C[76];
+    Opcode func_8005A478[960];
+    Opcode func_8005A838[200];
+    Opcode func_8005A900[264];
+    Opcode func_8005AA08[584];
+    Opcode func_8005AC50[1360];
+    Opcode func_8005B1A0[92];
+    Opcode func_8005B1FC[372];
+    Opcode func_8005B370[8];
+    Opcode func_8005B378[44];
+    Opcode func_8005B3A4[24];
+    Opcode func_8005B3BC[104];
+    Opcode func_8005B424[72];
+    Opcode func_8005B46C[8];
+    Opcode func_8005B474[72];
+    Opcode func_8005B4BC[160];
+    Opcode func_8005B55C[208];
+    Opcode func_8005B62C[2272];
+    Opcode func_8005BF0C[44];
+    Opcode func_8005BF38[32];
+    Opcode func_8005BF58[628];
+    Opcode func_8005C1CC[684];
+    Opcode func_8005C478[824];
+    Opcode func_8005C7B0[32];
+    Opcode func_8005C7D0[68];
+    Opcode func_8005C814[304];
+    Opcode func_8005C944[476];
+    Opcode func_8005CB20[536];
+    Opcode func_8005CD38[2004];
+    Opcode func_8005D50C[864];
+    Opcode func_8005D86C[264];
+    Opcode func_8005D974[68];
+    Opcode func_8005D9B8[612];
+    Opcode func_8005DC1C[32];
+    Opcode func_8005DC3C[264];
+    Opcode func_8005DD44[200];
+    Opcode func_8005DE0C[720];
+    Opcode func_8005E0DC[824];
+    Opcode func_8005E414[572];
+    Opcode func_8005E650[188];
+    Opcode func_8005E70C[212];
+    Opcode func_8005E7E0[188];
+    Opcode func_8005E89C[3264];
+    Opcode func_8005F55C[292];
+    Opcode func_8005F680[48];
+    Opcode func_8005F6B0[2452];
+    Opcode func_80060044[4476];
+    Opcode func_800611C0[4344];
+    Opcode func_800622B8[828];
+    Opcode func_800625F4[276];
+    Opcode func_80062708[3364];
+    Opcode func_8006342C[1572];
+    Opcode func_80063A50[2276];
+    Opcode func_80064334[3024];
+    Opcode func_80064F04[188];
+    Opcode func_80064FC0[820];
+    Opcode func_800652F4[2208];
+    Opcode func_80065B94[1520];
+    Opcode func_80066184[3084];
+    Opcode func_80066D90[176];
+    Opcode func_80066E40[60];
+    Opcode func_80066E7C[52];
+    Opcode GameState_MapScreen_Update[2660];
+    Opcode func_80067914[5036];
+    Opcode func_80068CC0[332];
+    Opcode func_80068E0C[1176];
+    Opcode func_800692A4[1352];
+    Opcode func_800697EC[36];
+    Opcode func_80069810[16];
+    Opcode func_80069820[12];
+    Opcode func_8006982C[24];
+    Opcode func_80069844[28];
+    Opcode func_80069860[220];
+    Opcode IpdColData_FixOffsets[88];
+    Opcode func_80069994[80];
+    Opcode func_800699E4[20];
+    Opcode func_800699F8[300];
+    Opcode func_80069B24[132];
+    Opcode func_80069BA8[584];
+    Opcode func_80069DF0[524];
+    Opcode func_80069FFC[380];
+    Opcode func_8006A178[44];
+    Opcode func_8006A1A4[528];
+    Opcode func_8006A3B4[120];
+    Opcode func_8006A42C[124];
+    Opcode func_8006A4A8[1176];
+    Opcode func_8006A940[528];
+    Opcode func_8006AB50[112];
+    Opcode func_8006ABC0[388];
+    Opcode func_8006AD44[360];
+    Opcode func_8006AEAC[344];
+    Opcode func_8006B004[452];
+    Opcode func_8006B1C8[336];
+    Opcode func_8006B318[976];
+    Opcode func_8006B6E8[248];
+    Opcode func_8006B7E0[280];
+    Opcode func_8006B8F8[208];
+    Opcode func_8006B9C8[392];
+    Opcode func_8006BB50[228];
+    Opcode func_8006BC34[144];
+    Opcode func_8006BCC4[280];
+    Opcode func_8006BDDC[100];
+    Opcode func_8006BE40[328];
+    Opcode func_8006BF88[320];
+    Opcode func_8006C0C8[240];
+    Opcode func_8006C1B8[144];
+    Opcode func_8006C248[396];
+    Opcode func_8006C3D4[136];
+    Opcode func_8006C45C[824];
+    Opcode func_8006C794[164];
+    Opcode func_8006C838[480];
+    Opcode func_8006CA18[376];
+    Opcode func_8006CB90[180];
+    Opcode func_8006CC44[88];
+    Opcode func_8006CC9C[636];
+    Opcode func_8006CF18[260];
+    Opcode func_8006D01C[664];
+    Opcode func_8006D2B4[844];
+    Opcode func_8006D600[372];
+    Opcode func_8006D774[120];
+    Opcode func_8006D7EC[288];
+    Opcode func_8006D90C[252];
+    Opcode func_8006DA08[220];
+    Opcode func_8006DAE4[88];
+    Opcode func_8006DB3C[220];
+    Opcode func_8006DC18[200];
+    Opcode func_8006DCE0[464];
+    Opcode func_8006DEB0[508];
+    Opcode func_8006E0AC[164];
+    Opcode func_8006E150[832];
+    Opcode func_8006E490[172];
+    Opcode func_8006E53C[592];
+    Opcode func_8006E78C[1024];
+    Opcode func_8006EB8C[640];
+    Opcode func_8006EE0C[172];
+    Opcode func_8006EEB8[920];
+    Opcode func_8006F250[232];
+    Opcode func_8006F338[140];
+    Opcode func_8006F3C4[604];
+    Opcode func_8006F620[732];
+    Opcode func_8006F8FC[160];
+    Opcode func_8006F99C[352];
+    Opcode func_8006FAFC[660];
+    Opcode func_8006FD90[672];
+    Opcode func_80070030[84];
+    Opcode func_80070084[116];
+    Opcode func_800700F8[140];
+    Opcode func_80070184[132];
+    Opcode func_80070208[148];
+    Opcode func_8007029C[132];
+    Opcode func_80070320[64];
+    Opcode func_80070360[160];
+    Opcode func_80070400[484];
+    Opcode func_800705E4[256];
+};
+
+struct Text_bodyprog_800706E4
+{
+    Opcode func_800706E4[1184];
+    Opcode func_80070B84[364];
+    Opcode func_80070CF0[256];
+    Opcode func_80070DF0[980];
+    Opcode Player_CharaTurn_0[96];
+    Opcode Player_CharaTurn_1[96];
+    Opcode Player_CharaRotate[304];
+    Opcode Player_MovementStateReset[52];
+    Opcode func_800713E8[568];
+    Opcode func_80071620[432];
+    Opcode Player_Update[408];
+    Opcode func_80071968[896];
+    Opcode Player_LogicUpdate[8920];
+    Opcode Player_UpperBodyStateUpdate[660];
+    Opcode Player_UpperBodyUpdate[252];
+    Opcode Player_CombatAnimUpdate_292[4532]; // <-
+    Opcode Player_UpperBodyMainUpdate[7352];
+    Opcode Player_CombatStateUpdate[2556];
+    Opcode Player_StepWallStop_MovementCancel[328];
+    Opcode Player_LowerBodyUpdate[15396];
+    Opcode func_8007B924[1972];
+    Opcode func_8007C0D8[1832];
+    Opcode Player_ReceiveDamage[2192];
+    Opcode func_8007D090[1616];
+    Opcode func_8007D6E0[16];
+    Opcode func_8007D6F0[640];
+    Opcode func_8007D970[3008];
+    Opcode Game_SavegameResetPlayer[124];
+    Opcode func_8007E5AC[692];
+    Opcode func_8007E860[96];
+    Opcode func_8007E8C0[260];
+    Opcode func_8007E9C4[416];
+    Opcode GameFs_PlayerMapAnimLoad[88];
+    Opcode func_8007EBBC[1424];
+    Opcode func_8007F14C[128];
+    Opcode Game_PlayerMovementsReset[132];
+    Opcode func_8007F250[28];
+    Opcode func_8007F26C[64];
+    Opcode func_8007F2AC[92];
+    Opcode Player_AnimGetSomething[36];
+    Opcode Player_Controller[1584];
+    Opcode func_8007F95C[472];
+    Opcode Math_ShortestAngleGet[96];
+    Opcode func_8007FB94[180];
+    Opcode func_8007FC48[228];
+    Opcode func_8007FD2C[16];
+    Opcode Game_GasWeaponPowerTimerValue[16];
+    Opcode func_8007FD4C[148];
+    Opcode func_8007FDE0[1260];
+    Opcode Math_DistanceGet[176];
+    Opcode Math_Distance2dGet[128];
+    Opcode func_800803FC[92];
+    Opcode Input_SelectClickSet[32];
+    Opcode func_80080478[156];
+    Opcode func_80080514[44];
+    Opcode func_80080540[84];
+    Opcode Math_PreservedSignSubtract[40];
+    Opcode func_800805BC[240];
+    Opcode func_800806AC[160];
+    Opcode func_8008074C[32];
+    Opcode func_8008076C[280];
+    Opcode func_80080884[40];
+    Opcode func_800808AC[40];
+    Opcode Math_MulFixed[36];
+    Opcode Math_MagnitudeShiftGet[72];
+};
+
+struct Text_view_vc_main
+{
+    Opcode vcInitVCSystem[156];
+    Opcode vcStartCameraSystem[40];
+    Opcode vcEndCameraSystem[12];
+    Opcode func_80080A10[32];
+    Opcode func_80080A30[12];
+    Opcode func_80080A3C[16];
+    Opcode vcSetFirstCamWork[268];
+    Opcode func_80080B58[160];
+    Opcode vcWorkSetFlags[32];
+    Opcode Vc_LookAtOffsetYMaxSet[20];
+    Opcode vcUserWatchTarget[144];
+    Opcode vcUserCamTarget[160];
+    Opcode vcChangeProjectionValue[12];
+    Opcode func_80080D68[16];
+    Opcode vcGetNowWatchPos[304];
+    Opcode vcGetNowCamPos[40];
+    Opcode vcReturnPreAutoCamWork[68];
+    Opcode vcSetSubjChara[168];
+    Opcode vcExecCamera[640];
+    Opcode vcSetAllNpcDeadTimer[144];
+    Opcode vcRetSmoothCamMvF[348];
+    Opcode vcRetCurCamMvType[228];
+    Opcode func_8008150C[228];
+    Opcode vcRetThroughDoorCamEndF[192];
+    Opcode vcRetFarWatchRate[548];
+    Opcode vcRetSelfViewEffectRate[312];
+    Opcode vcSetFlagsByCamMvType[352];
+    Opcode vcPreSetDataInVC_WORK[336];
+    Opcode vcSetTHROUGH_DOOR_CAM_PARAM_in_VC_WORK[212];
+    Opcode vcSetNearestEnemyDataInVC_WORK[556];
+    Opcode vcSetNearRoadAryByCharaPos[704];
+    Opcode vcRetRoadUsePriority[60];
+    Opcode vcSetCurNearRoadInVC_WORK[1012];
+    Opcode vcGetBestNewCurNearRoad[604];
+    Opcode vcGetNearestNEAR_ROAD_DATA[456];
+    Opcode vcAdvantageDistOfOldCurRoad[64];
+    Opcode vcAutoRenewalWatchTgtPosAndAngZ[328];
+    Opcode vcMakeNormalWatchTgtPos[412];
+    Opcode vcMixSelfViewEffectToWatchTgtPos[1216];
+    Opcode vcMakeFarWatchTgtPos[500];
+    Opcode vcSetWatchTgtXzPos[280];
+    Opcode vcSetWatchTgtYParam[32];
+    Opcode vcAdjustWatchYLimitHighWhenFarView[264];
+    Opcode vcAutoRenewalCamTgtPos[628];
+    Opcode vcRetMaxTgtMvXzLen[112];
+    Opcode vcMakeIdealCamPosByHeadPos[268];
+    Opcode vcMakeIdealCamPosForFixAngCam[592];
+    Opcode vcMakeIdealCamPosForThroughDoorCam[520];
+    Opcode vcMakeIdealCamPosUseVC_ROAD_DATA[736];
+    Opcode vcAdjustXzInLimAreaUsingMIN_IN_ROAD_DIST[176];
+    Opcode vcMakeBasicCamTgtMvVec[308];
+    Opcode vcAdjTgtMvVecYByCurNearRoad[476];
+    Opcode vcCamTgtMvVecIsFlipedFromCharaFront[732];
+    Opcode vcFlipFromCamExclusionArea[392];
+    Opcode vcGetUseWatchAndCamMvParam[420];
+    Opcode vcRenewalCamData[380];
+    Opcode vcRenewalCamMatAng[388];
+    Opcode vcMakeNewBaseCamAng[728];
+    Opcode vcRenewalBaseCamAngAndAdjustOfsCamAng[280];
+    Opcode vcMakeOfsCamTgtAng[144];
+    Opcode vcMakeOfsCam2CharaBottomAndTopAngByBaseMatT[264];
+    Opcode vcAdjCamOfsAngByCharaInScreen[252];
+    Opcode vcAdjCamOfsAngByOfsAngSpd[656];
+    Opcode vcMakeCamMatAndCamAngByBaseAngAndOfsAng[152];
+    Opcode vcSetDataToVwSystem[504];
+    Opcode vcCamMatNoise[160];
+    Opcode Vc_VectorMagnitudeCalc[356];
+    Opcode vcGetXZSumDistFromLimArea[248];
+};
+
+struct Text_bodyprog_80085D78
+{
+    Opcode func_80085D78[72];
+    Opcode func_80085DC0[48];
+    Opcode func_80085DF0[124];
+    Opcode func_80085E6C[76];
+    Opcode func_80085EB8[420];
+    Opcode func_8008605C[84];
+    Opcode MapMsg_DisplayAndHandleSelection[188];
+    Opcode func_8008616C[396];
+    Opcode func_800862F8[376];
+    Opcode func_80086470[396];
+    Opcode func_800865FC[216];
+    Opcode func_800866D4[84];
+    Opcode func_80086728[84];
+    Opcode func_8008677C[56];
+    Opcode func_800867B4[296];
+    Opcode func_800868DC[24];
+    Opcode func_800868F4[88];
+    Opcode func_8008694C[152];
+    Opcode func_800869E4[176];
+    Opcode Camera_TranslationSet[220];
+    Opcode Camera_RotationSet[232];
+    Opcode func_80086C58[172];
+    Opcode func_80086D04[164];
+    Opcode func_80086DA8[168];
+    Opcode func_80086E50[244];
+    Opcode func_80086F44[164];
+    Opcode func_80086FE8[388];
+    Opcode func_8008716C[500];
+    Opcode func_80087360[480];
+    Opcode func_80087540[632];
+    Opcode Event_ItemTake[580];
+    Opcode Event_CommonItemTake[248];
+    Opcode Event_MapTake[948];
+    Opcode func_80087EA8[52];
+    Opcode func_80087EDC[332];
+    Opcode func_80088028[32];
+    Opcode func_80088048[168];
+    Opcode func_800880F0[200];
+    Opcode func_800881B8[440];
+    Opcode func_80088370[2316];
+    Opcode Chara_Load[144];
+    Opcode func_80088D0C[40];
+    Opcode func_80088D34[68];
+    Opcode Chara_Spawn[540];
+    Opcode func_80088F94[96];
+    Opcode func_80088FF4[64];
+    Opcode func_80089034[92];
+    Opcode func_80089090[40];
+    Opcode func_800890B8[112];
+    Opcode func_80089128[380];
+    Opcode func_800892A4[56];
+    Opcode func_800892DC[56];
+    Opcode func_80089314[188];
+    Opcode func_800893D0[124];
+    Opcode func_8008944C[36];
+    Opcode func_80089470[36];
+    Opcode func_80089494[36];
+    Opcode func_800894B8[36];
+    Opcode func_800894DC[36];
+    Opcode func_80089500[36];
+    Opcode func_80089524[192];
+    Opcode func_800895E4[96];
+    Opcode func_80089644[248];
+    Opcode func_8008973C[260];
+    Opcode func_80089840[92];
+    Opcode func_8008989C[144];
+    Opcode func_8008992C[144];
+    Opcode func_800899BC[116];
+    Opcode func_80089A30[392];
+    Opcode func_80089BB8[340];
+    Opcode func_80089D0C[228];
+    Opcode func_80089DF0[616];
+    Opcode func_8008A058[116];
+    Opcode func_8008A0CC[8];
+    Opcode func_8008A0D4[16];
+    Opcode func_8008A0E4[396];
+    Opcode func_8008A270[112];
+    Opcode func_8008A2E0[124];
+    Opcode func_8008A35C[40];
+    Opcode func_8008A384[20];
+    Opcode func_8008A398[20];
+    Opcode func_8008A3AC[52];
+    Opcode func_8008A3E0[3452];
+    Opcode func_8008B15C[128];
+    Opcode func_8008B1DC[444];
+    Opcode func_8008B398[76];
+    Opcode func_8008B3E4[40];
+    Opcode func_8008B40C[44];
+    Opcode func_8008B438[60];
+    Opcode func_8008B474[496];
+    Opcode func_8008B664[176];
+    Opcode func_8008B714[2160];
+    Opcode func_8008BF84[2588];
+    Opcode DmsHeader_FixOffsets[164];
+    Opcode DmsEntry_FixOffsets[28];
+    Opcode func_8008CA60[20];
+    Opcode Dms_CharacterGetPosRot[156];
+    Opcode Dms_CharacterFindIdxByName[128];
+    Opcode Dms_CharacterGetPosRotByIdx[264];
+    Opcode Dms_CharacterKeyframeInterpolate[292];
+    Opcode func_8008CDBC[96];
+    Opcode Dms_CameraGetTargetPos[312];
+    Opcode func_8008CF54[152];
+    Opcode Dms_CameraKeyframeInterpolate[484];
+    Opcode func_8008D1D0[244];
+    Opcode func_8008D2C4[108];
+    Opcode func_8008D330[164];
+    Opcode Math_LerpFixed12[72];
+    Opcode func_8008D41C[28];
+    Opcode func_8008D438[16];
+    Opcode func_8008D448[12];
+    Opcode func_8008D454[16];
+    Opcode func_8008D464[12];
+    Opcode func_8008D470[304];
+    Opcode func_8008D5A0[492];
+    Opcode func_8008D78C[196];
+    Opcode func_8008D850[112];
+    Opcode func_8008D8C0[208];
+    Opcode func_8008D990[2908];
+    Opcode func_8008E4EC[48];
+    Opcode Map_GetWaterZone[152];
+    Opcode func_8008E5B4[480];
+    Opcode func_8008E794[724];
+    Opcode func_8008EA68[1200];
+    Opcode func_8008EF18[8];
+};
+
+struct Text_demo
+{
+    Opcode Demo_SequenceAdvance[296];
+    Opcode Demo_DemoDataRead[52];
+    Opcode Demo_PlayDataRead[64];
+    Opcode Demo_PlayFileBufferSetup[128];
+    Opcode Demo_DemoFileSavegameUpdate[100];
+    Opcode Demo_GameGlobalsUpdate[284];
+    Opcode Demo_GameGlobalsRestore[128];
+    Opcode Demo_GameRandSeedUpdate[52];
+    Opcode Demo_GameRandSeedRestore[40];
+    Opcode Demo_Start[88];
+    Opcode Demo_Stop[68];
+    Opcode func_8008F434[60];
+    Opcode func_8008F470[116];
+    Opcode Demo_ExitDemo[52];
+    Opcode func_8008F518[8];
+    Opcode func_8008F520[8];
+    Opcode Demo_DemoRandSeedBackup[56];
+    Opcode Demo_DemoRandSeedRestore[56];
+    Opcode Demo_DemoRandSeedAdvance[64];
+    Opcode Demo_Update[500];
+    Opcode Demo_ControllerDataUpdate[176];
+    Opcode Demo_PresentIntervalUpdate[44];
+    Opcode Demo_GameRandSeedSet[108];
+    Opcode func_8008F914[56];
+};
+
+struct Text_credits
+{
+    Opcode func_8008F94C[2984];
+    Opcode func_800904F4[368];
+    Opcode Results_DisplayInfo[3304];
+    Opcode func_8009134C[52];
+    Opcode func_80091380[8];
+    Opcode func_80091388[220];
+    Opcode func_80091464[8];
+    Opcode func_8009146C[88];
+    Opcode func_800914C4[88];
+    Opcode func_8009151C[604];
+    Opcode GameFs_StfRollBinLoad[72];
+    Opcode func_800917C0[156];
+    Opcode func_8009185C[672];
+};
+
+struct Text_lib_libapi_a09
+{
+    FSkip(0x6CFAC - 0x6CF9C);
+};
+
+struct Text_lib_libapi_a11
+{
+    FSkip(0x6CFBC - 0x6CFAC);
+};
+
+struct Text_lib_libapi_a39
+{
+    FSkip(0x6CFCC - 0x6CFBC);
+};
+
+struct Text_lib_libapi_a51
+{
+    FSkip(0x6CFDC - 0x6CFCC);
+};
+
+struct Text_lib_libapi_a53
+{
+    FSkip(0x6CFEC - 0x6CFDC);
+};
+
+struct Text_lib_libapi_a65
+{
+    FSkip(0x6CFFC - 0x6CFEC);
+};
+
+struct Text_lib_libapi_a67
+{
+    FSkip(0x6D00C - 0x6CFFC);
+};
+
+struct Text_lib_libapi_a68
+{
+    FSkip(0x6D01C - 0x6D00C);
+};
+
+struct Text_lib_libapi_a69
+{
+    FSkip(0x6D02C - 0x6D01C);
+};
+
+struct Text_lib_libapi_a81
+{
+    FSkip(0x6D03C - 0x6D02C);
+};
+
+struct Text_lib_libapi_first
+{
+    FSkip(0x6D2DC - 0x6D03C);
+};
+
+struct Text_lib_libapi_a66
+{
+    FSkip(0x6D2EC - 0x6D2DC);
+};
+
+struct Text_lib_libc_a56
+{
+    FSkip(0x6D2FC - 0x6D2EC);
+};
+
+struct Text_lib_libc_c24
+{
+    FSkip(0x6D30C - 0x6D2FC);
+};
+
+struct Text_lib_libc_c25
+{
+    FSkip(0x6D31C - 0x6D30C);
+};
+
+struct Text_lib_libc_c26
+{
+    FSkip(0x6D32C - 0x6D31C);
+};
+
+struct Text_lib_libc_c27
+{
+    FSkip(0x6D33C - 0x6D32C);
+};
+
+struct Text_lib_libc_c37
+{
+    FSkip(0x6D34C - 0x6D33C);
+};
+
+struct Text_lib_libc_memcmp
+{
+    FSkip(0x6D39C - 0x6D34C);
+};
+
+struct Text_lib_libcard_c171
+{
+    FSkip(0x6D3AC - 0x6D39C);
+};
+
+struct Text_lib_libcard_c172
+{
+    FSkip(0x6D3BC - 0x6D3AC);
+};
+
+struct Text_lib_libcard_a78
+{
+    FSkip(0x6D3CC - 0x6D3BC);
+};
+
+struct Text_lib_libcard_a80
+{
+    FSkip(0x6D3DC - 0x6D3CC);
+};
+
+struct Text_lib_libcard_card
+{
+    FSkip(0x6D41C - 0x6D3DC);
+};
+
+struct Text_lib_libcard_init
+{
+    FSkip(0x6D4EC - 0x6D41C);
+};
+
+struct Text_lib_libapi_pad
+{
+    FSkip(0x6D7EC - 0x6D4EC);
+};
+
+struct Text_lib_libapi_a18
+{
+    FSkip(0x6D7FC - 0x6D7EC);
+};
+
+struct Text_lib_libapi_a19
+{
+    FSkip(0x6D80C - 0x6D7FC);
+};
+
+struct Text_lib_libapi_a20
+{
+    FSkip(0x6D81C - 0x6D80C);
+};
+
+struct Text_lib_libapi_a21
+{
+    FSkip(0x6D82C - 0x6D81C);
+};
+
+struct Text_lib_libapi_l02
+{
+    FSkip(0x6D83C - 0x6D82C);
+};
+
+struct Text_lib_libapi_l03
+{
+    FSkip(0x6D84C - 0x6D83C);
+};
+
+struct Text_lib_libapi_patch
+{
+    FSkip(0x6D8EC - 0x6D84C);
+};
+
+struct Text_lib_libapi_c68
+{
+    FSkip(0x6D8FC - 0x6D8EC);
+};
+
+struct Text_lib_libapi_chclrpad
+{
+    FSkip(0x6D96C - 0x6D8FC);
+};
+
+struct Text_lib_libcard_a74
+{
+    FSkip(0x6D97C - 0x6D96C);
+};
+
+struct Text_lib_libcard_a75
+{
+    FSkip(0x6D98C - 0x6D97C);
+};
+
+struct Text_lib_libcard_a76
+{
+    FSkip(0x6D99C - 0x6D98C);
+};
+
+struct Text_lib_libcard_patch
+{
+    FSkip(0x6DB6C - 0x6D99C);
+};
+
+struct Text_lib_libcard_end
+{
+    FSkip(0x6DBEC - 0x6DB6C);
+};
+
+struct Text_lib_libcd_cdrom
+{
+    FSkip(0x6DC1C - 0x6DBEC);
+};
+
+struct Text_lib_libcd_iso9660
+{
+    FSkip(0x6E58C - 0x6DC1C);
+};
+
+struct Text_lib_libcd_cdread2
+{
+    FSkip(0x6E63C - 0x6E58C);
+};
+
+struct Text_lib_libcd_c_002
+{
+    FSkip(0x6E69C - 0x6E63C);
+};
+
+struct Text_lib_libcd_c_003
+{
+    FSkip(0x6E71C - 0x6E69C);
+};
+
+struct Text_lib_libcd_c_004
+{
+    FSkip(0x6E80C - 0x6E71C);
+};
+
+struct Text_lib_libcd_c_005
+{
+    FSkip(0x6E89C - 0x6E80C);
+};
+
+struct Text_lib_libcd_c_007
+{
+    FSkip(0x6E94C - 0x6E89C);
+};
+
+struct Text_lib_libcd_c_008
+{
+    FSkip(0x6E98C - 0x6E94C);
+};
+
+struct Text_lib_libcd_c_009
+{
+    FSkip(0x6EA4C - 0x6E98C);
+};
+
+struct Text_lib_libcd_c_010
+{
+    FSkip(0x6EA6C - 0x6EA4C);
+};
+
+struct Text_lib_libcd_c_011
+{
+    FSkip(0x6F55C - 0x6EA6C);
+};
+
+struct Text_lib_libgpu_ext
+{
+    FSkip(0x6F7FC - 0x6F55C);
+};
+
+struct Text_lib_libgpu_p00
+{
+    FSkip(0x6F83C - 0x6F7FC);
+};
+
+struct Text_lib_libgpu_p01
+{
+    FSkip(0x6F85C - 0x6F83C);
+};
+
+struct Text_lib_libgpu_p06
+{
+    FSkip(0x6F89C - 0x6F85C);
+};
+
+struct Text_lib_libgpu_p09
+{
+    FSkip(0x6F8BC - 0x6F89C);
+};
+
+struct Text_lib_libgpu_p14
+{
+    FSkip(0x6F8DC - 0x6F8BC);
+};
+
+struct Text_lib_libgpu_p16
+{
+    FSkip(0x6F8FC - 0x6F8DC);
+};
+
+struct Text_lib_libgpu_p17
+{
+    FSkip(0x6F91C - 0x6F8FC);
+};
+
+struct Text_lib_libgpu_p18
+{
+    FSkip(0x6F93C - 0x6F91C);
+};
+
+struct Text_lib_libgpu_p26
+{
+    FSkip(0x6F95C - 0x6F93C);
+};
+
+struct Text_lib_libgpu_p33
+{
+    FSkip(0x6F98C - 0x6F95C);
+};
+
+struct Text_lib_libgpu_p34
+{
+    FSkip(0x6F9EC - 0x6F98C);
+};
+
+struct Text_lib_libgs_2d_sp1
+{
+    FSkip(0x6FB6C - 0x6F9EC);
+};
+
+struct Text_lib_libgs_gs_001
+{
+    FSkip(0x700BC - 0x6FB6C);
+};
+
+struct Text_lib_libgs_gs_002
+{
+    FSkip(0x701DC - 0x700BC);
+};
+
+struct Text_lib_libgs_gs_003
+{
+    FSkip(0x7025C - 0x701DC);
+};
+
+struct Text_lib_libgs_gs_007
+{
+    FSkip(0x7029C - 0x7025C);
+};
+
+struct Text_lib_libapi_counter
+{
+    FSkip(0x7040C - 0x7029C);
+};
+
+struct Text_lib_libgs_gs_008
+{
+    FSkip(0x7043C - 0x7040C);
+};
+
+struct Text_lib_libgs_gs_009
+{
+    FSkip(0x7046C - 0x7043C);
+};
+
+struct Text_lib_libgs_gs_010
+{
+    FSkip(0x7051C - 0x7046C);
+};
+
+struct Text_lib_libgs_matrix
+{
+    FSkip(0x708DC - 0x7051C);
+};
+
+struct Text_lib_libgs_gs_104
+{
+    FSkip(0x7095C - 0x708DC);
+};
+
+struct Text_lib_libgs_gs_105
+{
+    FSkip(0x709CC - 0x7095C);
+};
+
+struct Text_lib_libgs_gs_106
+{
+    FSkip(0x709EC - 0x709CC);
+};
+
+struct Text_lib_libgs_gs_107
+{
+    FSkip(0x70F5C - 0x709EC);
+};
+
+struct Text_lib_libgs_gs_108
+{
+    FSkip(0x70FDC - 0x70F5C);
+};
+
+struct Text_lib_libgs_gs_110
+{
+    FSkip(0x7100C - 0x70FDC);
+};
+
+struct Text_lib_libgs_gs_111
+{
+    FSkip(0x7103C - 0x7100C);
+};
+
+struct Text_lib_libgs_gs_113
+{
+    FSkip(0x7109C - 0x7103C);
+};
+
+struct Text_lib_libgs_gs_114
+{
+    FSkip(0x7115C - 0x7109C);
+};
+
+struct Text_lib_libgs_gs_121
+{
+    FSkip(0x711AC - 0x7115C);
+};
+
+struct Text_lib_libgs_gs_123
+{
+    FSkip(0x7127C - 0x711AC);
+};
+
+struct Text_lib_libgs_gs_127
+{
+    FSkip(0x712FC - 0x7127C);
+};
+
+struct Text_lib_libgs_objt
+{
+    FSkip(0x7148C - 0x712FC);
+};
+
+struct Text_lib_libgs_objt3
+{
+    FSkip(0x71D1C - 0x7148C);
+};
+
+struct Text_lib_unk_lib_8009687C
+{
+    Opcode Math_Sin[32];
+    Opcode Math_Cos[32];
+    Opcode shRotMatrixZ[416];
+    Opcode func_80096A5C[72];
+    Opcode func_80096AA4[252];
+    Opcode func_80096BA0[172];
+    Opcode func_80096C4C[72];
+    Opcode func_80096C94[84];
+    Opcode func_80096CE8[68];
+    Opcode func_80096D2C[332];
+    Opcode func_80096E78[80];
+};
+
+struct Text_lib_libgte_msc00
+{
+    FSkip(0x723F8 - 0x72368);
+};
+
+struct Text_lib_libgte_msc01
+{
+    FSkip(0x72488 - 0x723F8);
+};
+
+struct Text_lib_libgte_msc02
+{
+    FSkip(0x72738 - 0x72488);
+};
+
+struct Text_lib_libgte_msc06
+{
+    FSkip(0x729C8 - 0x72738);
+};
+
+struct Text_lib_libgte_msc09
+{
+    FSkip(0x72A68 - 0x729C8);
+};
+
+struct Text_lib_libgte_mtx_000
+{
+    FSkip(0x72B78 - 0x72A68);
+};
+
+struct Text_lib_libgte_mtx_001
+{
+    FSkip(0x72C68 - 0x72B78);
+};
+
+struct Text_lib_libgte_mtx_003
+{
+    FSkip(0x72DC8 - 0x72C68);
+};
+
+struct Text_lib_libgte_mtx_004
+{
+    FSkip(0x72F28 - 0x72DC8);
+};
+
+struct Text_lib_libgte_mtx_005
+{
+    FSkip(0x72F58 - 0x72F28);
+};
+
+struct Text_lib_libgte_mtx_006
+{
+    FSkip(0x730A8 - 0x72F58);
+};
+
+struct Text_lib_libgte_mtx_007
+{
+    FSkip(0x730F8 - 0x730A8);
+};
+
+struct Text_lib_libgte_mtx_01
+{
+    FSkip(0x73238 - 0x730F8);
+};
+
+struct Text_lib_libgte_mtx_02
+{
+    FSkip(0x73328 - 0x73238);
+};
+
+struct Text_lib_libgte_mtx_03
+{
+    FSkip(0x73438 - 0x73328);
+};
+
+struct Text_lib_libgte_mtx_04
+{
+    FSkip(0x73548 - 0x73438);
+};
+
+struct Text_lib_libgte_mtx_05
+{
+    FSkip(0x73598 - 0x73548);
+};
+
+struct Text_lib_libgte_mtx_06
+{
+    FSkip(0x735F8 - 0x73598);
+};
+
+struct Text_lib_libgte_mtx_07
+{
+    FSkip(0x73628 - 0x735F8);
+};
+
+struct Text_lib_libgte_mtx_08
+{
+    FSkip(0x73768 - 0x73628);
+};
+
+struct Text_lib_libgte_mtx_09
+{
+    FSkip(0x73798 - 0x73768);
+};
+
+struct Text_lib_libgte_mtx_10
+{
+    FSkip(0x737C8 - 0x73798);
+};
+
+struct Text_lib_libgte_mtx_11
+{
+    FSkip(0x737F8 - 0x737C8);
+};
+
+struct Text_lib_libgte_mtx_12
+{
+    FSkip(0x73818 - 0x737F8);
+};
+
+struct Text_lib_libgte_reg08
+{
+    FSkip(0x73838 - 0x73818);
+};
+
+struct Text_lib_libgte_reg09
+{
+    FSkip(0x73848 - 0x73838);
+};
+
+struct Text_lib_libgte_reg10
+{
+    FSkip(0x73868 - 0x73848);
+};
+
+struct Text_lib_libgte_reg11
+{
+    FSkip(0x73888 - 0x73868);
+};
+
+struct Text_lib_libgte_reg12
+{
+    FSkip(0x738A8 - 0x73888);
+};
+
+struct Text_lib_libgte_reg13
+{
+    FSkip(0x738B8 - 0x738A8);
+};
+
+struct Text_lib_libgte_smp
+{
+    FSkip(0x73A98 - 0x738B8);
+};
+
+struct Text_lib_libgte_smp_00
+{
+    FSkip(0x73CA8 - 0x73A98);
+};
+
+struct Text_lib_libgte_smp_02
+{
+    FSkip(0x73CD8 - 0x73CA8);
+};
+
+struct Text_lib_libgte_smp_03
+{
+    FSkip(0x73D38 - 0x73CD8);
+};
+
+struct Text_lib_libgte_smp_04
+{
+    FSkip(0x73D68 - 0x73D38);
+};
+
+struct Text_lib_libgte_cmb_00
+{
+    FSkip(0x73DE8 - 0x73D68);
+};
+
+struct Text_lib_libgte_fgo_00
+{
+    FSkip(0x73E28 - 0x73DE8);
+};
+
+struct Text_lib_libgte_g3
+{
+    FSkip(0x743D8 - 0x73E28);
+};
+
+struct Text_lib_libgte_g4
+{
+    FSkip(0x74A98 - 0x743D8);
+};
+
+struct Text_lib_libgte_gt3
+{
+    FSkip(0x750D8 - 0x74A98);
+};
+
+struct Text_lib_libgte_gt4
+{
+    FSkip(0x75848 - 0x750D8);
+};
+
+struct Text_lib_libgte_ratan
+{
+    FSkip(0x759C8 - 0x75848);
+};
+
+struct Text_lib_libgte_patchgte
+{
+    FSkip(0x75AA8 - 0x759C8);
+};
+
+struct Text_lib_libpad_padentry
+{
+    FSkip(0x75F58 - 0x75AA8);
+};
+
+struct Text_lib_libpad_padmain
+{
+    FSkip(0x76C58 - 0x75F58);
+};
+
+struct Text_lib_libpad_padcmd
+{
+    FSkip(0x775B8 - 0x76C58);
+};
+
+struct Text_lib_libpad_padif
+{
+    FSkip(0x77BA8 - 0x775B8);
+};
+
+struct Text_lib_libpad_padportd
+{
+    FSkip(0x78208 - 0x77BA8);
+};
+
+struct Text_lib_libpad_padseqd
+{
+    FSkip(0x78698 - 0x78208);
+};
+
+struct Text_lib_libpad_waitrc2
+{
+    FSkip(0x78758 - 0x78698);
+};
+
+struct Text_lib_libspu_s_crwa
+{
+    FSkip(0x788F8 - 0x78758);
+};
+
+struct Text_lib_libapi_a10
+{
+    FSkip(0x78908 - 0x788F8);
+};
+
+struct Text_lib_libspu_s_m_util
+{
+    FSkip(0x78A18 - 0x78908);
+};
+
+struct Text_lib_libspu_s_stm
+{
+    FSkip(0x78A48 - 0x78A18);
+};
+
+struct Text_lib_libspu_s_sva
+{
+    FSkip(0x79048 - 0x78A48);
+};
+
+struct Text_lib_libspu_s_n2p
+{
+    FSkip(0x79248 - 0x79048);
+};
+
+struct Text_lib_libspu_s_gva
+{
+    FSkip(0x79638 - 0x79248);
+};
+
+struct Text_lib_unk_lib_8009E198
+{
+    Opcode func_8009E198[152];
+    Opcode func_8009E230[56];
+    Opcode func_8009E268[56];
+    Opcode func_8009E2A0[56];
+    Opcode func_8009E2D8[56];
+    Opcode func_8009E310[160];
+    Opcode func_8009E3B0[136];
+    Opcode func_8009E438[192];
+    Opcode func_8009E4F8[40];
+    Opcode func_8009E520[48];
+    Opcode func_8009E550[204];
+    Opcode func_8009E61C[252];
+    Opcode func_8009E718[192];
+    Opcode func_8009E7D8[84];
+    Opcode func_8009E82C[336];
+    Opcode func_8009E97C[84];
+    Opcode func_8009E9D0[488];
+    Opcode func_8009EBB8[100];
+    Opcode func_8009EC1C[72];
+    Opcode func_8009EC64[104];
+    Opcode func_8009ECCC[168];
+    Opcode func_8009ED74[8];
+    Opcode func_8009ED7C[20];
+    Opcode func_8009ED90[20];
+};
+
+struct Text_libsd_smf_snd
+{
+    Opcode tone_adsr_mem[140];
+    Opcode tone_adsr_back[140];
+    Opcode sd_alloc_sort[228];
+    Opcode SdSpuMalloc[384];
+    Opcode SdSpuMallocWithStartAddr[580];
+    Opcode SdSpuFree[156];
+    Opcode SdWorkInit[144];
+    Opcode SdInit[64];
+    Opcode SdStart[64];
+    Opcode SdStart2[32];
+    Opcode SdSetTickMode[12];
+    Opcode SdSeqCalledTbyT[44];
+    Opcode SdSetStereo[12];
+    Opcode SdSetMono[16];
+    Opcode SdSetReservedVoice[52];
+    Opcode SdSetTableSize[8];
+    Opcode SdEnd[140];
+    Opcode SdQuit[48];
+    Opcode SdSetSerialAttr[132];
+    Opcode SdSetSerialVol[92];
+    Opcode SdSetMVol[64];
+    Opcode SdVabOpenHead[384];
+    Opcode SdVabOpenHeadSticky[420];
+    Opcode SdVabFakeHead[232];
+    Opcode SdVbOpenOne[400];
+    Opcode SdVabTransBody[164];
+    Opcode SdVabTransBodyPartly[232];
+    Opcode SdVabTransCompleted[60];
+    Opcode SdVabClose[100];
+    Opcode SdSetAutoKeyOffMode[12];
+    Opcode SdAutoKeyOffCheck[308];
+    Opcode SdSeqOpen[176];
+    Opcode SdSeqOpenWithAccNum[188];
+    Opcode SdSeqPlay[200];
+    Opcode SdSeqStop[164];
+    Opcode SdSeqClose[156];
+    Opcode SdSeqPause[284];
+    Opcode SdSeqReplay[444];
+    Opcode SdSeqSetVol[92];
+    Opcode SdSeqGetVol[72];
+    Opcode SdUtFlush[32];
+    Opcode SdUtReverbOn[40];
+    Opcode SdUtReverbOff[48];
+    Opcode SdUtSetReverbType[80];
+    Opcode SdUtSetReverbDepth[64];
+    Opcode SdSetRVol[64];
+    Opcode SdUtSEAllKeyOff[268];
+    Opcode SdUtAllKeyOff[88];
+    Opcode SdUtGetVabHdr[96];
+    Opcode SdVoKeyOn[604];
+    Opcode SdVoKeyOff[324];
+    Opcode SdVoKeyOffWithRROff[320];
+    Opcode SdUtKeyOnV[1460];
+    Opcode SdUtKeyOn[396];
+    Opcode SdVbKeyOn[564];
+    Opcode SdUtKeyOffV[292];
+    Opcode SdUtKeyOffVWithRROff[252];
+    Opcode SdGetSeqStatus[188];
+    Opcode SdUtSetDetVVol[76];
+    Opcode SdUtSetVVol[92];
+    Opcode SdUtGetDetVVol[112];
+    Opcode SdUtGetVVol[128];
+    Opcode SdGetTempo[60];
+    Opcode SdSetTempo[116];
+    Opcode SdSetSeqWide[56];
+    Opcode SdGetMidiVol[64];
+    Opcode SdSetMidiVol[52];
+    Opcode SdSetMidiExpress[52];
+    Opcode SdGetMidiExpress[64];
+    Opcode SdGetMidiPan[64];
+    Opcode SdSetMidiPan[52];
+    Opcode SdGetMidiPitchBendFine[64];
+    Opcode SdSetMidiPitchBendFine[68];
+    Opcode SdGetTrackTranspause[8];
+    Opcode SdSetTrackTranspause[8];
+    Opcode SdGetTrackMute[80];
+    Opcode SdSetTrackMute[92];
+    Opcode SdGetSeqControlStatus[72];
+    Opcode SdGetSeqPlayStatus[172];
+    Opcode SdGetSeqBeat[108];
+    Opcode SdGetSeqBeat2[72];
+    Opcode SsSetMVol[44];
+    Opcode SsEnd[32];
+    Opcode SsSetSerialAttr[40];
+    Opcode SsSetSerialVol[48];
+    Opcode SsUtAllKeyOff[36];
+};
+
+struct Text_lib_libspu_s_q
+{
+    FSkip(0x7D87C - 0x7D7FC);
+};
+
+struct Text_lib_libapi_a13
+{
+    FSkip(0x7D88C - 0x7D87C);
+};
+
+struct Text_lib_libspu_s_m_init
+{
+    FSkip(0x7D8EC - 0x7D88C);
+};
+
+struct Text_lib_libspu_s_sr
+{
+    FSkip(0x7D9BC - 0x7D8EC);
+};
+
+struct Text_lib_libspu_s_srmp
+{
+    FSkip(0x7DE9C - 0x7D9BC);
+};
+
+struct Text_lib_libspu_s_sra
+{
+    FSkip(0x7E36C - 0x7DE9C);
+};
+
+struct Text_lib_libspu_s_rrwa
+{
+    FSkip(0x7E3BC - 0x7E36C);
+};
+
+struct Text_lib_libspu_s_srv
+{
+    FSkip(0x7E3EC - 0x7E3BC);
+};
+
+struct Text_lib_libspu_s_sav
+{
+    FSkip(0x7E6AC - 0x7E3EC);
+};
+
+struct Text_lib_libspu_s_sk
+{
+    FSkip(0x7E86C - 0x7E6AC);
+};
+
+struct Text_lib_libspu_s_gks
+{
+    FSkip(0x7E8FC - 0x7E86C);
+};
+
+struct Text_lib_libspu_s_skowa
+{
+    FSkip(0x7E92C - 0x7E8FC);
+};
+
+struct Text_lib_libspu_s_w
+{
+    FSkip(0x7E98C - 0x7E92C);
+};
+
+struct Text_lib_libspu_s_stsa
+{
+    FSkip(0x7E9EC - 0x7E98C);
+};
+
+struct Text_lib_libspu_s_itc
+{
+    FSkip(0x7EA9C - 0x7E9EC);
+};
+
+struct Text_lib_libspu_s_sca
+{
+    FSkip(0x7EE1C - 0x7EA9C);
+};
+
+struct Text_libsd_smf_io
+{
+    Opcode set_note_on[60];
+    Opcode set_midi_info[32];
+    Opcode Note2Pitch[328];
+    Opcode tre_calc[528];
+    Opcode vib_calc[320];
+    Opcode random_calc[164];
+    Opcode volume_calc[572];
+    Opcode smf_vol_set[272];
+    Opcode master_vol_set[180];
+    Opcode seq_master_vol_set[136];
+    Opcode toremoro_set[128];
+    Opcode pitch_bend_calc[120];
+    Opcode pitch_calc[372];
+    Opcode midi_mod[176];
+    Opcode midi_porta[144];
+    Opcode replay_reverb_set[240];
+    Opcode midi_vsync[508];
+    Opcode sound_seq_off[748];
+    Opcode sound_off[368];
+    Opcode vol_calc[8];
+    Opcode adsr_set[112];
+    Opcode rr_off[92];
+    Opcode voice_check[500];
+    Opcode key_on[2852];
+    Opcode key_off[336];
+    Opcode key_press[8];
+    Opcode get_vab_tone[176];
+    Opcode smf_data_entry[996];
+    Opcode control_change[2500];
+    Opcode program_change[44];
+    Opcode chan_press[8];
+    Opcode pitch_bend[80];
+    Opcode control_code_set[8];
+};
+
+struct Text_lib_libspu_s_grv
+{
+    FSkip(0x82188 - 0x82158);
+};
+
+struct Text_lib_libspu_s_gav
+{
+    FSkip(0x821B8 - 0x82188);
+};
+
+struct Text_libsd_smf_main
+{
+    Opcode smf_timer[168];
+    Opcode smf_timer_set[152];
+    Opcode smf_timer_end[112];
+    Opcode smf_timer_stop[76];
+    Opcode smf_vsync[164];
+};
+
+struct Text_libsd_smf_mid
+{
+    Opcode MemCmp[68];
+    Opcode readMThd[192];
+    Opcode readMTrk[192];
+    Opcode readEOF[192];
+    Opcode egetc[120];
+    Opcode readvarinum[136];
+    Opcode to32bit[44];
+    Opcode to16bit[20];
+    Opcode read32bit[108];
+    Opcode read16bit[64];
+    Opcode readheader[1004];
+    Opcode len_add[20];
+    Opcode metaevent[708];
+    Opcode sysex[104];
+    Opcode chanmessage[1392];
+    Opcode readtrack[304];
+    Opcode readtrack2[596];
+    Opcode track_head_read[104];
+    Opcode delta_time_conv[452];
+    Opcode midi_file_out[732];
+    Opcode midi_smf_main[804];
+    Opcode midi_smf_stop[140];
+    Opcode midi_smf_stat[152];
+};
+
+//------------------------------------------------
+
+struct Data_bodyprog_800A8D98
+{
+    int32  D_800A8D98[48];
+    int8   g_BackgroundColor[4];
+    int32  D_800A8E5C[6];
+    int8   D_800A8E74[32];
+    int32  g_ScreenFadeProgress;
+    int32  D_800A8E98[6];
+    int32  D_800A8EB0[36];
+    int32  D_800A8F40;
+    int32  vcNullRoadArray[12]; // _VC_ROAD_DATA[2]
+    int8   g_ObjectTable0[40];
+    int32  D_800A8F9C[10];
+    int8   g_ObjectTable1[40];
+    int32  g_DeltaTime1;
+    int32  g_IntervalVBlanks;
+    int32  g_Font16AtlasImg[2];
+    int32  g_KonamiLogoImg[2];
+    int32  g_KcetLogoImg[2];
+    int32  D_800A900C[2];
+    int32  g_TitleImg[2];
+    int32  g_MapImg[2];
+    int32  g_MapMarkerAtlasImg[2];
+    int32  g_ItemInspectionImg[2];
+    int32  D_800A9034[2];
+    int32  g_ControllerButtonAtlasImg[2];
+    int32  g_BrightnessScreenImg0[2];
+    int32  g_BrightnessScreenImg1[2];
+    int32  g_DeathTipImg[2];
+    int32  g_HealthPortraitImg[2];
+    int32  g_InventoryKeyItemTextureImg[2];
+    int32  g_FirstAidKitItemTextureImg[2];
+    int32  D_800A9074[4];
+    int32  D_800A9084[2];
+    int32  D_800A908C[2];
+    int8   D_800A9094[3];
+    int8   D_800A9097[5];
+    int32  g_Font24AtlasImg[2];
+    int32  D_800A90A4[4];
+    int32  D_800A90B4[18];
+    int32  g_Chara_FileInfo[180]; // type:CharaFileInfo size:0x2D0
+    int32  D_800A93CC[88];
+    int32  D_800A952C[143];
+    int32  g_Demo_FrameCount;
+    int32  g_UnknownFrameCounter;
+    int32  g_PrevVBlanks;
+    int16  D_800A9774[4];
+    int32  g_GameStateUpdateFuncs[22];
+    int8   g_SlotElementSelectedIdx[2];
+    int8   g_SelectedSaveSlotIdx[3];
+    int8   D_800A97D9[3];
+    int32  D_800A97DC;
+    int8   D_800A97E0[4];
+    int32  D_800A97E4[8];
+    int16  g_UnknownEngineCmdTable0[42];
+    uint16 g_UnknownEngineCmdTable1[10];
+    int8   D_800A986C[64];
+    int16  g_UnknownEngineCmdTable2[40];
+    int8   D_800A98FC[48];
+    int32  D_800A992C[6];
+    int32  D_800A9944[18];
+    int32  D_800A998C;
+    int8   D_800A9990[16];
+    int32  D_800A99A0;
+    int32  D_800A99A4[2];
+    int32  g_MapMsg_CurrentIdx;
+    int16  g_MapMsg_SelectFlashTimer[2];
+    int8   g_FullscreenMapTimFileIdxs[24];
+    int8   g_MapMarkingTimFileIdxs[56];
+};
+
+struct Data_bodyprog_800A9074
+{
+    int32  D_800A9A04[2];
+    int32  D_800A9A0C;
+    int32  D_800A9A10;
+    uint32 g_MapEventIdx;
+    int32  D_800A9A18;
+    int32  D_800A9A1C;
+    int32  D_800A9A20;
+    int32  D_800A9A24;
+    int32  D_800A9A28;
+};
+
+struct Data_syswork_functable
+{
+    struct {
+        uint32 SysState_Gameplay_UpdatePtr       <format=hex>;
+        uint32 SysState_OptionsMenu_UpdatePtr    <format=hex>;
+        uint32 SysState_StatusMenu_UpdatePtr     <format=hex>;
+        uint32 SysState_MapScreen_UpdatePtr      <format=hex>;
+        uint32 SysState_Fmv_UpdatePtr            <format=hex>;
+        uint32 SysState_LoadArea_UpdatePtr       <format=hex>;
+        uint32 SysState_LoadArea_UpdatePtr       <format=hex>;
+        uint32 SysState_ReadMessage_UpdatePtr    <format=hex>;
+        uint32 SysState_SaveMenu_UpdatePtr       <format=hex>;
+        uint32 SysState_SaveMenu_UpdatePtr       <format=hex>;
+        uint32 SysState_EventCallFunc_UpdatePtr  <format=hex>;
+        uint32 SysState_EventSetFlag_UpdatePtr   <format=hex>;
+        uint32 SysState_EventPlaySound_UpdatePtr <format=hex>;
+        uint32 SysState_GameOver_UpdatePtr       <format=hex>;
+        uint32 SysState_GamePaused_UpdatePtr     <format=hex>;
+    } g_SysStateFuncs;
+};
+
+struct Data_bodyprog_800A9A68
+{
+    int32 D_800A9A68;
+    int32 D_800A9A6C[2];
+    int32 g_MainMenuState;
+    int32 g_MainMenu_SelectedEntry;
+    int32 g_MainMenu_VisibleEntryFlags;
+    int8  g_Demo_ReproducedCount[4];
+    int32 g_MainMenu_NewGameSelectedDifficultyIdx;
+    int32 g_PrevSavegameCount;
+};
+
+struct Data_bodyprog_8003AB28
+{
+    struct {
+        uint32 MAIN_MENU_ENTRY_STRINGS_0_PTR <format=hex>;
+        uint32 MAIN_MENU_ENTRY_STRINGS_1_PTR <format=hex>;
+        uint32 MAIN_MENU_ENTRY_STRINGS_2_PTR <format=hex>;
+        uint32 MAIN_MENU_ENTRY_STRINGS_3_PTR <format=hex>;
+        uint32 D_800254C0_PTR                <format=hex>;
+    } MAIN_MENU_ENTRY_STRINGS;
+    struct {
+        uint32 DIFFICULTY_MENU_ENTRY_STRINGS_0_PTR <format=hex>;
+        uint32 DIFFICULTY_MENU_ENTRY_STRINGS_1_PTR <format=hex>;
+        uint32 DIFFICULTY_MENU_ENTRY_STRINGS_2_PTR <format=hex>;
+    } DIFFICULTY_MENU_ENTRY_STRINGS;
+};
+
+struct Data_bodyprog_800A9AA0
+{
+    int32  D_800A9AAC[256];
+    int32  D_800A9EAC;
+    int32  D_800A9EB0;
+    int32  D_800A9EB4[2];
+    int32  D_800A9EBC[2];
+    int32  D_800A9EC4[2];
+    int32  D_800A9ECC;
+    int32  D_800A9ED0;
+    int32  D_800A9ED4;
+    int32  D_800A9ED8;
+    int32  D_800A9EDC;
+    int32  D_800A9EE0;
+    int32  D_800A9EE4;
+    int32  D_800A9EE8;
+    int32  D_800A9EEC;
+    int32  D_800A9EF0;
+    int32  D_800A9EF4;
+    int32  D_800A9EF8;
+    int32  D_800A9EFC;
+    int32  D_800A9F00;
+    int32  D_800A9F04;
+    int32  D_800A9F08;
+    int32  D_800A9F0C;
+    int32  D_800A9F10;
+    int32  D_800A9F14;
+    int32  D_800A9F18;
+    int32  D_800A9F1C;
+    int32  D_800A9F20[2];
+    int32  D_800A9F28;
+    int32  D_800A9F2C;
+    int32  D_800A9F30;
+    int32  D_800A9F34;
+    int32  D_800A9F38;
+    int32  D_800A9F3C;
+    int32  D_800A9F40;
+    int32  D_800A9F44;
+    int32  D_800A9F48;
+    int32  D_800A9F4C;
+    int32  D_800A9F50;
+    int32  D_800A9F54;
+    int32  D_800A9F58[2];
+    int32  D_800A9F60;
+    int32  D_800A9F64;
+    int32  D_800A9F68;
+    int32  D_800A9F6C[2];
+    int32  D_800A9F74;
+    int32  D_800A9F78;
+    int32  D_800A9F7C;
+    int8   D_800A9F80[4];
+    int8   D_800A9F84[4];
+    int8   D_800A9F88[4];
+    int8   D_800A9F8C[12];
+    int8   D_800A9F98[16];
+    int32  D_800A9FA8[2];
+    int32  D_800A9FB0;
+    int32  D_800A9FB4[5];
+    int32  D_800A9FC8[4];
+    uint32 D_800A9FD8 <format=hex>;
+    int32  D_800A9FDC[166];
+    int8   D_800AA274[876];
+    int8   D_800AA5E0[36];
+    int8   D_800AA604[656];
+    int8   D_800AA894[8724];
+    int8   D_800ACAA8[2520];
+    int8   D_800AD480[24];
+    int16  g_StringColorId[2];
+    int32  D_800AD49C;
+    int8   g_Items_GunsMaxLoadAmmo[36];
+    int32  D_800AD4C4;
+    int8   D_800AD4C8[1680];
+    int32  g_Inventory_CmdSelectedIdx;
+    uint32 g_Inventory_SelectionId;
+};
+
+struct Data_items_item_screens_3
+{
+    uint32 g_ItemNames[195]        <format=hex>;
+    uint32 g_ItemDescriptions[195] <format=hex>;
+};
+
+struct Data_bodyprog_800AE178
+{
+    int32  D_800AE178;
+    int32  g_Inventory_SelectedItemIdx;
+    int32  D_800AE180;
+    int8   g_Inventory_EquippedItem;
+    int8   D_800AE185;
+    int8   D_800AE186;
+    int8   D_800AE187;
+    int32  D_800AE188;
+    int16  D_800AE18C;
+    int16  D_800AE18E;
+    int32  D_800AE190;
+    int16  g_Inventory_HealthStatusScanlineTimer;
+    int16  g_Inventory_HealthStatusColorGradientTimer;
+    int16  D_800AE198;
+    int16  g_Inventory_HealthStatusScanlinePosition;
+    int32  g_Inventory_ItemNameTimer;
+    int32  g_Inventory_DescriptionRollTimer;
+    int32  g_Inventory_ScrollTransitionTimer;
+    int32  D_800AE1A8;
+    int32  g_PickupItemAnimState;
+    int32  D_800AE1B0;
+    int32  D_800AE1B4[3];
+    int32  D_800AE1C0[17];
+    int16  D_800AE204[14];
+    int32  D_800AE220[77];
+    int32  D_800AE354[98];
+    int32  D_800AE4DC[9];
+    int32  D_800AE500[8];
+    int16  D_800AE520[34];
+    int16  D_800AE564[42];
+    int32  D_800AE5B8[4];
+    int32  D_800AE5C8;
+    int16  D_800AE5CC[18];
+    int16  D_800AE5F0[136];
+    int8   D_800AE700[16];
+    int8   D_800AE710[12];
+    int32  D_800AE71C[8];
+    int32  D_800AE73C;
+    int8   D_800AE740[48];
+    int32  D_800AE770;
+    int8   D_800AE774[112];
+    int8   D_800AE7E4[60];
+    int8   D_800AE820[128];
+    int32  D_800AE8A0[18];
+    int32  D_800AE8E8[34];
+    int32  D_800AE970[9];
+    int32  D_800AE994[7];
+    int32  D_800AE9B0[15];
+    int32  D_800AE9EC[8];
+    int32  D_800AEA0C[14];
+    int32  D_800AEA44[2];
+    int32  D_800AEA4C[30];
+    int32  D_800AEAC4[33];
+    int32  D_800AEB48[26];
+    int32  D_800AEBB0[26];
+    int32  D_800AEC18[2];
+    int32  D_800AEC20[6];
+    int32  D_800AEC38[4];
+    int32  D_800AEC48[5];
+    int32  D_800AEC5C;
+    int32  D_800AEC60[11];
+    int32  D_800AEC8C[16];
+    int32  D_800AECCC[15];
+    int32  D_800AED08[5];
+    int32  D_800AED1C[5];
+    int32  D_800AED30;
+    int32  D_800AED34[16];
+    int32  D_800AED74;
+    int32  D_800AED78[17];
+    int32  D_800AEDBC[72];
+    int16  D_800AEEDC[78];
+    int16  D_800AEF78[78];
+    int16  D_800AF014[28];
+    int16  D_800AF04C[18];
+    int16  D_800AF070[198];
+    int16  D_800AF1FC[8];
+    int32  g_Player_GrabFree_InputCount;
+    int16  D_800AF210;
+    int16  D_800AF212;
+    int8   g_Player_IsInWalkToRunTransition;
+    int8   g_Player_DisableControl;
+    int8   D_800AF216;
+    int8   g_Player_RockDrill_DirectionAttack[5];
+    int32  D_800AF21C;
+    int8   D_800AF220[4];
+    int32  D_800AF224;
+    int16  g_MaybePlayerAnims[367];
+    int16  D_800AF506[16];
+    int16  D_800AF526[80];
+    int16  D_800AF5C6[47];
+    int16  D_800AF624;
+    int16  D_800AF626[737];
+    int32  g_Player_AttackAnimIdx;
+    int32  g_Player_MeleeAttackType;
+    int32  g_Player_IsMultiTapAttack;
+    int32  D_800AFBF4[33];
+    uint8  D_800AFC78[28]; // s_800AFC78 struct, size likely incomplete
+    int32  vcNullNearRoad[9]; // type:VC_NEAR_ROAD_DATA
+    int32  deflt_watch_mv_prm[3]; // type:VC_WATCH_MV_PARAM
+    int32  self_view_watch_mv_prm[3]; // type:VC_WATCH_MV_PARAM
+    int32  cam_mv_prm_user[4]; // type:VC_CAM_MV_PARAM
+    int32  excl_r_ary[9];
+    int8   D_800AFD04;
+    struct {
+        int8  D_800AFD04_0;
+        int16 D_800AFD04_0;
+    } D_800AFD05;
+    int32  D_800AFD08[5];
+    int16  D_800AFD1C[16];
+    int32  D_800AFD3C[2];
+    int32  D_800AFD44[7];
+    int32  D_800AFD60[7];
+    int16  D_800AFD7C[16];
+    int32  D_800AFD9C[2];
+    int32  D_800AFDA4[2];
+    int32  D_800AFDAC;
+    int32  D_800AFDB0[2];
+    int32  g_Demo_DemoId;
+    uint16 g_Demo_RandSeed[2];
+    int32  g_Demo_PlayFileBufferPtr <format=hex>; // <-
+    int32  g_Demo_FileIds[10]; // type:DemoFileInfo
+    int32  D_800AFDEC;
+    int32  D_800AFDF0;
+    int8   D_800AFDF4[20];
+    int32  D_800AFE08;
+    int32  HADR0_5[4];
+    int32  HADR0_6[2];
+    int32  D_800AFE24[2];
+    int32  HADR0_7[20];
+};
+
+struct Data_lib_libcard_init
+{
+    FSkip(0x8B32C - 0x8B31C);
+};
+
+struct Data_lib_libapi_pad
+{
+    FSkip(0x8B33C - 0x8B32C);
+};
+
+struct Data_lib_libcd_cdrom
+{
+    FSkip(0x8B34C - 0x8B33C);
+};
+
+struct Data_lib_libcd_iso9660
+{
+    FSkip(0x8B35C - 0x8B34C);
+};
+
+struct Data_lib_libcd_c_002
+{
+    FSkip(0x8B36C - 0x8B35C);
+};
+
+struct Data_lib_libcd_c_003
+{
+    FSkip(0x8B37C - 0x8B36C);
+};
+
+struct Data_lib_libcd_c_004
+{
+    FSkip(0x8B38C - 0x8B37C);
+};
+
+struct Data_lib_libcd_c_005
+{
+    FSkip(0x8B39C - 0x8B38C);
+};
+
+struct Data_lib_libcd_c_007
+{
+    FSkip(0x8B3AC - 0x8B39C);
+};
+
+struct Data_lib_libcd_c_008
+{
+    FSkip(0x8B3BC - 0x8B3AC);
+};
+
+struct Data_lib_libcd_c_009
+{
+    FSkip(0x8B3CC - 0x8B3BC);
+};
+
+struct Data_lib_libcd_c_010
+{
+    FSkip(0x8B3DC - 0x8B3CC);
+};
+
+struct Data_lib_libcd_c_011
+{
+    FSkip(0x8B42C - 0x8B3DC);
+};
+
+struct Data_lib_libgs_gs_001
+{
+    FSkip(0x8B43C - 0x8B42C);
+};
+
+struct Data_lib_libapi_counter
+{
+    FSkip(0x8B45C - 0x8B43C);
+};
+
+struct Data_lib_libgs_global
+{
+    FSkip(0x8B46C - 0x8B45C);
+};
+
+struct Data_lib_libgte_sqrtbl
+{
+    FSkip(0x8B5EC - 0x8B46C);
+};
+
+struct Data_lib_libgte_msc00
+{
+    FSkip(0x8B5FC - 0x8B5EC);
+};
+
+struct Data_lib_libgte_msc02
+{
+    FSkip(0x8B79C - 0x8B5FC);
+};
+
+struct Data_lib_libgte_mtx_006
+{
+    FSkip(0x8BAAC - 0x8B79C);
+};
+
+struct Data_lib_libgte_ratan
+{
+    FSkip(0x8C2BC - 0x8BAAC);
+};
+
+struct Data_lib_libpad_padmain
+{
+    FSkip(0x8C33C - 0x8C2BC);
+};
+
+struct Data_lib_libpad_padif
+{
+    FSkip(0x8C35C - 0x8C33C);
+};
+
+struct Data_lib_libpad_padportd
+{
+    FSkip(0x8C36C - 0x8C35C);
+};
+
+struct Data_lib_libspu_zerobuf
+{
+    FSkip(0x8C76C - 0x8C36C);
+};
+
+struct Data_lib_libspu_s_n2p
+{
+    FSkip(0x8C88C - 0x8C76C);
+};
+
+
+struct Data_bodyprog_800B13EC
+{
+    //FSkip(0x9FD98 - 0x8C88C);
+    int32  D_800B13EC[4];
+    int32  D_800B13FC[4];
+    int32  D_800B140C[4];
+    int32  D_800B141C[4];
+    int32  D_800B142C[4];
+    int32  sd_interrupt_start_flag;
+    int16  sd_keyoff_mode[2];
+    int32  sd_mono_st_flag;
+    int32  sd_reverb_mode;
+    int32  body_partly_size;
+    int32  sd_reverb_area_size[10];
+    int32  _spu_rev_param[172];
+    int16  PitchTbl[1536];
+    int8   random_tbl[512];
+    int32  sd_reserved_voice;
+    int32  spu_reverb_sw;
+    int32  spu_ch_tbl[24];
+    int32  sd_int_flag;
+    int32  sd_int_flag2;
+    int32  smf_start_flag;
+    int32  sd_timer_sync;
+    int32  timer_count[5];
+    int32  sd_timer_flag;
+    int32  time_flag;
+    int32  smf_file_no;
+    int32  print_start;
+    int8   eof_char[3];
+    int8   D_800B25C7;
+    int32  chantype[18];
+    int32  D_800B2610[2];
+    int32  D_800B2618;
+    int32  D_800B261C;
+    int32  D_800B2620[2];
+    int32  D_800B2628[83];
+    int32  D_800B2774;
+    int32  D_800B2778[2];
+    int32  g_MemCard_1_BasicSaveInfo[960];
+    int32  g_MemCard_2_BasicSaveInfo[960];
+    int32  D_800B4580[960];
+    int32  D_800B5480[2];
+    int32  g_CardWork[32];
+    int32  D_800B5508[454];
+    int32  g_Gfx_DebugStringPosition0;
+    int32  g_Gfx_DebugStringPosition1;
+    int32  g_PrevScreenFadeProgress[2];
+    int32  g_ScreenFadeTimestep;
+    int32  g_VBlanks;
+    int32  g_UncappedVBlanks[2];
+    int32  D_800B5C40[4];
+    int32  D_800B5C50;
+    int32  D_800B5C54;
+    int32  D_800B5C58[10];
+    int32  D_800B5C80[16];
+    int32  g_DeltaTime0[2];
+    int32  D_800B5CC8[2047];
+    int32  D_800B7CC4;
+    int32  D_800B7CC8[2048];
+    int32  g_DeltaTime2;
+    int32  g_MainLoop_FrameCount;
+    int32  vcWork[186];
+    int32  g_ObjectTableIdx[2];
+    s_SysWork  g_SysWork;
+    s_GameWork g_GameWork;
+    int32  D_800BCD00[3];
+    int32  g_Gfx_ScreenFade[3];
+    int32  D_800BCD18[2];
+    int32  D_800BCD20[2];
+    int16  g_SavegameCount[2];
+    int32  g_ActiveSavegameEntry;
+    int32  g_MemCardElementCount;
+    int32  D_800BCD34;
+    int8   g_SaveScreenPlayerState[2];
+    int8   g_MemCardsTotalElementCount[2];
+    int8   g_SlotElementCount[2];
+    int8   g_SelectedSaveIdx;
+    struct {
+        int8  g_SelectedFileIdx_0;
+        int32 g_SelectedFileIdx_1[2];
+    } g_SelectedFileIdx;
+    int32  g_DemoLoadAttempCount[2];
+    int32  D_800BCD50[2];
+    int32  D_800BCD58;
+    int32  D_800BCD5C;
+    int32  g_MapMsg_StateMachineIdx1;
+    int32  g_MapMsg_StateMachineIdx2;
+    int32  g_MapMsg_DisplayLength;
+    int32  g_MapMsg_MainIdx;
+    int32  g_MapMsg_DisplayInc;
+    int32  D_800BCD74;
+    int8   g_MapMsg_Select;
+    int8   D_800BCD79;
+    int8   g_MapMsg_AudioLoadBlock;
+    struct {
+        int8  g_MapMsg_SelectCancelIdx3_0;
+        int32 g_MapMsg_SelectCancelIdx3_1;
+    } g_MapMsg_SelectCancelIdx3;
+    int8   g_SysState_GameOver_TipIdx[4];
+    int32  D_800BCD84[3];
+    int32  D_800BCD90[6];
+    int8   D_800BCDA8[8];
+    int32  D_800BCDB0[4];
+    int32  D_800BCDC0[5];
+    int8   D_800BCDD4[4];
+    int32  g_MapEventParam[2];
+    int32  D_800BCDE0[2];
+    int32  D_800BCDE8[4];
+    int32  vcRefPosSt[3];
+    int32  D_800BCE04[4];
+    int16  D_800BCE14[2];
+    int8   D_800BCE18[11244];
+    int32  D_800BFA04[123];
+    int32  D_800BFBF0[2];
+    int32  D_800BFBF8[2];
+    int32  D_800BFC00[112];
+    int32  D_800BFDC0[1172];
+    int32  D_800C1010[4];
+    int32  D_800C1020[78];
+    int32  D_800C1158[8];
+    int32  D_800C1178;
+    int32  D_800C117C[180];
+    int32  D_800C144C;
+    int8   D_800C1450[328];
+    int32  D_800C1598[6];
+    int32  D_800C15B0;
+    int32  D_800C15B4;
+    int32  D_800C15B8;
+    int16  D_800C15BC;
+    int16  D_800C15BE;
+    int16  D_800C15C0;
+    int16  D_800C15C2;
+    int16  D_800C15C4;
+    int16  D_800C15C6;
+    int16  D_800C15C8;
+    int16  D_800C15CA;
+    int32  D_800C15CC;
+    int32  D_800C15D0;
+    int32  D_800C15D4;
+    int32  D_800C15D8;
+    int32  D_800C15DC;
+    int32  D_800C15E0[2];
+    int8   D_800C15E8[8];
+    int8   D_800C15F0[8];
+    int16  D_800C15F8[24];
+    int16  D_800C1628[24];
+    int16  D_800C1658;
+    int16  D_800C165A[6];
+    int16  D_800C1666[2];
+    int8   D_800C166A[2];
+    int8   D_800C166C;
+    int8   D_800C166D;
+    int8   D_800C166E;
+    int8   D_800C166F;
+    int8   D_800C1670;
+    int8   D_800C1671[2];
+    int8   D_800C1673[5];
+    int8   D_800C1678[2];
+    int16  D_800C167A;
+    int16  D_800C167C;
+    int16  D_800C167E;
+    int16  D_800C1680[2];
+    int8   g_Sd_VolumeSe;
+    int8   g_Sd_VolumeBgm;
+    int8   g_Sd_VolumeXa;
+    int8   g_Sd_ReverbDepth;
+    int32  D_800C1688[2];
+    int32  g_Game_VSyncTimeSinceBoot[2];
+    int32  D_800C1698[3];
+    int16  D_800C16A4[2];
+    int8   D_800C16A8[32];
+    int32  D_800C16C8[2112];
+    int8   D_800C37C8[4];
+    int32  D_800C37CC;
+    int8   D_800C37D0[4];
+    int32  D_800C37D4;
+    int32  D_800C37D8;
+    int8   D_800C37DC;
+    int8   D_800C37DD[3];
+    int32  vwViewPointInfo[33];
+    int32  D_800C3864;
+    int32  D_800C3868[8];
+    int32  VbWvsMatrix[8];
+    int16  g_StringPosition;
+    int16  D_800C38AA;
+    int32  g_StringPositionX1;
+    int8   D_800C38B0;
+    int8   D_800C38B1[3];
+    int32  D_800C38B4[5];
+    int32  g_MapMsg_WidthTable[12];
+    int32  D_800C38F8;
+    int16  D_800C38FC;
+    int16  D_800C38FE[15];
+    int16  D_800C391C;
+    int16  D_800C391E;
+    int32  D_800C3920[2];
+    int32  D_800C3928[10];
+    int8   D_800C3950[4];
+    int32  D_800C3954;
+    int32  D_800C3958;
+    int32  D_800C395C;
+    int8   D_800C3960;
+    int8   D_800C3961;
+    int8   D_800C3962;
+    int8   D_800C3963[5];
+    int32  g_Inventory_IsUpClicked;
+    int32  g_Inventory_IsDownClicked;
+    int32  g_Inventory_IsLeftClicked;
+    int32  g_Inventory_IsRightClicked;
+    int32  g_Inventory_IsUpPulsed;
+    int32  g_Inventory_IsDownPulsed;
+    int32  g_Inventory_IsLeftPulsed;
+    int32  g_Inventory_IsRightPulsed;
+    int32  g_Inventory_IsLeftHeld;
+    int32  g_Inventory_IsRightHeld;
+    int32  g_Inventory_IsScrolling;
+    int32  D_800C3994;
+    int32  g_Gfx_Inventory_SelectionBordersDraw;
+    int32  g_Inventory_PrevSelectionId[3];
+    int32  g_Items_ItemsLightingData[56];
+    int32  D_800C3A88[16];
+    int32  D_800C3AC8[8];
+    int32  D_800C3AE8[20];
+    int32  D_800C3B38[4];
+    int32  D_800C3B48[8];
+    int16  D_800C3B68[32];
+    int32  D_800C3BA8;
+    int32  D_800C3BAC[3];
+    int8   g_Item_MapLoadableItems[48];
+    int32  g_Items_Items3dData0[100];
+    int32  g_Items_ItemsModelData[36];
+    int32  D_800C3E08[4];
+    int32  D_800C3E18[7];
+    int32  g_Inventory_EquippedItemIdx[3];
+    int8   D_800C3E40[8];
+    int32  g_Items_Items3dData1[200];
+    int8   D_800C4168[205];
+    int8   D_800C4235[127];
+    int16  D_800C42B4[2];
+    int32  D_800C42B8[2];
+    int32  D_800C42C0[3];
+    int32  D_800C42CC;
+    int16  D_800C42D0;
+    int16  D_800C42D2[3];
+    int32  D_800C42D8[4];
+    int8   D_800C42E8[288];
+    int16  D_800C4408[2];
+    int32  D_800C440C;
+    int32  D_800C4410;
+    int8   D_800C4414[20];
+    int16  D_800C4428[8];
+    int32  D_800C4438[4];
+    int16  D_800C4448;
+    int8   D_800C444A[2];
+    int32  D_800C444C;
+    int32  D_800C4450;
+    int32  D_800C4454;
+    int32  D_800C4458[7];
+    int32  D_800C4474;
+    int16  D_800C4478;
+    struct {
+        int8  D_800C447A_0[2];
+        int16 D_800C447A_2[42];
+    } D_800C447A;
+    int32  D_800C44D0;
+    int32  D_800C44D4[3];
+    int32  D_800C44E0[4];
+    int16  D_800C44F0[2];
+    int16  D_800C44F4;
+    int16  D_800C44F6[4];
+    int16  D_800C44FE[4];
+    int16  D_800C4506[4];
+    int16  D_800C450E[4];
+    int16  D_800C4516[4];
+    int16  D_800C451E[3];
+    int16  D_800C4524[9];
+    int16  D_800C4536[5];
+    int32  g_TargetEnemyPosition[3];
+    int32  D_800C454C;
+    int32  D_800C4550;
+    int16  D_800C4554;
+    int16  D_800C4556;
+    int32  g_Player_MovementInputDetected;
+    int32  g_Player_ActionRunPressed;
+    int8   D_800C4560;
+    int8   D_800C4561;
+    int8   g_Player_DisableDamage[14];
+    int32  g_Player_EquippedWeaponInfo;
+    int16  D_800C4574;
+    int8   D_800C4576;
+    int8   D_800C4577;
+    int8   D_800C4578[4];
+    int8   D_800C457C[2];
+    int16  g_Player_IsAiming;
+    int16  g_Player_IsSteppingLeftTap;
+    int16  g_Player_IsSteppingRightTap;
+    int16  g_Player_IsTurningLeft;
+    int16  g_Player_IsTurningRight;
+    int8   D_800C4588[8];
+    int32  D_800C4590[2];
+    int32  D_800C4598;
+    int32  D_800C459C[2];
+    int8   D_800C45A4[8];
+    int16  g_Player_IsSteppingLeftHold;
+    int16  g_Player_IsSteppingRightHold;
+    int32  D_800C45B0[2];
+    int32  D_800C45B8;
+    int16  g_Player_IsHoldAttack;
+    int16  g_Player_IsAttacking;
+    int16  g_Player_IsShooting[4];
+    int8   D_800C45C8;
+    struct {
+        int8  D_800C45C9_0;
+        int16 D_800C45C9_1;
+        int32 D_800C45C9_2[4];
+    } D_800C45C9;
+    int32  D_800C45DC[3];
+    int16  g_Player_IsMovingForward[2];
+    int32  D_800C45EC;
+    int16  g_Player_IsMovingBackward[4];
+    int32  D_800C45F8[3];
+    int16  g_Player_IsRunning[2];
+    int32  g_Player_HeadingAngle[2];
+    int32  D_800C4610[2];
+    int32  D_800C4618[2];
+    int32  D_800C4620[4];
+    int32  vcWatchMvPrmSt[3];
+    int32  vcSelfViewTimer;
+    int32  D_800C4640[24];
+    int32  D_800C46A0[24];
+    int16  D_800C4700;
+    int16  D_800C4702[7];
+    int32  D_800C4710[6];
+    int32  D_800C4728[8];
+    int16  D_800C4748[8];
+    int32  D_800C4758[12];
+    int32  D_800C4788[12];
+    int32  D_800C47B8[4];
+    int32  D_800C47C8[8];
+    int32  D_800C47E8[4];
+    int32  D_800C47F8[8];
+    int8   D_800C4818;
+    int8   D_800C4819[39];
+    int32  g_Demo_DemoFileIdx;
+    int32  g_Demo_PlayFileIdx[3];
+    int32  g_Demo_UserConfigBackup[14];
+    int32  g_Demo_PrevRandSeed;
+    int32  g_Demo_RandSeedBackup;
+    int32  g_Demo_CurFrameData;
+    int32  g_Demo_DemoStep;
+    int32  g_Demo_VideoPresentInterval;
+    int32  D_800C489C;
+    int16  D_800C48A0;
+    int16  D_800C48A2;
+    int16  D_800C48A4;
+    int16  D_800C48A6;
+    int16  D_800C48A8;
+    int16  D_800C48AA;
+    int8   D_800C48AC[2];
+    int8   D_800C48AE;
+    int8   D_800C48AF;
+    int8   D_800C48B0;
+    int8   D_800C48B1;
+    int8   D_800C48B2;
+    int8   D_800C48B3;
+    int8   D_800C48B4;
+    int8   D_800C48B5;
+    int8   D_800C48B6;
+    int8   D_800C48B7;
+    int16  D_800C48B8;
+    int16  D_800C48BA;
+    int32  D_800C48BC;
+    int32  D_800C48C0;
+    int32  D_800C48C4;
+    int32  D_800C48C8;
+    int32  D_800C48CC;
+    int8   D_800C48D0;
+    int8   D_800C48D1[15];
+    int8   D_800C48E0[7];
+    int8   D_800C48E7;
+    int8   D_800C48E8[16];
+};
+
+//------------------------------------------------
+
+struct RODATA_SECTION_BODYPROG
+{
+    Rodata_bodyprog                   rodata_bodyprog;
+    Rodata_memcard                    rodata_memcard;
+    Rodata_bodyprog_800314EC          rodata_bodyprog_800314EC;
+    Rodata_globals                    rodata_globals;
+    Rodata_bodyprog_80032D1C          rodata_bodyprog_80032D1C;
+    Rodata_bodyprog_80033548          rodata_bodyprog_80033548;
+    Rodata_bodyprog_8003AB28          rodata_bodyprog_8003AB28;
+    Rodata_libsd_bodyprog_80045A7C    rodata_libsd_bodyprog_80045A7C;
+    Rodata_libsd_bodyprog_CD_80047D50 rodata_libsd_bodyprog_CD_80047D50;
+    Rodata_text_draw                  rodata_text_draw;
+    Rodata_items_item_screens_1       rodata_items_item_screens_1;
+    Rodata_items_item_screens_2       rodata_items_item_screens_2;
+    Rodata_items_item_screens_3       rodata_items_item_screens_3;
+    Rodata_bodyprog_80055028          rodata_bodyprog_80055028;
+    Rodata_bodyprog_4034              rodata_bodyprog_4034;
+    Rodata_bodyprog_800706E4          rodata_bodyprog_800706E4;
+    Rodata_view_vc_main               rodata_view_vc_main;
+    Rodata_bodyprog_80085D78          rodata_bodyprog_80085D78;
+    Rodata_demo                       rodata_demo;
+    Rodata_credits                    rodata_credits;
+    Rodata_lib_libcd_iso9660          rodata_lib_libcd_iso9660;
+    Rodata_lib_libcd_c_011            rodata_lib_libcd_c_011;
+    Rodata_lib_libgs_matrix           rodata_lib_libgs_matrix;
+    Rodata_lib_libgs_gs_108           rodata_lib_libgs_gs_108;
+    Rodata_lib_libgs_gs_123           rodata_lib_libgs_gs_123;
+    Rodata_lib_libgs_objt             rodata_lib_libgs_objt;
+    Rodata_lib_libgs_objt3            rodata_lib_libgs_objt3;
+    Rodata_lib_unk_lib_8009687C       rodata_lib_unk_lib_8009687C;
+    Rodata_lib_libpad_padentry        rodata_lib_libpad_padentry;
+    Rodata_lib_libspu_s_sva           rodata_lib_libspu_s_sva;
+    Rodata_lib_libspu_s_sca           rodata_lib_libspu_s_sca;
+    Rodata_libsd_smf_io               rodata_libsd_smf_io;
+    Rodata_libsd_smf_mid              rodata_libsd_smf_mid;
+};
+
+struct TEXT_SECTION_BODYPROG
+{
+    Text_memcard                    text_memcard;
+    Text_bodyprog_800314EC          text_bodyprog_800314EC;
+    Text_bodyprog_80032D1C          text_bodyprog_80032D1C;
+    Text_bodyprog_80033548          text_bodyprog_80033548;
+    Text_bodyprog_8003AB28          text_bodyprog_8003AB28;
+    Text_view_vc_util               text_view_vc_util;
+    Text_bodyprog_80040A64          text_bodyprog_80040A64;
+    Text_libsd_bodyprog_80045A7C    text_libsd_bodyprog_80045A7C;
+    Text_libsd_bodyprog_CD_80047D50 text_libsd_bodyprog_CD_80047D50;
+    Text_view_vw_main               text_view_vw_main;
+    Text_view_vw_calc               text_view_vw_calc;
+    Text_text_draw                  text_text_draw;
+    Text_items_item_screens_cam     text_items_item_screens_cam;
+    Text_items_item_screens_1       text_items_item_screens_1;
+    Text_items_item_screens_2       text_items_item_screens_2;
+    Text_items_item_screens_3       text_items_item_screens_3;
+    Text_bodyprog_80055028          text_bodyprog_80055028;
+    Text_bodyprog_800706E4          text_bodyprog_800706E4;
+    Text_view_vc_main               text_view_vc_main;
+    Text_bodyprog_80085D78          text_bodyprog_80085D78;
+    Text_demo                       text_demo;
+    Text_credits                    text_credits;
+    Text_lib_libapi_a09             text_lib_libapi_a09;
+    Text_lib_libapi_a11             text_lib_libapi_a11;
+    Text_lib_libapi_a39             text_lib_libapi_a39;
+    Text_lib_libapi_a51             text_lib_libapi_a51;
+    Text_lib_libapi_a53             text_lib_libapi_a53;
+    Text_lib_libapi_a65             text_lib_libapi_a65;
+    Text_lib_libapi_a67             text_lib_libapi_a67;
+    Text_lib_libapi_a68             text_lib_libapi_a68;
+    Text_lib_libapi_a69             text_lib_libapi_a69;
+    Text_lib_libapi_a81             text_lib_libapi_a81;
+    Text_lib_libapi_first           text_lib_libapi_first;
+    Text_lib_libapi_a66             text_lib_libapi_a66;
+    Text_lib_libc_a56               text_lib_libc_a56;
+    Text_lib_libc_c24               text_lib_libc_c24;
+    Text_lib_libc_c25               text_lib_libc_c25;
+    Text_lib_libc_c26               text_lib_libc_c26;
+    Text_lib_libc_c27               text_lib_libc_c27;
+    Text_lib_libc_c37               text_lib_libc_c37;
+    Text_lib_libc_memcmp            text_lib_libc_memcmp;
+    Text_lib_libcard_c171           text_lib_libcard_c171;
+    Text_lib_libcard_c172           text_lib_libcard_c172;
+    Text_lib_libcard_a78            text_lib_libcard_a78;
+    Text_lib_libcard_a80            text_lib_libcard_a80;
+    Text_lib_libcard_card           text_lib_libcard_card;
+    Text_lib_libcard_init           text_lib_libcard_init;
+    Text_lib_libapi_pad             text_lib_libapi_pad;
+    Text_lib_libapi_a18             text_lib_libapi_a18;
+    Text_lib_libapi_a19             text_lib_libapi_a19;
+    Text_lib_libapi_a20             text_lib_libapi_a20;
+    Text_lib_libapi_a21             text_lib_libapi_a21;
+    Text_lib_libapi_l02             text_lib_libapi_l02;
+    Text_lib_libapi_l03             text_lib_libapi_l03;
+    Text_lib_libapi_patch           text_lib_libapi_patch;
+    Text_lib_libapi_c68             text_lib_libapi_c68;
+    Text_lib_libapi_chclrpad        text_lib_libapi_chclrpad;
+    Text_lib_libcard_a74            text_lib_libcard_a74;
+    Text_lib_libcard_a75            text_lib_libcard_a75;
+    Text_lib_libcard_a76            text_lib_libcard_a76;
+    Text_lib_libcard_patch          text_lib_libcard_patch;
+    Text_lib_libcard_end            text_lib_libcard_end;
+    Text_lib_libcd_cdrom            text_lib_libcd_cdrom;
+    Text_lib_libcd_iso9660          text_lib_libcd_iso9660;
+    Text_lib_libcd_cdread2          text_lib_libcd_cdread2;
+    Text_lib_libcd_c_002            text_lib_libcd_c_002;
+    Text_lib_libcd_c_003            text_lib_libcd_c_003;
+    Text_lib_libcd_c_004            text_lib_libcd_c_004;
+    Text_lib_libcd_c_005            text_lib_libcd_c_005;
+    Text_lib_libcd_c_007            text_lib_libcd_c_007;
+    Text_lib_libcd_c_008            text_lib_libcd_c_008;
+    Text_lib_libcd_c_009            text_lib_libcd_c_009;
+    Text_lib_libcd_c_010            text_lib_libcd_c_010;
+    Text_lib_libcd_c_011            text_lib_libcd_c_011;
+    Text_lib_libgpu_ext             text_lib_libgpu_ext;
+    Text_lib_libgpu_p00             text_lib_libgpu_p00;
+    Text_lib_libgpu_p01             text_lib_libgpu_p01;
+    Text_lib_libgpu_p06             text_lib_libgpu_p06;
+    Text_lib_libgpu_p09             text_lib_libgpu_p09;
+    Text_lib_libgpu_p14             text_lib_libgpu_p14;
+    Text_lib_libgpu_p16             text_lib_libgpu_p16;
+    Text_lib_libgpu_p17             text_lib_libgpu_p17;
+    Text_lib_libgpu_p18             text_lib_libgpu_p18;
+    Text_lib_libgpu_p26             text_lib_libgpu_p26;
+    Text_lib_libgpu_p33             text_lib_libgpu_p33;
+    Text_lib_libgpu_p34             text_lib_libgpu_p34;
+    Text_lib_libgs_2d_sp1           text_lib_libgs_2d_sp1;
+    Text_lib_libgs_gs_001           text_lib_libgs_gs_001;
+    Text_lib_libgs_gs_002           text_lib_libgs_gs_002;
+    Text_lib_libgs_gs_003           text_lib_libgs_gs_003;
+    Text_lib_libgs_gs_007           text_lib_libgs_gs_007;
+    Text_lib_libapi_counter         text_lib_libapi_counter;
+    Text_lib_libgs_gs_008           text_lib_libgs_gs_008;
+    Text_lib_libgs_gs_009           text_lib_libgs_gs_009;
+    Text_lib_libgs_gs_010           text_lib_libgs_gs_010;
+    Text_lib_libgs_matrix           text_lib_libgs_matrix;
+    Text_lib_libgs_gs_104           text_lib_libgs_gs_104;
+    Text_lib_libgs_gs_105           text_lib_libgs_gs_105;
+    Text_lib_libgs_gs_106           text_lib_libgs_gs_106;
+    Text_lib_libgs_gs_107           text_lib_libgs_gs_107;
+    Text_lib_libgs_gs_108           text_lib_libgs_gs_108;
+    Text_lib_libgs_gs_110           text_lib_libgs_gs_110;
+    Text_lib_libgs_gs_111           text_lib_libgs_gs_111;
+    Text_lib_libgs_gs_113           text_lib_libgs_gs_113;
+    Text_lib_libgs_gs_114           text_lib_libgs_gs_114;
+    Text_lib_libgs_gs_121           text_lib_libgs_gs_121;
+    Text_lib_libgs_gs_123           text_lib_libgs_gs_123;
+    Text_lib_libgs_gs_127           text_lib_libgs_gs_127;
+    Text_lib_libgs_objt             text_lib_libgs_objt;
+    Text_lib_libgs_objt3            text_lib_libgs_objt3;
+    Text_lib_unk_lib_8009687C       text_lib_unk_lib_8009687C;
+    Text_lib_libgte_msc00           text_lib_libgte_msc00;
+    Text_lib_libgte_msc01           text_lib_libgte_msc01;
+    Text_lib_libgte_msc02           text_lib_libgte_msc02;
+    Text_lib_libgte_msc06           text_lib_libgte_msc06;
+    Text_lib_libgte_msc09           text_lib_libgte_msc09;
+    Text_lib_libgte_mtx_000         text_lib_libgte_mtx_000;
+    Text_lib_libgte_mtx_001         text_lib_libgte_mtx_001;
+    Text_lib_libgte_mtx_003         text_lib_libgte_mtx_003;
+    Text_lib_libgte_mtx_004         text_lib_libgte_mtx_004;
+    Text_lib_libgte_mtx_005         text_lib_libgte_mtx_005;
+    Text_lib_libgte_mtx_006         text_lib_libgte_mtx_006;
+    Text_lib_libgte_mtx_007         text_lib_libgte_mtx_007;
+    Text_lib_libgte_mtx_01          text_lib_libgte_mtx_01;
+    Text_lib_libgte_mtx_02          text_lib_libgte_mtx_02;
+    Text_lib_libgte_mtx_03          text_lib_libgte_mtx_03;
+    Text_lib_libgte_mtx_04          text_lib_libgte_mtx_04;
+    Text_lib_libgte_mtx_05          text_lib_libgte_mtx_05;
+    Text_lib_libgte_mtx_06          text_lib_libgte_mtx_06;
+    Text_lib_libgte_mtx_07          text_lib_libgte_mtx_07;
+    Text_lib_libgte_mtx_08          text_lib_libgte_mtx_08;
+    Text_lib_libgte_mtx_09          text_lib_libgte_mtx_09;
+    Text_lib_libgte_mtx_10          text_lib_libgte_mtx_10;
+    Text_lib_libgte_mtx_11          text_lib_libgte_mtx_11;
+    Text_lib_libgte_mtx_12          text_lib_libgte_mtx_12;
+    Text_lib_libgte_reg08           text_lib_libgte_reg08;
+    Text_lib_libgte_reg09           text_lib_libgte_reg09;
+    Text_lib_libgte_reg10           text_lib_libgte_reg10;
+    Text_lib_libgte_reg11           text_lib_libgte_reg11;
+    Text_lib_libgte_reg12           text_lib_libgte_reg12;
+    Text_lib_libgte_reg13           text_lib_libgte_reg13;
+    Text_lib_libgte_smp             text_lib_libgte_smp;
+    Text_lib_libgte_smp_00          text_lib_libgte_smp_00;
+    Text_lib_libgte_smp_02          text_lib_libgte_smp_02;
+    Text_lib_libgte_smp_03          text_lib_libgte_smp_03;
+    Text_lib_libgte_smp_04          text_lib_libgte_smp_04;
+    Text_lib_libgte_cmb_00          text_lib_libgte_cmb_00;
+    Text_lib_libgte_fgo_00          text_lib_libgte_fgo_00;
+    Text_lib_libgte_g3              text_lib_libgte_g3;
+    Text_lib_libgte_g4              text_lib_libgte_g4;
+    Text_lib_libgte_gt3             text_lib_libgte_gt3;
+    Text_lib_libgte_gt4             text_lib_libgte_gt4;
+    Text_lib_libgte_ratan           text_lib_libgte_ratan;
+    Text_lib_libgte_patchgte        text_lib_libgte_patchgte;
+    Text_lib_libpad_padentry        text_lib_libpad_padentry;
+    Text_lib_libpad_padmain         text_lib_libpad_padmain;
+    Text_lib_libpad_padcmd          text_lib_libpad_padcmd;
+    Text_lib_libpad_padif           text_lib_libpad_padif;
+    Text_lib_libpad_padportd        text_lib_libpad_padportd;
+    Text_lib_libpad_padseqd         text_lib_libpad_padseqd;
+    Text_lib_libpad_waitrc2         text_lib_libpad_waitrc2;
+    Text_lib_libspu_s_crwa          text_lib_libspu_s_crwa;
+    Text_lib_libapi_a10             text_lib_libapi_a10;
+    Text_lib_libspu_s_m_util        text_lib_libspu_s_m_util;
+    Text_lib_libspu_s_stm           text_lib_libspu_s_stm;
+    Text_lib_libspu_s_sva           text_lib_libspu_s_sva;
+    Text_lib_libspu_s_n2p           text_lib_libspu_s_n2p;
+    Text_lib_libspu_s_gva           text_lib_libspu_s_gva;
+    Text_lib_unk_lib_8009E198       text_lib_unk_lib_8009E198;
+    Text_libsd_smf_snd              text_libsd_smf_snd;
+    Text_lib_libspu_s_q             text_lib_libspu_s_q;
+    Text_lib_libapi_a13             text_lib_libapi_a13;
+    Text_lib_libspu_s_m_init        text_lib_libspu_s_m_init;
+    Text_lib_libspu_s_sr            text_lib_libspu_s_sr;
+    Text_lib_libspu_s_srmp          text_lib_libspu_s_srmp;
+    Text_lib_libspu_s_sra           text_lib_libspu_s_sra;
+    Text_lib_libspu_s_rrwa          text_lib_libspu_s_rrwa;
+    Text_lib_libspu_s_srv           text_lib_libspu_s_srv;
+    Text_lib_libspu_s_sav           text_lib_libspu_s_sav;
+    Text_lib_libspu_s_sk            text_lib_libspu_s_sk;
+    Text_lib_libspu_s_gks           text_lib_libspu_s_gks;
+    Text_lib_libspu_s_skowa         text_lib_libspu_s_skowa;
+    Text_lib_libspu_s_w             text_lib_libspu_s_w;
+    Text_lib_libspu_s_stsa          text_lib_libspu_s_stsa;
+    Text_lib_libspu_s_itc           text_lib_libspu_s_itc;
+    Text_lib_libspu_s_sca           text_lib_libspu_s_sca;
+    Text_libsd_smf_io               text_libsd_smf_io;
+    Text_lib_libspu_s_grv           text_lib_libspu_s_grv;
+    Text_lib_libspu_s_gav           text_lib_libspu_s_gav;
+    Text_libsd_smf_main             text_libsd_smf_main;
+    Text_libsd_smf_mid              text_libsd_smf_mid;
+};
+
+struct DATA_SECTION_BODYPROG
+{
+    Data_bodyprog_800A8D98    data_bodyprog_800A8D98;
+    Data_bodyprog_800A9074    data_bodyprog_800A9074;
+    Data_syswork_functable    data_syswork_functable;
+    Data_bodyprog_800A9A68    data_bodyprog_800A9A68;
+    Data_bodyprog_8003AB28    data_bodyprog_8003AB28;
+    Data_bodyprog_800A9AA0    data_bodyprog_800A9AA0;
+    Data_items_item_screens_3 data_items_item_screens_3;
+    Data_bodyprog_800AE178    data_bodyprog_800AE178;
+    Data_lib_libcard_init     data_lib_libcard_init;
+    Data_lib_libapi_pad       data_lib_libapi_pad;
+    Data_lib_libcd_cdrom      data_lib_libcd_cdrom;
+    Data_lib_libcd_iso9660    data_lib_libcd_iso9660;
+    Data_lib_libcd_c_002      data_lib_libcd_c_002;
+    Data_lib_libcd_c_003      data_lib_libcd_c_003;
+    Data_lib_libcd_c_004      data_lib_libcd_c_004;
+    Data_lib_libcd_c_005      data_lib_libcd_c_005;
+    Data_lib_libcd_c_007      data_lib_libcd_c_007;
+    Data_lib_libcd_c_008      data_lib_libcd_c_008;
+    Data_lib_libcd_c_009      data_lib_libcd_c_009;
+    Data_lib_libcd_c_010      data_lib_libcd_c_010;
+    Data_lib_libcd_c_011      data_lib_libcd_c_011;
+    Data_lib_libgs_gs_001     data_lib_libgs_gs_001;
+    Data_lib_libapi_counter   data_lib_libapi_counter;
+    Data_lib_libgs_global     data_lib_libgs_global;
+    Data_lib_libgte_sqrtbl    data_lib_libgte_sqrtbl;
+    Data_lib_libgte_msc00     data_lib_libgte_msc00;
+    Data_lib_libgte_msc02     data_lib_libgte_msc02;
+    Data_lib_libgte_mtx_006   data_lib_libgte_mtx_006;
+    Data_lib_libgte_ratan     data_lib_libgte_ratan;
+    Data_lib_libpad_padmain   data_lib_libpad_padmain;
+    Data_lib_libpad_padif     data_lib_libpad_padif;
+    Data_lib_libpad_padportd  data_lib_libpad_padportd;
+    Data_lib_libspu_zerobuf   data_lib_libspu_zerobuf;
+    Data_lib_libspu_s_n2p     data_lib_libspu_s_n2p;
+    Data_bodyprog_800B13EC    data_bodyprog_800B13EC;
+};
+
+struct BSS_SECTION_BODYPROG
+{
+    FSkip(0xA4A18 - 0x9FD98); // todo
+};
+
+struct OVERLAY_BODYPROG
+{
+    RODATA_SECTION_BODYPROG rodataSection;
+    TEXT_SECTION_BODYPROG   textSection;
+    DATA_SECTION_BODYPROG   dataSection;
+    BSS_SECTION_BODYPROG    bssSection;
+};
+struct FOOTER_DATA_BODYPROG
+{
+    FSkip(0xA4B00 - 0xA4A18);
+};
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+DisasmSetMode( DISASM_MIPS_32 );
+
+if (FileNameGetBase( GetFileName() ) == "BODYPROG.BIN")
+{
+    SetStartingAddress(0x80024B60);
+    OVERLAY_BODYPROG     overlay <open=true>;
+    FOOTER_DATA_BODYPROG footer_data;
+}

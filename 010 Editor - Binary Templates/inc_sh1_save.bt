@@ -13,17 +13,8 @@
 //------------------------------------------------
 
 
-typedef int32 q19_12      <read=Str("%g", this / 4096.0),
-                          write=(this = Atof(value) * 4096.0)>;
+#include "inc_fixed_point.bt"
 
-typedef uint32 q20_12     <read=Str("%g", this / 4096.0),
-                          write=(this = Atof(value) * 4096.0)>;
-
-typedef int16 q3_12       <read=Str("%g", this / 4096.0),
-                          write=(this = Atof(value) * 4096.0)>;
-                      
-typedef int16 q3_12_deg   <read=Str("%g deg", this / 4096.0 * 360),
-                          write=(this = Atof(value) * 4096.0 / 360.0)>;
 
 struct Sector;
 
@@ -335,8 +326,7 @@ struct ShSaveGameFooter
     /*
     Assert(checksumXor[0] == checksumXor[1]
         && checksumXor[1] == sHchecksumXorCheck(value));
-    Assert(magic[0] == magic[1]
-        && magic == 0xDCDC);
+    Assert(magic == 0xDCDC);
     */
 };
 

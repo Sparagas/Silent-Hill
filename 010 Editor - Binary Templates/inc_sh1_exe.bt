@@ -161,13 +161,12 @@ typedef struct _FileInfo
 
 struct Rodata_main
 {
-    uint32 g_OvlDynamic  <format=hex>;
-    uint32 g_OvlBodyprog <format=hex>;
+    uint32 g_OvlDynamicPtr  <format=hex>;
+    uint32 g_OvlBodyprogPtr <format=hex, comment="g_bodyProg">;
 };
 struct Rodata_fsqueue_3
 {
-    string a_PcDrvPath;
-    uint8  padding;
+    char a_PcDrvPath[12];
 };
 struct Pad_fsqueue_3
 {
@@ -175,7 +174,7 @@ struct Pad_fsqueue_3
 };
 struct Rodata_fsqueue_2
 {
-    FSkip(0x830 - 0x818);
+    uint32 jtbl_80010018[6] <format=hex>;
 };
 struct Rodata_lib_libspu_spu
 {
@@ -667,15 +666,15 @@ struct Data_lib_libspu_s_m
 };
 struct Data_psyq_libsn_snmain
 {
-    uint8 __initialised[4];
-    uint8 __heapbase[4];
-    uint8 __heapsize[4];
-    uint8 __text[4];
-    uint8 __textlen[4];
-    uint8 __data[4];
-    uint8 __datalen[4];
-    uint8 __bss[4];
-    uint8 __bsslen[4];
+    uint32 __initialised;
+    uint32 __heapbase     <format=hex>;
+    uint32 __heapsize;
+    uint32 __textPtr      <format=hex>;
+    uint32 __textlen;
+    uint32 __dataPtr      <format=hex>;
+    uint32 __datalen;
+    uint32 __bssPtr       <format=hex>;
+    uint32 __bsslen;
 };
 struct Data_lib_libetc_vsync
 {
@@ -777,13 +776,33 @@ struct Data_lib_libgpu_sys
 
 struct SData_fileinfo
 {
-    struct __sdata_start__ {
-        char __sdata_start__[8];
-    } _sdata_start__[23];
+    char __sdata_start__[8];
+    char D_80022BB8[8];
+    char D_80022BC0[8];
+    char D_80022BC8[8];
+    char D_80022BD0[8];
+    char D_80022BD8[8];
+    char D_80022BE0[8];
+    char D_80022BE8[8];
+    char D_80022BF0[8];
+    char D_80022BF8[8];
+    char D_80022C00[8];
+    char D_80022C08[8];
+    char D_80022C10[8];
+    char D_80022C18[8];
+    char D_80022C20[8];
+    char D_80022C28[8];
+    char D_80022C30[8];
+    char D_80022C38[8];
+    char D_80022C40[8];
+    char D_80022C48[8];
+    char D_80022C50[8];
+    char D_80022C58[8];
+    char D_80022C60[8];
 };
 struct Pad_fileinfo
 {
-    uint8 pad[4];
+    FSkip(4);
 };
 struct SData_start
 {
@@ -798,7 +817,7 @@ struct SData_main
 };
 struct Pad_main
 {
-    uint8 pad[8];
+    FSkip(8);
 };
 struct SData_rng
 {
@@ -817,12 +836,12 @@ struct SBss_psyq_libsn_snmain
 struct Bss_fsqueue_1
 {
     //s_FsQueue g_FsQueue; // 0x428
-    uint8  g_FsQueue[0x428];
+    uint32 g_FsQueue[266];
 };
 struct Bss_fsmem
 {
     //s_FsMemState g_FsMem;
-    uint8 g_FsMem[224]; //
+    uint32 g_FsMem[61];
 };
 struct Bss_lib_libspu_spu
 {
@@ -830,7 +849,7 @@ struct Bss_lib_libspu_spu
 };
 struct Bss_psyq_unk
 {
-    FSkip(4);
+    uint32 D_800231B4;
 };
 struct Bss_lib_libcd_event {};
 struct Bss_lib_libcd_sys {};
@@ -843,7 +862,7 @@ struct Bss_lib_libcd_cdread
 };
 struct Bss_psyq_unk2
 {
-    FSkip(4);
+    uint32 D_800231EC;
 };
 struct Bss_lib_libgpu_tmd
 {
@@ -855,21 +874,22 @@ struct Bss_lib_libgpu_sys
     //uint8 ctlbuf[0x108];
     //uint8 _que[0x18200];
     //uint8 g_bodyProg[0x5DD94];
-    //uint8 g_Font16AtlasImg[8];
-    //uint8 g_KonamiLogoImg[8];
-    //uint8 g_KcetLogoImg[16];
-    //uint8 g_TitleImg[8];
-    //uint8 g_MapImg[8];
-    //uint8 g_MapMarkerAtlasImg[8];
-    //uint8 g_ItemInspectionImg[16];
-    //uint8 g_ControllerButtonAtlasImg[8];
-    //uint8 g_BrightnessScreenImg0[8];
-    //uint8 g_BrightnessScreenImg1[8];
-    //uint8 g_DeathTipImg[8];
-    //uint8 g_HealthPortraitImg[8];
-    //uint8 g_InventoryKeyItemTextureImg[8];
-    //uint8 g_FirstAidKitItemTextureImg[48];
-    //uint8 g_Font24AtlasImg[8];
+    //s_FsImageDesc g_Font16AtlasImg[8];
+    //s_FsImageDesc g_KonamiLogoImg[8];
+    //s_FsImageDesc g_KcetLogoImg[16];
+    //s_FsImageDesc g_TitleImg[8];
+    //s_FsImageDesc g_MapImg[8];
+    //s_FsImageDesc g_MapMarkerAtlasImg[8];
+    //s_FsImageDesc g_ItemInspectionImg[16];
+    //s_FsImageDesc g_ControllerButtonAtlasImg[8];
+    //s_FsImageDesc g_BrightnessScreenImg0[8];
+    //s_FsImageDesc g_BrightnessScreenImg1[8];
+    //s_FsImageDesc g_DeathTipImg[8];
+    //s_FsImageDesc g_HealthPortraitImg[8];
+    //s_FsImageDesc g_InventoryKeyItemTextureImg[8];
+    //s_FsImageDesc g_FirstAidKitItemTextureImg[48];
+    
+    //s_FsImageDesc g_Font24AtlasImg[8];
 };
 
 //------------------------------------------------
@@ -878,7 +898,7 @@ struct RODATA_SECTION_MAIN
 {
     Rodata_main                rodata_main;
     Rodata_fsqueue_3           rodata_fsqueue_3;
-    Pad_fsqueue_3              rad_fsqueue_3;
+    Pad_fsqueue_3              pad_fsqueue_3;
     Rodata_fsqueue_2           rodata_fsqueue_2;
     Rodata_lib_libspu_spu      rodata_lib_libspu_spu;
     Rodata_lib_libetc_vsync    rodata_lib_libetc_vsync;
