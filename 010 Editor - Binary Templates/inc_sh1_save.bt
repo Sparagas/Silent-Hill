@@ -207,6 +207,14 @@ enum <int8> InventoryItemId
     InventoryItemId_Shotgun              = 162,
     InventoryItemId_HyperBlaster         = 163,
 
+	/** @brief Item IDs only used during cutscenes. */
+    InventoryItemId_CS_Phone             = 164,
+    InventoryItemId_CS_Flauros           = 165,
+    InventoryItemId_CS_Aglaophotis       = 166,
+    InventoryItemId_CS_PlasticBottle     = 167,
+    InventoryItemId_CS_Baby              = 168,
+    InventoryItemId_CS_BloodPack         = 169,
+
     InventoryItemId_HandgunBullets       = 192,
     InventoryItemId_RifleShells          = 193,
     InventoryItemId_ShotgunShells        = 194,
@@ -1324,7 +1332,7 @@ struct ShSaveGame
     int16           pickedUpItemCount_23C;    // test signess
     int8            field_23E;
     int8            field_23F;;
-    q19_12          playerHealth_240;         /** Default: 100 */
+    q19_12          playerHealth_240;         /** Default: `Q12(100.0f)` */
     q19_12          playerPositionX_244;       
     q3_12_deg       playerRotationY_248;      /** Range [0, 0.999755859375], positive Z: 0, clockwise rotation. It can be multiplied by 360 to get degrees. */
     ubyte           clearGameCount_24A;       /** Range [0, 99] */
