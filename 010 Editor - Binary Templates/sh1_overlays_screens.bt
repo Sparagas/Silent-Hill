@@ -1,0 +1,699 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh1_overlays_screens.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill executable screen overlays for Sony - PlayStation.
+//  Category: Executable
+// File Mask: B_KONAMI.BIN,OPTION.BIN,SAVELOAD.BIN,STF_ROLL.BIN,STREAM.BIN
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+struct Rodata_pad
+{
+    FSkip(8);
+};
+
+struct Rodata_b_konami
+{
+    uint32 jtbl_800C9580[9] <format=hex>;
+    uint32 D_800C95A4[2];
+};
+
+struct Text_b_konami
+{
+    Opcode GameState_KonamiLogo_Update[712];
+    Opcode func_800C9874[304];
+    Opcode GameState_KcetLogo_Update[1224];
+    Opcode Gfx_BootScreenImageSegmentDraw[332];
+    Opcode Gfx_KonamiScreenDraw[360];
+    Opcode Gfx_KcetScreenDraw[276];
+    Opcode func_800CA234[12];
+    Opcode func_800CA240[12];
+    Opcode func_800CA24C[108];
+    Opcode func_800CA2B8[16];
+    Opcode func_800CA2C8[552];
+};
+
+struct Data_b_konami
+{
+    int32 D_800CA4F0;
+    int32 D_800CA4F4[2];
+    int32 D_800CA4FC;
+    int32 D_800CA500;
+    int32 D_800CA504;
+    int32 D_800CA508;
+    int32 D_800CA50C;
+    int32 D_800CA510;
+};
+
+struct Rodata_credits
+{
+    int32 jtbl_801E2608[12] <format=hex>;
+    int32 D_801E2638[508];
+};
+
+struct Text_credits
+{
+    Opcode func_801E2E28[176];
+    Opcode func_801E2ED8[232];
+    Opcode func_801E2FC0[212];
+    Opcode GameState_Unk15_Update[144];
+    Opcode func_801E3124[480];
+    Opcode func_801E3304[296];
+    Opcode func_801E342C[600];
+    Opcode func_801E3684[488];
+    Opcode func_801E386C[260];
+    Opcode func_801E3970[1120];
+    Opcode func_801E3DD0[40];
+    Opcode func_801E3DF8[32];
+    Opcode func_801E3E18[1248];
+    Opcode func_801E42F8[24];
+    Opcode func_801E4310[48];
+    Opcode func_801E4340[12];
+    Opcode func_801E434C[72];
+    Opcode func_801E4394[1100];
+    Opcode func_801E47E0[952];
+    Opcode func_801E4B98[48];
+    Opcode func_801E4BC8[12];
+    Opcode func_801E4BD4[72];
+    Opcode func_801E4C1C[2364];
+};
+
+struct Data_credits
+{
+    int16 D_801E5558[18];
+    int32 D_801E557C[4];
+    int32 D_801E558C;
+    int32 g_CreditList[400] <format=hex>;
+    int32 D_801E5BD0[20];
+    int32 D_801E5C20[143];
+    int8  D_801E5E5C[16];
+    int8  D_801E5E6C[8];
+    int32 D_801E5E74;
+    int32 D_801E5E78;
+    int32 D_801E5E7C;
+    int32 D_801E5E80;
+    int32 D_801E5E84;
+    int32 D_801E5E88;
+    int32 D_801E5E8C;
+    int32 D_801E5E90[80];
+    int32 D_801E5FD0[10];
+    int32 D_801E5FF8[5];
+    int32 D_801E600C;
+};
+
+struct Rodata_options
+{
+    uint32 jtbl_801E2608[16] <format=hex>;
+    uint32 jtbl_801E2648[16] <format=hex>;
+    uint32 jtbl_801E2688[8]  <format=hex>;
+    uint32 jtbl_801E26A8[9]  <format=hex>;
+    char   D_801E26CC[20];
+    char   D_801E26E0[16];
+    char   D_801E26F0[12];
+    char   D_801E26FC[16];
+    char   D_801E270C[16];
+    char   D_801E271C[32];
+    char   D_801E273C[12];
+    char   D_801E2748[12];
+    char   D_801E2754[16];
+    uint32 D_801E2764[8] <format=hex>;
+    char   D_801E2784[16];
+    char   D_801E2794[8];
+    char   D_801E279C[20];
+    char   D_801E27B0[20];
+    char   D_801E27C4[16];
+    char   D_801E27D4[12];
+    char   D_801E27E0[12];
+    char   D_801E27EC[8];
+    char   D_801E27F4[12];
+    char   D_801E2800[12];
+    uint32 D_801E280C[9] <format=hex>;
+    int32  D_801E2830[2];
+    int32  D_801E2838[4];
+    int32  D_801E2848[4];
+    int32  D_801E2858[3];
+    int32  D_801E2864[4];
+    int32  D_801E2874[4];
+    int32  D_801E2884[48];
+    int32  D_801E2944[48];
+    char   D_801E2A04[8];
+    char   D_801E2A0C[8];
+    char   D_801E2A14[8];
+    char   D_801E2A1C[8];
+    char   D_801E2A24[8];
+    char   D_801E2A2C[8];
+    char   D_801E2A34[4];
+    char   D_801E2A38[8];
+    char   D_801E2A40[4];
+    char   D_801E2A44[4];
+    char   D_801E2A48[12];
+    char   D_801E2A54[4];
+    char   D_801E2A58[4];
+    char   D_801E2A5C[4];
+    char   D_801E2A60[4];
+    char   D_801E2A64[4];
+    char   D_801E2A68[4];
+    uint32 D_801E2A6C[19]   <format=hex>;
+    uint32 jtbl_801E2AB8[8] <format=hex>;
+    int32  D_801E2AD8[30];
+    int32  D_801E2B50[30];
+    char   D_801E2BC8[8];
+    char   D_801E2BD0[12];
+    uint32 D_801E2BDC[4] <format=hex>;
+    int32  D_801E2BEC[12];
+    int32  D_801E2C1C[12];
+    int32  D_801E2C4C[4];
+    char   D_801E2C5C[4];
+    char   D_801E2C60[4];
+    char   D_801E2C64[16];
+    int32  D_801E2C74[6];
+    int32  D_801E2C8C[7];
+    int32  jtbl_801E2CA8[6] <format=hex>;
+    struct {
+        char D_801E2CC0_0[8];
+        char D_801E2CC0_1[8];
+        char D_801E2CC0_2[8];
+        char D_801E2CC0_3[8];
+        char D_801E2CC0_4[8];
+        char D_801E2CC0_5[4];
+        char D_801E2CC0_6[8];
+        char D_801E2CC0_7[8];
+        char D_801E2CC0_8[8];
+        char D_801E2CC0_9[8];
+        char D_801E2CC0_A[8];
+        char D_801E2CC0_B[4];
+        char D_801E2CC0_C[8];
+        char D_801E2CC0_D[4];
+        char D_801E2CC0_E[8];
+        char D_801E2CC0_F[8];
+        char D_801E2CC0_10[8];
+        char D_801E2CC0_11[8];
+    } D_801E2CC0;
+};
+
+struct Text_options
+{
+    Opcode GameState_Options_Update[1096];
+    Opcode Options_ExtraOptionsMenu_Control[1508];
+    Opcode Options_MainOptionsMenu_Control[2040];
+    Opcode Options_MainOptionsMenu_BgmVolumeBarDraw[40];
+    Opcode Options_MainOptionsMenu_SfxVolumeBarDraw[40];
+    Opcode Options_MainOptionsMenu_VolumeBarDraw[436];
+    Opcode Options_ExtraOptionsMenu_EntryStringsDraw[384];
+    Opcode Options_MainOptionsMenu_EntryStringsDraw[356];
+    Opcode Options_ExtraOptionsMenu_SelectionHighlightDraw[732];
+    Opcode Options_MainOptionsMenu_SelectionHighlightDraw[708];
+    Opcode Options_Menu_VignetteDraw[316];
+    Opcode Options_ExtraOptionsMenu_ConfigDraw[1232];
+    Opcode Options_MainOptionsMenu_ConfigDraw[932];
+    Opcode Options_ScreenPosMenu_Control[1640];
+    Opcode Options_ScreenPosMenu_ArrowsDraw[692];
+    Opcode Options_ScreenPosMenu_ConfigDraw[860];
+    Opcode Options_BrightnessMenu_Control[544];
+    Opcode Options_BrightnessMenu_ConfigDraw[84];
+    Opcode Options_BrightnessMenu_ArrowsDraw[400];
+    Opcode Options_Selection_HighlightDraw[528];
+    Opcode Options_Selection_ArrowDraw[388];
+    Opcode Options_Selection_BulletPointDraw[524];
+    Opcode Options_Controller_Control[824];
+    Opcode Options_ControllerMenu_ConfigUpdate[620];
+    Opcode Options_ControllerMenu_EntriesDraw[524];
+    Opcode Options_ControllerMenu_ButtonIconsDraw[392];
+};
+
+struct Data_options
+{
+    int32 g_MainOptionsMenu_SelectedEntry;
+    int32 g_ExtraOptionsMenu_SelectedEntry;
+    int32 g_MainOptionsMenu_PrevSelectedEntry;
+    int32 g_ExtraOptionsMenu_PrevSelectedEntry;
+    int32 g_ScreenPosMenu_InvertBackgroundFade;
+    int32 g_ControllerMenu_IsOnActionsPane;
+    int32 g_ControllerMenu_SelectionHighlightDrawModes[6];
+    int16 g_ControllerMenu_SelectionHighlightQuads[36];
+    int32 CONTROLLER_MENU_PRESETS_PANE_ENTRY_STRINGS[4]  <format=hex>;
+    int32 CONTROLLER_MENU_ACTIONS_PANE_ENTRY_STRINGS[14] <format=hex>;
+    int16 g_ExtraOptions_SelectionHighlightFrom_Unused[2];
+    int16 g_ExtraOptions_SelectionHighlightTo_Unused[2];
+    int16 g_MainOptions_SelectionHighlightFrom_Unused[2];
+    int16 g_MainOptions_SelectionHighlightTo_Unused[2];
+    int32 g_ExtraOptions_SelectionHighlightFrom;
+    int16 g_ExtraOptions_SelectionHighlightTo[2];
+    int32 g_MainOptions_SelectionHighlightFrom;
+    int16 g_MainOptions_SelectionHighlightTo[2];
+    int32 g_ScreenPosMenu_BackgroundFade;
+    int16 g_ScreenPosMenu_PositionX;
+    int16 g_ScreenPosMenu_PositionY;
+    int32 g_ControllerMenu_SelectedEntries[2];
+    int32 g_Options_SelectionHighlightTimer;
+    int32 g_ExtraOptionsMenu_EntryCount;
+    int32 g_ExtraOptionsMenu_SelectedBloodColorEntry;
+    int32 g_ExtraOptionsMenu_BulletMultMax;
+};
+
+struct Rodata_saveload
+{
+    struct {
+        int32 D_801E2600_0;
+        char  D_801E2600_1[12];
+        char  D_801E2600_2[16];
+        char  D_801E2600_3[8];
+        char  D_801E2600_4[8];
+        char  D_801E2600_5[12];
+        char  D_801E2600_6[8];
+        char  D_801E2600_7[8];
+        char  D_801E2600_8[8];
+        char  D_801E2600_9[12];
+        char  D_801E2600_A[16];
+        char  D_801E2600_B[12];
+        char  D_801E2600_C[16];
+        char  D_801E2600_D[12];
+        char  D_801E2600_E[12];
+        char  D_801E2600_F[12];
+        char  D_801E2600_10[8];
+        char  D_801E2600_11[8];
+        char  D_801E2600_12[8];
+        char  D_801E2600_13[8];
+        char  D_801E2600_14[12];
+        char  D_801E2600_15[12];
+        char  D_801E2600_16[8];
+        char  D_801E2600_17[4];
+        char  D_801E2600_18[8];
+        char  D_801E2600_19[12];
+    } D_801E2600;
+    int32  D_801E2708[2];
+    char   D_801E2710[8];
+    char   D_801E2718[8];
+    char   D_801E2720[8];
+    int32  D_801E2728[7];
+    char   D_801E2744[32];
+    char   D_801E2764[32];
+    char   D_801E2784[28];
+    char   D_801E27A0[28];
+    char   D_801E27BC[16];
+    char   D_801E27CC[16];
+    char   D_801E27DC[32];
+    int32  D_801E27FC;
+    char   D_801E2800[20];
+    char   D_801E2814[28];
+    uint32 D_801E2830[12]   <format=hex>;
+    uint32 jtbl_801E2860[7] <format=hex>;
+    char   D_801E287C[4];
+    char   D_801E2880[40];
+    char   D_801E28A8[20];
+    char   D_801E28BC[16];
+    char   D_801E28CC[32];
+    char   D_801E28EC[20];
+    char   D_801E2900[20];
+    char   D_801E2914[24];
+    char   D_801E292C[24];
+    char   D_801E2944[20];
+    char   D_801E2958[20];
+    char   D_801E296C[16];
+    uint32 D_801E297C[12] <format=hex>;
+    int32  D_801E29AC[7];
+    uint32 jtbl_801E29C8[12] <format=hex>;
+    char   D_801E29F8[24];
+    char   D_801E2A10[24];
+    char   D_801E2A28[20];
+    uint32 D_801E2A3C[3] <format=hex>;
+    int32  D_801E2A48[20];
+    int32  D_801E2A98[40];
+    int32  D_801E2B38[8];
+    int32  D_801E2B58[12];
+    int32  D_801E2B88[42];
+    int32  D_801E2C30[8];
+    int32  D_801E2C50[15];
+    int32  D_801E2C8C[8];
+    int32  D_801E2CAC[8];
+    int32  D_801E2CCC[16];
+    char   D_801E2D0C[8];
+    char   D_801E2D14[8];
+    char   D_801E2D1C[8];
+    char   D_801E2D24[16];
+    char   D_801E2D34[12];
+    char   D_801E2D40[48];
+    uint32 D_801E2D70[6] <format=hex>;
+    char   D_801E2D88[4];
+};
+
+struct Text_saveload
+{
+    Opcode Savegame_ScreenSubInit[304];
+    Opcode Gfx_SaveScreenBaseDraw[212];
+    Opcode Gfx_SaveSelectedDisplacement[60];
+    Opcode Gfx_SaveSlotFileStringDraw[172];
+    Opcode Gfx_SavegameEntryStringColorSet[76];
+    Opcode Gfx_SavegameEntryLocationNameDraw[424];
+    Opcode Gfx_SaveEntryBorder[152];
+    Opcode Gfx_SaveScreenDraw[1548];
+    Opcode Gfx_MemCardStateDraw[820];
+    Opcode Gfx_WriteOptionSaveDraw[564];
+    Opcode Gfx_SavedFlashDraw[408];
+    Opcode Gfx_SaveSlotBorderDraw[952];
+    Opcode Gfx_SaveSlotMemCardMsgBoxShineDraw[340];
+    Opcode Gfx_SaveSlotBoxDraw[2164];
+    Opcode Gfx_SaveEntryBorderDraw[1352];
+    Opcode Gfx_SaveSlotMemCardMsgBoxDraw[516];
+    Opcode Gfx_SaveSlotMemCardMsgBoxSubDraw[956];
+    Opcode Gfx_RectSaveInfoDraw[1408];
+    Opcode Gfx_SaveDataInfoDraw[1288];
+    Opcode GameState_SaveScreen_Update[160];
+    Opcode Savegame_ScreenInit[220];
+    Opcode Savegame_ScreenLogic[1356];
+    Opcode Savegame_FormatLogic[304];
+    Opcode Savegame_SaveLogic[664];
+    Opcode Savegame_LoadLogic[392];
+    Opcode Savegame_ContinueLogic[356];
+    Opcode Gfx_SaveBackgroundDraw[44];
+    Opcode Gfx_SaveScreen[380];
+    Opcode Gfx_MemCardState[152];
+    Opcode Gfx_WriteOptionSave[32];
+    Opcode GameState_DeathLoadScreen_Update[128];
+    Opcode func_801E737C[300];
+};
+
+struct Data_saveload
+{
+    uint32 g_SaveLocationNames[25] <format=hex>;
+    int32  D_801E750C;
+    int32  D_801E7510;
+    int16  D_801E7514[2];
+    int16  g_LoadingMemCardTimer[2];
+    int32  g_MemCardState;
+    int32  g_MemCardStateTextTimer;
+    uint32 g_GameState_SaveScreen_Funcs[6] <format=hex>;
+    int32  g_SaveWriteOption;
+    int32  g_IsSaveSelected;
+    uint32 g_GameState_DeathLoadScreen_Funcs[4] <format=hex>;
+    int32  D_801E7554;
+    int32  D_801E7558;
+    int32  g_SaveWriteOptionSelected[2];
+    int32  D_801E7564[2];
+    int16  D_801E756C[2];
+    int16  g_HiddenElementsByDisplacement[2];
+    int16  D_801E7574[2];
+    int16  g_Gfx_SelectedSaveOffsetsY[6];
+};
+
+struct Data_saveload_4F84
+{
+    int8 D_801E7584[330];
+    int8 g_LastSaveIdx[2];
+    int8 g_DisplaySaveDataInfo[2];
+    int8 g_IsMemCardNotInserted[2];
+    int8 g_Gfx_SaveFlashTimer;
+    int8 g_IsNextFearMode;
+    int8 g_IsGameSaving[2];
+};
+
+struct Rodata_stream_0
+{
+    int32 D_801E2600;
+};
+
+struct Rodata_lib_libpress_libpress
+{
+    FSkip(0x54 - 0x4);
+};
+
+struct Text_stream
+{
+    Opcode GameState_StartMovieIntro_Update[328];
+    Opcode GameState_MovieIntro_Update[156];
+    Opcode GameState_MovieOpening_Update[120];
+    Opcode GameState_ExitMovie_Update[88];
+    Opcode GameState_DebugMoviePlayer_Update[284];
+    Opcode GameState_MovieIntroAlternate_Update[128];
+    Opcode open_main[248];
+    Opcode movie_main[1008];
+    Opcode strSetDefDecEnv[128];
+    Opcode strInit[112];
+    Opcode strCallback[336];
+    Opcode strKickCD[204];
+    Opcode strNextVlc[132];
+    Opcode strNext[284];
+    Opcode strSync[148];
+};
+
+struct Text_lib_libds_dscb
+{
+    FSkip(0xF2C - 0xECC);
+};
+
+struct Text_lib_libpress_libpress
+{
+    FSkip(0x15BC - 0xF2C);
+};
+
+struct Text_lib_libpress_vlc
+{
+    FSkip(0x193C - 0x15BC);
+};
+
+struct Data_stream
+{
+    int32  g_Debug_MoviePlayerIdx;
+    int32  max_frame;
+    int32  frame_cnt;
+    int32  disp[5];
+};
+
+struct Data_lib_libpress_libpress
+{
+    FSkip(0x1AAC - 0x195C);
+};
+
+struct Data_lib_libpress_vlc
+{
+    FSkip(0x1ADC - 0x1AAC);
+};
+
+struct Data_lib_libpress_table
+{
+    FSkip(0x12ADC - 0x1ADC);
+};
+
+struct Data_stream_801F50DC
+{
+    int32 D_801F50DC;
+};
+
+struct Bss_stream
+{
+    int32 m;
+};
+
+struct Bss_stream_801F50E4
+{
+    int32 D_801F50E4;
+};
+
+struct Bss_lib_libds_dscb
+{
+    FSkip(0x12AF4 - 0x12AE8);
+};
+
+//------------------------------------------------
+
+struct RODATA_SECTION_B_KONAMI
+{
+    Rodata_pad      rodata_pad;
+    Rodata_b_konami rodata_b_konami;
+};
+
+struct TEXT_SECTION_B_KONAMI
+{
+    Text_b_konami text_b_konami;
+};
+
+struct DATA_SECTION_B_KONAMI
+{
+    Data_b_konami data_b_konami;
+};
+
+struct RODATA_SECTION_CREDITS
+{
+    Rodata_pad     rodata_pad;
+    Rodata_credits rodata_credits;
+};
+
+struct TEXT_SECTION_CREDITS
+{
+    Text_credits text_credits;
+};
+
+struct DATA_SECTION_CREDITS
+{
+    Data_credits data_credits;
+};
+
+struct RODATA_SECTION_OPTION
+{
+    Rodata_pad     rodata_pad;
+    Rodata_options rodata_options;
+};
+
+struct TEXT_SECTION_OPTION
+{
+    Text_options text_options;
+};
+
+struct DATA_SECTION_OPTION
+{
+    Data_options data_options;
+};
+
+struct RODATA_SECTION_SAVELOAD
+{
+    Rodata_saveload rodata_saveload;
+};
+
+struct TEXT_SECTION_SAVELOAD
+{
+    Text_saveload text_saveload;
+};
+
+struct DATA_SECTION_SAVELOAD
+{
+    Data_saveload      data_saveload;
+    Data_saveload_4F84 data_saveload_4F84;
+};
+
+struct RODATA_SECTION_STREAM
+{
+    Rodata_stream_0              rodata_stream_0;
+    Rodata_lib_libpress_libpress rodata_lib_libpress_libpress;
+};
+
+struct TEXT_SECTION_STREAM
+{
+    Text_stream                text_stream ;
+    Text_lib_libds_dscb        text_lib_libds_dscb;
+    Text_lib_libpress_libpress text_lib_libpress_libpress;
+    Text_lib_libpress_vlc      text_lib_libpress_vlc;
+};
+
+struct DATA_SECTION_STREAM
+{
+    Data_stream                data_stream;
+    Data_lib_libpress_libpress data_lib_libpress_libpress;
+    Data_lib_libpress_vlc      data_lib_libpress_vlc;
+    Data_lib_libpress_table    data_lib_libpress_table;
+    Data_stream_801F50DC       data_stream_801F50DC;
+};
+
+struct BSS_SECTION_STREAM
+{
+    Bss_stream          bss_stream;
+    Bss_stream_801F50E4 bss_stream_801F50E4;
+    Bss_lib_libds_dscb  bss_lib_libds_dscb;
+};
+
+//------------------------------------------------
+
+struct OVERLAY_B_KONAMI
+{
+    RODATA_SECTION_B_KONAMI rodataSection;
+    TEXT_SECTION_B_KONAMI   textSection;
+    DATA_SECTION_B_KONAMI   dataSection;
+};
+
+struct FOOTER_DATA_B_KONAMI
+{
+    FSkip(0x1000 - 0xF9C);
+};
+
+struct OVERLAY_OPTIONS
+{
+    RODATA_SECTION_OPTION rodataSection;
+    TEXT_SECTION_OPTION   textSection;
+    DATA_SECTION_OPTION   dataSection;
+};
+
+struct FOOTER_DATA_OPTIONS
+{
+    FSkip(0x4E00 - 0x4DF4);
+};
+
+struct OVERLAY_SAVELOAD
+{
+    RODATA_SECTION_SAVELOAD rodataSection;
+    TEXT_SECTION_SAVELOAD   textSection;
+    DATA_SECTION_SAVELOAD   dataSection;
+};
+
+struct FOOTER_DATA_SAVELOAD
+{
+    FSkip(0x5100 - 0x50D8);
+};
+
+struct OVERLAY_CREDITS
+{
+    RODATA_SECTION_CREDITS rodataSection;
+    TEXT_SECTION_CREDITS   textSection;
+    DATA_SECTION_CREDITS   dataSection;
+};
+
+struct FOOTER_DATA_CREDITS
+{
+    FSkip(0x3B00 - 0x3A10);
+};
+
+struct OVERLAY_STREAM
+{
+    RODATA_SECTION_STREAM rodataSection;
+    TEXT_SECTION_STREAM   textSection;
+    DATA_SECTION_STREAM   dataSection;
+    BSS_SECTION_STREAM    bssSection;
+};
+
+struct FOOTER_DATA_STREAM
+{
+    FSkip(0x12B00 - 0x12AF4);
+};
+
+//------------------------------------------------
+// Main
+//------------------------------------------------
+
+local string fileName = FileNameGetBase(GetFileName());
+
+DisasmSetMode(DISASM_MIPS_32);
+
+if (fileName == "B_KONAMI.BIN")
+{
+    SetStartingAddress(0x800C9578);
+    OVERLAY_B_KONAMI     overlay <open=true>;
+    FOOTER_DATA_B_KONAMI footer_data;
+}
+else if (fileName == "OPTION.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_OPTIONS     overlay <open=true>;
+    FOOTER_DATA_OPTIONS footer_data;
+}
+else if (fileName == "SAVELOAD.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_SAVELOAD     overlay <open=true>;
+    FOOTER_DATA_SAVELOAD footer_data;
+}
+else if (fileName == "STF_ROLL.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_CREDITS     overlay <open=true>;
+    FOOTER_DATA_CREDITS footer_data;
+}
+else if (fileName == "STREAM.BIN")
+{
+    SetStartingAddress(0x801E2600);
+    OVERLAY_STREAM     overlay <open=true>;
+    FOOTER_DATA_STREAM footer_data;
+}
