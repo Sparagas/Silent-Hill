@@ -221,7 +221,7 @@ struct Text_options
     Opcode Options_Selection_HighlightDraw[528];
     Opcode Options_Selection_ArrowDraw[388];
     Opcode Options_Selection_BulletPointDraw[524];
-    Opcode Options_Controller_Control[824];
+    Opcode Options_ControllerMenu_Control[824];
     Opcode Options_ControllerMenu_ConfigUpdate[620];
     Opcode Options_ControllerMenu_EntriesDraw[524];
     Opcode Options_ControllerMenu_ButtonIconsDraw[392];
@@ -394,7 +394,7 @@ struct Data_saveload
     uint32 g_GameState_DeathLoadScreen_Funcs[4] <format=hex>;
     int32  D_801E7554;
     int32  D_801E7558;
-    int32  g_SaveWriteOptionSelected[2];
+    int32  g_IsSaveWriteOptionSelected[2];
     int32  D_801E7564[2];
     int16  D_801E756C[2];
     int16  g_HiddenElementsByDisplacement[2];
