@@ -14,7 +14,7 @@
 
 #include "psx_exe.bt"
 #include "sh1_overlay_bodyprog.bt"
-#include "sh1_overlays.bt"
+#include "sh1_overlays_maps.bt"
 
 //------------------------------------------------
 // Main
@@ -33,6 +33,8 @@ else {
 
 OffsetSetLimitSize(0x200000);
 FSeek(0);
+
+DisasmSetMode(DISASM_MIPS_32);
 
 FSeek(45168);
 XF_HDR header;

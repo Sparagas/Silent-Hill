@@ -14,16 +14,20 @@
 
 
 //------------------------------------------------
-// Structs
+// In-line Structs
 //------------------------------------------------
 
 typedef struct {
-    //int16 m[3][3]; /* 3x3 rotation matrix */
     int16 m[3 * 3]; /* 3x3 rotation matrix */
-    uint8 _pad[2];
-    int32 t[3];    /* transfer vector */
+    FSkip(2);
+    int32 t[3];     /* transfer vector */
 } MATRIX;
 
+
+typedef struct DVECTOR
+{
+	int16 vx, vy;
+} DVECTOR;
 
 typedef struct _FsImageDesc
 {
@@ -33,12 +37,6 @@ typedef struct _FsImageDesc
     int16 clutX;
     int16 clutY;
 } s_FsImageDesc;
-
-
-typedef struct DVECTOR
-{
-	int16 vx, vy;
-} DVECTOR;
 
 /** @brief Smaller `SVECTOR` with padding removed. Used for fixed-point rotations. */
 typedef struct
@@ -58,7 +56,7 @@ typedef struct _Normal
 
 
 /** @brief 8-character string usually used for filenames. Can be compared via the `u32` field. */
-typedef union
+typedef union _Filename
 {
     char   str[8];
     uint32 u32[2];
@@ -112,32 +110,42 @@ typedef struct _MeshHeader
     uint8 normalCount_2;
     uint8 unkCount_3;
 
-    uint32 primitivesPtr_4 <format=hex, comment="s_Primitive*">;
-    uint32 vertexXyPtr_8   <format=hex, comment="DVECTOR*">;
-    uint32 vertexZPtr_C    <format=hex, comment="s16*">;
-    uint32 normalsPtr_10   <format=hex, comment="s_Normal*">;
-    uint32 unkPtr_14       <format=hex, comment="u8*">;
+    uint32      primitives_4_Offset <format=hex, comment="s_Primitive*">;
+    s_Primitive primitives_4_Data [ primitiveCount_0 ] <pos=(primitives_4_Offset+OffsetStart), optimize=true>;
+    
+    uint32      vertexXy_8_Offset   <format=hex, comment="DVECTOR*">;
+    DVECTOR     vertexXy_8_Data [ vertexCount_1 ] <pos=(vertexXy_8_Offset+OffsetStart), optimize=true>;
+    
+    uint32      vertexZ_C_Offset    <format=hex, comment="int16*">;
+    int16       vertexZ_C_Data [ vertexCount_1 ] <pos=(vertexZ_C_Offset+OffsetStart)>;
+    
+    uint32      normals_10_Offset   <format=hex, comment="s_Normal*">;
+    s_Normal    normals_10_Data [ normalCount_2 ] <pos=(normals_10_Offset+OffsetStart), optimize=true>;
+    
+    uint32      unkPtr_14_Offset    <format=hex, comment="uint8*">;
+    uint8       unkPtr_14_Data [ unkCount_3 ] <pos=(unkPtr_14_Offset+OffsetStart)>;
 } s_MeshHeader;
 
 
 typedef struct _ModelHeader
 {
-    char   modelName_0[8];
-    uint8  meshCount_8;
-    uint8  vertexOffset_9;
-    uint8  normalOffset_A;
-    uint8  field_B_0 : 1;
-    uint8  field_B_1 : 3;
-    uint8  field_B_4 : 2;
-    uint8  unk_B_6   : 2;
-    uint32 meshHeadersPtr_C <format=hex, comment="s_MeshHeader*">;
+    u_Filename   name_0;
+    uint8        meshCount_8;
+    uint8        vertexOffset_9;
+    uint8        normalOffset_A;
+    uint8        field_B_0 : 1;
+    uint8        field_B_1 : 3;
+    uint8        field_B_4 : 2;
+    uint8        unk_B_6   : 2;
+    
+    uint32       meshHeaders_C_Offset <format=hex, comment="s_MeshHeader*">;
+    s_MeshHeader meshHeaders_C_Data [ meshCount_8 ] <pos=(meshHeaders_C_Offset+OffsetStart), optimize=true>;
 } s_ModelHeader;
 
-// Individual texture data.
-typedef struct _Material_8
+typedef struct _Texture
 {
     s_FsImageDesc imageDesc_0;
-    char          textureName_8[8];
+    u_Filename    name_8;
     uint32        queueIdx_10;
     int8          refCount_14;
 } s_Texture;
@@ -145,8 +153,11 @@ typedef struct _Material_8
 
 typedef struct _Material
 {
-    char       name_0[8];
-    uint32     texPtr_8 <format=hex, comment="s_Texture*">;
+    u_Filename name_0;
+    
+    uint32     texture_8_Offset <format=hex, comment="s_Texture*">;
+    s_Texture  texture_8_Data <pos=(texture_8_Offset+OffsetStart)>;
+    
     uint8      field_C;
     uint8      unk_D[1];
     uint8      field_E;
@@ -165,25 +176,31 @@ typedef struct _Material
     } field_16;
 } s_Material;
 
-
 typedef struct _LmHeader
 {
-    uint8  magic_0;
+    uint8         magic_0;    /** See `LM_HEADER_MAGIC`. */
     Assert(magic_0 == 0x30);
-    uint8  version_1;
+
+    uint8         version_1;  /** See `LM_VERSION`. */
     Assert(version_1 == 6);
-    uint8  isLoaded_2;
-    uint8  materialCount_3;
-    uint32 materialsPtr_4  <format=hex, comment="s_Material*">;
-    uint8  modelCount_8;
-    uint8  unk_9[3];
-    uint32 modelHeadersPtr_C <format=hex, comment="s_ModelHeader*">;
-    uint32 modelOrderPtr_10  <format=hex, comment="u8*">;
-    // File header ends, extra data below. Might be separate from this struct?
-    //int8   unk_11[4075];
-    //int32  queueIdx_1000;
+
+    uint8         isLoaded_2; /** `bool` */
+    uint8         materialCount_3;
+    
+    uint32        materials_4_Offset <format=hex, comment="s_Material*">;
+    s_Material    materials_4_Data [ materialCount_3 ] <pos=(materials_4_Offset+OffsetStart), optimize=true>;
+    
+    uint8         modelCount_8;
+    uint8         unk_9[3];
+    
+    uint32        modelHeaders_C_Offset <format=hex, comment="s_ModelHeader*">;
+    s_ModelHeader modelHeaders_C_Data [ modelCount_8 ] <pos=(modelHeaders_C_Offset+OffsetStart), optimize=true>;
+    
+    uint32        modelOrder_10_Offset <format=hex, comment="uint8*">;
+    uint8         modelOrder_10_Data [ modelCount_8 ] <pos=(modelOrder_10_Offset+OffsetStart)>;
 } s_LmHeader;
 
+//------------------------------------------------
 
  typedef struct s_IpdCollisionData_10
  {
@@ -232,8 +249,8 @@ typedef struct _IpdCollisionData_18
 
 typedef struct _IpdCollisionData
 {
-    int32  posX_0;
-    int32  posZ_4;
+    int32  positionX_0;
+    int32  positionZ_4;
     uint32 field_8_0  : 8;
     uint32 field_8_8  : 8;
     uint32 field_8_16 : 8;
@@ -243,12 +260,12 @@ typedef struct _IpdCollisionData
     uint32 ptr_14          <format=hex, comment="s_IpdCollisionData_14*">;
     uint32 ptr_18          <format=hex, comment="s_IpdCollisionData_18*">;
     int16  field_1C;
-    uint8  field_1E;
-    uint8  field_1F;
+    uint8  field_1E; // } Used as multipliers for `field_1C` in `func_8006B004`.
+    uint8  field_1F; // }
     uint32 ptr_20          <format=hex, comment="s_IpdCollisionData_20*">;
     uint16 field_24; // `field_24/``field_26` defined in ipd2obj but haven't seen used yet, might be size of `ptr_28`/`ptr_2C`.
     uint16 field_26;
-    uint32 ptr_28          <format=hex, comment="u8*">;
+    uint32 ptr_28          <format=hex, comment="u8*">; // Accessed as array of indices into `field_34` by `func_8006E53C`.
     uint32 ptr_2C          <format=hex, comment="void*">;
     uint8  field_30;
     uint8  unk_31[3];
@@ -257,7 +274,7 @@ typedef struct _IpdCollisionData
 
 typedef struct _IpdModelBuffer_C
 {
-    uint32 modelHeader_0 <format=hex, comment="s_ModelHeader*">;
+    uint32 modelHdr_0 <format=hex, comment="s_ModelHeader*">;
     MATRIX field_4;
 } s_IpdModelBuffer_C;
 
@@ -281,82 +298,99 @@ typedef struct _IpdModelInfo
 {
     uint8      isGlobalPlm_0; // `false` if loaded from inside `IPD`, `true` if loaded from `*_GLB.PLM`.
     uint8      unk_1[3];
-    char       modelName_4[8];
-    uint32     modelHeaderPtr_C <format=hex, comment="s_ModelHeader*">;
+    u_Filename modelName_4;
+    uint32     modelHdr_C <format=hex, comment="s_ModelHeader*">;
 } s_IpdModelInfo;
 
 typedef struct _IpdHeader
 {
     uint8              magic_0;
-    Assert ( magic_0 == 0x14 );
+    Assert(magic_0 == 0x14);
+    
     uint8              isLoaded_1; /** `bool` */
     int8               levelGridX_2;
     int8               levelGridY_3;
-    uint32             lmHeaderPtr_4        <format=hex, comment="s_LmHeader*">;
+    uint32             lmHdr_4_Offset       <format=hex, comment="s_LmHeader*">;
     uint8              modelCount_8;
     uint8              modelBufferCount_9;
     uint8              modelOrderCount_A;
     uint8              unk_B[1];
     uint8              unk_C[8];
-    uint32             modelInfoPtr_14      <format=hex, comment="s_IpdModelInfo*">;
-    uint32             modelBuffersPtr_18   <format=hex, comment="s_IpdModelBuffer*">;
+    uint32             modelInfo_14_Offset    <format=hex, comment="s_IpdModelInfo*">;
+    uint32             modelBuffers_18_Offset <format=hex, comment="s_IpdModelBuffer*">;
     uint8              textureCount_1C;                   // Should it be `u32`?
                                                           // "`u8` - Relative pointer to textures list"
                                                           // "`u32` - Relative pointer to object order"
     uint8              unk_1D[3];
     uint8              unk_20[48];
-    uint32             modelOrderPtr_50 <format=hex, comment="u8*">;
+    uint32             modelOrderPtr_50_Offset <format=hex, comment="u8*">;
     s_IpdCollisionData collisionData_54;
 } s_IpdHeader;
 
 //------------------------------------------------
+// Out-of-line Structs
+//------------------------------------------------
 
-struct MeshBuffer
+typedef struct _MeshHeader_Data
 {
     #define J meshHeaders_C[j]
 
-    FSeek       ( J.primitivesPtr_4 );
-    s_Primitive primitives [ J.primitiveCount_0 ];
+    FSeek       ( J.primitives_4_Offset );
+    s_Primitive primitives [ J.primitiveCount_0 ] <optimize=true>;
 
-    FSeek   ( J.vertexXyPtr_8 );
-    DVECTOR verticesXy [ J.vertexCount_1 ];
+    FSeek   ( J.vertexXy_8_Offset );
+    DVECTOR verticesXy [ J.vertexCount_1 ] <optimize=true>;
 
-    FSeek ( J.vertexZPtr_C );
+    FSeek ( J.vertexZ_C_Offset );
     int16 verticesZ [ J.vertexCount_1 ];
 
-    FSeek    ( J.normalsPtr_10 );
-    s_Normal normals [ J.normalCount_2 ];
+    FSeek    ( J.normals_10_Offset );
+    s_Normal normals [ J.normalCount_2 ] <optimize=true>;
 
-    FSeek ( J.unkPtr_14 );
+    FSeek ( J.unkPtr_14_Offset );
     ubyte unkIdx [ J.unkCount_3 ];
-};
+} s_MeshHeader_Data;
 
-struct MeshBuffers
+typedef struct _MeshHeader_DataArray
 {
-    for ( int j = 0; j < modelHeaders[i].meshCount_8; j++ )
+    for ( int j = 0; j < lmHeader_Data.modelHeaders[i].meshCount_8; j++ )
     {
-	    FSeek      ( J.primitivesPtr_4 );
-        MeshBuffer meshBuffer;
+	    FSeek      ( J.primitives_4_Offset );
+        s_MeshHeader_Data meshHeaders_C_Data;
     };
-};
+} s_MeshHeader_DataArray;
 
-struct Model
+typedef struct _ModelHeader_Data
 {
-    FSeek       ( modelHeaders[i].meshHeadersPtr_C );
-    s_MeshHeader meshHeaders_C [ modelHeaders[i].meshCount_8 ];
+    FSeek       ( lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset );
+    s_MeshHeader meshHeaders_C [ lmHeader_Data.modelHeaders[i].meshCount_8 ] <optimize=true>;
 
-    FSeek       ( meshHeaders_C.primitivesPtr_4 );
-    MeshBuffers meshBuffers;
-};
+    FSeek       ( meshHeaders_C.primitives_4_Offset );
+    s_MeshHeader_DataArray meshHeaders_C_DataArray;
+} s_ModelHeader_Data;
 
-struct Models
+typedef struct _ModelHeader_DataArray
 {
     for (int i = 0; i < lmHeader.modelCount_8; i++ )
     {
-        FSeek ( modelHeaders[i].meshHeadersPtr_C );
-        Model model;
+        FSeek ( lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset );
+        s_ModelHeader_Data modelHeaders_C;
     };
-};
+} s_ModelHeader_DataArray;
+
+typedef struct _LmHeader_Data
+{
+    FSeek ( lmHeader.materials_4_Offset );
+    s_Material materials [ lmHeader.materialCount_3 ] <optimize=true>;
+    
+    FSeek ( lmHeader.modelHeaders_C_Offset );
+    s_ModelHeader modelHeaders [ lmHeader.modelCount_8 ] <optimize=true>;
+    
+    // FSkip(lmHeader.modelCount_8);
+    
+    FSeek ( lmHeader.modelOrder_10_Offset );
+    uint8 modelsOrder [ lmHeader.modelCount_8 ];
+} s_LmHeader_Data;
 
 //------------------------------------------------
 
@@ -364,10 +398,10 @@ struct IPD_PART
 {
     s_IpdHeader ipdHeader;
 
-    FSeek          ( ipdHeader.modelInfoPtr_14 );
+    FSeek          ( ipdHeader.modelInfo_14_Offset );
     s_IpdModelInfo modelInfo [ ipdHeader.modelCount_8 ];
     
-    FSeek            ( ipdHeader.modelBuffersPtr_18 );
+    FSeek            ( ipdHeader.modelBuffers_18_Offset );
     s_IpdModelBuffer modelBuffer [ ipdHeader.modelBufferCount_9 ];
 
     struct IpdModelBuffers {
@@ -375,7 +409,7 @@ struct IPD_PART
         {
             struct {
                 FSeek( modelBuffer[i].fieldPtr_C );
-                s_IpdModelBuffer_C field_C[modelBuffer[i].field_0];
+                s_IpdModelBuffer_C field_C[modelBuffer[i].field_0] <optimize=true>;
                 
                 FSeek( modelBuffer[i].fieldPtr_10 );
                 SVECTOR3 field_10;
@@ -385,30 +419,15 @@ struct IPD_PART
             } IpdModelBuffer;
         }
     } ipdModelBuffers;
-
-    FSeek          ( ipdHeader.lmHeaderPtr_4 );  
-    OffsetSetStart ( FTell() );
 };
 
 struct LM_PART
 {
-    s_LmHeader lmHeader; 
-
-    FSeek      ( lmHeader.materialsPtr_4 );
-    s_Material material [ lmHeader.materialCount_3 ];
+    s_LmHeader      lmHeader; 
+    s_LmHeader_Data lmHeader_Data;
     
-    FSeek         ( lmHeader.modelHeadersPtr_C );
-    s_ModelHeader modelHeaders [ lmHeader.modelCount_8 ];
-    
-    //struct PADDING {
-    //    byte pad;
-    //} padding [ lmHeader.modelCount_8 ];
-    
-    FSeek ( lmHeader.modelOrderPtr_10 );
-    uint8 modelsOrder [ lmHeader.modelCount_8 ];
-    
-    FSeek  ( modelHeaders.meshHeadersPtr_C );
-    Models models;
+    FSeek  ( lmHeader_Data.modelHeaders.meshHeaders_C_Offset );
+    s_ModelHeader_DataArray modelHeaders_C;
 };
 
 
@@ -416,8 +435,13 @@ struct LM_PART
 // Main
 //------------------------------------------------
 
-
+local uint32 OffsetStart = 0;
 if (ReadShort() == 0x14)
+{
     IPD_PART ipdPart <open=true>;
-
+    
+    OffsetSetStart ( ipdPart.ipdHeader.lmHdr_4_Offset );
+    OffsetStart = OffsetGetStart();
+    FSeek(0);
+}
 LM_PART lmPart <open=true>;
