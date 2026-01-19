@@ -130,7 +130,7 @@ The earliest game found using this format is *Shadow of Destiny* (also known as 
 *Silent Hill 2* is the only game that has a different version per platform: version 3 for *PS2* and version 4 for *Xbox* and *PC*. *Silent Hill 3* still uses version 3. *Silent Hill: HD Collection / Silent Hill: HD Edition* contains the *Sony - PlayStation 2* versions of *Silent Hill 2* and *Silent Hill 3*. Both games are in big endian, making them easier to reverse engineer.
 
 ### Firefighter F.D.18
-This game has a different Magic ID: `21 06 02 20`.
+This game has a different Magic ID: `21 06 02 20` or `0x20020621`. Probably a game development date - 2002-06-21.
 
 ### Pro Evolution Soccer / Winning Eleven series
 *PES 1* (*Winning Eleven 5*) and *PES 2* (*Winning Eleven 6*) actually use RenderWare instead of the Konami skeletal format. Many other Konami non-*PES* football games do not appear to use this format either. Similarly, other handheld *PES* games for *Nintendo - Nintendo DS* and *Nintendo - Nintendo 3DS* seem to use different formats. Mobile versions like *Apple iOS*, *Google - Android*, and others were not tested, but it is unlikely they use this format. While not all Xbox 360 and PS3 *PES* games were tested, it appears they also use a different format. Additionally, *PES* games for PC and Wii have not been tested yet.
