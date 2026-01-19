@@ -139,7 +139,7 @@ This game has a different Magic ID: `21 06 02 20`.
 For *PS2* era games, these are the only *Contra* and *Castlevania* titles that use this format. *Nanobreaker* uses the Castlevania engine.
 
 ### Other tested games
-It appears that the *Metal Gear Solid*, *Dance Dance Revolution*, and *Zone of the Enders* series for *PS2* do not use the Konami skeletal model format.
+It appears that the *Metal Gear Solid*, *Dance Dance Revolution*, and *Zone of the Enders* series for the *PS2*, as well as Konami’s *Frogger* games for the *PS2*, *PSP*, and *NDS*, do not use the Konami skeletal model format.
 
 Below is a more detailed list of each game.
 
