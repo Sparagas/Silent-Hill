@@ -1,0 +1,153 @@
+//------------------------------------------------
+//--- 010 Editor v16.0.2 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+// 03 00 FF FF ?? 00 00 00 ?? 00 00 00 ?? 00 00 00 ?? ?? 00 00 ?? 00 00 00 ?? ?? 00 00 ?? ?? 00 00
+// 21 06 02 20 ?? 00 00 00 ?? 00 00 00 ?? 00 00 00 ?? ?? 00 00 ?? 00 00 00 ?? ?? 00 00 ?? ?? 00 00
+// ?? ?? ?? ?? ?? 00 00 00 ?? 00 00 00 ?? 00 00 00 ?? ?? 00 00 ?? 00 00 00 ?? ?? 00 00 ?? ?? 00 00
+
+// \x03\x00\xFF\xFF.\x00\x00\x00.\x00\x00\x00.\x00\x00\x00..\x00\x00.\x00\x00\x00..\x00\x00..\x00\x00
+// \x03\x00\xFF\xFF[\x00-\x10]\x00\x00\x00[\x00\x80]\x00\x00\x00.\x00\x00\x00..\x00\x00.\x00\x00\x00..\x00\x00..\x00\x00
+// \x21\x06\x02\x20[\x00-\x10]\x00\x00\x00[\x00\x80]\x00\x00\x00.\x00\x00\x00..\x00\x00.\x00\x00\x00..\x00\x00..\x00\x00
+// ...[\x20\xFF][\x00-\x10]\x00\x00\x00[\x00\x80]\x00\x00\x00.\x00\x00\x00..\x00\x00.\x00\x00\x00..\x00\x00..\x00\x00
+
+/*
+TFindResults r = FindAll( "FF*6A,h", true, false, 
+         FINDMETHOD_WILDCARDS ); 
+*/
+
+//BigEndian();
+
+local uint32 OffsetStart = 0;
+OffsetStart = OffsetGetStart();
+
+struct Model
+{
+	unsigned int id <format=hex>;
+	unsigned int revision;
+	unsigned int initial_matrices_offset <format=hex>;
+	unsigned int n_skeletons;
+	unsigned int skeleton_structure_offset <format=hex>;
+	unsigned int n_skeleton_pairs;
+	unsigned int skeleton_pairs_offset <format=hex>;
+    
+    unsigned int default_pcms_offset <format=hex>;
+	unsigned int n_vu1_parts;
+	unsigned int vu1_parts_offset <format=hex>;
+	unsigned int n_vu0_parts;
+	unsigned int vu0_parts_offset <format=hex>;
+	unsigned int n_texture_blocks;
+	unsigned int texture_blocks_offset <format=hex>;
+	unsigned int n_text_poses;
+	unsigned int text_poses_offset <format=hex>;
+	unsigned int text_pos_params_offset <format=hex>;
+	unsigned int n_cluster_nodes;
+	unsigned int cluster_nodes_offset <format=hex>;
+	unsigned int n_clusters;
+	unsigned int clusters_offset <format=hex>;
+	unsigned int n_func_data;
+	unsigned int func_data_offset <format=hex>;
+	unsigned int hit_offset <format=hex>;
+	unsigned int box_offset <format=hex>;
+	unsigned int flag;
+	unsigned int relative_matrices_offset <format=hex>;
+	unsigned int relative_transes_offset <format=hex>;
+	unsigned int reserved_1c;
+	unsigned int reserved_1d;
+	unsigned int reserved_1e;
+	unsigned int reserved_1f;
+} model;
+
+struct Matrix
+{
+    float m[16];
+};
+
+if (model.initial_matrices_offset > 0) {
+    FSeek(model.initial_matrices_offset);
+    Matrix initial_matrices[model.n_skeletons];
+}
+
+if (model.skeleton_structure_offset > 0) {
+    FSeek(model.skeleton_structure_offset);
+    short skeleton_structure[model.n_skeletons];
+}
+
+if (model.skeleton_pairs_offset > 0) {
+    FSeek(model.skeleton_pairs_offset);
+    int skeleton_pairs;
+}
+
+if (model.default_pcms_offset > 0) {
+    FSeek(model.default_pcms_offset);
+    int default_pcms;
+}
+
+if (model.vu1_parts_offset > 0) {
+    FSeek(model.vu1_parts_offset);
+    int vu1_parts;
+}
+
+if (model.vu0_parts_offset > 0) {
+    FSeek(model.vu0_parts_offset);
+    int vu0_parts;
+}
+
+if (model.texture_blocks_offset > 0) {
+    FSeek(model.texture_blocks_offset);
+    int texture_blocks;
+}
+
+if (model.text_poses_offset > 0) {
+    FSeek(model.text_poses_offset);
+    int text_poses;
+}
+
+if (model.text_pos_params_offset > 0) {
+    FSeek(model.text_pos_params_offset);
+    int text_pos_params;
+}
+
+if (model.cluster_nodes_offset > 0) {
+    FSeek(model.cluster_nodes_offset);
+    int cluster_nodes;
+}
+
+if (model.clusters_offset > 0) {
+    FSeek(model.clusters_offset);
+    int clusters;
+}
+
+if (model.func_data_offset > 0) {
+    FSeek(model.func_data_offset);
+    int func_data;
+}
+
+if (model.hit_offset > 0) {
+    FSeek(model.hit_offset);
+    int hit;
+}
+
+if (model.box_offset > 0) {
+    FSeek(model.box_offset);
+    int box;
+}
+
+if (model.relative_matrices_offset > 0) {
+    FSeek(model.relative_matrices_offset);
+    int relative_matrices;
+}
+
+if (model.relative_transes_offset > 0) {
+    FSeek(model.relative_transes_offset);
+    int relative_transes;
+}

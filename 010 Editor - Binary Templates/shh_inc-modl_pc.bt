@@ -21,6 +21,56 @@ struct SubHead {
     uint32 unk1;
 };
 
+struct UnkMeshHead {
+    uint32 magic;
+    Assert(magic==0x04003000);
+    FSkip(52);
+    uint32 unkNoesis;
+    uint32 triCount;
+    uint32 vertCount;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unkNoesis;
+    uint32 unk;
+    uint32 unk;
+    FSkip(28);
+    float unkFloat[10];
+    FSkip(12);
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+};
+
+struct UnkMesh2Head {
+    int32 magic;
+    Assert(magic==0x18);
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+    int32 unk;
+};
+
 struct BufInfo_Data {
     uint32 num_unk;
     uint32 faces_buf_size_2;
@@ -92,10 +142,34 @@ struct MODL_DAT {
     struct SubHead uvs_head;
 
     FSeek(unk0_head.offset);
-    ubyte  unk0_data[unk0_head.size];
+    struct Unk0_data {
+        local uint64 startPos = FTell();
+        local TFindResults r;
+        r = FindAll(0x04003000);
+        for(int i = 0; i < r.count; i++ ) {
+            FSeek(r.start[i]);
+            UnkMeshHead unkMeshHead;
+        }
+        // Skip 52 bytes. Had no luck doing it with regex.
+        FSeek(FindFirst("18000000????????????????????????????????????????????????????????????????????????????????????????????????????????18000000,h", true, false, FINDMETHOD_WILDCARDS));
+        while(ReadInt()==0x18)
+            UnkMesh2Head unkMesh2Head;
+
+        FSeek(unk0_head.size + startPos);
+    } unk0_data;
 
     FSeek(unk_tex_head.offset);
-    ubyte  unk_tex_data[unk_tex_head.size];
+    struct Unk_tex_data {
+        local uint64 startPos = FTell();
+        while (ReadByte() == 0x0)
+            FSkip(1);
+        while (ReadByte() != 0x0)
+            struct NameArr {
+                string name;
+            } nameArr;
+        FSeek(unk_tex_head.size + startPos);
+    } unk_tex_data;
+
 
     FSeek(buf_info_head.offset);
     struct BufInfo_Data buf_info_d;
@@ -130,3 +204,5 @@ struct MODL_DAT {
 struct Head DPND_hdr;
 Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
 struct DPND_DAT DPND_dat;
+
+// temporaly

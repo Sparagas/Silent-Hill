@@ -126,21 +126,30 @@ typedef struct _MeshHeader
     uint8       unkPtr_14_Data [ unkCount_3 ] <pos=(unkPtr_14_Offset+OffsetStart)>;
 } s_MeshHeader;
 
+//------------------------------------------------
+// bodyprog.h#L661
+
+typedef struct (uint8 count) {
+    uint32 offset                <format=hex>;
+    if (offset > 0)
+        s_MeshHeader data[count] <pos=(offset+OffsetStart), optimize=true>;
+    } s_MeshHeader_Ptr           <style=sMarker, read="s_MeshHeader* meshHdrs_C[meshCount_8]">;
 
 typedef struct _ModelHeader
 {
-    u_Filename   name_0;
-    uint8        meshCount_8;
-    uint8        vertexOffset_9;
-    uint8        normalOffset_A;
-    uint8        field_B_0 : 1;
-    uint8        field_B_1 : 3;
-    uint8        field_B_4 : 2;
-    uint8        unk_B_6   : 2;
-    
-    uint32       meshHeaders_C_Offset <format=hex, comment="s_MeshHeader*">;
-    s_MeshHeader meshHeaders_C_Data [ meshCount_8 ] <pos=(meshHeaders_C_Offset+OffsetStart), optimize=true>;
-} s_ModelHeader;
+    u_Filename       name_0;
+    uint8            meshCount_8;
+    uint8            vertexOffset_9;
+    uint8            normalOffset_A;
+    uint8            field_B_0 : 1;
+    uint8            field_B_1 : 3; // Value used in `func_800571D0` switch.
+    uint8            field_B_4 : 2;
+    uint8            unk_B_6   : 2;
+    s_MeshHeader_Ptr meshHdrs_C(meshCount_8);
+} s_ModelHeader <style=sHeading3>;
+
+//------------------------------------------------
+// bodyprog.h#L675
 
 typedef struct _Texture
 {
@@ -150,20 +159,25 @@ typedef struct _Texture
     int8          refCount_14;
 } s_Texture;
 
+//------------------------------------------------
+// bodyprog.h#L683
+
+typedef struct {
+    uint32 offset      <format=hex>;
+    if (offset > 0)
+        s_Texture data <pos=(offset+OffsetStart)>;
+    } s_Texture_Ptr <style=sMarker, read="s_Texture* texture_8">;
 
 typedef struct _Material
 {
-    u_Filename name_0;
-    
-    uint32     texture_8_Offset <format=hex, comment="s_Texture*">;
-    s_Texture  texture_8_Data <pos=(texture_8_Offset+OffsetStart)>;
-    
-    uint8      field_C;
-    uint8      unk_D[1];
-    uint8      field_E;
-    uint8      field_F;
-    uint16     field_10;
-    uint16     field_12;
+    u_Filename    name_0;
+    s_Texture_Ptr texture_8;
+    uint8         field_C;
+    uint8         unk_D[1];
+    uint8         field_E;
+    uint8         field_F;
+    uint16        field_10;
+    uint16        field_12;
     union
     {
         uint8  u8[2];
@@ -174,31 +188,44 @@ typedef struct _Material
         uint8  u8[2];
         uint16 u16;
     } field_16;
-} s_Material;
+} s_Material  <style=sHeading2>;
+
+//------------------------------------------------
+// bodyprog.h#L706
+
+typedef struct (uint8 count) {
+    uint32 offset              <format=hex>;
+    if (offset > 0)
+        s_Material data[count] <pos=(offset+OffsetStart), optimize=true>;
+    } s_Material_Ptr           <style=sMarker, read="s_Material* materials_4[materialCount_3]">;
+
+typedef struct (uint8 count) {
+    uint32 offset                 <format=hex>;
+    if (offset > 0)
+        s_ModelHeader data[count] <pos=(offset+OffsetStart), optimize=true>;
+    } s_ModelHeader_Ptr           <style=sMarker, read="s_ModelHeader* modelHdrs_C[modelCount_8]">;
+
+typedef struct (uint8 count) {
+    uint32 offset         <format=hex>;
+    if (offset > 0)
+        uint8 data[count] <pos=(offset+OffsetStart)>;
+    } uint8_Ptr           <style=sMarker, read="uint8* modelOrder_10[modelCount_8]">;
 
 typedef struct _LmHeader
 {
-    uint8         magic_0;    /** See `LM_HEADER_MAGIC`. */
+    uint8             magic_0 <style=sHeading1Accent>;    /** See `LM_HEADER_MAGIC`. */
     Assert(magic_0 == 0x30);
-
-    uint8         version_1;  /** See `LM_VERSION`. */
+    uint8             version_1 <style=sHeading1Accent>;  /** See `LM_VERSION`. */
     Assert(version_1 == 6);
-
-    uint8         isLoaded_2; /** `bool` */
-    uint8         materialCount_3;
+    uint8             isLoaded_2; /** `bool` */
+    uint8             materialCount_3;
+    s_Material_Ptr    materials_4(materialCount_3);
+    uint8             modelCount_8;
+    uint8             unk_9[3];
+    s_ModelHeader_Ptr modelHdrs_C(modelCount_8);
+    uint8_Ptr         modelOrder_10(modelCount_8);
     
-    uint32        materials_4_Offset <format=hex, comment="s_Material*">;
-    s_Material    materials_4_Data [ materialCount_3 ] <pos=(materials_4_Offset+OffsetStart), optimize=true>;
-    
-    uint8         modelCount_8;
-    uint8         unk_9[3];
-    
-    uint32        modelHeaders_C_Offset <format=hex, comment="s_ModelHeader*">;
-    s_ModelHeader modelHeaders_C_Data [ modelCount_8 ] <pos=(modelHeaders_C_Offset+OffsetStart), optimize=true>;
-    
-    uint32        modelOrder_10_Offset <format=hex, comment="uint8*">;
-    uint8         modelOrder_10_Data [ modelCount_8 ] <pos=(modelOrder_10_Offset+OffsetStart)>;
-} s_LmHeader;
+} s_LmHeader <style=sHeading1>;
 
 //------------------------------------------------
 
@@ -276,7 +303,7 @@ typedef struct _IpdModelBuffer_C
 {
     uint32 modelHdr_0 <format=hex, comment="s_ModelHeader*">;
     MATRIX field_4;
-} s_IpdModelBuffer_C;
+} s_IpdModelBuffer_C <style=sHeading3>;
 
 typedef struct _IpdModelBuffer
 {
@@ -291,7 +318,7 @@ typedef struct _IpdModelBuffer
     uint32 fieldPtr_C  <format=hex, comment="s_IpdModelBuffer_C*">;
     uint32 fieldPtr_10 <format=hex, comment="SVECTOR*">; // Pointer to unknown collision data, type assumed.
     uint32 fieldPtr_14 <format=hex, comment="SVECTOR*">; // Pointer to unknown collision data, type assumed.
-} s_IpdModelBuffer;
+} s_IpdModelBuffer <style=sHeading3>;
 
 
 typedef struct _IpdModelInfo
@@ -300,7 +327,7 @@ typedef struct _IpdModelInfo
     uint8      unk_1[3];
     u_Filename modelName_4;
     uint32     modelHdr_C <format=hex, comment="s_ModelHeader*">;
-} s_IpdModelInfo;
+} s_IpdModelInfo <style=sHeading2>;
 
 typedef struct _IpdHeader
 {
@@ -325,7 +352,7 @@ typedef struct _IpdHeader
     uint8              unk_20[48];
     uint32             modelOrderPtr_50_Offset <format=hex, comment="u8*">;
     s_IpdCollisionData collisionData_54;
-} s_IpdHeader;
+} s_IpdHeader <style=sHeading1>;
 
 //------------------------------------------------
 // Out-of-line Structs
@@ -362,7 +389,7 @@ typedef struct _MeshHeader_DataArray
 
 typedef struct _ModelHeader_Data
 {
-    FSeek       ( lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset );
+    FSeek       ( lmHeader_Data.modelHeaders[i].meshHdrs_C.offset );
     s_MeshHeader meshHeaders_C [ lmHeader_Data.modelHeaders[i].meshCount_8 ] <optimize=true>;
 
     FSeek       ( meshHeaders_C.primitives_4_Offset );
@@ -373,23 +400,23 @@ typedef struct _ModelHeader_DataArray
 {
     for (int i = 0; i < lmHeader.modelCount_8; i++ )
     {
-        FSeek ( lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset );
+        FSeek ( lmHeader_Data.modelHeaders[i].meshHdrs_C.offset );
         s_ModelHeader_Data modelHeaders_C;
     };
 } s_ModelHeader_DataArray;
 
 typedef struct _LmHeader_Data
 {
-    FSeek ( lmHeader.materials_4_Offset );
+    FSeek ( lmHeader.materials_4.offset );
     s_Material materials [ lmHeader.materialCount_3 ] <optimize=true>;
     
-    FSeek ( lmHeader.modelHeaders_C_Offset );
+    FSeek ( lmHeader.modelHdrs_C.offset );
     s_ModelHeader modelHeaders [ lmHeader.modelCount_8 ] <optimize=true>;
     
     // FSkip(lmHeader.modelCount_8);
     
-    FSeek ( lmHeader.modelOrder_10_Offset );
-    uint8 modelsOrder [ lmHeader.modelCount_8 ];
+    FSeek ( lmHeader.modelOrder_10.offset );
+    uint8 modelsOrder [ lmHeader.modelCount_8 ] <style=sHeading4>;
 } s_LmHeader_Data;
 
 //------------------------------------------------
@@ -426,7 +453,7 @@ struct LM_PART
     s_LmHeader      lmHeader; 
     s_LmHeader_Data lmHeader_Data;
     
-    FSeek  ( lmHeader_Data.modelHeaders.meshHeaders_C_Offset );
+    FSeek  ( lmHeader_Data.modelHeaders.meshHdrs_C.offset );
     s_ModelHeader_DataArray modelHeaders_C;
 };
 

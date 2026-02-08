@@ -4,7 +4,7 @@
 //      File: afs.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
 //   Version: 0.0
-//   Purpose: Parse AFS archive.
+//   Purpose: Parse CRI Middleware AFS archive.
 //  Category: Archive
 // File Mask: *.afs
 //  ID Bytes: 
@@ -12,48 +12,72 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-char magic[4];
-uint32 file_count;
+struct Entry
+{
+    uint32 offset <format=hex>;
+    int32  size;
+};
 
+struct FileData
+{
+    if (fileTable[i].size > 0)
+        char data[fileTable[i].size];
 
-struct TOC {
-    uint32 file_offset;
-    uint32 file_size;
-} toc[file_count];
+};
 
+struct FileData_Array
+{
+    for (uint32 i = 0; i < file_count; i++) {
+        FSeek(fileTable[i].offset);
+        FileData fileData;
+    };
+};
 
-uint32 filename_offset;
-uint32 filename_size;
+struct Metadata
+{
+    char   name[32];
+    uint16 year;
+    uint16 month;
+    uint16 day;
+    uint16 hour;
+    uint16 minute;
+    uint16 second;
+    uint32 custom <comment="usualy copy of file size">;
+};
 
+//------------------------------------------------
 
-if (filename_offset == 0) {
-    FSeek(toc[0].file_offset);
-    FSkip(-8);
-    uint32 filename_offset;
-    uint32 filename_size;
+int checkMetadataEntry() {
+    return ReadUInt() != 0 && ReadUInt() >= fileTable[file_count-1].offset + fileTable[file_count-1].size && ReadUInt() <= FileSize();
 }
 
+//------------------------------------------------
 
-struct files {
-    char data[toc[i].file_size];
-};
+char   magic[4];
+uint32 file_count;
+Entry  fileTable[file_count];
 
+local int isMetadata = 0;
 
-local int i;
-for (i=0; i < file_count; i++) {
-    FSeek(toc[i].file_offset);
-    files file;
-};
+// Sometimes they are after fileTable, sometimes just before filesData_Array.
+// Sometimes it is padded with random garbage, so there need to be more tests.
+if (checkMetadataEntry()) {
+    isMetadata = 1;
+    Entry metadataEntry;
+} else {
+    FSeek(fileTable[0].offset);
+    FSkip(-8);
+    if (checkMetadataEntry()) {
+        isMetadata = 1;
+        Entry metadataEntry;
+    }
+}
 
+FSeek(fileTable[0].offset);
+FileData_Array fileData_Array;
 
-FSeek(filename_offset);
-struct Directory {
-char name[32];
-uint16 year;
-uint16 month;
-uint16 day;
-uint16 hour;
-uint16 minute;
-uint16 second;
-uint32 file_size_2;
-} directory[file_count];
+// Optional part.
+if (isMetadata) {
+    FSeek(metadataEntry.offset);
+    Metadata metadata[file_count];
+}
