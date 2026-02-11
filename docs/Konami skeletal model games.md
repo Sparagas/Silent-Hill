@@ -20,6 +20,7 @@ Further inspection has revealed that many more Konami games use this format, mea
 | 7       | [J.League Winning Eleven Tactics](#jleague-winning-eleven-tactics) | PS2 |
 | 8       | [European Club Soccer: Winning Eleven Tactics](#european-club-soccer-winning-eleven-tactics) | PS2 |
 | 8       | [Pro Evolution Soccer Management](#pro-evolution-soccer-management) | PS2 |
+| 7       | [Winning Eleven 6 (PES 2)](#winning-eleven-6-japan-aka-pro-evolution-soccer-2-on-other-consoles-in-non-asia-regions) | GameCube |
 | 7       | [PES 3 / Winning Eleven 7](#pro-evolution-soccer-3-europe-aka-winning-eleven-7-usa-asia) | PS2 |
 | 8       | [PES 4 / Winning Eleven 8](#pro-evolution-soccer-4-europe-aka-winning-eleven-8-usa-asia) | PS2 |
 | 8       | [PES 5 / Winning Eleven 9](#pro-evolution-soccer-5-europe-aka-winning-eleven-9-usa-asia) | PS2, PSP |
@@ -133,7 +134,7 @@ The earliest game found using this format is *Shadow of Destiny* (also known as 
 This game has a different Magic ID: `21 06 02 20` or `0x20020621`. Probably a game development date - 2002-06-21.
 
 ### Pro Evolution Soccer / Winning Eleven series
-*PES 1* (*Winning Eleven 5*) and *PES 2* (*Winning Eleven 6*) actually use RenderWare instead of the Konami skeletal format. Many other Konami non-*PES* football games do not appear to use this format either. Similarly, other handheld *PES* games for *Nintendo - Nintendo DS* and *Nintendo - Nintendo 3DS* seem to use different formats. Mobile versions like *Apple iOS*, *Google - Android*, and others were not tested, but it is unlikely they use this format. While not all Xbox 360 and PS3 *PES* games were tested, it appears they also use a different format. Additionally, *PES* games for PC and Wii have not been tested yet.
+*PES 1* (*Winning Eleven 5*) and *PES 2* (*Winning Eleven 6*) actually use RenderWare instead of the Konami skeletal format. But surpisingly Japaniese version of *Winnning Eleven 6* for GameCube uses this format. Many other Konami non-*PES* football games do not appear to use this format either. Similarly, other handheld *PES* games for *Nintendo - Nintendo DS* and *Nintendo - Nintendo 3DS* seem to use different formats. Mobile versions like *Apple iOS*, *Google - Android*, and others were not tested, but it is unlikely they use this format. While not all Xbox 360 and PS3 *PES* games were tested, it appears they also use a different format. Additionally, *PES* games for PC and Wii have not been tested yet.
 
 ### Contra, Castlevania, and Nanobreaker
 For *PS2* era games, these are the only *Contra* and *Castlevania* titles that use this format. *Nanobreaker* uses the Castlevania engine.
@@ -261,6 +262,11 @@ Updated version
 |-------|--------|
 | 7 | Sony - PlayStation 2 |
 
+### Sony - PlayStation 2
+- Firefighter F.D.18 (Europe) (En,Fr,De,Es,It)
+- Firefighter F.D.18 (Japan)
+- Firefighter F.D.18 (USA)
+
 ## J.League Winning Eleven Tactics
 |Version|Platform|
 |-------|--------|
@@ -285,10 +291,13 @@ Updated version
 ### Sony - PlayStation 2
 - Pro Evolution Soccer Management (Europe) (En,Fr,De,Es,It)
 
+## Winning Eleven 6 (Japan) a.k.a. Pro Evolution Soccer 2 (on other consoles in non Asia regions)
+|Version|Platform|
+|-------|--------|
+| 7 |Nintendo - GameCube |
+
 ### Sony - PlayStation 2
-- Firefighter F.D.18 (Europe) (En,Fr,De,Es,It)
-- Firefighter F.D.18 (Japan)
-- Firefighter F.D.18 (USA)
+- World Soccer Winning Eleven 6 - Final Evolution (Japan)
 
 ## Pro Evolution Soccer 3 (Europe) a.k.a. Winning Eleven 7 (USA, Asia)
 |Version|Platform|
