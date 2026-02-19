@@ -1,0 +1,140 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_pak.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming PAK archive for Microsoft - Windows, Sony - PlayStation 3 and Micrisoft - Xbox 360
+//  Category: Archive
+// File Mask: *.pak
+//  ID Bytes: 50 41 4B 5F //PAK_
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+typedef enum <uint16> FileType {
+    FILETYPE_MYS = 0x00,
+    FILETYPE_SCT = 0x01,
+    FILETYPE_MDL = 0x02,
+    FILETYPE_MAT = 0x03,
+    FILETYPE_SYT = 0x04,
+    FILETYPE_CSV = 0x09,
+    FILETYPE_DDB = 0x0B,
+    FILETYPE_HKC = 0x0D,
+    FILETYPE_PTM = 0x10,
+    FILETYPE_PGP = 0x11,
+    FILETYPE_PHP = 0x13,
+    FILETYPE_MTM = 0x14,
+    FILETYPE_XML = 0x15,
+    FILETYPE_GAT = 0x16,
+    FILETYPE_CAP = 0x17,
+    FILETYPE_HKS = 0x1C,
+    FILETYPE_HKA = 0x1D,
+    FILETYPE_HCL = 0x1E,
+    FILETYPE_SES = 0x1F,
+    FILETYPE_HKP = 0x22,
+    FILETYPE_NVM = 0x23,
+    FILETYPE_OGG = 0x27,
+    FILETYPE_SAC = 0x28
+} e_FileType;
+
+//------------------------------------------------
+
+typedef struct Header {
+    char   magic[4];
+    Assert(magic == "PAK_", "Not Silent Hill: Homecoming PAK_ file");
+    int32  version;
+    uint32 fileCount;
+    uint32 pad;
+    Assert(pad == 0);
+} s_Header;
+
+
+typedef struct MiniEntry {
+    char   filename[64];
+    uint32 offset <format=hex>;
+    int32  size;
+    uint32 unk;
+} s_MiniEntry <optimize=false>;
+
+
+typedef struct Entry {
+    char       filename[64];
+    uint32     indexFlag;
+    time_t     timestamp;
+    uint32     offset <format=hex>;
+    int32      compressedSize;
+    int16      fileIndex;
+    e_FileType fileType;
+    int32      uncompressedSize;
+} s_Entry <read=ReadEntry>;
+
+//------------------------------------------------
+
+string ReadEntry( s_Entry &entry ) {
+    local char ext[] = "";
+
+    switch (entry.fileType) {
+        case FILETYPE_MYS: ext = ".mys"; break;
+        case FILETYPE_SCT: ext = ".sct"; break;
+        case FILETYPE_MDL: ext = ".mdl"; break;
+        case FILETYPE_MAT: ext = ".mat"; break;
+        case FILETYPE_SYT: ext = ".syt"; break;
+        case FILETYPE_CSV: ext = ".csv"; break;
+        case FILETYPE_DDB: ext = ".ddb"; break;
+        case FILETYPE_HKC: ext = ".hkc"; break;
+        case FILETYPE_PTM: ext = ".ptm"; break;
+        case FILETYPE_PGP: ext = ".pgp"; break;
+        case FILETYPE_PHP: ext = ".php"; break;
+        case FILETYPE_MTM: ext = ".mtm"; break;
+        case FILETYPE_XML: ext = ".xml"; break;
+        case FILETYPE_GAT: ext = ".gat"; break;
+        case FILETYPE_CAP: ext = ".cap"; break;
+        case FILETYPE_HKS: ext = ".hks"; break;
+        case FILETYPE_HKA: ext = ".hka"; break;
+        case FILETYPE_HCL: ext = ".hcl"; break;
+        case FILETYPE_SES: ext = ".ses"; break;
+        case FILETYPE_HKP: ext = ".hkp"; break;
+        case FILETYPE_NVM: ext = ".nvm"; break;
+        case FILETYPE_OGG: ext = ".ogg"; break;
+        case FILETYPE_SAC: ext = ".sac"; break;
+        default:
+            ext = Str("._unk_ext_%d", entry.fileType);
+            break;
+    }
+
+    return Str("%s%s", entry.filename, ext);
+}
+
+//------------------------------------------------
+
+local string fileName = FileNameGetBase(GetFileName());
+
+local int len = Strlen(fileName);
+
+// exit if filename ends with "_NN" where N is a number.
+if ((len > 7 &&
+      IsCharNum(fileName[len - 5]) &&
+      IsCharNum(fileName[len - 6]) &&
+      fileName[len - 7] == '_')) {
+    Exit(0);
+}
+
+// PC uses Little Endian, and consoles use Big Endian. Terermining by header.fileCount.
+LittleEndian();
+if (ReadUInt(8) > 10000)
+    BigEndian();
+
+s_Header header;
+if (fileName == "SHADERS.PAK" || fileName == "SHADERSL.PAK")
+    s_MiniEntry entry[header.fileCount];
+else
+    s_Entry entry[header.fileCount];
+/*
+for (int i = 0; i < header.fileCount; i++) {
+    if (entry.fileIndex == -1) {
+        FSeek(entry[i].offset);
+        int todo;
+    }
+}
+*/
