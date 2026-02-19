@@ -13,30 +13,53 @@
 //------------------------------------------------
 
 
-struct SubHead {
-    uint32 offset;
-    ubyte  unk_00[4];
-    uint32 size;
-    uint32 unk0;
-    uint32 unk1;
+struct PoolDirectory {
+    int32  offset;
+    Assert(offset == -1);
+    uint32 SubHeadCount;
+    Assert(SubHeadCount == 6);
+    uint32 subHeadStride;
+    Assert(subHeadStride == 20);
+    uint32 meshCount;
+    uint32 poolSize;
+    //Assert(poolTotalSize == 720);
 };
 
-struct UnkMeshHead {
+struct SubHead {
+    uint32 offset <format=hex>;
+    ubyte  unk_00[4];
+    uint32 size;
+    uint32 elementCount <comment="this could be wrong">; // e.g., 21, 4, 1
+    uint32 offsetIn20BytePool <comment="this could be wrong">;; // e.g., 140, 560. Steps by (elementCount * 20)
+};
+
+struct ObjectEntry {
+    uint32 class_id;  
+    uint32 unk1;     
+    uint32 unk1;
+    uint32 countOrSize; 
+    uint32 offsetOrValue;
+};
+
+struct SubMeshHeader {
     uint32 magic;
     Assert(magic==0x04003000);
     FSkip(52);
-    uint32 unkNoesis;
+    uint32 startIndex;
     uint32 triCount;
     uint32 vertCount;
     uint32 unk;
     uint32 unk;
     uint32 unk;
     uint32 unk;
-    uint32 unkNoesis;
+    uint32 indexCount;
     uint32 unk;
     uint32 unk;
     FSkip(28);
-    float unkFloat[10];
+    float boundSphereCenter[3];
+    float boundSphereRadius;
+    float boundBoxMin[3];
+    float boundBoxMax[3];
     FSkip(12);
     uint32 unk;
     uint32 unk;
@@ -53,17 +76,16 @@ struct UnkMeshHead {
     uint32 unk;
 };
 
-struct UnkMesh2Head {
-    int32 magic;
-    Assert(magic==0x18);
+struct MeshBufferMap {
+    int32 vb1_Stride;
+    int32 vb1_Offset;
     int32 unk;
     int32 unk;
     int32 unk;
     int32 unk;
     int32 unk;
-    int32 unk;
-    int32 unk;
-    int32 unk;
+    int32 vb2_Stride;
+    int32 vb2_Offset;
     int32 unk;
     int32 unk;
     int32 unk;
@@ -71,7 +93,7 @@ struct UnkMesh2Head {
     int32 unk;
 };
 
-struct BufInfo_Data {
+struct BufferTopologyDat {
     uint32 num_unk;
     uint32 faces_buf_size_2;
     ubyte  unk0;
@@ -97,112 +119,180 @@ struct FacesU16List {
     uint16 tri_id_2;
 };
 
-struct Verts {
+struct VertexBuffer1Dat {
     float vert_x;
     float vert_y;
     float vert_z;
-    ubyte unk0[4];
-    ubyte unk1[4];
-    ubyte unk2[4];
+    byte  normals[4];
+    byte  tangents[4];
+    ubyte boneWeights[4]; // or boneIndices[4], depending on if it's rigged
 };
 
-struct UVs {
+struct VertexBuffer2Channel1 {
     ubyte  r;
     ubyte  g;
     ubyte  b;
     ubyte  a;
-    float  u;
-    float  v;
-    uint32 unk0; // uncomment if it is with additional uint32s
-    uint32 unk1; // uncomment if it is with additional uint32s
-    uint32 unk2; // uncomment if it is with additional uint32s
-    uint32 unk3; // uncomment if it is with additional uint32s
-    uint32 unk4; // uncomment if it is with additional uint32s
-    uint32 unk5; // uncomment if it is with additional uint32s
+    float  uv0_u;
+    float  uv0_v;
+};
+
+struct VertexBuffer2Channel2 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+};
+
+struct VertexBuffer2Channel3 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+    uint32 uv2_u;
+    uint32 uv2_v;
+};
+
+struct VertexBuffer2Channel4 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+    uint32 uv2_u;
+    uint32 uv2_v;
+    uint32 uv3_u;
+    uint32 uv3_v;
+};
+
+struct UnknStruct {
+    ubyte unkn[16];
+};
+
+struct RootNode {
+    uint32 pad0;        // Always 00 00 00 00
+    Assert(pad0 == 0);
+    uint32 nodeType;    // 1 = Root, 2 = Bone, 4 = Mesh
+    uint32 flags;       // FF 00 40 00
+    //Assert(flags == 4194559);
+    ubyte  pad[32];
+    uint32 featureMask;
+    ubyte  todo[564 - 48];
 };
 
 //------------------------------------------------
 
+struct ModlDat {
+    uint32  maybeVersion;
+    Assert(maybeVersion == 4);
+    GUID    guid;
+    uint32  poolTotalSize;
+    PoolDirectory poolDir;
 
-struct Head MODL_hdr;
-struct MODL_DAT {
-    uint32 unk0;
-    ubyte  unk1[16];
-    uint32 unk2;
-    ubyte  unk_FF[4];
-    uint32 unk_6;
-    uint32 unk_20;
-    uint32 n_mesh;
-    uint32 unk_720;
-    struct SubHead unk0_head;
-    struct SubHead unk_tex_head;
-    struct SubHead buf_info_head;
-    struct SubHead faces_head;
-    struct SubHead verts_head;
-    struct SubHead uvs_head;
+    SubHead meshInfoHdr;
+    SubHead materialNamesHdr;
+    SubHead bufferTopologyHdr;
+    SubHead indexBufferHdr;
+    SubHead vertexBuffer1Hdr;
+    SubHead vertexBuffer2Hdr;
 
-    FSeek(unk0_head.offset);
-    struct Unk0_data {
-        local uint64 startPos = FTell();
-        local TFindResults r;
-        r = FindAll(0x04003000);
-        for(int i = 0; i < r.count; i++ ) {
-            FSeek(r.start[i]);
-            UnkMeshHead unkMeshHead;
-        }
-        // Skip 52 bytes. Had no luck doing it with regex.
-        FSeek(FindFirst("18000000????????????????????????????????????????????????????????????????????????????????????????????????????????18000000,h", true, false, FINDMETHOD_WILDCARDS));
-        while(ReadInt()==0x18)
-            UnkMesh2Head unkMesh2Head;
+    ObjectEntry rootObjectEntry;
+    ObjectEntry meshInfoEntries[meshInfoHdr.elementCount];
+    ObjectEntry materialNamesEntries[materialNamesHdr.elementCount];
+    ObjectEntry bufferTopologyEntries[bufferTopologyHdr.elementCount];
+    ObjectEntry indexBufferEntries[indexBufferHdr.elementCount];
+    ObjectEntry vertexBuffer1Entries[vertexBuffer1Hdr.elementCount];
 
-        FSeek(unk0_head.size + startPos);
-    } unk0_data;
+    //FSeek(poolTotalSize);
+    //ubyte unknHeader[56];
+    struct UnknStruct unknStruct[poolDir.meshCount];
 
-    FSeek(unk_tex_head.offset);
-    struct Unk_tex_data {
-        local uint64 startPos = FTell();
-        while (ReadByte() == 0x0)
-            FSkip(1);
-        while (ReadByte() != 0x0)
-            struct NameArr {
-                string name;
-            } nameArr;
-        FSeek(unk_tex_head.size + startPos);
-    } unk_tex_data;
+    FSeek(meshInfoHdr.offset);
+    struct MeshInfoDat meshInfoDat;
+
+    FSeek(materialNamesHdr.offset);
+    struct MaterialNamesDat materialNamesDat;
 
 
-    FSeek(buf_info_head.offset);
-    struct BufInfo_Data buf_info_d;
+    FSeek(bufferTopologyHdr.offset);
+    struct BufferTopologyDat bufferTopologyDat;
 
-    FSeek(faces_head.offset);
-    struct Faces_dat {
-        if (buf_info_d.faces_buf_u16_or_u32 == 0 && buf_info_d.faces_buf_list_or_strip == 0)
-            struct FacesU32List faces_u32_list[faces_head.size / 12];
+    FSeek(indexBufferHdr.offset);
+    struct IndexBufferDat indexBufferDat;
 
-        if (buf_info_d.faces_buf_u16_or_u32 == 1 && buf_info_d.faces_buf_list_or_strip == 0)
-            struct FacesU16List faces_u16_list[faces_head.size / 6];
+    FSeek(vertexBuffer1Hdr.offset);
+    struct VertexBuffer1Dat vertexBuffer1Dat[vertexBuffer1Hdr.size / 24]; // divide by stride. TODO.
 
-        if (buf_info_d.faces_buf_u16_or_u32 == 0 && buf_info_d.faces_buf_list_or_strip == 1)
-            uint32 faces_u32_strip[faces_head.size / 4];
+    FSeek(vertexBuffer2Hdr.offset);
+    ubyte  vertexBuffer2Dat[vertexBuffer2Hdr.size];
+    // TODO divide by stride each mesh.
+    // struct VertexBuffer2Channel1 vertexBuffer2Dat[vertexBuffer2Hdr.size / 12]; // sometimes this without additional uint32s
+    // struct VertexBuffer2Channel2 vertexBuffer2Dat[vertexBuffer2Hdr.size / 20]; // sometimes this with additional uint32s
+    // struct VertexBuffer2Channel4 vertexBuffer2Dat[vertexBuffer2Hdr.size / 36]; // sometimes this with additional uint32s
 
-        if (buf_info_d.faces_buf_u16_or_u32 == 1 && buf_info_d.faces_buf_list_or_strip == 1)
-            uint16 faces_u16_strip[faces_head.size / 2];
-    } faces_dat;
+    FSeek(modlHdr.size + 32);
+};
 
-    FSeek(verts_head.offset);
-    struct Verts verts_d[verts_head.size / 24];
+struct MeshInfoDat {
+    struct RootNode rootNode;
+    
+    // Temporal solution untill it is found how to parse it correctly.
+    local uint64 startPos = FTell();
+    local TFindResults r;
+    r = FindAll(0x04003000);
+    for(int i = 0; i < r.count; i++ ) {
+        FSeek(r.start[i]);
+        SubMeshHeader subMeshHeader;
+    }
+    // Temporal solution untill it is found how to parse it correctly.
+    // Skip 52 bytes. Had no luck doing it with regex.
+    FSeek(FindFirst("18000000????????????????????????????????????????????????????????????????????????????????????????????????????????18000000,h", true, false, FINDMETHOD_WILDCARDS));
+    while(ReadInt()==0x18)
+        MeshBufferMap meshBufferMap;
 
-    FSeek(uvs_head.offset);
-    ubyte  uvs_data[uvs_head.size];
-    // struct UVs uvs_d[uvs_head.size / 12]; // sometimes this without additional uint32s
-    // struct UVs uvs_d[uvs_head.size / 20]; // sometimes this with additional uint32s
-    // struct UVs uvs_d[uvs_head.size / 36]; // sometimes this with additional uint32s
+    FSeek(meshInfoHdr.size + startPos);
+ };
 
-    FSeek(MODL_hdr.data_size + 32);
-} MODL_dat;
+struct MaterialNamesDat {
+    local uint64 startPos = FTell();
+    while (ReadByte() == 0x0)
+        FSkip(1);
+    while (ReadByte() != 0x0)
+        struct NameArr {
+            string name;
+        } nameArr;
+    FSeek(materialNamesHdr.size + startPos);
+};
 
-struct Head DPND_hdr;
-Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
-struct DPND_DAT DPND_dat;
+struct IndexBufferDat {
+    if (bufferTopologyDat.faces_buf_u16_or_u32 == 0 && bufferTopologyDat.faces_buf_list_or_strip == 0)
+        struct FacesU32List faces_u32_list[indexBufferHdr.size / 12];
 
-// temporaly
+    if (bufferTopologyDat.faces_buf_u16_or_u32 == 1 && bufferTopologyDat.faces_buf_list_or_strip == 0)
+        struct FacesU16List faces_u16_list[indexBufferHdr.size / 6];
+
+    if (bufferTopologyDat.faces_buf_u16_or_u32 == 0 && bufferTopologyDat.faces_buf_list_or_strip == 1)
+        uint32 faces_u32_strip[indexBufferHdr.size / 4];
+
+    if (bufferTopologyDat.faces_buf_u16_or_u32 == 1 && bufferTopologyDat.faces_buf_list_or_strip == 1)
+        uint16 faces_u16_strip[indexBufferHdr.size / 2];
+};
+
+//------------------------------------------------
+
+Head    modlHdr;
+ModlDat modlDat;
+Head    dpndHdr;
+Assert(dpndHdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+DpndDat dpndDat;

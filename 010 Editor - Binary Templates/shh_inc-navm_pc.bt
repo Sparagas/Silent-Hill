@@ -12,5 +12,5 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-struct Head NAVM_hdr;
-ubyte  TODO[NAVM_hdr.data_size];
+struct Head navmHdr;
+ubyte  TODO[navmHdr.size];

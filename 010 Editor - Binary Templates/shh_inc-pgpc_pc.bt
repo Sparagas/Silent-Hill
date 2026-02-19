@@ -12,9 +12,9 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-struct Head PGPC_hdr;
-ubyte  TODO[PGPC_hdr.data_size];
+struct Head pgpcHdr;
+ubyte  TODO[pgpcHdr.size];
 
-struct Head DPND_hdr;
-Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
-struct DPND_DAT DPND_dat;
+struct Head dpndHdr;
+Assert(dpndHdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+struct DpndDat dpndDat;

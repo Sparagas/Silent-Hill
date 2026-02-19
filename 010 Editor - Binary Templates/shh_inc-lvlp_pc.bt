@@ -12,17 +12,17 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-struct Head LVLP_hdr;
-ubyte  TODO[LVLP_hdr.data_size];
+struct Head lvlpHdr;
+ubyte  TODO[lvlpHdr.size];
 
-struct Head INST_hdr;
-Assert(INST_hdr.magic == "INST", "Not Silent Hill: Homecoming INST file");
-ubyte  INST_dat[INST_hdr.data_size];
+struct Head instHdr;
+Assert(instHdr.magic == "INST", "Not Silent Hill: Homecoming INST file");
+ubyte  instDat[instDat.size];
 
-struct Head PATH_hdr;
-Assert(PATH_hdr.magic == "PATH", "Not Silent Hill: Homecoming PATH file");
+struct Head pathHdr;
+Assert(pathHdr.magic == "PATH", "Not Silent Hill: Homecoming PATH file");
 
 // it is wrong here
-struct Head DPND_hdr;
-Assert(DPND_hdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
-struct DPND_DAT DPND_dat;
+struct Head dpndHdr;
+Assert(dpndHdr.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+struct DpndDat dpndDat;
