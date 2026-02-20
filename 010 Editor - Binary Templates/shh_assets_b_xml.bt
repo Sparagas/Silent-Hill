@@ -1,0 +1,115 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_assets_b_xml.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming binary assets XML for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Camagicory: 
+// File Mask: assets_*_b.xml
+//  ID Bytes: EE 14 5E A5
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+// --- Structures ---
+
+typedef struct _AssetsHeader {
+    uint32 magic <format=hex>;
+    Assert(magic == 0xA55E14EE);
+    uint32 pad;
+    int32  folderCount;
+    int32  fileCount;
+} s_AssetsHeader;
+
+
+typedef struct _AssetsFolder {
+    uint32 magic <format=hex>;
+    Assert(magic == 0xA55E1D14);
+    char   name[32];
+    uint16 fileCount;
+    int32  rootFolder <comment="Parent folder index">;
+} s_AssetsFolder <read=name, optimize = true>;
+
+
+typedef struct _AssetsFileNamesHeader {
+    uint32 magic <format=hex>;
+    Assert(magic == 0xA55E1F14);
+    int32  size <comment="Size of the raw string block">;
+} s_AssetsFileNamesHeader;
+
+
+typedef struct _AssetsFileRecord {
+    uint32 magic <format=hex>;
+    Assert(magic == 0xA55E1F7E);
+    uint32 namePos <format=hex, comment="Offset relative to String Table">;
+    uint32 unkMagic <format=hex>;
+    int32  folderIdx <comment="Index into Folders array">;
+
+    // Something is incorrect here
+    // Resolve the string automatically for 010 Editor's UI
+    //local int64 savePos = FTell();
+    //FSeek(namePos);
+    //string FileName;
+    //FSeek(savePos);
+} s_AssetsFileRecord <optimize=true>; // <read=FileName>
+
+//------------------------------------------------
+
+typedef struct _AssetsFTypeRecord(int groupIndex) {
+    uint32 magic <format=hex>;
+    Assert(0xA55E1546);
+    char   ext[16] <comment="File Extension">;
+    char   descr[32] <comment="Description">;
+    uint16 allCount;
+
+    // If it's not the first group and allCount is 0,
+    // the 4-byte count is physically omitted from the file.
+    if (groupIndex == 0 || allCount != 0) {
+        int32 count;
+        s_AssetsFileRecord file[count] <warn=false>;
+    }
+} s_AssetsFTypeRecord <read=ReadGroup, optimize=false>;
+
+
+string ReadGroup(s_AssetsFTypeRecord &g) {
+    if (g.ext != "") return g.ext + " (" + g.descr + ")";
+    return "Unknown Group";
+}
+
+
+typedef struct _StringTableData {
+    char name[];
+    } s_StringTableData <optimize=false, read=name>;
+
+
+typedef struct _FileGroup_Node {
+    // Read File Extension Groups until EOF marker is hit
+    for (int groupIndex = 0; !FEof(); groupIndex++) {
+        // Peek at the tag to see if we reached the end
+        if (ReadUInt() == 0xA55E1F00) {
+            uint32 eofMarker <format=hex>;
+            break;
+        }
+        s_AssetsFTypeRecord FileGroup(groupIndex);
+    }
+} s_FileGroup_Node <read=groupIndex>;
+
+// --- Main Parsing Logic ---
+
+SetBackColor(cLtGray);
+s_AssetsHeader assetsHeader;
+
+SetBackColor(cLtYellow);
+s_AssetsFolder folder[assetsHeader.folderCount];
+
+SetBackColor(cLtGreen);
+s_AssetsFileNamesHeader namesHeader;
+
+SetBackColor(cAqua);
+s_StringTableData stringTableData[assetsHeader.fileCount];
+Assert(FTell() - startof(stringTableData[0]) == namesHeader.size);
+
+SetBackColor(cLtPurple);
+s_FileGroup_Node fileGroup_Node;

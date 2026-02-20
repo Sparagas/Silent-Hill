@@ -13,29 +13,50 @@
 //------------------------------------------------
 
 typedef enum <uint16> FileType {
-    FILETYPE_MYS = 0x00,
-    FILETYPE_SCT = 0x01,
-    FILETYPE_MDL = 0x02,
-    FILETYPE_MAT = 0x03,
-    FILETYPE_SYT = 0x04,
-    FILETYPE_CSV = 0x09,
-    FILETYPE_DDB = 0x0B,
-    FILETYPE_HKC = 0x0D,
-    FILETYPE_PTM = 0x10,
-    FILETYPE_PGP = 0x11,
-    FILETYPE_PHP = 0x13,
-    FILETYPE_MTM = 0x14,
-    FILETYPE_XML = 0x15,
-    FILETYPE_GAT = 0x16,
-    FILETYPE_CAP = 0x17,
-    FILETYPE_HKS = 0x1C,
-    FILETYPE_HKA = 0x1D,
-    FILETYPE_HCL = 0x1E,
-    FILETYPE_SES = 0x1F,
-    FILETYPE_HKP = 0x22,
-    FILETYPE_NVM = 0x23,
-    FILETYPE_OGG = 0x27,
-    FILETYPE_SAC = 0x28
+    FILETYPE_MYS = 0x00,     // .MYS Render (Maya) scene
+    FILETYPE_SCT = 0x01,     // .SCT Sector
+    FILETYPE_MDL = 0x02,     // .MDL Model
+    FILETYPE_MAT = 0x03,     // .MAT Material
+    FILETYPE_SYT = 0x04,     // .SYT Texture
+    FILETYPE_GIN = 0x05,     // .GIN Game properties
+    FILETYPE_PIN = 0x06,     // .PIN Game properties
+    FILETYPE_XWB = 0x07,     // .XWB Wave Bank
+    FILETYPE_XSB = 0x08,     // .XSB Sound Bank
+    FILETYPE_CSV = 0x09,     // .CSV Data table
+
+    FILETYPE_DDB = 0x0B,     // .DDB Dialog database
+    FILETYPE_TXT = 0x0C,     // .TXT Standard text
+    FILETYPE_HKC = 0x0D,     // .HKC Cinematic
+
+    FILETYPE_STR = 0x0F,     // .STR String table
+    FILETYPE_PTM = 0x10,     // .PTM Particle template
+    FILETYPE_PGP = 0x11,     // .PGP Particle group
+    FILETYPE_CMF = 0x12,     // .CMF FX system table
+    FILETYPE_PHP = 0x13,     // .PHP Phoneme data
+    FILETYPE_MTM = 0x14,     // .MTM Mesh FX template
+    FILETYPE_XML = 0x15,     // .XML Simple XML
+    FILETYPE_GAT = 0x16,     // .GAT Attachments
+    FILETYPE_CAP = 0x17,     // .CAP Capsule definitions
+    FILETYPE_FTS = 0x18,     // .FTS Footstep rules
+    FILETYPE_XML_BIN = 0x19, // .XML Serialized XML
+    FILETYPE_STR_LOC = 0x1A, // .STR Localized string table
+    FILETYPE_APK = 0x1B,     // .APK Package
+    FILETYPE_HKS = 0x1C,     // .HKS Havok Skeleton
+    FILETYPE_HKA = 0x1D,     // .HKA Havok Skeleton Anim
+    FILETYPE_HCL = 0x1E,     // .HCL Havok collision data
+    FILETYPE_SES = 0x1F,     // .SES SlayEd scene
+    FILETYPE_XGS = 0x20,     // .XGS Sound Global Settings File
+    FILETYPE_XWS = 0x21,     // .XWS Streamed Wave Bank
+    FILETYPE_HKP = 0x22,     // .HKP Havok Collision and Constraint D
+    FILETYPE_NVM = 0x23,     // .NVM Nav Mesh Sector Data
+
+    FILETYPE_BIK = 0x26,     // .BIK Bink Movie
+    FILETYPE_OGG = 0x27,     // .OGG Ogg Vorbis sound file
+    FILETYPE_SAC = 0x28,     // .SAC StdAudio Configuration file
+    FILETYPE_XMB = 0x29,     // .XMB Binary XML file
+    FILETYPE_GAB = 0x2A,     // .GAB Binary GAT file
+    FILETYPE_CAB = 0x2B,     // .CAB Binary CAP file
+    FILETYPE_FTB = 0x2C      // .FTB Binary FTS file
 } e_FileType;
 
 //------------------------------------------------
@@ -75,29 +96,51 @@ string ReadEntry( s_Entry &entry ) {
     local char ext[] = "";
 
     switch (entry.fileType) {
-        case FILETYPE_MYS: ext = ".mys"; break;
-        case FILETYPE_SCT: ext = ".sct"; break;
-        case FILETYPE_MDL: ext = ".mdl"; break;
-        case FILETYPE_MAT: ext = ".mat"; break;
-        case FILETYPE_SYT: ext = ".syt"; break;
-        case FILETYPE_CSV: ext = ".csv"; break;
-        case FILETYPE_DDB: ext = ".ddb"; break;
-        case FILETYPE_HKC: ext = ".hkc"; break;
-        case FILETYPE_PTM: ext = ".ptm"; break;
-        case FILETYPE_PGP: ext = ".pgp"; break;
-        case FILETYPE_PHP: ext = ".php"; break;
-        case FILETYPE_MTM: ext = ".mtm"; break;
-        case FILETYPE_XML: ext = ".xml"; break;
-        case FILETYPE_GAT: ext = ".gat"; break;
-        case FILETYPE_CAP: ext = ".cap"; break;
-        case FILETYPE_HKS: ext = ".hks"; break;
-        case FILETYPE_HKA: ext = ".hka"; break;
-        case FILETYPE_HCL: ext = ".hcl"; break;
-        case FILETYPE_SES: ext = ".ses"; break;
-        case FILETYPE_HKP: ext = ".hkp"; break;
-        case FILETYPE_NVM: ext = ".nvm"; break;
-        case FILETYPE_OGG: ext = ".ogg"; break;
-        case FILETYPE_SAC: ext = ".sac"; break;
+        case FILETYPE_MYS:     ext = ".mys"; break;
+        case FILETYPE_SCT:     ext = ".sct"; break;
+        case FILETYPE_MDL:     ext = ".mdl"; break;
+        case FILETYPE_MAT:     ext = ".mat"; break;
+        case FILETYPE_SYT:     ext = ".syt"; break;
+        case FILETYPE_GIN:     ext = ".gin"; break;
+        case FILETYPE_PIN:     ext = ".pin"; break;
+        case FILETYPE_XWB:     ext = ".xwb"; break;
+        case FILETYPE_XSB:     ext = ".xsb"; break;
+        case FILETYPE_CSV:     ext = ".csv"; break;
+
+        case FILETYPE_DDB:     ext = ".ddb"; break;
+        case FILETYPE_TXT:     ext = ".txt"; break;
+        case FILETYPE_HKC:     ext = ".hkc"; break;
+
+        case FILETYPE_STR:     ext = ".str"; break;
+        case FILETYPE_PTM:     ext = ".ptm"; break;
+        case FILETYPE_PGP:     ext = ".pgp"; break;
+        case FILETYPE_CMF:     ext = ".cmf"; break;
+        case FILETYPE_PHP:     ext = ".php"; break;
+        case FILETYPE_MTM:     ext = ".mtm"; break;
+        case FILETYPE_XML:     ext = ".xml"; break;
+        case FILETYPE_GAT:     ext = ".gat"; break;
+        case FILETYPE_CAP:     ext = ".cap"; break;
+        case FILETYPE_FTS:     ext = ".fts"; break;
+        case FILETYPE_XML_BIN: ext = ".xml"; break;
+        case FILETYPE_STR_LOC: ext = ".str"; break;
+        case FILETYPE_APK:     ext = ".apk"; break;
+        case FILETYPE_HKS:     ext = ".hks"; break;
+        case FILETYPE_HKA:     ext = ".hka"; break;
+        case FILETYPE_HCL:     ext = ".hcl"; break;
+        case FILETYPE_SES:     ext = ".ses"; break;
+        case FILETYPE_XGS:     ext = ".xgs"; break;
+        case FILETYPE_XWS:     ext = ".xws"; break;
+        case FILETYPE_HKP:     ext = ".hkp"; break;
+        case FILETYPE_NVM:     ext = ".nvm"; break;
+
+        case FILETYPE_BIK:     ext = ".bik"; break;
+        case FILETYPE_OGG:     ext = ".ogg"; break;
+        case FILETYPE_SAC:     ext = ".sac"; break;
+        case FILETYPE_XMB:     ext = ".xmb"; break;
+        case FILETYPE_GAB:     ext = ".gab"; break;
+        case FILETYPE_CAB:     ext = ".cab"; break;
+        case FILETYPE_FTB:     ext = ".ftb"; break;
+
         default:
             ext = Str("._unk_ext_%d", entry.fileType);
             break;
