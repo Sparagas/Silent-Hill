@@ -46,14 +46,7 @@ typedef struct _AssetsFileRecord {
     uint32 namePos <format=hex, comment="Offset relative to String Table">;
     uint32 unkMagic <format=hex>;
     int32  folderIdx <comment="Index into Folders array">;
-
-    // Something is incorrect here
-    // Resolve the string automatically for 010 Editor's UI
-    //local int64 savePos = FTell();
-    //FSeek(namePos);
-    //string FileName;
-    //FSeek(savePos);
-} s_AssetsFileRecord <optimize=true>; // <read=FileName>
+} s_AssetsFileRecord <optimize=true, read=((folder[folderIdx].name) + "/" + ReadString(startof(stringTableData[0]) + namePos))>;
 
 //------------------------------------------------
 
@@ -62,11 +55,11 @@ typedef struct _AssetsFTypeRecord(int groupIndex) {
     Assert(0xA55E1546);
     char   ext[16] <comment="File Extension">;
     char   descr[32] <comment="Description">;
-    uint16 allCount;
+    uint16 index <comment="start index into filename table">;
 
-    // If it's not the first group and allCount is 0,
+    // If it's not the first group and index is 0,
     // the 4-byte count is physically omitted from the file.
-    if (groupIndex == 0 || allCount != 0) {
+    if (groupIndex == 0 || index != 0) {
         int32 count;
         s_AssetsFileRecord file[count] <warn=false>;
     }

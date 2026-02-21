@@ -177,14 +177,16 @@ struct VertexBuffer2Channel4 {
 };
 
 struct UnknStruct {
-    ubyte unkn[16];
+    int32 unkn[4];
 };
 
 struct RootNode {
     uint32 pad0;        // Always 00 00 00 00
     Assert(pad0 == 0);
     uint32 nodeType;    // 1 = Root, 2 = Bone, 4 = Mesh
-    uint32 flags;       // FF 00 40 00
+    int8   flags;
+    int8   flags;
+    int16  flags;
     //Assert(flags == 4194559);
     ubyte  pad[32];
     uint32 featureMask;
