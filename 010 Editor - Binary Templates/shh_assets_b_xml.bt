@@ -18,7 +18,7 @@ typedef struct _Header
 {
     uint32 magic        <format=hex>;
                         Assert(magic == 0xA55E14EE);
-    uint32 pad;
+    uint32 padding;
     int32  folderCount;
     int32  fileCount;
 } s_Header;
@@ -26,70 +26,70 @@ typedef struct _Header
 
 typedef struct _Folder
 {
-    uint32 magic              <format=hex>;
-                              Assert(magic == 0xA55E1D14);
+    uint32 magic                <format=hex>;
+                                Assert(magic == 0xA55E1D14);
     char   name[32];
     uint16 fileCount;
-    int32  parentFolderIndex;
-} s_Folder                    <read=name, optimize = true>;
+    int32  parentFolderIndex;   
+} s_Folder                      <read=name, optimize = true>;
 
 
 typedef struct _FileNamesHeader
 {
-    uint32 magic                 <format=hex>;
-                                 Assert(magic == 0xA55E1F14);
-    int32  size                  <comment="Size of the raw string block">;
+    uint32 magic    <format=hex>;
+                    Assert(magic == 0xA55E1F14);
+    int32  size     <comment="Size of the raw string block">;
 } s_FileNamesHeader;
 
 
 typedef struct _File
 {
-    uint32 magic           <format=hex>;
-                           Assert(magic == 0xA55E1F7E);
-    uint32 fileName_offset <format=hex, comment="Offset relative to File Name Table">;
-    uint32 unkMagic        <format=hex>;
-    int32  folderIdx       <comment="Index into Folders array">;
-} s_File                   <optimize=true, read=ReadFile>;
+    uint32 magic            <format=hex>;
+                            Assert(magic == 0xA55E1F7E);
+    uint32 fileName_offset  <format=hex, comment="Offset relative to File Name Array">;
+    uint32 unkMagic         <format=hex>;
+    int32  folderIndex;
+} s_File                    <optimize=true, read=ReadFile>;
 
 
-string GetFullPath(int folderIdx)
+string GetFullPath(int folderIndex)
 {  
-    string name = folder[folderIdx].name;
-    int parent = folder[folderIdx].parentFolderIndex;
+    string name   = folder[folderIndex].name;
+    int    parent = folder[folderIndex].parentFolderIndex;
 
-    if (parent != -1 && parent != folderIdx) {
+    if (parent != -1 && parent != folderIndex)
         return GetFullPath(parent) + "/" + name;
-    }
     return name;
 }
 
 
 string ReadFile(s_File &f)
 {
-    string path = GetFullPath(f.folderIdx);
+    string path = GetFullPath(f.folderIndex);
     string baseName = ReadString(startof(fileName_array[0]) + f.fileName_offset);
-    string extension = parentof(f).ext;
-    return path + "/" + baseName + extension;
+    string fileExtensionension = parentof(f).fileExtension;
+    return path + "/" + baseName + fileExtensionension;
 }
 
 //------------------------------------------------
 
 typedef struct _FileGroup {
-    uint32 magic <format=hex>;
-    Assert(magic == 0xA55E1546);
-    char   ext[16] <comment="File Extension">;
-    char   descr[32] <comment="Description">;
-    uint16 index <comment="start index into filename table">;
+    uint32 magic                <format=hex>;
+                                Assert(magic == 0xA55E1546);
+    char   fileExtension[16]    <comment="File Extension">;
+    char   description[32];
+    uint16 fileNameIndex        <comment="index into File Name Array">;
 
-    if (groupIndex == 0 || index != 0) {
+    if (groupIndex == 0 || fileNameIndex != 0) {
         int32 count;
-        s_File file[count] <warn=false>;
+        s_File file[count]      <warn=false>;
     }
-} s_FileGroup <read=ReadFileGroup>;
+} s_FileGroup                   <read=ReadFileGroup>;
 
 
 string ReadFileGroup(s_FileGroup &g) {
-    if (g.ext != "") return g.ext + " (" + g.descr + ")";
+    if (g.fileExtension != "")
+        return g.fileExtension + " (" + g.description + ")";
     return "Unknown Group";
 }
 
