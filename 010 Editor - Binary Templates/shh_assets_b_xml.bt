@@ -12,97 +12,119 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
-
 // --- Structures ---
 
-typedef struct _AssetsHeader {
-    uint32 magic <format=hex>;
-    Assert(magic == 0xA55E14EE);
+typedef struct _Header
+{
+    uint32 magic        <format=hex>;
+                        Assert(magic == 0xA55E14EE);
     uint32 pad;
     int32  folderCount;
     int32  fileCount;
-} s_AssetsHeader;
+} s_Header;
 
 
-typedef struct _AssetsFolder {
-    uint32 magic <format=hex>;
-    Assert(magic == 0xA55E1D14);
+typedef struct _Folder
+{
+    uint32 magic              <format=hex>;
+                              Assert(magic == 0xA55E1D14);
     char   name[32];
     uint16 fileCount;
-    int32  rootFolder <comment="Parent folder index">;
-} s_AssetsFolder <read=name, optimize = true>;
+    int32  parentFolderIndex;
+} s_Folder                    <read=name, optimize = true>;
 
 
-typedef struct _AssetsFileNamesHeader {
-    uint32 magic <format=hex>;
-    Assert(magic == 0xA55E1F14);
-    int32  size <comment="Size of the raw string block">;
-} s_AssetsFileNamesHeader;
+typedef struct _FileNamesHeader
+{
+    uint32 magic                 <format=hex>;
+                                 Assert(magic == 0xA55E1F14);
+    int32  size                  <comment="Size of the raw string block">;
+} s_FileNamesHeader;
 
 
-typedef struct _AssetsFileRecord {
-    uint32 magic <format=hex>;
-    Assert(magic == 0xA55E1F7E);
-    uint32 namePos <format=hex, comment="Offset relative to String Table">;
-    uint32 unkMagic <format=hex>;
-    int32  folderIdx <comment="Index into Folders array">;
-} s_AssetsFileRecord <optimize=true, read=((folder[folderIdx].name) + "/" + ReadString(startof(stringTableData[0]) + namePos))>;
+typedef struct _File
+{
+    uint32 magic           <format=hex>;
+                           Assert(magic == 0xA55E1F7E);
+    uint32 fileName_offset <format=hex, comment="Offset relative to File Name Table">;
+    uint32 unkMagic        <format=hex>;
+    int32  folderIdx       <comment="Index into Folders array">;
+} s_File                   <optimize=true, read=ReadFile>;
+
+
+string GetFullPath(int folderIdx)
+{  
+    string name = folder[folderIdx].name;
+    int parent = folder[folderIdx].parentFolderIndex;
+
+    if (parent != -1 && parent != folderIdx) {
+        return GetFullPath(parent) + "/" + name;
+    }
+    return name;
+}
+
+
+string ReadFile(s_File &f)
+{
+    string path = GetFullPath(f.folderIdx);
+    string baseName = ReadString(startof(fileName_array[0]) + f.fileName_offset);
+    string extension = parentof(f).ext;
+    return path + "/" + baseName + extension;
+}
 
 //------------------------------------------------
 
-typedef struct _AssetsFTypeRecord(int groupIndex) {
+typedef struct _FileGroup {
     uint32 magic <format=hex>;
-    Assert(0xA55E1546);
+    Assert(magic == 0xA55E1546);
     char   ext[16] <comment="File Extension">;
     char   descr[32] <comment="Description">;
     uint16 index <comment="start index into filename table">;
 
-    // If it's not the first group and index is 0,
-    // the 4-byte count is physically omitted from the file.
     if (groupIndex == 0 || index != 0) {
         int32 count;
-        s_AssetsFileRecord file[count] <warn=false>;
+        s_File file[count] <warn=false>;
     }
-} s_AssetsFTypeRecord <read=ReadGroup, optimize=false>;
+} s_FileGroup <read=ReadFileGroup>;
 
 
-string ReadGroup(s_AssetsFTypeRecord &g) {
+string ReadFileGroup(s_FileGroup &g) {
     if (g.ext != "") return g.ext + " (" + g.descr + ")";
     return "Unknown Group";
 }
 
 
-typedef struct _StringTableData {
-    char name[];
-    } s_StringTableData <optimize=false, read=name>;
+typedef struct _FileName_array
+{
+    string fileName;
+} s_FileName_array <optimize=false, read=fileName>;
 
 
-typedef struct _FileGroup_Node {
-    // Read File Extension Groups until EOF marker is hit
+typedef struct _FileGroup_array
+{
     for (int groupIndex = 0; !FEof(); groupIndex++) {
-        // Peek at the tag to see if we reached the end
         if (ReadUInt() == 0xA55E1F00) {
             uint32 eofMarker <format=hex>;
             break;
         }
-        s_AssetsFTypeRecord FileGroup(groupIndex);
+        s_FileGroup fileGroup;
     }
-} s_FileGroup_Node <read=groupIndex>;
+} s_FileGroup_array <read=groupIndex>;
 
 // --- Main Parsing Logic ---
 
 SetBackColor(cLtGray);
-s_AssetsHeader assetsHeader;
+s_Header header;
 
 SetBackColor(cLtYellow);
-s_AssetsFolder folder[assetsHeader.folderCount];
+s_Folder folder[header.folderCount];
 
 SetBackColor(cLtGreen);
-s_AssetsFileNamesHeader namesHeader;
+s_FileNamesHeader fileNamesHeader;
 
 SetBackColor(cAqua);
-s_StringTableData stringTableData[assetsHeader.fileCount];
-Assert(FTell() - startof(stringTableData[0]) == namesHeader.size);
+s_FileName_array fileName_array[header.fileCount];
+Assert(FTell() - startof(fileName_array[0]) == fileNamesHeader.size);
 
 SetBackColor(cLtPurple);
-s_FileGroup_Node fileGroup_Node;
+s_FileGroup_array fileGroup_array;
