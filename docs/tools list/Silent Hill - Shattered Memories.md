@@ -8,7 +8,7 @@
 
 * N/A
 
-### Sony - PlayStation Portble
+### Sony - PlayStation Portable
 
 * N/A
 

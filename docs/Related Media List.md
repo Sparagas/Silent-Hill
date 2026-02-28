@@ -1,4 +1,6 @@
-  This is work in progress list of media (usually demo discs) that contains stuff related to Silent Hill, like demos, savegames, trailers or other videos, reviews, release info, etc.
+# Related Media List
+
+This is a work-in-progress list of media (usually demo discs) that contains stuff related to Silent Hill, like demos, savegames, trailers or other videos, reviews, release info, etc.
   
 - Best Horror Games Ever Demo
 - Best of the Best: A Tribute to Game Music
