@@ -84,7 +84,7 @@ ISS Pro Evolution, also known as World Soccer Jikkyou Winning Eleven 4 in Japan 
 - Sony - PlayStation
 
 #### Description
-It is almost the same game as the first ISS Pro Evolution, with the same easter egg. In USA it was licenced by MLS, so it has different name and sliglty different game, but overall they are almost the same.
+It is almost the same game as the first ISS Pro Evolution, with the same easter egg. In USA it was licenced by MLS, so it has different name and slightly different game, but overall they are almost the same.
 
 ### New International Track & Field (non-Japan) / New International Hyper Sports DS (Japan)
 #### Platforms
@@ -298,5 +298,5 @@ Old school Doom-style shooter that has a secret Room 304 location, that when you
   - Japanese anime series, has Silent Hill cameo in episode 8
 
 - **[MV] Dalshabet(달샤벳) _ Someone like U(너 같은)**
-  - South Korean K-pop song, witch video clip has a map from Silent Hill: Origins
+  - South Korean K-pop song, whose video clip has a map from Silent Hill: Origins
 
