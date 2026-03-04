@@ -4,7 +4,7 @@
 //      File: shh_pak.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
 //   Version: 0.0
-//   Purpose: Parse Silent Hill: Homecoming PAK archive for Microsoft - Windows, Sony - PlayStation 3 and Micrisoft - Xbox 360
+//   Purpose: Parse Silent Hill: Homecoming PAK archive for Microsoft - Windows, Sony - PlayStation 3 and Microsoft - Xbox 360
 //  Category: Archive
 // File Mask: *.pak
 //  ID Bytes: 50 41 4B 5F //PAK_
@@ -17,11 +17,11 @@ typedef enum <uint16> FileType {
     FILETYPE_SCT = 0x01,     // .SCT Sector
     FILETYPE_MDL = 0x02,     // .MDL Model
     FILETYPE_MAT = 0x03,     // .MAT Material
-    FILETYPE_SYT = 0x04,     // .SYT Texture
+    FILETYPE_SYT = 0x04,     // .SYT .x2_SYT Texture
     FILETYPE_GIN = 0x05,     // .GIN Game properties
     FILETYPE_PIN = 0x06,     // .PIN Game properties
-    FILETYPE_XWB = 0x07,     // .XWB Wave Bank
-    FILETYPE_XSB = 0x08,     // .XSB Sound Bank
+    FILETYPE_XWB = 0x07,     // .XWB .x2_XWB Wave Bank
+    FILETYPE_XSB = 0x08,     // .XSB .x2_XSB Sound Bank
     FILETYPE_CSV = 0x09,     // .CSV Data table
 
     FILETYPE_DDB = 0x0B,     // .DDB Dialog database
@@ -41,18 +41,18 @@ typedef enum <uint16> FileType {
     FILETYPE_XML_BIN = 0x19, // .XML Serialized XML
     FILETYPE_STR_LOC = 0x1A, // .STR Localized string table
     FILETYPE_APK = 0x1B,     // .APK Package
-    FILETYPE_HKS = 0x1C,     // .HKS Havok Skeleton
-    FILETYPE_HKA = 0x1D,     // .HKA Havok Skeleton Anim
+    FILETYPE_HKS = 0x1C,     // .HKS .x2_HKS .ps3_HKS Havok Skeleton
+    FILETYPE_HKA = 0x1D,     // .HKA .x2_HKA .ps3_HKA Havok Skeleton Anim
     FILETYPE_HCL = 0x1E,     // .HCL Havok collision data
     FILETYPE_SES = 0x1F,     // .SES SlayEd scene
-    FILETYPE_XGS = 0x20,     // .XGS Sound Global Settings File
-    FILETYPE_XWS = 0x21,     // .XWS Streamed Wave Bank
-    FILETYPE_HKP = 0x22,     // .HKP Havok Collision and Constraint D
+    FILETYPE_XGS = 0x20,     // .XGS .x2_XGS Sound Global Settings File
+    FILETYPE_XWS = 0x21,     // .XWS .x2_XWS Streamed Wave Bank
+    FILETYPE_HKP = 0x22,     // .HKP .x2_HKP .ps3_HKP Havok Collision and Constraint D
     FILETYPE_NVM = 0x23,     // .NVM Nav Mesh Sector Data
 
     FILETYPE_BIK = 0x26,     // .BIK Bink Movie
     FILETYPE_OGG = 0x27,     // .OGG Ogg Vorbis sound file
-    FILETYPE_SAC = 0x28,     // .SAC StdAudio Configuration file
+    FILETYPE_SAC = 0x28,     // .SAC .x2_SAC .ps3_SAC StdAudio Configuration file
     FILETYPE_XMB = 0x29,     // .XMB Binary XML file
     FILETYPE_GAB = 0x2A,     // .GAB Binary GAT file
     FILETYPE_CAB = 0x2B,     // .CAB Binary CAP file
@@ -65,9 +65,12 @@ typedef struct Header {
     char   magic[4];
     Assert(magic == "PAK_", "Not Silent Hill: Homecoming PAK_ file");
     int32  version;
+    LittleEndian();
+    if (ReadUInt(4) != 1)
+        BigEndian();
     uint32 fileCount;
-    uint32 pad;
-    Assert(pad == 0);
+    uint32 paddding;
+    Assert(paddding == 0);
 } s_Header;
 
 
@@ -76,19 +79,65 @@ typedef struct MiniEntry {
     uint32 offset <format=hex>;
     int32  size;
     uint32 unk;
-} s_MiniEntry <optimize=false>;
+} s_MiniEntry;
+
+
+typedef struct _Flags {
+    local uint32 flags = ReadUInt();
+
+    uint32 isValidEntry              : 1;  // Bit 0 
+    uint32 unused_1_3                : 3;  
+    uint32 isLzoCompressed           : 1;  // Bit 4 (Only used on a few SYT files like bulletholes)
+    uint32 isInAnotherPakFile        : 1;  // Bit 5 (Uses pakFileIndex)
+    uint32 isHavokAnimation          : 1;  // Bit 6 (Exclusive to .HKA)
+    uint32 unused_7                  : 1;  
+
+    uint32 isStandardAsset           : 1;  // Bit 8 (Common across most files)
+    uint32 unused_9_11               : 3;
+    uint32 isStringTable             : 1;  // Bit 12 (Exclusive to .STR)
+    uint32 isRenderOrPhysicsResource : 1;  // Bit 13 (SYT, MAT, MDL, HKA, HKP)
+    uint32 isLzxCompressed           : 1;  // Bit 14 (Xbox 360 Exclusive)
+    uint32 unused_15_31              : 17;
+} s_Flags <read=Str("0x%08X", flags)>;
 
 
 typedef struct Entry {
     char       filename[64];
-    uint32     indexFlag;
+    s_Flags    flags;
     time_t     timestamp;
     uint32     offset <format=hex>;
     int32      compressedSize;
-    int16      fileIndex;
+    int16      pakFileIndex;
     e_FileType fileType;
     int32      uncompressedSize;
-} s_Entry <read=ReadEntry>;
+} s_Entry <read=ReadEntry, optimize=false>;
+
+
+typedef struct _File {
+    FSkip(entry[i].compressedSize);
+} s_File;
+
+
+typedef struct _MiniFile {
+    FSkip(entry[i].size);
+} s_MiniFile;
+
+//------------------------------------------------
+
+typedef struct _File_array {
+    for (int i = 0; i < header.fileCount; i++) {
+        if (entry[i].pakFileIndex == -1 && (entry[i].offset != 0 || entry[i].compressedSize != -1)) {
+            s_File file;
+        }
+    }
+} s_File_array;
+
+
+typedef struct _MiniFile_array {
+    for (int i = 0; i < header.fileCount; i++) {
+        s_MiniFile file;
+    }
+} s_MiniFile_array;
 
 //------------------------------------------------
 
@@ -96,56 +145,55 @@ string ReadEntry( s_Entry &entry ) {
     local char ext[] = "";
 
     switch (entry.fileType) {
-        case FILETYPE_MYS:     ext = ".mys"; break;
-        case FILETYPE_SCT:     ext = ".sct"; break;
-        case FILETYPE_MDL:     ext = ".mdl"; break;
-        case FILETYPE_MAT:     ext = ".mat"; break;
-        case FILETYPE_SYT:     ext = ".syt"; break;
-        case FILETYPE_GIN:     ext = ".gin"; break;
-        case FILETYPE_PIN:     ext = ".pin"; break;
-        case FILETYPE_XWB:     ext = ".xwb"; break;
-        case FILETYPE_XSB:     ext = ".xsb"; break;
-        case FILETYPE_CSV:     ext = ".csv"; break;
+        case FILETYPE_MYS:     ext = ".MYS"; break;
+        case FILETYPE_SCT:     ext = ".SCT"; break;
+        case FILETYPE_MDL:     ext = ".MDL"; break;
+        case FILETYPE_MAT:     ext = ".MAT"; break;
+        case FILETYPE_SYT:     ext = ".SYT"; break;
+        case FILETYPE_GIN:     ext = ".GIN"; break;
+        case FILETYPE_PIN:     ext = ".PIN"; break;
+        case FILETYPE_XWB:     ext = ".XWB"; break;
+        case FILETYPE_XSB:     ext = ".XSB"; break;
+        case FILETYPE_CSV:     ext = ".CSV"; break;
 
-        case FILETYPE_DDB:     ext = ".ddb"; break;
-        case FILETYPE_TXT:     ext = ".txt"; break;
-        case FILETYPE_HKC:     ext = ".hkc"; break;
+        case FILETYPE_DDB:     ext = ".DDB"; break;
+        case FILETYPE_TXT:     ext = ".TXT"; break;
+        case FILETYPE_HKC:     ext = ".HKC"; break;
 
-        case FILETYPE_STR:     ext = ".str"; break;
-        case FILETYPE_PTM:     ext = ".ptm"; break;
-        case FILETYPE_PGP:     ext = ".pgp"; break;
-        case FILETYPE_CMF:     ext = ".cmf"; break;
-        case FILETYPE_PHP:     ext = ".php"; break;
-        case FILETYPE_MTM:     ext = ".mtm"; break;
-        case FILETYPE_XML:     ext = ".xml"; break;
-        case FILETYPE_GAT:     ext = ".gat"; break;
-        case FILETYPE_CAP:     ext = ".cap"; break;
-        case FILETYPE_FTS:     ext = ".fts"; break;
-        case FILETYPE_XML_BIN: ext = ".xml"; break;
-        case FILETYPE_STR_LOC: ext = ".str"; break;
-        case FILETYPE_APK:     ext = ".apk"; break;
-        case FILETYPE_HKS:     ext = ".hks"; break;
-        case FILETYPE_HKA:     ext = ".hka"; break;
-        case FILETYPE_HCL:     ext = ".hcl"; break;
-        case FILETYPE_SES:     ext = ".ses"; break;
-        case FILETYPE_XGS:     ext = ".xgs"; break;
-        case FILETYPE_XWS:     ext = ".xws"; break;
-        case FILETYPE_HKP:     ext = ".hkp"; break;
-        case FILETYPE_NVM:     ext = ".nvm"; break;
+        case FILETYPE_STR:     ext = ".STR"; break;
+        case FILETYPE_PTM:     ext = ".PTM"; break;
+        case FILETYPE_PGP:     ext = ".PGP"; break;
+        case FILETYPE_CMF:     ext = ".CMF"; break;
+        case FILETYPE_PHP:     ext = ".PHP"; break;
+        case FILETYPE_MTM:     ext = ".MTM"; break;
+        case FILETYPE_XML:     ext = ".XML"; break;
+        case FILETYPE_GAT:     ext = ".GAT"; break;
+        case FILETYPE_CAP:     ext = ".CAP"; break;
+        case FILETYPE_FTS:     ext = ".FTS"; break;
+        case FILETYPE_XML_BIN: ext = ".XML"; break;
+        case FILETYPE_STR_LOC: ext = ".STR"; break;
+        case FILETYPE_APK:     ext = ".APK"; break;
+        case FILETYPE_HKS:     ext = ".HKS"; break;
+        case FILETYPE_HKA:     ext = ".HKA"; break;
+        case FILETYPE_HCL:     ext = ".HCL"; break;
+        case FILETYPE_SES:     ext = ".SES"; break;
+        case FILETYPE_XGS:     ext = ".XGS"; break;
+        case FILETYPE_XWS:     ext = ".XWS"; break;
+        case FILETYPE_HKP:     ext = ".HKP"; break;
+        case FILETYPE_NVM:     ext = ".NVM"; break;
 
-        case FILETYPE_BIK:     ext = ".bik"; break;
-        case FILETYPE_OGG:     ext = ".ogg"; break;
-        case FILETYPE_SAC:     ext = ".sac"; break;
-        case FILETYPE_XMB:     ext = ".xmb"; break;
-        case FILETYPE_GAB:     ext = ".gab"; break;
-        case FILETYPE_CAB:     ext = ".cab"; break;
-        case FILETYPE_FTB:     ext = ".ftb"; break;
+        case FILETYPE_BIK:     ext = ".BIK"; break;
+        case FILETYPE_OGG:     ext = ".OGG"; break;
+        case FILETYPE_SAC:     ext = ".SAC"; break;
+        case FILETYPE_XMB:     ext = ".XMB"; break;
+        case FILETYPE_GAB:     ext = ".GAB"; break;
+        case FILETYPE_CAB:     ext = ".CAB"; break;
+        case FILETYPE_FTB:     ext = ".FTB"; break;
 
         default:
             ext = Str("._unk_ext_%d", entry.fileType);
             break;
     }
-
     return Str("%s%s", entry.filename, ext);
 }
 
@@ -153,31 +201,15 @@ string ReadEntry( s_Entry &entry ) {
 
 local string fileName = FileNameGetBase(GetFileName());
 
-local int len = Strlen(fileName);
-
-// exit if filename ends with "_NN" where N is a number.
-if ((len > 7 &&
-      IsCharNum(fileName[len - 5]) &&
-      IsCharNum(fileName[len - 6]) &&
-      fileName[len - 7] == '_')) {
-    Exit(0);
-}
-
-// PC uses Little Endian, and consoles use Big Endian. Terermining by header.fileCount.
-LittleEndian();
-if (ReadUInt(8) > 10000)
-    BigEndian();
+BitfieldRightToLeft();
 
 s_Header header;
-if (fileName == "SHADERS.PAK" || fileName == "SHADERSL.PAK")
+if (fileName == "SHADERS.PAK" || fileName == "SHADERSL.PAK") {
     s_MiniEntry entry[header.fileCount];
-else
+    FSeek(entry[0].offset);
+    s_MiniFile_array file_array;
+} else {
     s_Entry entry[header.fileCount];
-/*
-for (int i = 0; i < header.fileCount; i++) {
-    if (entry.fileIndex == -1) {
-        FSeek(entry[i].offset);
-        int todo;
-    }
+    FSeek(entry[0].offset);
+    s_File_array file_array;
 }
-*/

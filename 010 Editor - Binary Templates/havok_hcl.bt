@@ -1,0 +1,65 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: havok_hcl.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Havok collision data
+//  Category: CAD
+// File Mask: .hcl
+//  ID Bytes: 61 1B 00 00
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+typedef struct _MoppBounds {
+    float originX <comment="The minimum X bound of the collision area">;
+    float originY <comment="The minimum Y bound of the collision area">;
+    float originZ <comment="The minimum Z bound of the collision area">;
+    float scaleInv <read=(1 / this), comment="Inverse scale (1.0 / StepSize)">;
+} MoppBounds;
+
+typedef struct _PrefixString {
+    uint32 stringLength;
+    char   text[stringLength];
+} PrefixString <read=(text)>;
+
+typedef struct _TriangleProperty {
+    uint32 stringCount;
+    PrefixString str[stringCount] <optimize=false>;
+} TriangleProperty <read=ReadTriangleProperty>;
+
+string ReadTriangleProperty(TriangleProperty &tp) {
+    if (tp.stringCount == 2)
+        return tp.str[0].text + " | " + tp.str[1].text;
+    else if (tp.stringCount == 1)
+        return tp.str[0].text;
+    return "";
+}
+
+//------------------------------------------------
+
+// it uses TriangleList
+
+// Read Magic
+uint32 magic;
+Assert(magic == 7009, "Not Havok collision data");
+
+// Read Vertex Buffer
+uint32 vertexBufferCount;
+float  vertexBuffer[vertexBufferCount];
+
+// Read Index Buffer
+uint32 indexBufferCount;
+uint16 indexBuffer[indexBufferCount];
+
+// MOPP (Memory Optimized Partial Polytope) collision tree
+MoppBounds moppBounds;
+uint32 moppCodeSize;
+ubyte  moppCode[moppCodeSize] <comment="MOPP bytecode for spatial queries">;
+
+// Read Triangle Properties
+local uint32 triangleCount = indexBufferCount / 3;
+uint32 trianglePropertyCount;
+Assert(trianglePropertyCount == triangleCount, "Triangle property count mismatch");
+TriangleProperty triangleProperties[trianglePropertyCount] <optimize=false>;
