@@ -71,11 +71,18 @@ Note: all file extensions are **.afs* unless noted otherwise.
 | .hack//G.U. Vol. 2                        | PS2           |                |
 | .hack//G.U. Vol. 3                        | PS2           |                |
 | .hack//Link                               | PSP           | *.cpk -> *.afs |
+| Dragon Ball Z: Budokai / Dragon Ball Z    | PS2, GameCube |                |
+| Dragon Ball Z: Budokai 2 / Dragon Ball Z2 | PS2, GameCube |                |
 | Dragon Ball Z: Budokai 3 / Dragon Ball Z3 | PS2           |                |
-| Dragon Ball Z: Budokai Tenkaichi 3        | PS2           |                |
+| Dragon Ball Z: Infinite World             | PS2           |                |
+| Dragon Ball Z: Budokai HD Collection      | PS3, Xbox 360 |                |
+| Dragon Ball Z: Budokai Tenkaichi          | PS2           | *.VOL          |
+| Dragon Ball Z: Budokai Tenkaichi 2        | PS2, Wii      |                |
+| Dragon Ball Z: Budokai Tenkaichi 3        | PS2, Wii      |                |
 | Dragon Ball: Raging Blast                 | PS3, Xbox 360 |                |
 | Dragon Ball: Raging Blast 2               | PS3, Xbox 360 |                |
 | Dragon Ball Z: Ultimate Tenkaichi         | PS3, Xbox 360 |                |
+| Dragon Ball Z: For Kinect                 | Xbox 360      |                |
 | SD Gundam G Generation Wars               | Wii           |                |
 
 ## Other
@@ -87,7 +94,10 @@ Note: all file extensions are **.afs* unless noted otherwise.
 | Leisure Suit Larry: Magna Cum Laude                                 | PC            |                |
 | Deka Voice                                                          | PS2           |                |
 | 50 Cent: Bulletproof                                                | PS2           |                |
+| WWE SmackDown! Here Comes the Pain                                  | PS2           |                |
 | WWE SmackDown! vs. Raw                                              | PS2           |                |
+| WWE SmackDown! vs. Raw 2006                                         | PS2           |                |
+| WWE SmackDown! vs. Raw 2007                                         | PS2, Xbox 360 |                |
 | WinBack 2: Project Poseidon / Operation WinBack 2: Project Poseidon | PS2           |                |
 | Armored Trooper Votoms / Soukou Kihei Votoms                        | PS2           |                |
 | Dragon Age: Origins                                                 | PS3, Xbox 360 |                |
