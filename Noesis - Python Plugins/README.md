@@ -32,6 +32,8 @@ Plugins follow the pattern `<type>_<game>_<platform>_<format>.py`:
 | `fmt_she_ios_nom.py` | Silent Hill: The Escape | iOS NOM models |
 | `fmt_she_ios_not.py` | Silent Hill: The Escape | iOS NOT format |
 | `fmt_she_ios_pvr.py` | Silent Hill: The Escape | iOS PVR textures |
+| `fmt_havok_hcl.py` | Silent Hill: Homecoming | Havok collision data (.hcl) |
+| `fmt_renderware_ps2_bsp.py` | Silent Hill: Origins | PS2 RenderWare BSP map models |
 | `fmt_sho_ps2_map_bsp.py` | Silent Hill: Origins | PS2 BSP map models |
 
 ### Texture-Only Plugins (`tex_`)
