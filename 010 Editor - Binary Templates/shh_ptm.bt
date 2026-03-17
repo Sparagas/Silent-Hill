@@ -1,0 +1,44 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_ptm.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming particle template file for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: Game
+// File Mask: *.ptm
+//  ID Bytes: 45 49 46 46 [+12] 50 54 4D 43 //EIFF????????????PTMC
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+#include "inc_shh_eiff.bt"
+
+struct Entry {
+    uint32 len;
+    char   name[len];
+};
+
+//------------------------------------------------
+
+struct ParticleTemplateData {
+    // struct Entry entry[8] <optimize=false>;
+    FSkip(particleTemplateHeader.size);
+};
+
+struct EiffData {
+    ContainerHeader      particleTemplateHeader;
+    Assert              (particleTemplateHeader.magic == "PTMC");
+    ParticleTemplateData particleTemplateData;
+    ContainerHeader      dependencyHeader;
+    Assert              (dependencyHeader.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+    DependencyData       dependencyData;
+};
+
+//------------------------------------------------
+
+LittleEndian();
+
+ContainerHeader eiffHeader;
+Assert         (eiffHeader.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+EiffData        eiffData;

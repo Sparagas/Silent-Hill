@@ -1,0 +1,53 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: inc_shh_eiff.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Common structures for Silent Hill: Homecoming EIFF container for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 45 49 46 46 //EIFF
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+struct ContainerHeader {
+    char   magic[4];
+    int8   flag_4;
+    int8   flag_5;
+    int8   flag_6;
+    int8   flag_7;
+    BitfieldRightToLeft();
+    uint32 build   : 16;
+    uint32 version : 16;
+    uint32 size;
+};
+
+typedef struct StringEntry {
+    uint16 fileType; // TODO: write down enums
+    uint32 len;
+    char   fileName[len];
+} StringEntry;
+
+struct DependencyData {
+    uint32      count;
+    StringEntry name[count] <optimize=false>;
+    };
+
+//------------------------------------------------
+/*
+struct ContainerHeader eiffHdr;
+Assert(eiffHdr.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+
+struct EiffDat {
+    local char magic[4];
+    ReadBytes(magic, FTell(), 4);
+    } if (magic == "PGPC") {
+        #include "shh_inc-pgpc_pc.bt"
+    } else {
+        struct ContainerHeader unkHdr;
+        ubyte  TODO[unkHdr.size];
+    }
+} eiffDat;
+*/

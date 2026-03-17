@@ -1,0 +1,38 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_mys.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming Maya render scene for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: Game
+// File Mask: *.mys
+//  ID Bytes: 45 49 46 46 [+12] 4D 59 53 43 //EIFF????????????MYSC
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+#include "inc_shh_eiff.bt"
+
+struct MyscData {
+    float unk_float[5];
+    int32 unk_int;
+    ubyte unk[10];
+};
+
+struct EiffData {
+    ContainerHeader myscHeader;
+    Assert         (myscHeader.magic == "MYSC");
+    MyscData        myscData;
+    ContainerHeader dependencyHeader;
+    Assert         (dependencyHeader.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+    DependencyData  dependencyData;
+};
+
+//------------------------------------------------
+
+LittleEndian();
+
+ContainerHeader eiffHeader;
+Assert         (eiffHeader.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+EiffData        eiffData;

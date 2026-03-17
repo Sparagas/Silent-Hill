@@ -4,7 +4,7 @@
 //      File: shh_pak.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
 //   Version: 0.0
-//   Purpose: Parse Silent Hill: Homecoming PAK archive for Microsoft - Windows, Sony - PlayStation 3 and Microsoft - Xbox 360
+//   Purpose: Parse Silent Hill: Homecoming archive for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
 //  Category: Archive
 // File Mask: *.pak
 //  ID Bytes: 50 41 4B 5F //PAK_
@@ -41,13 +41,13 @@ typedef enum <uint16> FileType {
     FILETYPE_XML_BIN = 0x19, // .XML Serialized XML
     FILETYPE_STR_LOC = 0x1A, // .STR Localized string table
     FILETYPE_APK = 0x1B,     // .APK Package
-    FILETYPE_HKS = 0x1C,     // .HKS .x2_HKS .ps3_HKS Havok Skeleton
-    FILETYPE_HKA = 0x1D,     // .HKA .x2_HKA .ps3_HKA Havok Skeleton Anim
+    FILETYPE_HKS = 0x1C,     // .HKS .x2_HKS .pS3_HKS Havok Skeleton
+    FILETYPE_HKA = 0x1D,     // .HKA .x2_HKA .pS3_HKA Havok Skeleton Anim
     FILETYPE_HCL = 0x1E,     // .HCL Havok collision data
     FILETYPE_SES = 0x1F,     // .SES SlayEd scene
     FILETYPE_XGS = 0x20,     // .XGS .x2_XGS Sound Global Settings File
     FILETYPE_XWS = 0x21,     // .XWS .x2_XWS Streamed Wave Bank
-    FILETYPE_HKP = 0x22,     // .HKP .x2_HKP .ps3_HKP Havok Collision and Constraint D
+    FILETYPE_HKP = 0x22,     // .HKP .x2_HKP .p3_HKP Havok Collision and Constraint D
     FILETYPE_NVM = 0x23,     // .NVM Nav Mesh Sector Data
 
     FILETYPE_BIK = 0x26,     // .BIK Bink Movie

@@ -1,0 +1,36 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_sct.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: arse Silent Hill: Homecoming sector file for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: Game
+// File Mask: *.sct
+//  ID Bytes: 45 49 46 46 [+12] 53 43 54 52 //EIFF????????????SCTR
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+#include "inc_shh_eiff.bt"
+
+struct SectorData {
+    FSkip(sectorHeader.size);
+};
+
+struct EiffData {
+    ContainerHeader sectorHeader;
+    Assert         (sectorHeader.magic == "SCTR");
+    SectorData      sectorData;
+    ContainerHeader dependencyHeader;
+    Assert         (dependencyHeader.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+    DependencyData  dependencyData;
+};
+
+//------------------------------------------------
+
+LittleEndian();
+
+ContainerHeader eiffHeader;
+Assert         (eiffHeader.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+EiffData        eiffData;

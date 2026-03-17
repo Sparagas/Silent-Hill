@@ -4,10 +4,10 @@
 //      File: shh_syt_pc.bt
 //   Authors: Laurynas Zubavičius (Sparagas)
 //   Version: 0.0
-//   Purpose: Parse Silent Hill: Homecoming SYT file
-//  Category: Game
-// File Mask: 
-//  ID Bytes: 
+//   Purpose: Parse Silent Hill: Homecoming image file for Microsoft - Windows and Sony - PlayStation 3
+//  Category: Image
+// File Mask: *.syt
+//  ID Bytes: 53 59 54 00 //SYT
 //   History: 
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
@@ -18,7 +18,13 @@ struct Header {
     ubyte unk0[4];
     ubyte unk1[4];
     ubyte unk2[4];
-} header;
+};
+
+//------------------------------------------------
+
+LittleEndian();
+
+Header header;
 
 ubyte  unk0[4];
 ubyte  unk1[4];

@@ -1,0 +1,80 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh3_mfa.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 3 MFAR archive for Sony - PlayStation 2.
+//  Category: Archive
+// File Mask: *.mfa
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+typedef struct _FileEntry {
+    int32 nameOffset <format=hex>;
+    int32 fileOffset <format=hex, comment="counting from pad byte">;
+    int32 flags;
+    int32 fileSize;
+} FileEntry <read=(ReadString(nameOffset))>;
+
+//------------------------------------------------
+
+typedef struct _String {
+    char name[];
+} String <read=(name)>;
+
+typedef struct _FileNameArray {
+    // filenames are in reverse order
+    for (int i = fileCount - 1; i > -1; i--) {
+        FSeek(fileEntries[i].nameOffset);
+        String filename;
+    }
+} FileNameArray <read=(fileCount)>;
+
+typedef struct _File {
+    local string name = fileNameArray.filename[fileCount - 1 - i].name;
+    FSkip(fileEntries[i].fileSize);
+} File <read=(name)>;
+
+typedef struct _FileArray {
+    for (int i = 0; i < fileCount; i++) {
+        FSeek(fileEntries[i].fileOffset + relOffset);
+        File file;
+    }
+} FileArray <read=(fileCount)>;
+
+//------------------------------------------------
+
+// There are only 3 files which are in the rood directory and all end with "0.mfa".
+// So all comparisons work, and I leave others commented out, for future reusability.
+int DoesEndWith0mfa() {
+    local string filename = FileNameGetBase(GetFileName());
+    
+    // (?i) makes it case-insensitive, .* is any character, $ is end of string
+    return RegExMatch(filename, "(?i).*0\\.mfa$");
+    // return !Stricmp(filename, "b0.mfa") || !Stricmp(filename, "mv0.mfa") || !Stricmp(filename, "xbg0.mfa");
+    // return !Stricmp(SubStr(filename, Strlen(filename) - 5, 5), "0.mfa");
+}
+
+//------------------------------------------------
+
+if (DoesEndWith0mfa())
+    char bashScript[216];
+else
+    char bashScript[184];
+
+int32 fileCount;
+int32 size;
+FileEntry fileEntries[fileCount];
+
+FSeek(fileEntries[fileCount - 1].nameOffset);
+FileNameArray fileNameArray;
+
+int8 pad10;
+Assert(pad10 == 10);
+
+local uint32 relOffset = FTell();
+
+FileArray fileArray;

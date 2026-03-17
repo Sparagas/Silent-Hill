@@ -1,0 +1,389 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_mdl.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming model for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: CAD
+// File Mask: *.mdl
+//  ID Bytes: 45 49 46 46 [+12] 4D 4F 44 4C //EIFF????????????MODL
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+#include "inc_shh_eiff.bt"
+
+//------------------------------------------------
+// Pool / Directory Structures
+//------------------------------------------------
+
+// Each of the 7 pool sections has a 20-byte header describing its data and entries.
+struct SectionHeader {
+    int32  dataOffset   <comment="Absolute file offset to raw data buffer (-1 if none)">;
+    uint32 unk_04       <comment="6 for nodeHeader (= number of following sections), 0 for all others">;
+    uint32 dataSize     <comment="Size of the raw data buffer in bytes">;
+    uint32 elementCount <comment="Number of PoolEntry or NodeEntry records for this section">;
+    uint32 poolOffset   <comment="Byte offset from pool block start to this section's entries">;
+};
+
+// 20-byte entry used for meshInfo, materialNames, bufferTopology, and buffer sections.
+struct PoolEntry {
+    uint32 classId      <comment="0=data, 5=meshInfoRoot, 6=skinBinding">;
+    uint32 unk_04;
+    uint32 unk_08       <comment="Observed: 0, 1, 2, 3 — possible type or index">;
+    uint32 countOrSize;
+    uint32 offsetOrValue;
+};
+
+// 16-byte entry in the node/mesh offset table (one per mesh, including root).
+// nodeHeader.elementCount of these exist, matching meshCount in the pool directory.
+struct NodeEntry {
+    uint32 typeOrFlag           <comment="Always 1">;
+    uint32 VertexBufferOffset   <comment="Observed: 0, 72, 100, 128 — meaning uncertain">;
+    uint32 unk_08               <comment="Always 0">;
+    uint32 meshInfoOffset       <comment="Relative offset into meshInfoDat">;
+};
+
+//------------------------------------------------
+// Mesh Info Structures
+//------------------------------------------------
+
+// 12-byte header at the start of every node in the meshInfoDat node tree.
+// The node tree contains: 1 Root (type=1), N Bone/Group (type=2), M Mesh (type=4).
+struct NodeHeader {
+    uint32 pad      <comment="Always 0">;
+    Assert(pad == 0);
+    uint32 nodeType <comment="1=Root, 2=Bone/Group, 4=Mesh">;
+    int8   flag0    <comment="Always -1 (0xFF)">;
+    int8   flag1    <comment="Always 0">;
+    int16  flag2    <comment="Observed: 64 (0x40)">;
+};
+
+// Root node summary data pointed to by NodeEntry[0].meshInfoOffset.
+// Located at meshInfoDat + NodeEntry[0].meshInfoOffset.
+struct RootMeshInfo {
+    uint32 unk_00           <comment="Always 0">;
+    uint16 meshNodeCount    <comment="Number of type=4 (Mesh) nodes in the tree">;
+    uint16 boneNodeCount    <comment="Number of type=2 (Bone/Group) nodes in the tree">;
+};
+
+// Sub-mesh draw call data embedded within each Mesh node (nodeType=4).
+// Located at meshInfoDat + NodeEntry[i].meshInfoOffset (for i >= 1).
+// On PC: at mesh node + 0x68.  On PS3: at mesh node + 0x68.  On Xbox: at mesh node + 0xBC.
+// The meshInfoOffset in each NodeEntry already points to the correct position.
+struct SubMeshDrawCall {
+    uint32 unk_00           <comment="Always 0">;
+    uint32 unk_04           <comment="Always 0">;
+    uint32 startIndex       <comment="Starting index in the index buffer (cumulative across meshes)">;
+    uint32 triangleCount    <comment="Number of triangles in this sub-mesh">;
+    uint32 vertexCount      <comment="Number of vertices in this sub-mesh">;
+    uint32 materialIndex    <comment="Index into material names array">;
+    uint32 unk_18           <comment="Always 0">;
+    ubyte  unk_1C           <comment="Always 1 (byte-level field, not endian-swapped)">;
+    ubyte  pad_1D[3]        <comment="Always 0">;
+    uint32 unk_20           <comment="Always 0">;
+    uint32 indexCount       <comment="= triangleCount * 3">;
+    if (IsLittleEndian()) {
+        uint32 maxVertexIndex <comment="PC only: cumulative vertexCount - 1">;
+    }
+    uint32 triangleCount2   <comment="Duplicate of triangleCount">;
+};
+
+// old struct SubMeshHeader == SubMeshDrawCall, but this one has bounding boxes, that I don't know how to implement yet.
+struct SubMeshHeader {
+    uint32 magic;
+    Assert(magic==0x04003000);
+    FSkip(52);
+    uint32 startIndex;
+    uint32 triCount;
+    uint32 vertCount;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 indexCount;
+    uint32 unk;
+    uint32 unk;
+    FSkip(28);
+    float boundSphereCenter[3];
+    float boundSphereRadius;
+    float boundBoxMin[3];
+    float boundBoxMax[3];
+    FSkip(12);
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+    uint32 unk;
+};
+
+// Vertex buffer stride/offset mapping for each mesh. 56 bytes per entry.
+// Located at the end of the last Mesh node in meshInfoDat (all platforms).
+struct MeshBufferMap {
+    int32 vb1_Stride    <comment="Vertex buffer 1 stride (e.g. 24)">;
+    int32 vb1_Offset    <comment="Vertex buffer 1 offset (typically 0)">;
+    int32 vb1_unk[5];
+    int32 vb2_Stride    <comment="Vertex buffer 2 stride (e.g. 12)">;
+    int32 vb2_Offset    <comment="Vertex buffer 2 offset (typically 0)">;
+    int32 vb2_unk[5];
+};
+
+//------------------------------------------------
+// Buffer Topology & Primitives
+//------------------------------------------------
+
+struct BufferTopologyDat {
+    uint32 bufferCount          <comment="Number of buffer descriptors (e.g. 3 = index + vb1 + vb2)">;
+    uint32 indexBufSize         <comment="Redundant: index buffer size in bytes">;
+    ubyte  unk0;
+    ubyte  indexFormat          <comment="0=uint32 indices, 1=uint16 indices">;
+    uint16 primitiveType        <comment="0=triangle list, 1=triangle strip">;
+    uint32 vb1Size              <comment="Redundant: vertex buffer 1 size in bytes">;
+    ubyte  vb1ByteMode;
+    ubyte  unk1[3];
+    uint32 vb2Size              <comment="Redundant: vertex buffer 2 size in bytes">;
+    ubyte  vb2ByteMode;
+    ubyte  unk2;
+};
+
+struct FacesU32List {
+    uint32 idx0;
+    uint32 idx1;
+    uint32 idx2;
+};
+
+struct FacesU16List {
+    uint16 idx0;
+    uint16 idx1;
+    uint16 idx2;
+};
+
+// VB1: Position + Normals + Tangents + BoneWeights. Stride = 24 bytes.
+struct VertexBuffer1Dat {
+    float vert_x;
+    float vert_y;
+    float vert_z;
+    byte  normals[4]     <comment="Packed normal vector (byte-swapped on Xbox 360)">;
+    byte  tangents[4]    <comment="Packed tangent vector (byte-swapped on Xbox 360)">;
+    ubyte boneWeights[4] <comment="Bone weights or indices (byte-swapped on Xbox 360)">;
+};
+
+// VB2 channel variants. Stride depends on the number of UV sets.
+struct VertexBuffer2Channel1 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+};
+
+struct VertexBuffer2Channel2 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+};
+
+struct VertexBuffer2Channel3 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+    uint32 uv2_u;
+    uint32 uv2_v;
+};
+
+struct VertexBuffer2Channel4 {
+    ubyte  r;
+    ubyte  g;
+    ubyte  b;
+    ubyte  a;
+    float  uv0_u;
+    float  uv0_v;
+    float  uv1_u;
+    float  uv1_v;
+    uint32 uv2_u;
+    uint32 uv2_v;
+    uint32 uv3_u;
+    uint32 uv3_v;
+};
+
+//------------------------------------------------
+// Data Block Structures
+//------------------------------------------------
+
+struct MaterialNamesDat {
+    local uint64 startPos = FTell();
+    while (ReadByte() == 0x0)
+        FSkip(1);
+    while (ReadByte() != 0x0)
+        struct NameArr {
+            string name;
+        } nameArr;
+    FSeek(poolData.materialNamesHeader.dataSize + startPos);
+};
+
+struct IndexBufferDat {
+    if (bufferTopologyDat.indexFormat == 0 && bufferTopologyDat.primitiveType == 0)
+        struct FacesU32List faces_u32_list[poolData.indexBufferHeader.dataSize / 12];
+
+    if (bufferTopologyDat.indexFormat == 1 && bufferTopologyDat.primitiveType == 0)
+        struct FacesU16List faces_u16_list[poolData.indexBufferHeader.dataSize / 6];
+
+    if (bufferTopologyDat.indexFormat == 0 && bufferTopologyDat.primitiveType == 1)
+        uint32 faces_u32_strip[poolData.indexBufferHeader.dataSize / 4];
+
+    if (bufferTopologyDat.indexFormat == 1 && bufferTopologyDat.primitiveType == 1)
+        uint16 faces_u16_strip[poolData.indexBufferHeader.dataSize / 2];
+};
+
+// The meshInfoDat block contains a node tree of variable-size nodes:
+//   - 1 Root node (nodeType=1): ~564 bytes (PC), ~568 (PS3), ~756 (Xbox)
+//   - N Bone/Group nodes (nodeType=2): ~280-456 bytes each
+//   - M Mesh nodes (nodeType=4): ~228-536 bytes each
+// Each node starts with a 12-byte NodeHeader.
+// Mesh nodes embed SubMeshDrawCall data at a fixed offset within the node
+// (PC/PS3: node+0x68, Xbox: node+0xBC — but NodeEntry.meshInfoOffset handles this).
+// The last Mesh node also contains embedded name strings and MeshBufferMap entries.
+//
+// Full node tree parsing is not yet implemented; only draw calls and buffer maps
+// are extracted using the NodeEntry offset table.
+struct MeshInfoDat {
+    
+    // 1. Root node header (first 12 bytes of meshInfoDat)
+    struct NodeHeader rootNode;
+
+    // 2. Root mesh info from NodeEntry[0] — contains mesh/bone node counts
+    FSeek(poolData.meshInfoHeader.dataOffset + poolData.nodeEntries[0].meshInfoOffset);
+    struct RootMeshInfo rootMeshInfo;
+
+    // 3. Parse SubMeshDrawCall for each mesh node (skip entry[0] = root)
+    for(int i = 1; i < poolData.nodeHeader.elementCount; i++) {
+        FSeek(poolData.meshInfoHeader.dataOffset + poolData.nodeEntries[i].meshInfoOffset);
+        SubMeshDrawCall drawCall;
+    }
+    
+    // Temporal solution untill it is found how to parse it correctly.
+    // Skip 52 bytes. Had no luck doing it with regex.
+    FSeek(FindFirst("18000000????????????????????????????????????????????????????????????????????????????????????????????????????????18000000,h", true, false, FINDMETHOD_WILDCARDS));
+    while(ReadInt()==0x18)
+        MeshBufferMap meshBufferMap;
+
+    //FSeek(poolData.meshInfoHeader.dataSize + startPos);
+ };
+
+//------------------------------------------------
+// Pool & Model Container Structures
+//------------------------------------------------
+
+struct PoolData {
+    local uint32 poolStart = FTell();
+
+    // 7 section headers (20 bytes each = 140 bytes total)
+    SectionHeader nodeHeader            <comment="16-byte NodeEntry records">;
+    SectionHeader meshInfoHeader        <comment="Node tree with draw calls">;
+    SectionHeader materialNamesHeader   <comment="Null-terminated material name strings">;
+    SectionHeader bufferTopologyHeader  <comment="Buffer format descriptors">;
+    SectionHeader indexBufferHeader     <comment="Index buffer (triangle indices)">;
+    SectionHeader vertexBuffer1Header   <comment="VB1: positions, normals, tangents, weights">;
+    SectionHeader vertexBuffer2Header   <comment="VB2: vertex colors, UVs">;
+
+    // Pool entries for each section (20 bytes each, at their respective poolOffset)
+    FSeek(meshInfoHeader.poolOffset + poolStart);
+    PoolEntry meshInfoEntries[meshInfoHeader.elementCount];
+
+    FSeek(materialNamesHeader.poolOffset + poolStart);
+    PoolEntry materialNamesEntries[materialNamesHeader.elementCount];
+
+    FSeek(bufferTopologyHeader.poolOffset + poolStart);
+    PoolEntry bufferTopologyEntries[bufferTopologyHeader.elementCount];
+
+    FSeek(indexBufferHeader.poolOffset + poolStart);
+    PoolEntry indexBufferEntries[indexBufferHeader.elementCount];
+
+    FSeek(vertexBuffer1Header.poolOffset + poolStart);
+    PoolEntry vertexBuffer1Entries[vertexBuffer1Header.elementCount];
+
+    FSeek(vertexBuffer2Header.poolOffset + poolStart);
+    PoolEntry vertexBuffer2Entries[vertexBuffer2Header.elementCount];
+
+    // Node/mesh offset table (16 bytes each, at nodeHeader.poolOffset)
+    FSeek(nodeHeader.poolOffset + poolStart);
+    NodeEntry nodeEntries[nodeHeader.elementCount];
+};
+
+struct ModelData {
+    uint32   maybeVersion;
+    Assert(maybeVersion == 4);
+    GUID     guid;
+    uint32   poolSize <comment="Total size of the PoolData block in bytes">;
+    PoolData poolData;
+    Assert(sizeof(poolData) == poolSize);
+
+    // --- Raw data buffers (at absolute file offsets from section headers) ---
+
+    FSeek(poolData.meshInfoHeader.dataOffset);
+    struct MeshInfoDat meshInfoDat;
+
+    FSeek(poolData.materialNamesHeader.dataOffset);
+    struct MaterialNamesDat materialNamesDat;
+
+
+    FSeek(poolData.bufferTopologyHeader.dataOffset);
+    struct BufferTopologyDat bufferTopologyDat;
+
+    FSeek(poolData.indexBufferHeader.dataOffset);
+    struct IndexBufferDat indexBufferDat;
+
+    FSeek(poolData.vertexBuffer1Header.dataOffset);
+    struct VertexBuffer1Dat vertexBuffer1Dat[poolData.vertexBuffer1Header.dataSize / 24]; // divide by stride. TODO.
+
+    FSeek(poolData.vertexBuffer2Header.dataOffset);
+    // VB2 stride varies per mesh (12, 20, 28, or 36 bytes depending on UV channel count).
+    // TODO: Use MeshBufferMap.vb2_Stride to select the correct channel struct per mesh.
+    ubyte  vertexBuffer2Dat[poolData.vertexBuffer2Header.dataSize];
+    // struct VertexBuffer2Channel1 vertexBuffer2Dat[vertexBuffer2Header.dataSize / 12]; // sometimes this without additional uint32s
+    // struct VertexBuffer2Channel2 vertexBuffer2Dat[vertexBuffer2Header.dataSize / 20]; // sometimes this with additional uint32s
+    // struct VertexBuffer2Channel4 vertexBuffer2Dat[vertexBuffer2Header.dataSize / 36]; // sometimes this with additional uint32s
+
+    FSeek(modelHeader.size + 32);
+};
+
+struct EiffData {
+    ContainerHeader modelHeader;
+    Assert         (modelHeader.magic == "MODL");
+    ModelData       modelData;
+    ContainerHeader dependencyHeader;
+    Assert         (dependencyHeader.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+    DependencyData  dependencyData;
+};
+
+//------------------------------------------------
+// Entry Point
+//------------------------------------------------
+
+LittleEndian();
+if (ReadUInt(12) > 0xFFFFFF)
+    BigEndian();
+
+ContainerHeader eiffHeader;
+Assert(eiffHeader.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+EiffData        eiffData;

@@ -1,0 +1,36 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: shh_inc-pgpc_pc.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill: Homecoming particle group file for Microsoft - Windows, Microsoft - Xbox 360 and Sony - PlayStation 3
+//  Category: Game
+// File Mask: *.pgp
+//  ID Bytes: 45 49 46 46 [+12] 50 47 50 43 //EIFF????????????PGPC
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+#include "inc_shh_eiff.bt"
+
+struct ParticleGroupData {
+    FSkip(particleGroupHeader.size);
+};
+
+struct EiffData {
+    ContainerHeader   particleGroupHeader;
+    Assert           (particleGroupHeader.magic == "PGPC");
+    ParticleGroupData particleGroupData;
+    ContainerHeader   dependencyHeader;
+    Assert           (dependencyHeader.magic == "DPND", "Not Silent Hill: Homecoming DPND file");
+    DependencyData    dependencyData;
+};
+
+//------------------------------------------------
+
+LittleEndian();
+
+ContainerHeader eiffHeader;
+Assert         (eiffHeader.magic == "EIFF", "Not Silent Hill: Homecoming EIFF file");
+EiffData        eiffData;
