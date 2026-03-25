@@ -1,0 +1,231 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh4_maphit.bt
+//   Authors: Hunter Stanton (hun10sta)
+//   Version: 1.0
+//   Purpose: Parse Silent Hill 4: The Room collision data (known as "maphit" internally).
+//  Category: Game
+// File Mask: 
+//  ID Bytes: 00 02 FF 11
+//   History: 
+//   1.0   2026-03-25 Hunter Stanton : Initial version.
+//------------------------------------------------
+
+LittleEndian();
+
+enum <ubyte> sfMaphitSpecType
+{
+    MH_SPEC_NORMAL   = 0,
+    MH_SPEC_PERMEATE = 1
+};
+
+enum <ubyte> sfMaphitMaterialType
+{
+    MH_MATERIAL_MUON   = 0,
+    MH_MATERIAL_CON    = 1,
+    MH_MATERIAL_TUCHI  = 2,
+    MH_MATERIAL_KUSA   = 3,
+    MH_MATERIAL_TETU   = 4,
+    MH_MATERIAL_MIZU   = 5,
+    MH_MATERIAL_TREE   = 6,
+    MH_MATERIAL_JUUTAN = 7,
+    MH_MATERIAL_AMI    = 8,
+    MH_MATERIAL_GARAS  = 9,
+    MH_MATERIAL_KAATEN = 10,
+    MH_MATERIAL_NIKU   = 11,
+    MH_MATERIAL_GAREKI = 12
+};
+
+typedef struct
+{
+    sfMaphitMaterialType material : 4; // material used for footstep sounds
+    sfMaphitSpecType     spec     : 4; // not quite sure what this is for
+    ushort               no_light : 1; // possibly whether this is supposed to be affected by lighting or not?
+    ushort               unk_9_15 : 7;
+} POLY_SURFACE_ATTR;
+
+typedef struct
+{
+    float x;
+    float y;
+    float z;
+    // Polygon-level metadata is packed into the 4th float slot.
+    // On the first vertex: meta0 = stored vertex count, flags bit0 = force triangle (?)
+    // On the last  vertex: flags bit2 = flip plane winding, meta1 = surface attributes
+    ubyte meta0;
+    ubyte flags;
+    ushort meta1;
+} POLY_VERTEX_RAW;
+
+typedef struct
+{
+    float a;
+    float b;
+    float c;
+    float d;
+} BSP_PLANE;
+
+typedef struct
+{
+    BSP_PLANE plane;
+    int positive_offset;
+    int negative_offset;
+} BSP_NODE;
+
+typedef struct
+{
+    int n_polygons;
+    // Relative to the POLY_POOL struct itself, not the ABT cell base.
+    int polygons_offset;
+} POLY_POOL;
+
+typedef struct
+{
+    float bmax[3];
+    int   n_children;
+    float bmin[3];
+    // Relative to the current cell; root uses 0.
+    int   parent_offset;
+    POLY_POOL poly_pool;
+} ABT_CELL_FIXED;
+
+typedef struct
+{
+    ushort id;
+    ushort flag;
+    // Relative to file start
+    int    abt_offset;
+    // Relative to file start
+    int    bsp_offset;
+} MAPHIT_HEADER;
+
+void ParsePolygon(int poly_offset, int poly_index)
+{
+    FSeek(poly_offset);
+    struct
+    {
+        POLY_VERTEX_RAW first;
+
+		// nasty but this seems to work
+        local int stored_vertex_count = first.meta0;
+        local int n_vertices = ((first.flags & 0x1) != 0) ? 3 : stored_vertex_count;
+        local int i;
+        if (n_vertices < 1)
+            n_vertices = 1;
+
+        for (i = 1; i < n_vertices - 1; i++)
+        {
+            POLY_VERTEX_RAW middle;
+        }
+
+        if (n_vertices > 1)
+        {
+            struct
+            {
+                float x;
+                float y;
+                float z;
+                ubyte tail_meta0;
+                ubyte flags;
+                POLY_SURFACE_ATTR surface_attr;
+            } last;
+        }
+    } poly;
+}
+
+void ParsePolyPool(int pool_offset)
+{
+    FSeek(pool_offset);
+    struct
+    {
+        POLY_POOL header;
+        local int pool_base = FTell() - 0x8;
+        local int i;
+        local int poly_off;
+        local int cur_poly_off;
+        local ubyte stored_vertex_count;
+        local ubyte first_flags;
+        local int n_vertices;
+
+        if (header.n_polygons > 0)
+        {
+            poly_off = pool_base + header.polygons_offset;
+            FSeek(poly_off);
+
+            for (i = 0; i < header.n_polygons; i++)
+            {
+                cur_poly_off = poly_off;
+                FSeek(cur_poly_off + 0x0c);
+                stored_vertex_count = ReadUByte();
+                first_flags = ReadUByte();
+                n_vertices = ((first_flags & 0x1) != 0) ? 3 : stored_vertex_count;
+                if (n_vertices < 1)
+                    n_vertices = 1;
+
+                ParsePolygon(cur_poly_off, i);
+                poly_off += n_vertices * 0x10;
+            }
+        }
+    } poly_pool;
+}
+
+void ParseABTCell(int cell_offset)
+{
+    FSeek(cell_offset);
+    struct
+    {
+        ABT_CELL_FIXED cell;
+        local int cell_base = FTell() - 0x28;
+        local int child_list_offset = FTell();
+        local int i;
+
+        if (cell.poly_pool.n_polygons > 0)
+        {
+            ParsePolyPool(cell_base + 0x20);
+        }
+
+        // ParsePolyPool seeks into the polygon blob, so restore the cursor
+        // to the child-offset list before reading ABT children.
+        FSeek(child_list_offset);
+        for (i = 0; i < cell.n_children; i++)
+        {
+            FSeek(child_list_offset + i * 4);
+            // Relative to the current ABT cell.
+            int child_offset;
+            if (child_offset != 0)
+                ParseABTCell(cell_base + child_offset);
+        }
+    } abt_cell;
+}
+
+void ParseBSPNode(int node_offset)
+{
+    FSeek(node_offset);
+    struct
+    {
+        BSP_NODE node;
+        local int node_base = FTell() - 0x18;
+
+        // Relative to the current BSP node.
+        if (node.positive_offset != 0)
+            ParseBSPNode(node_base + node.positive_offset);
+
+        if (node.negative_offset != 0)
+            ParseBSPNode(node_base + node.negative_offset);
+    } bsp_node;
+}
+
+struct Sh4Maphit
+{
+    local int base = FTell();
+    MAPHIT_HEADER header;
+
+    Assert(header.id == 0xFF11);
+
+    if (header.abt_offset != 0)
+        ParseABTCell(base + header.abt_offset);
+
+    if ((header.flag & 0x2) != 0 && header.bsp_offset != 0)
+        ParseBSPNode(base + header.bsp_offset);
+};

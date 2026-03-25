@@ -14,6 +14,7 @@
 
 #include "sh4_animation.bt"
 #include "sh4_fog_data.bt"
+#include "sh4_maphit.bt"
 #include "sh4_shadow_model.bt"
 #include "sh4_skeletal_model_pc.bt"
 #include "sh4_slgt.bt"
@@ -109,9 +110,9 @@ void sh4_bin() {
         else if (ReadUInt() == 0xFFFFFFFF)
             File sh3_static_model_ps2;
 
-        // collision model file
+        // collision model file ("Maphit")
         else if (ReadUInt() == 0x0002FF11)
-            File sh4_collision_model;
+            Sh4Maphit sh4_maphit;
 
         // collision model file for SH3?  Only present in hit1.bin.
         else if (ReadUInt() == 0x0001FF11)
