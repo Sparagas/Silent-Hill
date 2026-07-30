@@ -1,6 +1,3 @@
-# Silent Hill in Other Media
-A comprehensive list of Silent Hill appearances and references across various video games and media.
-
 ## Table of Contents
 - [Other Video Games in Silent Hill](#other-video-games-in-silent-hill)
 - [Silent Hill in Music Konami Video Games](#silent-hill-in-music-konami-video-games)
@@ -9,6 +6,9 @@ A comprehensive list of Silent Hill appearances and references across various vi
 - [Silent Hill in Licensed Video Games](#silent-hill-in-licensed-video-games)
 - [Silent Hill in Unlicensed Video Games](#silent-hill-in-unlicensed-video-games)
 - [Silent Hill in Non-Video Game Media](#silent-hill-in-non-video-game-media)
+
+# Silent Hill in Other Media
+A comprehensive list of Silent Hill appearances and references across various video games and media.
 
 ## Other Video Games in Silent Hill
 
@@ -19,10 +19,10 @@ A comprehensive list of Silent Hill appearances and references across various vi
 - Sony - PS one Classics (PSN)
 
 #### Description
-In the original Silent Hill for Sony - PlayStation there are unused textures from another Konami game called "Hyper Athlete" for arcades and it's renamed port for Sony - PlayStation "International Track & Field".
+In the original Silent Hill for Sony - PlayStation there are unused textures from another Konami game called "Hyper Athlete" for arcades and it's renamed port for Sony - PlayStation "International Tra[...] 
 
 ## Silent Hill in Music Konami Video Games
-Here are all known Konami music rhythm games with Silent Hill songs. There are several known songs including from Silent Hill 3, Silent Hill 4: The Room, and a not related Christmas song called "Silent Hill". This list does not include "Silent Hill" song.
+Here are all known Konami music rhythm games with Silent Hill songs. There are several known songs including from Silent Hill 3, Silent Hill 4: The Room, and a not related Christmas song called "Silen[...]
 
 ### jubeat saucer
 #### Platforms
@@ -77,14 +77,14 @@ Here are all known Konami music rhythm games with Silent Hill songs. There are s
 - Sony - PlayStation
 
 #### Description
-ISS Pro Evolution, also known as World Soccer Jikkyou Winning Eleven 4 in Japan is a European football/soccer game with Cybil Bennett billboard with "Silent Hill" written on it. It is seen in the European team training stadium.
+ISS Pro Evolution, also known as World Soccer Jikkyou Winning Eleven 4 in Japan is a European football/soccer game with Cybil Bennett billboard with "Silent Hill" written on it. It is seen in the Euro[...]
 
 ### ISS Pro Evolution 2 (Europe) / World Soccer Jikkyou Winning Eleven 2000 - U-23 Medal e no Chousen (Japan) / ESPN MLS Gamenight (USA)
 #### Platforms
 - Sony - PlayStation
 
 #### Description
-It is almost the same game as the first ISS Pro Evolution, with the same easter egg. In USA it was licenced by MLS, so it has different name and slightly different game, but overall they are almost the same.
+It is almost the same game as the first ISS Pro Evolution, with the same easter egg. In USA it was licenced by MLS, so it has different name and slightly different game, but overall they are almost th[...]
 
 ### New International Track & Field (non-Japan) / New International Hyper Sports DS (Japan)
 #### Platforms
@@ -171,7 +171,7 @@ Robbie makes a minor cameo appearance as a keychain on Miyako Okura's bag.
 - Sony - PlayStation 4
 
 #### Description
-In Metal Gear Survive, there were two references to Silent Hill in the game, both relating to the event "The Researcher's Story: Special Edition", the first was in the flavor text, where an addendum to the text in purple had Chloe Dubois' message stating she had recurring nightmares about creatures that were explicitly not related to the Wanderers, indirectly alluding to the various creatures in the Silent Hill games. The other is one of the prizes in the event, a head accessory that was derived from the character Pyramid Head. In addition, one of the rewardable headgear is based on Robbie the Rabbit.
+In Metal Gear Survive, there were two references to Silent Hill in the game, both relating to the event "The Researcher's Story: Special Edition", the first was in the flavor text, where an addendum t[...]
 
 ### Metal Gear Solid 3
 #### Platforms
@@ -205,7 +205,7 @@ It could be using the same audio assets as Silent Hill 3.
 - Sony - PlayStation 3
 
 #### Description
-PlayStation Home was a virtual 3D social gaming platform. It had James Sunderland, Pyramid Head, Heather Mason, Nurse, and Robbie the Rabbit character costumes, Anne's police uniform outfit, and a Diner location from Silent Hill: Downpour.
+PlayStation Home was a virtual 3D social gaming platform. It had James Sunderland, Pyramid Head, Heather Mason, Nurse, and Robbie the Rabbit character costumes, Anne's police uniform outfit, and a Din[...]
 
 ### Dead by Daylight
 #### Platforms
@@ -218,7 +218,7 @@ PlayStation Home was a virtual 3D social gaming platform. It had James Sunderlan
 - Sony - PlayStation 5
 
 #### Description
-A survival horror game that introduced a Silent Hill chapter featuring Pyramid Head as a monster and Cheryl Mason as a survivor that also has alternative costumes like Alessa, James Sunderland, Cybil Bennett, and Lisa. It also has a Midwitch Elementary school map, Robbie the Rabbit skin for another monster, and cosmetic items like the Seal of Metatron.
+A survival horror game that introduced a Silent Hill chapter featuring Pyramid Head as a monster and Cheryl Mason as a survivor that also has alternative costumes like Alessa, James Sunderland, C[...]
 
 ### Dead by Daylight Mobile
 #### Platforms
@@ -233,7 +233,7 @@ The mobile version of *Dead by Daylight*, including the same Silent Hill content
 - Microsoft - Windows
 
 #### Description
-A horror multiplayer game featuring Silent Hill Old Town map that has Air Screamers as a trap and Pyramid Head as a map boss. It also has 4 playable characters. A Nurse and Robbie the Rabbit as monsters, and Cybil Bennett and Heather Mason as mortals.
+A horror multiplayer game featuring Silent Hill Old Town map that has Air Screamers as a trap and Pyramid Head as a map boss. It also has 4 playable characters. A Nurse and Robbie the Rabbit as monste[...]
 
 ## Silent Hill in Unlicensed Video Games
 
@@ -276,7 +276,7 @@ Has a cameo scene, where you open a door to room 304.
 - Sony - PlayStation 4
 
 #### Description
-Relaxing house renovation simulator. It has various bonus maps from famous locations, like Friends, Breaking Bad, etc. It also has Room 304 (named Room 404) with bonus hauntings that are game-accurate. Note that there are also mobile versions of this game, but it is a different game and have no Silent Hill content.
+Relaxing house renovation simulator. It has various bonus maps from famous locations, like Friends, Breaking Bad, etc. It also has Room 304 (named Room 404) with bonus hauntings that are game-acc[...]
 
 ### House Flipper Remastered Collection
 #### Platforms
