@@ -267,7 +267,7 @@ Contains subtle nods and easter eggs to all sorts of PlayStation games including
 #### Description
 Has a cameo scene, where you open a door to room 304.
 
-### House Flipper (non-mobile)
+### House Flipper (non-mobile version)
 #### Platforms
 - Apple - macOS
 - Microsoft - Xbox One
@@ -276,7 +276,18 @@ Has a cameo scene, where you open a door to room 304.
 - Sony - PlayStation 4
 
 #### Description
-Relaxing house renovation simulator. It has various bonus maps from famous locations, like Friends, Breaking Bad, etc. It also has Room 304 with bonus hauntings that are game-accurate. Note that there are also mobile versions of this game, but it is a different game and have no Silent Hill content.
+Relaxing house renovation simulator. It has various bonus maps from famous locations, like Friends, Breaking Bad, etc. It also has Room 304 (named Room 404) with bonus hauntings that are game-accurate. Note that there are also mobile versions of this game, but it is a different game and have no Silent Hill content.
+
+### House Flipper Remastered Collection
+#### Platforms
+- Apple - macOS
+- Microsoft - Xbox Series X|S
+- Microsoft - Windows
+- Nintendo - Nintendo Switch
+- Sony - PlayStation 5
+
+#### Description
+This is a remastered game of *House Flipper (non-mobile version)*, so it also includes the same Room 304 (named Room 404) with the same hauntings.
 
 ### Ion Fury
 #### Platforms
