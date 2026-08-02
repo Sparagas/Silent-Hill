@@ -1,0 +1,60 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh1_anm.bt
+//   Authors: Laurynas Zubavičius (Sparagas)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill ANM skeketal and animation file for Sony - PlayStation.
+//  Category: Game
+// File Mask: *.anm
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+typedef struct _Translation {
+    int8 x;
+    int8 y;
+    int8 z;
+} s_Translation;
+
+typedef struct _Rotation {
+    int8 matrix[9];
+} s_Rotation;
+
+typedef struct _AnmHeader {
+    uint16 dataOffset;
+    uint8  rotationBoneCount;
+    uint8  translationBoneCount;
+    uint16 keyframeDataSize; /** Size per keyframe. `(rotationBoneCount * 9) + (translationBoneCount * 3)`? */
+    Assert(keyframeDataSize == rotationBoneCount * 9 + translationBoneCount * 3);
+    uint8  boneCount;        /** Size of `bindPoses`. */
+    Assert(boneCount == rotationBoneCount + translationBoneCount);
+    int8   __pad_7;
+    int32  activeBones; /** Bit field of bones to update. */
+    uint32 fileSize;
+    uint16 keyframeCount;
+    uint8  scaleLog2;
+    uint8  rootYOffset;
+} s_AnmHeader;
+
+typedef struct _AnmBindPose {
+    int8 parentBone;
+    int8 rotationDataIdx;
+    int8 translationDataIdx;
+    s_Translation translationInitial;
+} s_AnmBindPose;
+
+typedef struct _Keyframe {
+    s_Translation translations[anmHdr.translationBoneCount];
+    s_Rotation    rotations[anmHdr.rotationBoneCount];
+} s_Keyframe;
+
+//------------------------------------------------
+
+s_AnmHeader   anmHdr;
+s_AnmBindPose bindPoses[anmHdr.boneCount];
+
+FSeek(anmHdr.dataOffset);
+s_Keyframe keyframe[anmHdr.keyframeCount] <optimize=false>;

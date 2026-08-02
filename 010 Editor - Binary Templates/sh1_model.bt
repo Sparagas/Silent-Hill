@@ -325,7 +325,7 @@ typedef struct _IpdHeader
     int8   cellY;
     uint32 ptr_lmHdr                              <format=hex, comment="s_LmHeader*">;
     uint8  modelCount;
-    uint8  modelBuffersCount;
+    uint8  modelBufferCount;
     uint8  modelOrderCount;
     int8   __pad_B[9];
     uint32 ptr_modelInfos                         <format=hex, comment="s_IpdModelInfo*">;
@@ -335,7 +335,7 @@ typedef struct _IpdHeader
                          // "`u32` - Relative pointer to object order"
     uint8  unk_1D[51];   // TODO: Actual texture data array?
     uint32 ptr_modelOrderList                     <format=hex, comment="uint8*">;
-    s_IpdCollisionData collisionData;
+    s_IpdCollisionData collisionData              <style=sHeading2>;
 } s_IpdHeader;
 
 //------------------------------------------------
@@ -344,18 +344,18 @@ typedef struct _IpdHeader
 
 typedef struct _ModelBuffers_Data {
     FSeek ( modelBuffers[i].ptr_modelInstances );
-    s_IpdModelInstance modelInstances[modelBuffers[i].modelInstanceCount] <style=sHeading4>;
+    s_IpdModelInstance modelInstances[modelBuffers[i].modelInstanceCount] <style=sSection1>;
     
     FSeek ( modelBuffers[i].ptr_field_10 );
-    SVECTOR3 field_10                 <style=sSection1>;
+    SVECTOR3 field_10                 <style=sSection2>;
     
     FSeek ( modelBuffers[i].ptr_subcellPositions );
-    SVECTOR3 subcellPositions         <style=sSection2>;
+    SVECTOR3 subcellPositions         <style=sSection3>;
 } s_ModelBuffers_Data;
 
 
 typedef struct _ModelBuffers_DataArray {
-        for (int i; i < ipdHdr.modelBuffersCount; i++)
+        for (int i; i < ipdHdr.modelBufferCount; i++)
         {
             s_ModelBuffers_Data modelBuffers_Data;
         }
@@ -433,16 +433,16 @@ struct IPD_PART
     s_IpdHeader ipdHdr                            <style=sHeading1>;
 
     FSeek ( ipdHdr.ptr_modelInfos );
-    s_IpdModelInfo modelInfos [ ipdHdr.modelCount ] <style=sHeading2>;
+    s_IpdModelInfo modelInfos [ ipdHdr.modelCount ] <style=sHeading3>;
 
     FSeek ( ipdHdr.ptr_modelBuffers );
-    s_IpdModelBuffer modelBuffers [ ipdHdr.modelBuffersCount ] <style=sHeading3>;
+    s_IpdModelBuffer modelBuffers [ ipdHdr.modelBufferCount ] <style=sHeading4>;
 
     FSeek ( modelBuffers[0].ptr_modelInstances );
     s_ModelBuffers_DataArray modelBuffers_DataArray;
     
     FSeek ( ipdHdr.ptr_modelOrderList );
-    uint8 modelOrderList[ ipdHdr.modelCount ]     <style=sSection3>;
+    uint8 modelOrderList[ ipdHdr.modelCount ]     <style=sSection4>;
 };
 
 struct LM_PART

@@ -14,7 +14,7 @@ def registerNoesisTypes():
 
 
 # ----------------------------------------------------------
-# Type check (BT: magic 0x30 = PLM, 0x14 = IPD)
+# Type check (magic 0x30 = PLM, 0x14 = IPD)
 # ----------------------------------------------------------
 def sh1CheckType(data):
     if len(data) < 1:
@@ -73,83 +73,67 @@ class Normal:
         self.count = bs.readUByte()
 
 
-class Filename:
-    def __init__(self, bs):
-        union = bs.readBytes(8)
-        self.str = noeStrFromBytes(union)
-        self.u32 = noeUnpack("<II", union)
-
-
 class Primitive:
     def __init__(self, bs):
-        self.u1    = bs.readUByte()
-        self.v1    = bs.readUByte()
-        self.bits1 = bs.readUShort()
-
-        self.u2    = bs.readUByte()
-        self.v2    = bs.readUByte()
-        self.bits2 = bs.readUShort()
-
-        self.u3    = bs.readUByte()
-        self.v3    = bs.readUByte()
-        self.u4    = bs.readUByte()
-        self.v4    = bs.readUByte()
-
-        self.face1 = bs.readUByte()
-        self.face2 = bs.readUByte()
-        self.face3 = bs.readUByte()
-        self.face4 = bs.readUByte()
-
-        self.unk_10 = bs.readBytes(4)
+        self.u1            = bs.readUByte()
+        self.v1            = bs.readUByte()
+        self.bits          = bs.readUShort()
+        self.u2            = bs.readUByte()
+        self.v2            = bs.readUByte()
+        self.field_6       = bs.readUByte()
+        bf                 = bs.readUByte()
+        self.materialIdx   = (bf >> 1) & 0x7F  # :7
+        self.isTransparent = (bf >> 0) & 0x01  # :1
+        self.u3            = bs.readUByte()
+        self.v3            = bs.readUByte()
+        self.u4            = bs.readUByte()
+        self.v4            = bs.readUByte()
+        self.face1         = bs.readUByte()
+        self.face2         = bs.readUByte()
+        self.face3         = bs.readUByte()
+        self.face4         = bs.readUByte()
+        self.unk_10        = bs.readBytes(4)
 
 
 class MeshHeader:
     def __init__(self, bs):
-        self.primitiveCount_0 = bs.readUByte()
-        self.vertexCount_1    = bs.readUByte()
-        self.normalCount_2    = bs.readUByte()
-        self.unkCount_3       = bs.readUByte()
-
-        self.primitives_4_Offset = bs.readUInt()
-        self.vertexXy_8_Offset   = bs.readUInt()
-        self.vertexZ_C_Offset    = bs.readUInt()
-        self.normals_10_Offset   = bs.readUInt()
-        self.unkPtr_14_Offset    = bs.readUInt()
+        self.primitiveCount = bs.readUByte()
+        self.vertexCount    = bs.readUByte()
+        self.normalCount    = bs.readUByte()
+        self.unkCount_3     = bs.readUByte()
+        self.ptr_primitives = bs.readUInt()
+        self.ptr_vertexXy   = bs.readUInt()
+        self.ptr_vertexZ    = bs.readUInt()
+        self.ptr_normals    = bs.readUInt()
+        self.ptr_unkptr_subcells  = bs.readUInt()
 
 
 class ModelHeader:
     def __init__(self, bs):
-        self.name_0         = noeStrFromBytes(bs.readBytes(8))
-        self.meshCount_8    = bs.readUByte()
-        self.vertexOffset_9 = bs.readUByte()
-        self.normalOffset_A = bs.readUByte()
+        self.name         = noeStrFromBytes(bs.readBytes(8))
+        self.meshCount    = bs.readUByte()
+        self.vertexOffset = bs.readUByte()
+        self.normalOffset = bs.readUByte()
+        bf                = bs.readUByte()
+        self.field_B_0    = (bf >> 0) & 0x01  # :1
+        self.field_B_1    = (bf >> 1) & 0x07  # :3
+        self.field_B_4    = (bf >> 4) & 0x03  # :2
+        self.unk_B_6      = (bf >> 6) & 0x03  # :2
+        self.ptr_meshHdrs = bs.readUInt()
 
-        # Packed bitfields in one byte (B)
-        bf = bs.readUByte()
-        self.field_B_0 = (bf >> 0) & 0x01  # :1
-        self.field_B_1 = (bf >> 1) & 0x07  # :3
-        self.field_B_4 = (bf >> 4) & 0x03  # :2
-        self.unk_B_6   = (bf >> 6) & 0x03  # :2
-
-        self.meshHeaders_C_Offset = bs.readUInt()
-
-
-# -----------------------------
-# PLM (texture/model list) structs
-# -----------------------------
 
 class Texture:
     def __init__(self, bs):
-        self.imageDesc_0 = FsImageDesc(bs)
-        self.name_8      = noeStrFromBytes(bs.readBytes(8))
-        self.queueIdx_10 = bs.readUInt()
-        self.refCount_14 = bs.readByte()
+        self.imageDesc = FsImageDesc(bs)
+        self.name      = noeStrFromBytes(bs.readBytes(8))
+        self.queueIdx  = bs.readUInt()
+        self.refCount  = bs.readByte()
 
 
 class Material:
     def __init__(self, bs):
-        self.name_0           = noeStrFromBytes(bs.readBytes(8))
-        self.texture_8_Offset = bs.readUInt()
+        self.name           = noeStrFromBytes(bs.readBytes(8))
+        self.ptr_texture = bs.readUInt()
         self.field_C          = bs.readUByte()
         self.unk_D            = bs.readUByte()
         self.field_E          = bs.readUByte()
@@ -170,207 +154,197 @@ class Material:
 
 class LmHeader:
     def __init__(self, bs):
-        self.magic_0               = bs.readUByte()  # expect 0x30
-        self.version_1             = bs.readUByte()  # expect 6
-        self.isLoaded_2            = bs.readUByte()
-        self.materialCount_3       = bs.readUByte()
-        self.materials_4_Offset    = bs.readUInt()
-        self.modelCount_8          = bs.readUByte()
-        self.unk_9                 = bs.readBytes(3)
-        self.modelHeaders_C_Offset = bs.readUInt()
-        self.modelOrder_10_Offset  = bs.readUInt()
+        self.magic          = bs.readUByte()  # expect 0x30
+        self.version        = bs.readUByte()  # expect 6
+        self.isLoaded       = bs.readUByte()
+        self.materialCount  = bs.readUByte()
+        self.ptr_materials  = bs.readUInt()
+        self.modelCount     = bs.readUByte()
+        bs.seek(3, NOESEEK_REL)
+        self.ptr_modelHdrs  = bs.readUInt()
+        self.ptr_modelOrder = bs.readUInt()
 
 
 # -----------------------------
 # IPD (instance/placement/level) structs
 # -----------------------------
 
-class IpdCollisionData_10:
+class IpdCollSurface:
     def __init__(self, bs):
-        self.field_0    = bs.readShort()
-        self.field_2    = bs.readShort()
-        self.field_4    = bs.readShort()
-
-        # bitfield at offset +6 (uint16)
-        bf              = bs.readUShort()
-        self.field_6_0  = (bf >> 0) & 0x1F   # :5
-        self.field_6_5  = (bf >> 5) & 0x07   # :3
-        self.field_6_8  = (bf >> 8) & 0x07   # :3
-        self.field_6_11 = (bf >> 11) & 0x0F  # :4
-        self.field_6_15 = (bf >> 15) & 0x01  # :1
-
-        self.field_8  = bs.readShort()
-        self.field_A  = bs.readShort()
+        self.field_0          = bs.readShort()
+        self.baseGroundHeight = bs.readShort()
+        self.field_4          = bs.readShort()
+        bf                    = bs.readUShort()
+        self.groundType       = (bf >> 0) & 0x1F   # :5
+        self.disableHeight    = (bf >> 5) & 0x07   # :3
+        self.field_6_8        = (bf >> 8) & 0x07   # :3
+        self.field_6_11       = (bf >> 11) & 0x0F  # :4
+        self.field_6_15       = (bf >> 15) & 0x01  # :1
+        self.tiltAngleX       = bs.readShort()
+        self.tiltAngleZ       = bs.readShort()
 
 
-class IpdCollisionData_14:
+class IpdCollSubcell:
     def __init__(self, bs):
-        bf              = bs.readUShort()
-        self.field_0_0  = (bf >> 0) & 0x3FFF  # :14
-        self.field_0_14 = (bf >> 14) & 0x03   # :2
-        
-        bf              = bs.readUShort()
-        self.field_2_0  = (bf >> 0) & 0x3FFF  # :14
-        self.field_2_14 = (bf >> 14) & 0x03   # :2
+        bf                   = bs.readUShort()
+        self.field_0_0       = (bf >> 0) & 0x3FFF  # :14
+        self.field_0_14      = (bf >> 14) & 0x03   # :2
+        bf                   = bs.readUShort()
+        self.field_2_0       = (bf >> 0) & 0x3FFF  # :14
+        self.field_2_14      = (bf >> 14) & 0x03   # :2
+        self.splitVertexIdx0 = bs.readUByte()
+        self.splitVertexIdx1 = bs.readUByte()
+        self.surfaceIdx0     = bs.readUByte()
+        self.surfaceIdx1     = bs.readUByte()
 
-        self.unk_2 = bs.readBytes(2)
-        self.unk_4 = bs.readBytes(6)
 
-
-class IpdCollisionData_20:
+class IpdCollSubcellRange:
     def __init__(self, bs):
         self.field_0 = bs.readShort()
-        self.unk_2   = bs.readBytes(2)
+        self.field_2   = bs.readByte()
 
 
 class IpdCollisionData_18:
     def __init__(self, bs):
-        # first uint16 is all bitfields
-        bf              = bs.readUShort()
-        self.field_0_0  = (bf >> 0) & 0x1F   # :5
-        self.field_0_5  = (bf >> 5) & 0x07   # :3
-        self.field_0_8  = (bf >> 8) & 0x07   # :3
-        self.field_0_12 = (bf >> 12) & 0x07  # :3
-        self.field_0_15 = (bf >> 15) & 0x01  # :1
-
-        self.vec_2 = SVECTOR3(bs)
-        self.field_8 = bs.readUShort()
+        bf                  = bs.readUShort()
+        self.groundType     = (bf >> 0) & 0x1F   # :5
+        self.disableHeight  = (bf >> 5) & 0x07   # :3
+        self.field_0_8      = (bf >> 8) & 0x07   # :3
+        self.field_0_12     = (bf >> 12) & 0x07  # :3
+        self.field_0_15     = (bf >> 15) & 0x01  # :1
+        self.offset         = SVECTOR3(bs)
+        self.field_8        = bs.readUShort()
 
 
 class IpdCollisionData:
     def __init__(self, bs):
-        self.positionX_0 = bs.readInt()
-        self.positionZ_4 = bs.readInt()
-        # 32-bit packed into 4 x 8-bit fields
-        bf32 = bs.readUInt()
-        self.field_8_0  = (bf32 >>  0) & 0xFF  # :8
-        self.field_8_8  = (bf32 >>  8) & 0xFF  # :8
-        self.field_8_16 = (bf32 >> 16) & 0xFF  # :8
-        self.field_8_24 = (bf32 >> 24) & 0xFF  # :8
-
-        self.ptr_C  = bs.readUInt()
-        self.ptr_10 = bs.readUInt()
-        self.ptr_14 = bs.readUInt()
-        self.ptr_18 = bs.readUInt()
-
-        self.field_1C = bs.readShort()
-        self.field_1E = bs.readUByte()
-        self.field_1F = bs.readUByte()
-        self.ptr_20   = bs.readUInt()
-        self.field_24 = bs.readUShort()
-        self.field_26 = bs.readUShort()
-        self.ptr_28   = bs.readUInt()
-        self.ptr_2C   = bs.readUInt()
-        self.field_30 = bs.readUByte()
-        self.unk_31   = bs.readBytes(3)
-        self.field_34 = bs.readBytes(256)
+        self.positionX         = bs.readInt()
+        self.positionZ         = bs.readInt()
+        bf32                   = bs.readUInt()
+        self.splitVertexCount  = (bf32 >>  0) & 0xFF  # :8
+        self.surfaceCount      = (bf32 >>  8) & 0xFF  # :8
+        self.subcellCount      = (bf32 >> 16) & 0xFF  # :8
+        self.field_8_24        = (bf32 >> 24) & 0xFF  # :8
+        self.ptr_splitVertices = bs.readUInt()
+        self.ptr_surfaces      = bs.readUInt()
+        self.ptr_subcells      = bs.readUInt()
+        self.ptr_18            = bs.readUInt()
+        self.subcellSize       = bs.readShort()
+        self.subcellCountX     = bs.readUByte()
+        self.subcellCountZ     = bs.readUByte()
+        self.ptr_subcellRanges = bs.readUInt()
+        self.field_24          = bs.readUShort()
+        self.field_26          = bs.readUShort()
+        self.ptr_28            = bs.readUInt()
+        self.ptr_2C            = bs.readUInt()
+        self.subcellCheckCount = bs.readUByte()
+        bs.seek(3, NOESEEK_REL)
+        self.subcellCheckIdxs  = bs.readBytes(256)
 
 
-class IpdModelBuffer_C:
+class IpdModelInstance:
     def __init__(self, bs):
-        self.modelHdr_0_Offset = bs.readUInt()
-        self.field_14          = MATRIX(bs)
+        self.ptr_modelHdr = bs.readUInt()
+        self.mat          = MATRIX(bs)
 
 
 class IpdModelBuffer:
     def __init__(self, bs):
-        self.field_0             = bs.readUByte()
-        self.field_1             = bs.readUByte()
-        self.field_2             = bs.readUByte()
-        self.unk_3               = bs.readBytes(1)
-        self.field_4             = bs.readShort()
-        self.field_6             = bs.readShort()
-        self.field_8             = bs.readShort()
-        self.field_A             = bs.readShort()
-        self.fieldPtr_C_Offset   = bs.readUInt()
-        self.fieldPtr_10_Offset  = bs.readUInt()
-        self.fieldPtr_14_Offset  = bs.readUInt()
+        self.modelInstanceCount   = bs.readUByte()
+        self.field_1              = bs.readUByte()
+        self.subcellCount         = bs.readUByte()
+        bs.seek(1, NOESEEK_REL)
+        self.minX                 = bs.readShort()
+        self.maxX                 = bs.readShort()
+        self.minZ                 = bs.readShort()
+        self.maxZ                 = bs.readShort()
+        self.ptr_modelInstances   = bs.readUInt()
+        self.ptr_field_10         = bs.readUInt()
+        self.ptr_subcellPositions = bs.readUInt()
 
 
 class IpdModelInfo:
     def __init__(self, bs):
-        self.isGlobalPlm_0     = bs.readUByte()
-        self.unk_1             = bs.readBytes(3)
-        self.modelName_4       = noeStrFromBytes(bs.readBytes(8))
-        self.modelHdr_C_Offset = bs.readUInt()
+        self.isGlobalPlm  = bs.readUByte()
+        bs.seek(3, NOESEEK_REL)
+        self.name         = noeStrFromBytes(bs.readBytes(8))
+        self.ptr_modelHdr = bs.readUInt()
 
 
 class IpdHeader:
     def __init__(self, bs):
-        self.magic_0                 = bs.readUByte()  # expect 0x14
-        self.isLoaded_1              = bs.readUByte()
-        self.levelGridX_2            = bs.readByte()
-        self.levelGridY_3            = bs.readByte()
-        self.lmHdr_4_Offset          = bs.readUInt()
-        self.modelCount_8            = bs.readUByte()
-        self.modelBufferCount_9      = bs.readUByte()
-        self.modelOrderCount_A       = bs.readUByte()
-        self.unk_B                   = bs.readBytes(1)
-        self.unk_C                   = bs.readBytes(8)
-        self.modelInfo_14_Offset     = bs.readUInt()
-        self.modelBuffers_18_Offset  = bs.readUInt()
-        self.textureCount_1C         = bs.readUByte()
-        self.unk_1D                  = bs.readBytes(3)
-        self.unk_20                  = bs.readBytes(48)
-        self.modelOrderPtr_50_Offset = bs.readUInt()
-        self.collisionData_54        = IpdCollisionData(bs)
+        self.magic              = bs.readUByte()  # expect 0x14
+        self.isLoaded           = bs.readUByte()
+        self.cellX              = bs.readByte()
+        self.cellY              = bs.readByte()
+        self.ptr_lmHdr          = bs.readUInt()
+        self.modelCount         = bs.readUByte()
+        self.modelBufferCount   = bs.readUByte()
+        self.modelOrderCount    = bs.readUByte()
+        bs.seek(9, NOESEEK_REL)
+        self.ptr_modelInfos     = bs.readUInt()
+        self.ptr_modelBuffers   = bs.readUInt()
+        self.textureCount       = bs.readUByte()
+        self.unk_1D             = bs.readBytes(51)
+        self.ptr_modelOrderList = bs.readUInt()
+        self.collisionData      = IpdCollisionData(bs)
 
 
 # ------------------------------------------------
 '''
 class MeshHeader_Data:
     def __init__(self, bs, lmHeader_Data):
-        bs.seek(OffsetStart + meshHeaders_C[j].primitives_4_Offset)
+        bs.seek(OffsetStart + meshHeaders_C[j].ptr_primitives)
         self.primitives = [Primitive(bs) for _ in range(meshHeaders_C[j].primitiveCount_0)]
 
-        bs.seek(OffsetStart + meshHeaders_C[j].vertexXy_8_Offset)
+        bs.seek(OffsetStart + meshHeaders_C[j].ptr_vertexXy)
         self.verticesXy = [DVECTOR(bs) for _ in range(meshHeaders_C[j].vertexCount_1)]
 
-        bs.seek(OffsetStart + meshHeaders_C[j].vertexZ_C_Offset)
+        bs.seek(OffsetStart + meshHeaders_C[j].ptr_vertexZ)
         self.verticesZ = [bs.readShort() for _ in range(meshHeaders_C[j].vertexCount_1)]
 
-        bs.seek(OffsetStart + meshHeaders_C[j].normals_10_Offset)
+        bs.seek(OffsetStart + meshHeaders_C[j].ptr_normals)
         self.normals = [Normal(bs) for _ in range(meshHeaders_C[j].normalCount_2)]
 
-        bs.seek(OffsetStart + meshHeaders_C[j].unkPtr_14_Offset)
-        self.unkIdx = [bs.readUByte() for _ in range(meshHeaders_C[j].unkCount_3)]
+        bs.seek(OffsetStart + meshHeaders_C[j].ptr_unkptr_subcells)
+        self.unkIdx = [bs.readUByte() for _ in range(meshHeaders_C[j].unkCount_3_3)]
 
 
 class MeshHeader_DataArray:
     def __init__(self, bs, lmHeader_Data, i):
-        self.meshHeaders_C_Data = [] * lmHeader_Data.modelHeaders[i].meshCount_8
-        for j in range(lmHeader_Data.modelHeaders[i].meshCount_8):
-            bs.seek(OffsetStart + meshHeaders_C[j].primitives_4_Offset)
+        self.meshHeaders_C_Data = [] * lmHeader_Data.modelHeaders[i].meshCount
+        for j in range(lmHeader_Data.modelHeaders[i].meshCount):
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_primitives)
             self.meshHeaders_C_Data[j] = MeshHeader_Data(bs)
 
 
 class ModelHeader_Data:
     def __init__(self, bs, lmHeader_Data, i):
-        bs.seek(OffsetStart + lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset)
-        self.meshHeaders_C = [s_MeshHeader(bs) for _ in range(lmHeader_Data.modelHeaders[i].meshCount_8)]
+        bs.seek(OffsetStart + lmHeader_Data.modelHeaders[i].ptr_meshHdrs)
+        self.meshHeaders_C = [s_MeshHeader(bs) for _ in range(lmHeader_Data.modelHeaders[i].meshCount)]
 
-        bs.seek(OffsetStart + meshHeaders_C.primitives_4_Offset)
+        bs.seek(OffsetStart + meshHeaders_C.ptr_primitives)
         self.meshHeaders_C_DataArray = MeshHeader_DataArray(bs)
 
 
 class ModelHeader_DataArray:
     def __init__(self, bs, lmHeader, lmHeader_Data):
-        self.modelHeaders_C = [] * lmHeader.modelCount_8
-        for i in range(lmHeader.modelCount_8):
-            bs.seek(OffsetStart + lmHeader_Data.modelHeaders[i].meshHeaders_C_Offset);
+        self.modelHeaders_C = [] * lmHeader.modelCount
+        for i in range(lmHeader.modelCount):
+            bs.seek(OffsetStart + lmHeader_Data.modelHeaders[i].ptr_meshHdrs);
             self.modelHeaders_C[i] = ModelHeader_Data(bs)
 '''
 
 class LmHeader_Data:
     def __init__(self, bs, lmHeader):
-        bs.seek(OffsetStart + lmHeader.materials_4_Offset)
-        self.materials = [Material(bs) for _ in range(lmHeader.materialCount_3)]
+        bs.seek(OffsetStart + lmHeader.ptr_materials)
+        self.materials = [Material(bs) for _ in range(lmHeader.materialCount)]
 
-        bs.seek(OffsetStart + lmHeader.modelHeaders_C_Offset)
-        self.modelHeaders = [ModelHeader(bs) for _ in range(lmHeader.modelCount_8)]
+        bs.seek(OffsetStart + lmHeader.ptr_modelHdrs)
+        self.modelHeaders = [ModelHeader(bs) for _ in range(lmHeader.modelCount)]
         
-        bs.seek(OffsetStart + lmHeader.modelOrder_10_Offset)
-        self.modelsOrder = [bs.readUByte() for _ in range(lmHeader.modelCount_8)]
+        bs.seek(OffsetStart + lmHeader.ptr_modelOrder)
+        self.modelsOrder = [bs.readUByte() for _ in range(lmHeader.modelCount)]
 
 '''
 class LM_PART:
@@ -392,45 +366,45 @@ def sh1LoadModel(data, mdlList):
     if isIpd == 0x14:  # IPD
         ipdHeader = IpdHeader(bs)
 
-        bs.seek(ipdHeader.modelInfo_14_Offset)
-        modelInfo = [IpdModelInfo(bs) for _ in range(ipdHeader.modelCount_8)]
+        bs.seek(ipdHeader.ptr_modelInfos)
+        modelInfo = [IpdModelInfo(bs) for _ in range(ipdHeader.modelCount)]
 
-        bs.seek(ipdHeader.modelBuffers_18_Offset)
-        modelBuffer = [IpdModelBuffer(bs) for _ in range(ipdHeader.modelBufferCount_9)]
+        bs.seek(ipdHeader.ptr_modelBuffers)
+        modelBuffer = [IpdModelBuffer(bs) for _ in range(ipdHeader.modelBufferCount)]
 
-        OffsetStart = ipdHeader.lmHdr_4_Offset
+        OffsetStart = ipdHeader.ptr_lmHdr
         bs.seek(OffsetStart)
 
     lmHeader      = LmHeader(bs)
     lmHeader_Data = LmHeader_Data(bs, lmHeader)
 
     for oi, obj in enumerate(lmHeader_Data.modelHeaders):
-        bs.seek(OffsetStart + obj.meshHeaders_C_Offset)
-        meshHeaders_C = [MeshHeader(bs) for _ in range(obj.meshCount_8)]
+        bs.seek(OffsetStart + obj.ptr_meshHdrs)
+        meshHeaders_C = [MeshHeader(bs) for _ in range(obj.meshCount)]
 
-        for j in range(obj.meshCount_8):
-            bs.seek(OffsetStart + meshHeaders_C[j].primitives_4_Offset)
-            primitives = [Primitive(bs) for _ in range(meshHeaders_C[j].primitiveCount_0)]
+        for j in range(obj.meshCount):
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_primitives)
+            primitives = [Primitive(bs) for _ in range(meshHeaders_C[j].primitiveCount)]
             
-            bs.seek(OffsetStart + meshHeaders_C[j].vertexXy_8_Offset)
-            verticesXy = [DVECTOR(bs) for _ in range(meshHeaders_C[j].vertexCount_1)]
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_vertexXy)
+            verticesXy = [DVECTOR(bs) for _ in range(meshHeaders_C[j].vertexCount)]
             
-            bs.seek(OffsetStart + meshHeaders_C[j].vertexZ_C_Offset)
-            verticesZ = [bs.readShort() for _ in range(meshHeaders_C[j].vertexCount_1)]
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_vertexZ)
+            verticesZ = [bs.readShort() for _ in range(meshHeaders_C[j].vertexCount)]
             
-            bs.seek(OffsetStart + meshHeaders_C[j].normals_10_Offset)
-            normals = [Normal(bs) for _ in range(meshHeaders_C[j].normalCount_2)]
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_normals)
+            normals = [Normal(bs) for _ in range(meshHeaders_C[j].normalCount)]
             
-            bs.seek(OffsetStart + meshHeaders_C[j].unkPtr_14_Offset)
+            bs.seek(OffsetStart + meshHeaders_C[j].ptr_unkptr_subcells)
             unkIdx = [bs.readUByte() for _ in range(meshHeaders_C[j].unkCount_3)]
 
 # ------------------------------------------------
 
-            rapi.rpgSetName("%s" %obj.name_0)
+            rapi.rpgSetName("%s" %obj.name)
 
             # Merge verts
             verts = []
-            for i in range(meshHeaders_C[j].vertexCount_1):
+            for i in range(meshHeaders_C[j].vertexCount):
                 x = float(verticesXy[i].vx) * Q8
                 y = -float(verticesXy[i].vy) * Q8
                 z = float(verticesZ[i]) * Q8
