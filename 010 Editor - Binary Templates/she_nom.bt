@@ -14,25 +14,28 @@
 
 #include "vector.bt"
 
+struct Header {
+    char   magic[4];
+    Assert(magic == "NOM_", "Not Silent Hill: The Escape .nom file");
+    uint32 num_mesh;
+};
 
-char   magic[4];
-Assert(magic == "NOM_", "Not Silent Hill: The Escape .nom file");
-uint32 num_mesh;
-
-struct Mesh {
+struct PosData {
     char   mesh_name[16];
     uint32 num_index;
     uint16 index[num_index];
     uint32 num_position;
     f32x3_geo position[num_position];
     char   unk0[4];
-    uint32 num_color_index;
-    
-    if (num_color_index != 0) {
-        uint16 color_index[num_color_index];
-        uint32 num_color;
-        f32x4_clr color[num_color];
-    }
+};
+
+struct ColData {
+    uint16 color_index[num_color_index];
+    uint32 num_color;
+    f32x4_clr color[num_color];
+};
+
+struct TransData {
     char   unk1[2];
     char   unk2[48];
     f32x3_geo scale;
@@ -43,11 +46,28 @@ struct Mesh {
     f32x4_clr unk5;
     f32x4_clr unk6;
     char   unk7[4];
-    char   texture_name[20];
-    
-    if (texture_name[0] != 0) {
-        uint16 texcoord_index[num_index];
-        uint32 num_texcoord;
-        f32x2_tex texcoord[num_texcoord];
-    }
-} mesh[num_mesh] <optimize = false>;
+};
+
+struct CoordData {
+    uint16 texcoord_index[pos_data.num_index];
+    uint32 num_texcoord;
+    f32x2_tex texcoord[num_texcoord];
+};
+
+//------------------------------------------------
+
+struct Mesh {
+    PosData pos_data;
+    uint32  num_color_index;
+    if (num_color_index != 0)
+        ColData col_data;
+    TransData trans_data;
+    char texture_name[20];
+    if (texture_name[0] != 0)
+        CoordData coord_data;
+};
+
+//------------------------------------------------
+
+Header header;
+Mesh   mesh[header.num_mesh] <optimize = false>;
