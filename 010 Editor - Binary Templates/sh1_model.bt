@@ -72,31 +72,14 @@ typedef union _Filename
 } u_Filename;
 
 
-// Decomp project is not yet updated with UV and faces fields, so I leave decomp one commented out
-/*
-typedef struct _Primitive
-{
-    uint16 field_0;
-    uint16 field_2;
-    uint16 field_4;
-
-    uint8  field_6_0     : 8; // Set to `s_Material::field_E`
-    int8   materialIdx   : 7;
-    uint8  isTransparent : 1; /** `bool` *
-
-    uint16 field_8;
-    uint16 field_A;
-    uint8  unk_C[4];  // } Unknown type. `func_8005AC50` reads these as `s32`, but that breaks other funcs which use this struct. `s32` reads might have just been `memcpy`?
-    uint8  unk_10[4]; // }
-} s_Primitive;
-*/
-
 /** @brief Geometry primitive. */
 typedef struct _Primitive
 {
     uint8  u1;
     uint8  v1;
-    uint16 bits;
+    uint16 clutX : 6; // Upper six bits of 10 bits of X coordinate value for CLUT on the VRAM
+    uint16 clutY : 9; // Nine bits of Y coordinate value for CLUT on the VRAM
+    uint16 __pad : 1;
     uint8  u2;
     uint8  v2; 
     uint8  field_6;           // Set to `s_Material::field_E`
@@ -106,11 +89,8 @@ typedef struct _Primitive
     uint8  v3;
     uint8  u4;
     uint8  v4;
-    uint8  face1;
-    uint8  face2;
-    uint8  face3;
-    uint8  face4;
-    uint8  unk_10[4];
+    uint8  faceIdxs[4];
+    uint8  normalIdx[4];
 } s_Primitive;
 
 
@@ -132,15 +112,15 @@ typedef struct _MeshHeader
 /** @brief Model data header. */
 typedef struct _ModelHeader
 {
-    u_Filename       name;
-    uint8            meshCount;
-    uint8            vertexOffset;
-    uint8            normalOffset;
-    uint8            field_B_0 : 1;
-    uint8            field_B_1 : 3; // Value used in `func_800571D0` switch.
-    uint8            field_B_4 : 2;
-    uint8            unk_B_6   : 2;
-    uint32           ptr_meshHdrs                 <format=hex, comment="s_MeshHeader*">;
+    u_Filename name;
+    uint8      meshCount;
+    uint8      vertexOffset;
+    uint8      normalOffset;
+    uint8      field_B_0 : 1;
+    uint8      field_B_1 : 3; // Value used in `func_800571D0` switch.
+    uint8      field_B_4 : 2;
+    uint8      unk_B_6   : 2;
+    uint32     ptr_meshHdrs                 <format=hex, comment="s_MeshHeader*">;
 } s_ModelHeader;
 
 
