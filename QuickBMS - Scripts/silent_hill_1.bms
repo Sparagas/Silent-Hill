@@ -1,0 +1,246 @@
+//------------------------------------------------
+//--- QuickBMS
+//
+//      File: silent_hill_1.bms
+//    Author: Atamol
+//   Purpose: Silent Hill (Sony - PlayStation)
+//            NTSC-J Rev 1 / Rev 2
+//  Category: Archive
+// File Mask: SLPM_861.92
+//  ID Bytes: 50 53 2D 58 20 45 58 45
+//------------------------------------------------
+
+# Use SLPM_861.92 with SILENT and HILL in the same directory
+# Rev 2 dated 1999-06-16 is verified with an ISO 2048-byte HILL
+# Rev 1 uses the same executable layout but is not verified here
+
+set TABLE_OFFSET long 0xb91c
+set FILE_COUNT long 2074
+set SILENT_BASE_LBA long 0x40
+set XA_BASE_LBA long 0x99c4
+set XA_END_LBA long 0x3ff52
+set RAW_XA_SECTOR_SIZE long 2336
+set ISO_SECTOR_SIZE long 2048
+
+open FDSE "SILENT" 1
+open FDSE "HILL" 2
+
+idstring 0 "PS-X EXE"
+goto TABLE_OFFSET 0
+get TEST_META long 0
+get TEST_NAME_LO long 0
+get TEST_NAME_HI long 0
+if TEST_META != 0x09780040 || TEST_NAME_LO != 0x0ba1e920 || TEST_NAME_HI != 0x00418beb
+    print "Unsupported SLPM_861.92 file table"
+    cleanexit
+endif
+
+putarray 0 0 "1ST"
+putarray 0 1 "ANIM"
+putarray 0 2 "BG"
+putarray 0 3 "CHARA"
+putarray 0 4 "ITEM"
+putarray 0 5 "MISC"
+putarray 0 6 "SND"
+putarray 0 7 "TEST"
+putarray 0 8 "TIM"
+putarray 0 9 "VIN"
+putarray 0 10 "XA"
+
+putarray 1 0 "TIM"
+putarray 1 1 "VAB"
+putarray 1 2 "BIN"
+putarray 1 3 "DMS"
+putarray 1 4 "ANM"
+putarray 1 5 "PLM"
+putarray 1 6 "IPD"
+putarray 1 7 "ILM"
+putarray 1 8 "TMD"
+putarray 1 9 "DAT"
+putarray 1 10 "KDT"
+putarray 1 11 "CMP"
+
+goto TABLE_OFFSET 0
+set XA_COUNT long 0
+comtype lzss0
+
+for I = 0 < FILE_COUNT
+    get META long 0
+    get NAME_LO long 0
+    get NAME_HI long 0
+
+    xmath LBA "META & 0x7ffff"
+    xmath BLOCKS "(META >> 19) & 0xfff"
+    xmath PATH_IDX "NAME_LO & 0xf"
+    xmath TYPE_IDX "(NAME_HI >> 24) & 0xf"
+
+    xmath C0 "((NAME_LO >> 4) & 0x3f) + 0x20"
+    xmath C1 "((NAME_LO >> 10) & 0x3f) + 0x20"
+    xmath C2 "((NAME_LO >> 16) & 0x3f) + 0x20"
+    xmath C3 "((NAME_LO >> 22) & 0x3f) + 0x20"
+    xmath C4 "(NAME_HI & 0x3f) + 0x20"
+    xmath C5 "((NAME_HI >> 6) & 0x3f) + 0x20"
+    xmath C6 "((NAME_HI >> 12) & 0x3f) + 0x20"
+    xmath C7 "((NAME_HI >> 18) & 0x3f) + 0x20"
+    string NAME p "%c%c%c%c%c%c%c%c" C0 C1 C2 C3 C4 C5 C6 C7
+    string NAME R " " ""
+
+    if PATH_IDX == 10
+        putarray 2 XA_COUNT NAME
+        putarray 3 XA_COUNT LBA
+        math XA_COUNT + 1
+    else
+        getarray DIR 0 PATH_IDX
+        getarray EXT 1 TYPE_IDX
+        set FULLNAME string DIR
+        string FULLNAME + "/"
+        string FULLNAME + NAME
+        string FULLNAME + "."
+        string FULLNAME + EXT
+
+        xmath OFFSET "(LBA - SILENT_BASE_LBA) * ISO_SECTOR_SIZE"
+        xmath SIZE "BLOCKS * 0x100"
+
+        if PATH_IDX == 0
+            if TYPE_IDX == 2
+                set PACKED_NAME string FULLNAME
+                string PACKED_NAME + ".encrypted"
+                log PACKED_NAME OFFSET SIZE 1
+
+                log MEMORY_FILE OFFSET SIZE 1
+                callfunction DECRYPT_OVERLAY 1 SIZE
+                log FULLNAME 0 SIZE MEMORY_FILE2
+            else
+                log FULLNAME OFFSET SIZE 1
+            endif
+        elif TYPE_IDX == 2
+            if NAME == "HP_SAFE1" || NAME == "S__SAFE2"
+                set PACKED_NAME string FULLNAME
+                string PACKED_NAME + ".packed"
+                log PACKED_NAME OFFSET SIZE 1
+
+                goto OFFSET 1
+                get DECODED_SIZE long 1
+                xmath DATA_OFFSET "OFFSET + 4"
+                xmath PACKED_SIZE "SIZE - 4"
+                clog MEMORY_FILE DATA_OFFSET PACKED_SIZE DECODED_SIZE 1
+                callfunction DECRYPT_OVERLAY 1 DECODED_SIZE
+                log FULLNAME 0 DECODED_SIZE MEMORY_FILE2
+            else
+                log FULLNAME OFFSET SIZE 1
+            endif
+        elif TYPE_IDX == 11
+            log FULLNAME OFFSET SIZE 1
+            goto OFFSET 1
+            get DECODED_SIZE long 1
+            xmath DATA_OFFSET "OFFSET + 4"
+            xmath PACKED_SIZE "SIZE - 4"
+            set DECODED_NAME string FULLNAME
+            string DECODED_NAME + ".dec"
+            clog DECODED_NAME DATA_OFFSET PACKED_SIZE DECODED_SIZE 1
+        else
+            log FULLNAME OFFSET SIZE 1
+        endif
+    endif
+next I
+
+get HILL_SIZE asize 2
+xmath RAW_HILL_SIZE "(XA_END_LBA - XA_BASE_LBA) * RAW_XA_SECTOR_SIZE"
+
+# raw 2336-byte HILL sector extraction is not verified
+if HILL_SIZE >= RAW_HILL_SIZE
+    for I = 0 < XA_COUNT
+        getarray NAME 2 I
+        getarray LBA 3 I
+        xmath NEXT_INDEX "I + 1"
+        if NEXT_INDEX < XA_COUNT
+            getarray NEXT_LBA 3 NEXT_INDEX
+        else
+            set NEXT_LBA long XA_END_LBA
+        endif
+
+        xmath OFFSET "(LBA - XA_BASE_LBA) * RAW_XA_SECTOR_SIZE"
+        xmath SIZE "(NEXT_LBA - LBA) * RAW_XA_SECTOR_SIZE"
+        set FULLNAME string "XA/"
+        string FULLNAME + NAME
+        if I < 9
+            string FULLNAME + ".XA"
+        else
+            string FULLNAME + ".STR"
+        endif
+        log FULLNAME OFFSET SIZE 2
+    next I
+else
+    xmath HILL_REMAINDER "HILL_SIZE % ISO_SECTOR_SIZE"
+    if HILL_REMAINDER == 0
+        xmath HILL_BLOCKS "HILL_SIZE / ISO_SECTOR_SIZE"
+        set PREV_FRAME long -1
+        set CURRENT_START long -1
+        set CURRENT_XA_INDEX long 9
+
+        for I = 0 < HILL_BLOCKS
+            xmath BLOCK_OFFSET "I * ISO_SECTOR_SIZE"
+            goto BLOCK_OFFSET 2
+            get MAGIC long 2
+            if MAGIC == 0x80010160
+                get CHUNK short 2
+                get CHUNKS short 2
+                get FRAME long 2
+                if CHUNK == 0
+                    set NEW_MOVIE long 0
+                    if PREV_FRAME < 0
+                        set NEW_MOVIE long 1
+                    elif FRAME <= PREV_FRAME
+                        set NEW_MOVIE long 1
+                    endif
+
+                    if NEW_MOVIE == 1
+                        if CURRENT_START < 0
+                            log "XA/ISO2048_AUDIO_UNSPLIT.XA2048" 0 BLOCK_OFFSET 2
+                            set CURRENT_START long BLOCK_OFFSET
+                        else
+                            xmath SIZE "BLOCK_OFFSET - CURRENT_START"
+                            getarray NAME 2 CURRENT_XA_INDEX
+                            set FULLNAME string "XA/"
+                            string FULLNAME + NAME
+                            string FULLNAME + ".STR2048"
+                            log FULLNAME CURRENT_START SIZE 2
+                            math CURRENT_XA_INDEX + 1
+                            set CURRENT_START long BLOCK_OFFSET
+                        endif
+                    endif
+                    set PREV_FRAME long FRAME
+                endif
+            endif
+        next I
+
+        if CURRENT_START >= 0
+            xmath SIZE "HILL_SIZE - CURRENT_START"
+            getarray NAME 2 CURRENT_XA_INDEX
+            set FULLNAME string "XA/"
+            string FULLNAME + NAME
+            string FULLNAME + ".STR2048"
+            log FULLNAME CURRENT_START SIZE 2
+        else
+            print "HILL is not a supported raw or ISO 2048-byte extraction"
+        endif
+    else
+        print "HILL is not a supported raw or ISO 2048-byte extraction"
+    endif
+endif
+
+startfunction DECRYPT_OVERLAY
+    set DECRYPT_SIZE long DECRYPT_OVERLAY_ARG1
+    log MEMORY_FILE2 0 0
+    putvarchr MEMORY_FILE2 DECRYPT_SIZE 0
+    goto 0 MEMORY_FILE
+    goto 0 MEMORY_FILE2
+    set SEED long 0
+    xmath WORD_COUNT "DECRYPT_SIZE / 4"
+    for J = 0 < WORD_COUNT
+        get VALUE long MEMORY_FILE
+        xmath SEED "(SEED + 0x01309125) * 0x03a452f7"
+        math VALUE ^ SEED
+        put VALUE long MEMORY_FILE2
+    next J
+endfunction
