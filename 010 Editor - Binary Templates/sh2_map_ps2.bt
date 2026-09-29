@@ -21,6 +21,7 @@ local int IsLittleEndian = IsLittleEndian();
 struct FileHead                      // sh2gfw_BLOCK_HEAD
 {
     char   magic[4];                 // block_id
+    Assert(magic == "wwww");
     uint32 ofs_global_block;         // toGlobaldef
     uint32 ofs_local_block;          // toLocaldef
     uint32 ofs_raw_block_data_parms; // toRawblockdataParms

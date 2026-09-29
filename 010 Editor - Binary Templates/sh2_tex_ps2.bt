@@ -12,6 +12,15 @@
 //   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
 //------------------------------------------------
 
+enum <ubyte> GS_PSM
+{
+    PSM_CT32 = 0x00,
+    PSM_CT24 = 0x01,
+    PSM_CT16 = 0x02,
+    PSM_T8   = 0x13,
+    PSM_T4   = 0x14
+};
+
 struct ImgIndexHead        // sh2gfw_TEX_HEAD
 {
     uint32 tex_id;         // texture_no
@@ -25,7 +34,7 @@ struct ImgIndexHead        // sh2gfw_TEX_HEAD
     uint32 body_size;      // datasize
     uint32 all_size;       // allsize
     ubyte  unk_sendpsm;    // sendpsm
-    ubyte  unk_drawpsm;    // drawpsm
+    GS_PSM drawpsm;        // drawpsm
     ubyte  unk_bitshift;   // bitshift
     ubyte  unk_tagpoint;   // tagpoint
     ubyte  unk_bitw;       // bitw
@@ -41,8 +50,8 @@ struct ImgPalHead             // sh2gfw_CLUTS_HEAD
     uint32 unk_Raw_clut_offs; // toRawClut
     ubyte  pal_count;         // clutamount
     ubyte  unk_transcluts;    // transcluts
-    ubyte  unk_clw;           // clw
-    ubyte  unk_clh;           // clh
+    ubyte  clw;               // clw CLUT raster width in texels
+    ubyte  clh;               // clh CLUT raster height in texels
     ubyte  unk_fmt[16];       // fmt[16]
     ubyte  unk_trans[16];     // transparency[16]
 };
@@ -59,8 +68,13 @@ struct PalPage
     struct PalPart pal_part[4];
 };
 
+//------------------------------------------------
 
-FSeek(96);
+int32  magic;
+Assert(magic == 0);
+uint32 data_offs;
+
+FSeek(data_offs);
 struct ImgIndexHead img_index_head;
 
 if(img_index_head.len_pad != 0)
