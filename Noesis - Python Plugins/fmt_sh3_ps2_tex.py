@@ -11,22 +11,34 @@
 
 from inc_noesis import *
 
+
 def registerNoesisTypes():
-    handle = noesis.register("Silent Hill 3 (PS2)", ".tex")
-    noesis.setHandlerTypeCheck(handle, check_type)
-    noesis.setHandlerLoadRGBA(handle, load_rgba)
+    handle = noesis.register("Silent Hill 3 (PS2) texture", ".tex")
+    noesis.setHandlerTypeCheck(handle, noepyCheckType)
+    noesis.setHandlerLoadRGBA(handle, noepyLoadRGBA)
     return 1
 
 
-def check_type(data):
-    return 1
+def noepyCheckType(data):
     bs = NoeBitStream(data)
-    bs.seek(96)
-    tex_id = bs.readUInt()
-    if tex_id == 4294967295:
+    magic = bs.readInt()
+    if magic == -1:
         return 1
     else:
         return 0
+
+
+PAGE_BLOCKS = [
+     0,  1,  4,  5, 16, 17, 20, 21,
+     2,  3,  6,  7, 18, 19, 22, 23,
+     8,  9, 12, 13, 24, 25, 28, 29,
+    10, 11, 14, 15, 26, 27, 30, 31,
+
+    32, 33, 36, 37, 48, 49, 52, 53,
+    34, 35, 38, 39, 50, 51, 54, 55,
+    40, 41, 44, 45, 56, 57, 60, 61,
+    42, 43, 46, 47, 58, 59, 62, 63,
+]
 
 
 PSMCT32  = 0x00
@@ -46,164 +58,143 @@ PSMZ16S  = 0x3A
 
 class FileHead:
     def __init__(self, bs):
-        self.magic        = bs.readInt()
-        self.ver          = bs.readUInt()
-        self.content_ofs  = bs.readUInt()
-        self.content_size = bs.readUInt()
-        self.pad0         = bs.readUInt()
-        self.num_tex      = bs.readUInt()
-        self.pad1         = bs.readUInt()
-        self.pad2         = bs.readUInt()
+        self.magic         = bs.readInt()
+        self.version       = bs.readUInt()  # Could be not version
+        self.contentOffset = bs.readUInt()
+        self.lastOffset    = bs.readUInt()  # Goes to last texture, unless it only has one texture. Then it is file size.
+        self.padding_0x10  = bs.readUInt()  # Could be not padding
+        self.texCount      = bs.readUInt()
+        self.padding_0x18  = bs.readUInt()
+        self.padding_0x1C  = bs.readUInt()
+
+        assert self.magic == -1
 
 
 class TexHead:
     SIZEOF = 48  # asserted in original struct
 
     def __init__(self, bs):
-        self.tex_id         = bs.readInt()
-        self.unk_x          = bs.readUShort()
-        self.unk_y          = bs.readUShort()
-        self.width          = bs.readUShort()
-        self.height         = bs.readUShort()
-        self.clr_bpp        = bs.readUByte()
-        self.pad_len        = bs.readUByte()
-        self.unk_importance = bs.readUShort()
-        self.data_len       = bs.readUInt()
-        self.all_len        = bs.readUInt()
-        self.unk_send_psm   = bs.readUByte()
-        self.draw_psm       = bs.readUByte()  # GS_PSM enum
-        self.unk_bit_shift  = bs.readUByte()
-        self.unk_tag_point  = bs.readUByte()
-        self.bit_w          = bs.readUByte()
-        self.bit_h          = bs.readUByte()
-        self.unk_check      = bs.readUShort()
-        self.unk_giftag     = bs.readBytes(16)
+        self.texId         = bs.readInt()
+        self.unkX          = bs.readUShort()
+        self.unkY          = bs.readUShort()
+        self.width         = bs.readUShort()
+        self.height        = bs.readUShort()
+        self.colorBpp      = bs.readUByte()
+        self.padSize       = bs.readUByte()
+        self.unkImportance = bs.readUShort()
+        self.dataSize      = bs.readUInt()
+        self.allSize       = bs.readUInt()
+        self.unkSendPsm    = bs.readUByte()  # GS_PSM enum
+        self.drawPsm       = bs.readUByte()  # GS_PSM enum
+        self.unkBitShift   = bs.readUByte()
+        self.unkTagPoint   = bs.readUByte()
+        self.bitW          = bs.readUByte()
+        self.bitH          = bs.readUByte()
+        self.check         = bs.readUShort()
+        self.giftag        = bs.readBytes(16)
 
-    def validate(self):
-        # Optional runtime validation
-        if self.all_len != self.data_len + self.pad_len + TexHead.SIZEOF:
-            print("Warning: TexHead size mismatch")
-
-        if self.tex_head.width != (1 << self.bit_w):
-            print("Warning: tex_head.width != 1 << bit_w")
-
-        if self.tex_head.height != (1 << self.bit_h):
-            print("Warning: tex_head.height != 1 << bit_h")
+        # assert self.allSize != self.dataSize + self.padSize + TexHead.SIZEOF:
+        assert self.width == 1 << self.bitW
+        assert self.height == 1 << self.bitH
+        assert self.check == 0x9999
 
 
 class ClutsHead:
     def __init__(self, bs):
-        self.cluts_len        = bs.readUInt()
-        self.unk_GSREGS_ofs   = bs.readUInt()
-        self.unk_Raw_clut_ofs = bs.readUInt()
+        self.clutsSize        = bs.readUInt()
+        self.unkGsregsOffset  = bs.readUInt()
+        self.unkRawClutOffset = bs.readUInt()
+        self.clutCount        = bs.readUByte()
+        self.unkTransCluts    = bs.readUByte()
+        self.clutW            = bs.readUByte()
+        self.clutH            = bs.readUByte()
+        self.unkFmt           = bs.readBytes(16)
+        self.unkTrans         = bs.readBytes(16)
 
-        self.clut_count       = bs.readUByte()
-        self.unk_trans_cluts  = bs.readUByte()
-        self.clw              = bs.readUByte()
-        self.clh              = bs.readUByte()
-
-        self.unk_fmt          = bs.readBytes(16)
-        self.unk_trans        = bs.readBytes(16)
+        assert self.clutCount in (4, 8, 16)
 
 
-def load_rgba(data, tex_list):
+def noepyLoadRGBA(data, tex_list):
     bs = NoeBitStream(data)
+    # parseRGBA()
+    fileHead = FileHead(bs)
 
-    file_head = FileHead(bs)
-    tex_head  = TexHead(bs)
+    for _ in range(fileHead.texCount):
+        texHead = TexHead(bs)
 
-    bs.seek(tex_head.pad_len, NOESEEK_REL)
-    tex_buf = bs.readBytes(tex_head.data_len)
+        bs.seek(texHead.allSize - texHead.dataSize - 48, NOESEEK_REL)
+        tex_buf = bs.readBytes(texHead.dataSize)
 
-    if tex_head.clr_bpp == 24:
-        img_buf = rapi.imageDecodeRaw(tex_buf, tex_head.width, tex_head.height, 'r8g8b8a8')
-        img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), tex_head.width, tex_head.height)
-        img_buf = NoeTexture('va', tex_head.width, tex_head.height, img_buf, noesis.NOESISTEX_RGBA32)
+        if texHead.colorBpp in (4, 8):
+            clutsHead = ClutsHead(bs)
+            cluts_buf = bs.readBytes(clutsHead.clutsSize)
+
+    # buildRGBA()
+        if texHead.colorBpp == 24:
+            # img_buf = rapi.imageDecodeRaw(tex_buf, texHead.width, texHead.height, 'r8g8b8a8')
+            img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
+            img_buf = NoeTexture('tex%d' % _, texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
+            img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+            tex_list.append(img_buf)
+
+        elif texHead.colorBpp == 8:
+            idx_buf = rapi.imageUntwiddlePS2(tex_buf, texHead.width, texHead.height, 8)
+
+            block = 64
+            group = 4
+            clut_size = len(cluts_buf) // clutsHead.clutCount
+
+            pal_buf = [bytearray() for _ in range(clutsHead.clutCount)]
+
+            for g in range(0, clutsHead.clutCount, group):
+                # Slice the 4-block chunk containing the current set of 4 CLUTs
+                chunk = cluts_buf[g * clut_size : (g + group) * clut_size]
+
+                for i in range(0, len(chunk), block * group):
+                    for j in range(min(group, clutsHead.clutCount - g)):
+                        pal_buf[g + j] += chunk[i + j * block : i + (j + 1) * block]
+                # old style was:
+                # pal_buf[0] += cluts_buf[i + 0*block : i + 1*block]
+                # pal_buf[1] += cluts_buf[i + 1*block : i + 2*block]
+                # pal_buf[2] += cluts_buf[i + 2*block : i + 3*block]
+                # pal_buf[3] += cluts_buf[i + 3*block : i + 4*block]
+
+            for i in range(clutsHead.clutCount):
+                img_buf = rapi.imageDecodeRawPal(idx_buf, pal_buf[i], texHead.width, texHead.height, 8, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
+                img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
+                img_buf = NoeTexture('tex%d_clut%d' % (_, i), texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
+                img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+                tex_list.append(img_buf)
+
+        elif texHead.colorBpp == 4:
+            idx_buf = rapi.imageUntwiddlePS2(tex_buf, texHead.width, texHead.height, 4)
+            
+            block = 64
+            group = 4
+            clut_size = len(cluts_buf) // clutsHead.clutCount
+
+            pal_buf = [bytearray() for _ in range(clutsHead.clutCount)]
+
+            for g in range(0, clutsHead.clutCount, group):
+                # Slice the 4-block chunk containing the current set of 4 CLUTs
+                chunk = cluts_buf[g * clut_size : (g + group) * clut_size]
+
+                for i in range(0, len(chunk), block * group):
+                    for j in range(min(group, clutsHead.clutCount - g)):
+                        pal_buf[g + j] += chunk[i + j * block : i + (j + 1) * block]
+
+            for i in range(clutsHead.clutCount):
+                img_buf = rapi.imageDecodeRawPal(idx_buf, pal_buf[i], texHead.width, texHead.height, 4, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
+                img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
+                img_buf = NoeTexture('tex%d_clut%d' % (_, i), texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
+                img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+                tex_list.append(img_buf)
+
+        # debug
+        img_buf = rapi.imageDecodeRaw(cluts_buf, clutsHead.clutW, clutsHead.clutH, 'r8g8b8a8')
+        img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), clutsHead.clutW, clutsHead.clutH)
+        img_buf = NoeTexture('tex%d_cluts' % _, clutsHead.clutW, clutsHead.clutH, img_buf, noesis.NOESISTEX_RGBA32)
         img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
         tex_list.append(img_buf)
 
-    elif tex_head.clr_bpp == 8:
-        cluts_head = ClutsHead(bs)
-        
-        cluts_buf = bs.readBytes(cluts_head.cluts_len)
-        
-        # pal0_buf += bs.readBytes(64)
-        # pal1_buf += bs.readBytes(64)
-        # pal2_buf += bs.readBytes(64)
-        # pal3_buf += bs.readBytes(64)
-        # ...
-        block = 64
-
-        pal0_buf = bytearray()
-        pal1_buf = bytearray()
-        pal2_buf = bytearray()
-        pal3_buf = bytearray()
-
-        for i in range(0, len(cluts_buf), block * 4):
-            pal0_buf += cluts_buf[i + 0*block : i + 1*block]
-            pal1_buf += cluts_buf[i + 1*block : i + 2*block]
-            pal2_buf += cluts_buf[i + 2*block : i + 3*block]
-            pal3_buf += cluts_buf[i + 3*block : i + 4*block]
-        
-        idx_buf = rapi.imageUntwiddlePS2(tex_buf, tex_head.width, tex_head.height, 8)
-        img_buf = rapi.imageDecodeRawPal(idx_buf, pal0_buf, tex_head.width, tex_head.height, 8, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
-        img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), tex_head.width, tex_head.height)
-        img_buf = NoeTexture('va', tex_head.width, tex_head.height, img_buf, noesis.NOESISTEX_RGBA32)
-        img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(img_buf)
-        
-        # DEBUG INFO
-        # cluts_buf = rapi.imageDecodeRaw(cluts_buf, 64, 64, 'r8g8b8a8')
-        # cluts_buf = rapi.imageUntwiddlePS2(cluts_buf, 32, 32, 16)
-
-        test_buf = pal0_buf + pal1_buf + pal2_buf + pal3_buf
-        
-        test_buf = rapi.imageDecodeRaw(test_buf, 64, 64, 'r8g8b8a8')
-
-        clutLine = NoeTexture('CLUTS', 256, cluts_head.clut_count, test_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-        
-        clutLine = NoeTexture('CLUTS', 256, cluts_head.clut_count, cluts_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-        
-        clutLine = NoeTexture('CLUTS', 16, 16 * cluts_head.clut_count, test_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-        
-        clutLine = NoeTexture('CLUTS', 16, 16 * cluts_head.clut_count, cluts_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-        
-        clutLine = NoeTexture('CLUTS', 64, 4 * cluts_head.clut_count, test_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-        
-        clutLine = NoeTexture('CLUTS', 64, 4 * cluts_head.clut_count, cluts_buf, noesis.NOESISTEX_RGBA32)
-        clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(clutLine)
-
-
-        # indices = bytearray(range(256))
-        # indices = rapi.imageUntwiddlePS2(indices, 64, 4 * cluts_head.clut_count, 8)
-        # palRGBA = rapi.imageDecodeRawPal(indices, tex_head.width, tex_head.height, 8, "r8g8b8a8", noesis.DECODEFLAG_PS2SHIFT)
-
-        # clutLine = NoeTexture('CLUTS', 256, cluts_head.clut_count, palRGBA, noesis.NOESISTEX_RGBA32)
-        # clutLine.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        # tex_list.append(clutLine)
-
-    elif tex_head.clr_bpp == 4:
-        cluts_head = ClutsHead(bs)
-        
-        pal0_buf = bs.readBytes(32)
-        bs.seek(224, NOESEEK_REL)
-        pal0_buf += bs.readBytes(32)
-
-        idx_buf = rapi.imageUntwiddlePS2(tex_buf, tex_head.width, tex_head.height, 4)
-        img_buf = rapi.imageDecodeRawPal(idx_buf, pal0_buf, tex_head.width, tex_head.height, 4, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
-        img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), tex_head.width, tex_head.height)
-        img_buf = NoeTexture('va', tex_head.width, tex_head.height, img_buf, noesis.NOESISTEX_RGBA32)
-        img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-        tex_list.append(img_buf)
     return 1

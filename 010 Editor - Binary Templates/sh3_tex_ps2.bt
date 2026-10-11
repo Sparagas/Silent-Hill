@@ -31,106 +31,103 @@ enum <ubyte> GS_PSM
 
 //------------------------------------------------
 
-struct FileHead
+typedef struct FileHead
 {
     int32  magic;
-    uint32 ver;
-    uint32 content_ofs;
-    uint32 content_size;  // could also be an offset, because this is not always points to the end of a file, but sometimes to the last texture.
-    uint32 pad;
-    uint32 num_tex;
-    uint32 pad;
-    uint32 pad;
-};
+    uint32 version;       // Could be not version
+    uint32 contentOffset;
+    uint32 lastOffset;    // Goes to last texture, unless it only has one texture. Then it is file size.
+    uint32 padding_0x10;  // Could be not padding
+    uint32 texCount;
+    uint32 padding_0x18;
+    uint32 padding_0x1C;
+    
+    Assert(magic == -1);
+} FileHead;
 
-struct TexHead              // sh2gfw_TEX_HEAD
+typedef struct TexHead      // sh2gfw_TEX_HEAD
 {                           
-    int32  tex_id;          // texture_no
-    uint16 unk_x;           // x
-    uint16 unk_y;           // y
+    int32  texId;           // texture_no
+    uint16 unkX;            // x
+    uint16 unkY;            // y
     uint16 width;           // w
     uint16 height;          // h
-    ubyte  clr_bpp;         // color
-    ubyte  pad_len;         // padbyte
-    uint16 unk_importance;  // importance
-    uint32 data_len;        // datasize
-    uint32 all_len;         // allsize
-    ubyte  unk_send_psm;    // sendpsm
-    GS_PSM draw_psm;        // drawpsm
-    ubyte  unk_bit_shift;   // bitshift
-    ubyte  unk_tag_point;   // tagpoint
-    ubyte  bit_w;           // bitw
-    ubyte  bit_h;           // bith
+    ubyte  colorBpp;          // color
+    ubyte  padSize;         // padbyte
+    uint16 unkImportance;   // importance
+    uint32 dataSize;        // datasize
+    uint32 allSize;         // allsize
+    GS_PSM unkSendPsm;      // sendpsm
+    GS_PSM drawPsm;         // drawpsm
+    ubyte  unkBitShift;     // bitshift
+    ubyte  unkTagPoint;     // tagpoint
+    ubyte  bitW;            // bitw
+    ubyte  bitH;            // bith
     uint16 check <format=hex>; // check
-    char   unk_giftag[16];  // ???? Q_WORDDATA giftag; ????
+    char   giftag[16];      // ???? Q_WORDDATA giftag; ????
 
-    // Assert(all_len == data_len + pad_len + 48); // 48 = sizeof(TexHead)
-    Assert(width == 1 << bit_w);
-    Assert(height == 1 << bit_h);
+    // Assert(allSize != dataSize + padSize + 48); // 48 = sizeof(TexHead)
+    Assert(width == 1 << bitW);
+    Assert(height == 1 << bitH);
     Assert(check == 0x9999);
-};
+} TexHead;
 
-struct ClutsHead              // sh2gfw_CLUTS_HEAD
+typedef struct ClutsHead      // sh2gfw_CLUTS_HEAD
 {
-    uint32 cluts_len;         // clutssize
-    uint32 unk_GSREGS_ofs;    // toGSREGS
-    uint32 unk_Raw_clut_ofs;  // toRawClut
-    ubyte  clut_count;        // clutamount
-    ubyte  unk_trans_cluts;   // transcluts
-    ubyte  clw;               // clw CLUT raster width in texels
-    ubyte  clh;               // clh CLUT raster height in texels
-    ubyte  unk_fmt[16];       // fmt[16]
-    ubyte  unk_trans[16];     // transparency[16]
+    uint32 clutsSize;         // clutssize
+    uint32 unkGsregsOffset;   // toGSREGS
+    uint32 unkRawClutOffset;  // toRawClut
+    ubyte  clutCount;         // clutamount
+    ubyte  unkTransCluts;     // transcluts
+    ubyte  clutW;             // CLUT raster width in texels
+    ubyte  clutH;             // CLUT raster height in texels
+    ubyte  unkFmt[16];        // fmt[16]
+    ubyte  unkTrans[16];      // transparency[16]
     
-    Assert(clut_count == 4 || clut_count == 8 || clut_count == 16);
-};
+    Assert(clutCount == 4 || clutCount == 8 || clutCount == 16);
+} ClutsHead;
 
-struct PalColumn {
-    ubyte pal_data[64];
-};
+typedef struct PalColumn {
+    ubyte palData[64];
+} PalColumn;
 
-struct PalBlock {
-    struct PalColumn pal_column[4];
-};
+typedef struct PalBlock {
+    PalColumn palColumn[4];
+} PalBlock;
 
-struct PalPage
+typedef struct PalPage
 {
-    struct PalBlock pal_block[4];
-};
+    PalBlock palBlock[4];
+} PalPage;
 
 //------------------------------------------------
 
-struct Texture {
-    struct TexHead texHead;
+typedef struct Texture {
+    TexHead texHead;
 
-    
-    // FSkip(texHead.pad_len);
-    ubyte pad[texHead.all_len - texHead.data_len - 48];
+    ubyte pad[texHead.allSize - texHead.dataSize - 48];  
+    ubyte index[texHead.dataSize];
 
-    // debug
-    Printf("clr mode: %d    ", texHead.clr_bpp);
-    Printf("unk_bit_shift: %d    ", texHead.unk_bit_shift);
-    Printf("pad_len: %d    ", texHead.pad_len);
-    Printf("actual: %d", texHead.all_len - texHead.data_len - 48);
+    if(texHead.colorBpp != 24) {
+        ClutsHead clutsHead;
+        PalPage palPage[clutsHead.clutCount];
+    }
+
+    Printf("clr mode: %d    ", texHead.colorBpp);
+    Printf("unkBitShift: %d    ", texHead.unkBitShift);
+    Printf("padSize: %d    ", texHead.padSize);
+    Printf("actual: %d", texHead.allSize - texHead.dataSize - 48);
     
-    if (texHead.pad_len != texHead.all_len - texHead.data_len - 48) {
+    if (texHead.padSize != texHead.allSize - texHead.dataSize - 48) {
         Printf(" <-------------\n");
     } else {
         Printf("\n");
     }
-    
-    ubyte index[texHead.data_len];
-
-    if(texHead.clr_bpp != 24) {
-        //FSeek(fileHead.clut_ofs);
-        struct ClutsHead cluts_head;
-        struct PalPage pal_page[cluts_head.clut_count];
-    }
-};
+} Texture;
 
 //------------------------------------------------
 
-struct FileHead fileHead;
-struct Texture  texture[fileHead.num_tex] <optimize=false, warn=false>;
+FileHead fileHead;
+Texture texture[fileHead.texCount] <optimize=false, warn=false>;
 
 Printf("\n");
