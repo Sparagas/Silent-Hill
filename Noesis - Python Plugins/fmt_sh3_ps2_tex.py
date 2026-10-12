@@ -116,6 +116,7 @@ class ClutsHead:
 
 def noepyLoadRGBA(data, tex_list):
     bs = NoeBitStream(data)
+
     # parseRGBA()
     fileHead = FileHead(bs)
 
@@ -137,58 +138,40 @@ def noepyLoadRGBA(data, tex_list):
             img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
             tex_list.append(img_buf)
 
-        elif texHead.colorBpp == 8:
-            idx_buf = rapi.imageUntwiddlePS2(tex_buf, texHead.width, texHead.height, 8)
-
-            block = 64
-            group = 4
-            clut_size = len(cluts_buf) // clutsHead.clutCount
-
-            pal_buf = [bytearray() for _ in range(clutsHead.clutCount)]
-
-            for g in range(0, clutsHead.clutCount, group):
-                # Slice the 4-block chunk containing the current set of 4 CLUTs
-                chunk = cluts_buf[g * clut_size : (g + group) * clut_size]
-
-                for i in range(0, len(chunk), block * group):
-                    for j in range(min(group, clutsHead.clutCount - g)):
-                        pal_buf[g + j] += chunk[i + j * block : i + (j + 1) * block]
-                # old style was:
-                # pal_buf[0] += cluts_buf[i + 0*block : i + 1*block]
-                # pal_buf[1] += cluts_buf[i + 1*block : i + 2*block]
-                # pal_buf[2] += cluts_buf[i + 2*block : i + 3*block]
-                # pal_buf[3] += cluts_buf[i + 3*block : i + 4*block]
-
-            for i in range(clutsHead.clutCount):
-                img_buf = rapi.imageDecodeRawPal(idx_buf, pal_buf[i], texHead.width, texHead.height, 8, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
-                img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
-                img_buf = NoeTexture('tex%d_clut%d' % (_, i), texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
-                img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-                tex_list.append(img_buf)
-
-        elif texHead.colorBpp == 4:
-            idx_buf = rapi.imageUntwiddlePS2(tex_buf, texHead.width, texHead.height, 4)
+        if texHead.colorBpp in (4, 8):
+            idx_buf = rapi.imageUntwiddlePS2(tex_buf, texHead.width, texHead.height, texHead.colorBpp)
+            blockSize = 64
+            groupCount = 4
+            clutSize = len(cluts_buf) // clutsHead.clutCount
+            dummyClut = b'\xcc' * clutSize
             
-            block = 64
-            group = 4
-            clut_size = len(cluts_buf) // clutsHead.clutCount
-
             pal_buf = [bytearray() for _ in range(clutsHead.clutCount)]
+            
+            # 1. De-interleave raw memory stripes (rows and columns)
+            for g in range(0, clutsHead.clutCount, groupCount):
+                chunk = cluts_buf[g * clutSize : (g + groupCount) * clutSize]
 
-            for g in range(0, clutsHead.clutCount, group):
-                # Slice the 4-block chunk containing the current set of 4 CLUTs
-                chunk = cluts_buf[g * clut_size : (g + group) * clut_size]
+                for row in range(0, len(chunk), blockSize * groupCount):
+                    for col in range(groupCount):
+                        pal_buf[g + col] += chunk[row + col * blockSize : row + (col + 1) * blockSize]
 
-                for i in range(0, len(chunk), block * group):
-                    for j in range(min(group, clutsHead.clutCount - g)):
-                        pal_buf[g + j] += chunk[i + j * block : i + (j + 1) * block]
-
+            # 2. Reorder from Morton (Z-order) to linear raster index
+            MORTON_MAPS = {
+                8:  (0, 1, 4, 5, 2, 3, 6, 7),
+                16: (0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15)
+            }
+            
+            if clutsHead.clutCount in MORTON_MAPS:
+                remap = MORTON_MAPS[clutsHead.clutCount]
+                pal_buf = [pal_buf[src] for src in remap]
+            
             for i in range(clutsHead.clutCount):
-                img_buf = rapi.imageDecodeRawPal(idx_buf, pal_buf[i], texHead.width, texHead.height, 4, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
-                img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
-                img_buf = NoeTexture('tex%d_clut%d' % (_, i), texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
-                img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
-                tex_list.append(img_buf)
+                if pal_buf[i] != dummyClut:
+                    img_buf = rapi.imageDecodeRawPal(idx_buf, pal_buf[i], texHead.width, texHead.height, texHead.colorBpp, 'r8g8b8a8', noesis.DECODEFLAG_PS2SHIFT)
+                    img_buf = rapi.imageScaleRGBA32(img_buf, (1.0, 1.0, 1.0, 2.0), texHead.width, texHead.height)
+                    img_buf = NoeTexture('tex%d_clut%d' % (_, i), texHead.width, texHead.height, img_buf, noesis.NOESISTEX_RGBA32)
+                    img_buf.setFlags(noesis.NTEXFLAG_FILTER_NEAREST)
+                    tex_list.append(img_buf)
 
         # debug
         img_buf = rapi.imageDecodeRaw(cluts_buf, clutsHead.clutW, clutsHead.clutH, 'r8g8b8a8')

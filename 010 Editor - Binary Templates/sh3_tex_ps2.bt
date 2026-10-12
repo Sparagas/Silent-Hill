@@ -112,7 +112,7 @@ typedef struct Texture {
         ClutsHead clutsHead;
         PalPage palPage[clutsHead.clutCount];
     }
-
+/*
     Printf("clr mode: %d    ", texHead.colorBpp);
     Printf("unkBitShift: %d    ", texHead.unkBitShift);
     Printf("padSize: %d    ", texHead.padSize);
@@ -122,7 +122,7 @@ typedef struct Texture {
         Printf(" <-------------\n");
     } else {
         Printf("\n");
-    }
+    } */
 } Texture;
 
 //------------------------------------------------
