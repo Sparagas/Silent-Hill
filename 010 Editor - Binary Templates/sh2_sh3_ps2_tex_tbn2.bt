@@ -1,0 +1,147 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh2_sh3_ps2_tex_tbn2.bt
+//   Authors: Laurynas Zubavičius (Sparagas), Rodolfo Nuñez (roocker666)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 2 and Silent Hill 3 textures for Sony - PlayStation 2.
+//  Category: Image
+// File Mask: *.tex,*.tbn2
+//  ID Bytes: 
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+enum <ubyte> GS_PSM
+{
+    PSMCT32  = 0x00,
+    PSMCT24  = 0x01,
+    PSMCT16  = 0x02,
+    PSMCT16S = 0x0A,
+    PSMT8    = 0x13,
+    PSMT4    = 0x14,
+    PSMT8H   = 0x1B,
+    PSMT4HL  = 0x24,
+    PSMT4HH  = 0x2C,
+    PSMZ32   = 0x30,
+    PSMZ24   = 0x31,
+    PSMZ16   = 0x32,
+    PSMZ16S  = 0x3A
+};
+
+//------------------------------------------------
+
+typedef struct Sh2AreaHead
+{
+    int32  areaId;
+    uint32 GlobalTexHeadOffset            <format=hex>;
+    uint32 GlobalClutsHeadOffset          <format=hex>;
+    uint32 dummyDate                      <format=hex>;
+
+    Assert(areaId == 0);
+    Assert(dummyDate == 0xA7A7A7A7);
+} Sh2AreaHead;
+
+
+typedef struct Sh3AreaHead
+{
+    int32  areaId;
+    uint32 unknown_0x04;
+    uint32 contentOffset    <format=hex>;
+    uint32 lastOffset       <format=hex>;    // Goes to last texture, unless it only has one texture. Then it is file size.
+    uint32 unknown_0x10;
+    uint32 texCount;
+    uint32 unknown_0x18;
+    uint32 unknown_0x1C;
+    
+    Assert(areaId == -1);
+} Sh3AreaHead;
+
+typedef struct TexHead      // sh2gfw_TEX_HEAD
+{                           
+    int32  texId;           // texture_no
+    uint16 unkX;            // x
+    uint16 unkY;            // y
+    uint16 width;           // w
+    uint16 height;          // h
+    ubyte  colorBpp;          // color
+    ubyte  padSize;         // padbyte
+    uint16 unkImportance;   // importance
+    uint32 dataSize;        // datasize
+    uint32 allSize;         // allsize
+    GS_PSM unkSendPsm;      // sendpsm
+    GS_PSM drawPsm;         // drawpsm
+    ubyte  unkBitShift;     // bitshift
+    ubyte  unkTagPoint;     // tagpoint
+    ubyte  bitW;            // bitw
+    ubyte  bitH;            // bith
+    uint16 check <format=hex>; // check
+    char   giftag[16];      // ???? Q_WORDDATA giftag; ????
+
+    // Assert(allSize != dataSize + padSize + 48); // 48 = sizeof(TexHead)
+    Assert( (width  >= 1 << bitW) && (width  < 1 << bitW+1) ); // { Sometimes the actual dimensions are bigger than bit shifts,
+    Assert( (height >= 1 << bitH) && (height < 1 << bitH+1) ); // { but not bigger than a second shift
+    Assert(check == 0x9999 || check == 0x0000); // only SH2 `poison.tex` has it as 0x0000
+} TexHead;
+
+typedef struct ClutsHead      // sh2gfw_CLUTS_HEAD
+{
+    uint32 clutsSize;         // clutssize
+    uint32 unkGsregsOffset;   // toGSREGS
+    uint32 unkRawClutOffset;  // toRawClut
+    ubyte  clutCount;         // clutamount - some SH2 *.tex has smaller count than the buffer size, so it cant be used to read the buffer size.
+    ubyte  unkTransCluts;     // transcluts
+    ubyte  clutW;             // CLUT raster width in texels - 64 unless it is poison.tex from SH2
+    ubyte  clutH;             // CLUT raster height in texels - 64 unless it is poison.tex from SH2
+    ubyte  unkFmt[16];        // fmt[16]
+    ubyte  unkTrans[16];      // transparency[16]
+    
+    // Assert(clutsSize >= clutCount * 1024); // doesn't work for poison.tex
+} ClutsHead;
+
+typedef struct PalColumn {
+    ubyte palData[64];
+} PalColumn;
+
+typedef struct PalBlock {
+    PalColumn palColumn[4];
+} PalBlock;
+
+typedef struct PalPage
+{
+    PalBlock palBlock[4];
+} PalPage;
+
+//------------------------------------------------
+
+typedef struct Texture {
+    TexHead texHead;
+
+    ubyte pad[texHead.allSize - texHead.dataSize - 48] <warn=false>;  
+    ubyte index[texHead.dataSize];
+
+    if(texHead.colorBpp != 24) {
+        ClutsHead clutsHead;
+        ubyte clutData[clutsHead.clutsSize];
+        //PalPage palPage[clutsHead.clutsSize / 1024]; // some SH2 *.tex has smaller count than the buffer size, so it cant be used to read the buffer size.
+    }
+} Texture;
+
+//------------------------------------------------
+
+// for SH2 it is usualy like this, but some Sh3 files still have this header as a leftover
+if (ReadInt() == 0) {
+    Sh2AreaHead sh2AreaHead;
+    FSeek(sh2AreaHead.GlobalTexHeadOffset);
+}
+// for SH3 it is usualy like this. SH2 doesn't have this part
+if (!FEof() && ReadInt() == -1) {
+    Sh3AreaHead sh3AreaHead;
+    Texture  texture[sh3AreaHead.texCount] <optimize=false, warn=false>;
+}
+// usualy this is for SH2, but some SH3 `sh3AreaHead.texCount` is 0, but there are still 1 texture.
+// SH2 `*.tbn2` are headerless 
+if (!FEof())
+    Texture texture;
+
+Assert(FEof());
