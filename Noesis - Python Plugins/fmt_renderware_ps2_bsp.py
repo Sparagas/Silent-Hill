@@ -177,8 +177,10 @@ class RwStruct:
 class RWString:
     def __init__(self, bs):
         self.rw_header = RwHeader(bs)
-        self.str = noeStrFromBytes(bs.readBytes(self.rw_header.len))
-        
+        self.str = bs.readBytes(self.rw_header.len)
+        if self.str[0]:
+            self.str = noeStrFromBytes(self.str)
+
 
 class RwExtension:
     def __init__(self, bs):
@@ -230,9 +232,6 @@ class RwTexture:
         self.rw_tex_name = RWString(bs)
         self.rw_tex_alpha_name = RWString(bs)
         self.rw_extension = RwExtension(bs)
-
-        # print(self.rw_tex_name.str)
-        # print(self.rw_tex_alpha_name.str)
 
 
 class RwStructMaterial:
@@ -325,17 +324,15 @@ class RwStructPlaneSect:
 
 class RwPlaneSect:
     def __init__(self, bs, rw_mat_list):
-        # print("plane")
         self.rw_header = RwHeader(bs)
         self.rw_struct = RwStructPlaneSect(bs)
         
         if self.rw_struct.is_left_atomic_sect:
-            # print("atomic")
             self.left_atomic_sect = RwAtomicSect(bs, rw_mat_list)
         else:
             self.left_plane_sect = RwPlaneSect(bs, rw_mat_list)
+
         if self.rw_struct.is_right_atomic_sect:
-            # print("atomic")
             self.right_atomic_sect = RwAtomicSect(bs, rw_mat_list)
         else:
             self.right_plane_sect = RwPlaneSect(bs, rw_mat_list)
@@ -429,7 +426,7 @@ class NativeDataPlgPs2:
             color_buf = []
             normal_buf = []
             size = 0
-            unpackData = rapi.unpackPS2VIF(vif_data)                    
+            unpackData = rapi.unpackPS2VIF(vif_data)
             for up in unpackData:
                 if up.numElems == 4 and up.elemBits == 32:
                     vert_buf.append(up.data) 

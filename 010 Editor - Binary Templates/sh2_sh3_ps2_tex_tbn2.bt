@@ -123,7 +123,7 @@ typedef struct Texture {
     if(texHead.colorBpp != 24) {
         ClutsHead clutsHead;
         ubyte clutData[clutsHead.clutsSize];
-        //PalPage palPage[clutsHead.clutsSize / 1024]; // some SH2 *.tex has smaller count than the buffer size, so it cant be used to read the buffer size.
+        //PalPage palPage[clutsHead.clutsSize / 1024]; // some SH2 *.tex has smaller count than the buffer size, so it can't be used to read the buffer size.
     }
 } Texture;
 
