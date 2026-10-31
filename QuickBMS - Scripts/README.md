@@ -26,8 +26,8 @@ A 2048-byte `HILL` lacks the CD-XA metadata needed to split its audio streams. A
 
 ## Contents
 
-| File | Game / Platform | Description |
-|------|-----------------|-------------|
-| `silent_hill_1.bms` | Silent Hill | Extracts the PS1 NTSC-J `SILENT` and `HILL` containers, decrypts overlays, and decompresses LZSS data. |
-| `sh4_bin.bms` | Silent Hill 4: The Room | Extracts files from `.bin` archives (PS2, Xbox, PC). Auto-identifies sub-file types and appends descriptive extensions. |
-| `sh4_sh4.bms` | Silent Hill 4: The Room | Extracts files from `.sh4` archives (Xbox, PC) and preserves embedded filenames. |
+| File | Game | Platform | Extensions | Description / Notes |
+|------|------|----------|------------|----------------------|
+| `silent_hill_1.bms` | Silent Hill | PS1 | Input: none (`SLPM_861.92`, `SILENT`, `HILL`); output: `.CMP`, `.XA`, `.STR`, `.STR2048`, `.XA2048`, `.encrypted`, `.packed`, `.dec` | Extracts the NTSC-J containers, decrypts overlays, and decompresses LZSS data. |
+| `sh4_bin.bms` | Silent Hill 4: The Room | PS2, Xbox, PC | Input: `.bin`; output: descriptive extensions | Extracts files from `.bin` archives and auto-identifies sub-file types. |
+| `sh4_sh4.bms` | Silent Hill 4: The Room | Xbox, PC | Input: `.sh4` | Extracts files from `.sh4` archives and preserves embedded filenames. |
