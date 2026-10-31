@@ -16,7 +16,7 @@ Templates follow the pattern `<game prefix>_<format description>.bt`:
 | `sh4_` | Silent Hill 4: The Room |
 | `shte_` | Silent Hill: The Escape |
 | `shhc_` | Silent Hill: Homecoming |
-| `rw_` | RenderWare (shared engine) |
+| `rw_` | RenderWare (shared engine between Silent Hill: Origins / Silent Hill: Zero and Silent Hill: Shattered Memories) |
 | `inc_` | Include files (shared helpers) |
 | `ps1_` | PS1 system formats |
 | `psx_` | PSX executable format |
@@ -68,7 +68,7 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 ### Silent Hill 2
 | File | Description |
 |------|-------------|
-| `sh2_ hd_map.bt` | Map format (HD Collection) |
+| `sh2_hd_map.bt` | Map format (HD Collection) |
 | `sh2_pc_map.bt` | Map format (PC) |
 | `sh2_ps2_map_.bt` | Map format (PS2) |
 | `sh2_sh3_ps2_tex_tbn2.bt` | TBN2 texture format (PS2) |
