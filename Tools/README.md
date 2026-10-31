@@ -1,14 +1,14 @@
-# Tools
+# Standalone Tools
 
-Standalone utility scripts for specific reverse engineering tasks. Unlike the format plugins (which work inside 010 Editor, Noesis, etc.), these are independent scripts that can be run directly.
+Standalone utility scripts for specific reverse-engineering tasks. Unlike the format plugins for 010 Editor and Noesis, these scripts run directly.
 
-## Silent Hill (1)
+## Contents
 
-| File | Description |
-|------|-------------|
-| `sh_decrypt_1st_overlays.py` | Decrypts encrypted overlay files (`B_KONAMI.BIN` and `BODYPROG.BIN` from the `1ST/` folder) by reversing the XOR-based linear congruential generator (LCG) encryption. The operation is symmetric — running the script on a decrypted file re-encrypts it. |
+| File | Game / Platform | Description |
+|------|-----------------|-------------|
+| `sh_decrypt_1st_overlays.py` | Silent Hill 1 | Decrypts `B_KONAMI.BIN` and `BODYPROG.BIN` overlays from the `1ST/` folder using the XOR-based linear congruential generator (LCG). The operation is symmetric, so running it again re-encrypts the file. |
 
-### Usage
+## Usage
 
 ```
 python "Tools/Silent Hill (1)/sh_decrypt_1st_overlays.py" <file1> [file2] ...

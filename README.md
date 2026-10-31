@@ -2,7 +2,8 @@
 
 A central repository for **Silent Hill** series reverse engineering, file format documentation, and modding tools.
 
-This project aims to:
+This repository aims to:
+
 - Document file formats used across the Silent Hill series
 - Provide tools and scripts for extracting and viewing game assets (3D models, textures, archives, audio)
 - Catalog demos, prototypes, related media, and community resources
@@ -55,6 +56,7 @@ Standalone utility scripts for specific tasks. Currently contains a **Silent Hil
 
 ## [Debug — dwarf2cpp](Debug%20-%20dwarf2cpp)
 C/C++ header files generated from DWARF debug symbols found in Silent Hill demo and beta disc executables, extracted using **[dwarf2cpp](https://github.com/nicknick0630/dwarf2cpp)**. These headers reveal original struct definitions, variable names, and type information from the game's source code. Contains debug data from:
+
 - Silent Hill 2 (Japan) (Beta) (2001-04-25)
 - Silent Hill 2 (USA) (Beta)
 - Silent Hill 4 — E3 Trial Version (E3 2004)
