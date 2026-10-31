@@ -23,9 +23,9 @@ Templates follow the pattern `<game prefix>_<format description>.bt`:
 
 Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared or system-level formats.
 
-## Templates
+## Contents
 
-### Shared / System Formats
+### Shared and System Formats
 | File | Description |
 |------|-------------|
 | `afs.bt` | CRI Middleware AFS archive format |
@@ -38,7 +38,7 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 | `psx_exe.bt` | PSX executable header |
 | `vector.bt` | Vector type definitions |
 
-### Include Files (Shared Helpers)
+### Shared Include Files
 | File | Description |
 |------|-------------|
 | `inc_fixed_point.bt` | Fixed-point math helpers |
@@ -49,7 +49,7 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 | `inc_sh4_bin.bt` | Silent Hill 4 .bin archive definitions |
 | `inc_shhc_eiff.bt` | Silent Hill: Homecoming EIFF definitions |
 
-### RenderWare Engine
+### RenderWare
 | File | Description |
 |------|-------------|
 | `rw_bsp.bt` | RenderWare BSP world/map format |

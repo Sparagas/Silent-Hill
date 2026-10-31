@@ -6,7 +6,7 @@ The resulting headers reveal original struct definitions, enum values, variable 
 
 ## Contents
 
-Each subdirectory corresponds to a specific demo or beta build. Inside, you will find folders named after the PS2 executable ID (e.g., `SLUS_202.28`), containing the extracted header files.
+Each subdirectory corresponds to a demo or beta build and contains a folder named after the PS2 executable ID (for example, `SLUS_202.28`) with the extracted header files.
 
 | Directory | Game | Build |
 |-----------|------|-------|

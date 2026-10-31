@@ -8,9 +8,9 @@ Python plugins for **[Noesis](https://richwhitehouse.com/index.php?content=inc_p
 2. Copy the desired `.py` plugin files into the Noesis `plugins/python/` directory.
 3. Restart Noesis — the new formats will appear in the supported file type list.
 
-## File Naming Convention
+## Naming Convention
 
-Plugins follow the pattern `<type>_<game>_<platform>_<format>.py`. The `rw_` marker identifies the RenderWare format family in plugin names such as `fmt_rw_ps2_bsp.py`.
+Plugins generally follow the pattern `<type>_<game>_<platform>_<format>.py`. In names such as `fmt_rw_ps2_bsp.py`, `rw_` identifies the RenderWare format family.
 
 | Prefix | Type or format family |
 |--------|------|
@@ -21,9 +21,9 @@ Plugins follow the pattern `<type>_<game>_<platform>_<format>.py`. The `rw_` mar
 
 ## Plugins
 
-### Model & Texture Format Plugins (`fmt_`)
-| File | Game | Description |
-|------|------|-------------|
+### Model and Texture Format Plugins (`fmt_`)
+| File | Game / Platform | Description |
+|------|-----------------|-------------|
 | `fmt_sh1_model.py` | Silent Hill 1 | PS1 3D models (ILM/IPD/PLM) |
 | `fmt_sh1_anm.py` | Silent Hill 1 | ANM animation files |
 | `fmt_sh2_ps2_map.py` | Silent Hill 2 | PS2 map/level models |
@@ -38,14 +38,14 @@ Plugins follow the pattern `<type>_<game>_<platform>_<format>.py`. The `rw_` mar
 | `fmt_sho_ps2_map_bsp.py` | Silent Hill: Origins | PS2 BSP map models |
 
 ### Texture-Only Plugins (`tex_`)
-| File | Game | Description |
-|------|------|-------------|
+| File | Game / Platform | Description |
+|------|-----------------|-------------|
 | `tex_sh2_sh3_ps2_tex_tbn2.py` | Silent Hill 2 / 3 | PS2 TEX/TBN2 textures |
 | `tex_sh4_bin.py` | Silent Hill 4 | Textures from .bin archives |
 | `tex_sh4_textures.py` | Silent Hill 4 | Standalone texture files |
 
 ### Archive Plugins (`arc_`)
-| File | Game | Description |
-|------|------|-------------|
+| File | Game / Platform | Description |
+|------|-----------------|-------------|
 | `arc_sh4_bin.py` | Silent Hill 4 | .bin archive extraction |
 | `arc_sh4_sh4.py` | Silent Hill 4 | .sh4 archive extraction |
