@@ -11,7 +11,9 @@ Standalone utility scripts for specific reverse engineering tasks. Unlike the fo
 ### Usage
 
 ```
-python sh_decrypt_1st_overlays.py <file1> [file2] ...
+python "Tools/Silent Hill (1)/sh_decrypt_1st_overlays.py" <file1> [file2] ...
 ```
 
-You can also drag and drop files onto the script.
+Run the command from the repository root, or run the script directly from its folder. You can also drag and drop files onto the script.
+
+The script modifies each input file in place. Keep a backup before running it; because the XOR operation is symmetric, running it a second time re-encrypts the file.
