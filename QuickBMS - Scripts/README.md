@@ -1,6 +1,6 @@
 # QuickBMS — Scripts
 
-[QuickBMS](https://aluigi.altervista.org/quickbms.htm) extraction scripts for Silent Hill and Silent Hill 4: The Room.
+[QuickBMS](https://aluigi.altervista.org/quickbms.htm) extraction scripts for Silent Hill 1 and Silent Hill 4: The Room.
 
 ## Usage
 
