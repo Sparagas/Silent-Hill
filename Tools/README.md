@@ -4,9 +4,9 @@ Standalone utility scripts for specific reverse-engineering tasks. Unlike the fo
 
 ## Contents
 
-| File | Game / Platform | Description |
-|------|-----------------|-------------|
-| `sh_decrypt_1st_overlays.py` | Silent Hill 1 | Decrypts `B_KONAMI.BIN` and `BODYPROG.BIN` overlays from the `1ST/` folder using the XOR-based linear congruential generator (LCG). The operation is symmetric, so running it again re-encrypts the file. |
+| File | Game | Platform | Extensions | Description / Notes |
+|------|------|----------|------------|----------------------|
+| `sh_decrypt_1st_overlays.py` | Silent Hill 1 | PS1 | `.BIN` | Decrypts `B_KONAMI.BIN` and `BODYPROG.BIN` overlays from the `1ST/` folder using the XOR-based linear congruential generator (LCG). The operation is symmetric, so running it again re-encrypts the file. |
 
 ## Usage
 

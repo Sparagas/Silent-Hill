@@ -4,7 +4,7 @@ Python scripts for **[3D Model Researcher](https://mr.game-viewer.org/)**, a too
 
 ## Contents
 
-| File | Game / Platform | Description |
-|------|-----------------|-------------|
-| `havok_hcl.py` | Silent Hill: Homecoming | Havok collision data (.hcl) |
-| `shte_ios_nom.py` | Silent Hill: The Escape | iOS NOM 3D model format |
+| File | Game | Platform | Extensions | Description / Notes |
+|------|------|----------|------------|----------------------|
+| `havok_hcl.py` | Silent Hill: Homecoming | Windows, Xbox 360, PS3 | `.hcl` | Havok collision data |
+| `shte_ios_nom.py` | Silent Hill: The Escape | iOS | `.nom` | NOM 3D model format |
