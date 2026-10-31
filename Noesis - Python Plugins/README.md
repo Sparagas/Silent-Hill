@@ -27,13 +27,13 @@ Plugins follow the pattern `<type>_<game>_<platform>_<format>.py`:
 | `fmt_sh2_ps2_map.py` | Silent Hill 2 | PS2 map/level models |
 | `fmt_sh3_ps2_map.py` | Silent Hill 3 | PS2 map/level models |
 | `fmt_sh3_ps2_tex.py` | Silent Hill 3 | PS2 textures |
-| `fmt_sh4_map_bin_pc.py` | Silent Hill 4 | PC map .bin models |
-| `fmt_sh4_map_bin_ps2.py` | Silent Hill 4 | PS2 map .bin models |
-| `fmt_she_ios_nom.py` | Silent Hill: The Escape | iOS NOM models |
-| `fmt_she_ios_not.py` | Silent Hill: The Escape | iOS NOT format |
-| `fmt_she_ios_pvr.py` | Silent Hill: The Escape | iOS PVR textures |
+| `fmt_sh4_pc_map_bin.py` | Silent Hill 4 | PC map .bin models |
+| `fmt_sh4_ps2_map_bin.py` | Silent Hill 4 | PS2 map .bin models |
+| `fmt_shte_ios_nom.py` | Silent Hill: The Escape | iOS NOM models |
+| `fmt_shte_ios_not.py` | Silent Hill: The Escape | iOS NOT format |
+| `fmt_shte_ios_pvr.py` | Silent Hill: The Escape | iOS PVR textures |
 | `fmt_havok_hcl.py` | Silent Hill: Homecoming | Havok collision data (.hcl) |
-| `fmt_renderware_ps2_bsp.py` | Silent Hill: Origins | PS2 RenderWare BSP map models |
+| `fmt_rw_ps2_bsp.py` | Silent Hill: Origins | PS2 RenderWare BSP map models |
 | `fmt_sho_ps2_map_bsp.py` | Silent Hill: Origins | PS2 BSP map models |
 
 ### Texture-Only Plugins (`tex_`)

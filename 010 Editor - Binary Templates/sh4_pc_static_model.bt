@@ -1,0 +1,188 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: sh4_pc_static_model.bt
+//   Authors: Laurynas Zubavičius (Sparagas), Hunter Stanton (hun10sta), Rodolfo Nuñez (roocker666)
+//   Version: 0.0
+//   Purpose: Parse Silent Hill 4: The Room static models for Microsoft - Windows.
+//  Category: CAD
+// File Mask: 
+//  ID Bytes: 01 00 03 FC
+//   History: 
+//   0.0   2025-01-01 Laurynas Zubavičius : Initial version.
+//------------------------------------------------
+
+
+typedef struct ModelHead3 {       // struct sgEMRenderModelTop
+                                  // unsigned int type_id;
+                                  // unsigned int version;
+    uint32 to_normal_group;       // unsigned int to_normal_groupet;
+    uint32 to_overdraw_group;     // unsigned int overdraw_group_offset;
+    uint32 to_trans_group;        // unsigned int transparency_group_offset;
+    uint32 to_matrix_rts;         // unsigned int matrices_offset;
+    uint32 num_matrix_rts;        // unsigned int n_matrices; // I am not sure this is really used anymore, even in very complex scenes only one matrix is present and the values are always [[1.0 0 0 0] [0 1.0 0 0] [0 0 1.0 0] [0 0 0 1.0]]
+    uint32 unk_additional_data;   // unsigned int additional_data;
+    uint32 reserved_08;           // unsigned int reserved_08;
+    uint32 reserved_09;           // unsigned int reserved_09;
+    uint32 reserved_0a;           // unsigned int reserved_0a;
+    uint32 reserved_0b;           // unsigned int reserved_0b;
+    uint32 reserved_0c;           // unsigned int reserved_0c;
+    uint32 reserved_0d;           // unsigned int reserved_0d;
+    uint32 reserved_0e;           // unsigned int reserved_0e;
+    uint32 reserved_0f;           // unsigned int reserved_0f;
+} ModelHead3_t;
+
+typedef struct MatrixRTS {
+    float matrix_rts[16];
+} MatrixRTS_t;
+
+typedef struct DrawBlockParams
+{
+    // TODO: figure this out, this is presumably important in how these get drawn, perhaps it determines which shader to use and params passed to it or something?
+    // this isn't really important for extracting the mesh though
+    ubyte unk[0x40];
+
+    /*
+    // data is from PS2 debug data, not applicable to PC due to how this is intended for DMAing to the PS2 GPU
+    // leaving here for posterity
+    int64 dma_tag;
+    int64 part_giftag;
+    unsigned long tex0;
+    unsigned long clamp;
+    unsigned int tex1;
+    unsigned int alpha;
+    unsigned int prim;
+    unsigned int nb_parts;
+    */
+} drawBlockParams;
+
+typedef struct VertPosColUV
+{
+    float x;
+    float y;
+    float z;
+    ubyte b;
+    ubyte g;
+    ubyte r;
+    ubyte a;
+    float u;
+    float v;
+} VertPosColUV;
+
+typedef struct WrldPart
+{   
+    local uint64 start = FTell();
+    ubyte unk[32];
+    uint32 n_faces;
+    uint32 n_vertices;
+    ubyte unk2[64];
+    uint32 unk3;
+    uint32 unk4;
+    uint32 unk5;
+    uint32 faces_offset <format=hex>;
+    uint32 vertices_offset <format=hex>;
+    uint32 unk6;
+
+    FSeek(start + faces_offset);
+    uint16 faces[n_faces];
+
+    VertPosColUV vert_pos_col_uv[n_vertices];
+} WrldPart;
+
+typedef struct BoundingBox
+{
+    float bmin[4]; //<bgcolor=cGreen>;
+    float bmax[4]; //<bgcolor=cGreen>; 
+};
+
+// assuming it is split like this because of 
+typedef struct DrawBlock
+{
+    local uint32 start = FTell();
+
+    uint32 next_block_offset <format=hex>;
+    uint32 params_offset <format=hex>;
+    uint32 parts_offset <format=hex>;
+    uint16 texture_id;
+    uint16 texture_bank; // not sure what this is considering the overwhelming majority of world meshes only have one single texture chunk
+    ubyte clut_id;
+    ubyte subtexture_id; // not 100% on this but it seems to line up?
+    uint16 palette_idx;
+    uint32 bounding_box_offset <format=hex>;
+    uint16 matrix_index;
+    ubyte backclip; // possibly related to backface culling?
+    ubyte pad0;
+    uint32 pad1;
+
+    FSeek(start + bounding_box_offset);
+    BoundingBox bounding_box;
+
+    FSeek(start + params_offset);
+    DrawBlockParams params;
+
+    FSeek(start + parts_offset);
+    WrldPart wrld_part;
+} drawBlock;
+
+typedef struct DrawGroup
+{
+    local uint32 start = FTell();
+    local uint32 i = 0;
+    
+    uint32 num_mesh;
+    if(num_mesh != 0)
+    {
+        uint32 to_mesh[num_mesh] <format=hex>;
+
+        for( i = 0; i < num_mesh; i++ )
+        {
+            FSeek(start + to_mesh[i]);
+            DrawBlock draw_block;
+        }
+    }
+} drawGroup;
+
+enum Version
+{
+    Prototype = 1, // seen in some test .bins included with the final game (iwa_teststage.bin for example). structure is very different due to being from an earlier version of the game, might be similar to SH3
+    Prototype2 = 2, // closer to SH4's final version but not quite, found in the unused gtXX bin files and some others (this game has a *lot* of unused content, some of it still never seen before)
+    Final = 3 // what is actually used in Silent Hill 4's final version
+};
+
+//------------------------------------------------
+// parsing sequance (the acutal reading of a file)
+//------------------------------------------------
+
+struct WorldModel { // SGEMRenderModel
+    local int start = FTell();
+    
+    uint32 type_id;
+    Version version;
+    if(version == Final)
+    {
+        // normal group = the main mesh
+        // overdraw = mesh used for decals, shadows
+        // transparency = meshes specifically intended to be transparent or see through (tree leaves, etc.)
+        ModelHead3_t model_head3;
+
+        FSeek(start + model_head3.to_matrix_rts);
+        MatrixRTS_t matrix_rts[model_head3.num_matrix_rts];
+
+        if(model_head3.to_normal_group != 0)
+        {
+            FSeek(start + model_head3.to_normal_group);
+            DrawGroup normalDrawGroup;
+        }
+    
+        if(model_head3.to_overdraw_group != 0)
+        {
+            FSeek(start + model_head3.to_overdraw_group);
+            DrawGroup overdrawDrawGroup;
+        }
+    } else {
+        Warning("Error: Template does not support non-final versioned world meshes");
+    }
+};
+
+if (GetTemplateName() == "sh4_static_model_pc.bt")
+    WorldModel sh4_static_model_pc <open=true>;

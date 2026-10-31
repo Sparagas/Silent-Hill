@@ -14,8 +14,8 @@ Templates follow the pattern `<game prefix>_<format description>.bt`:
 | `sh2_` | Silent Hill 2 |
 | `sh3_` | Silent Hill 3 |
 | `sh4_` | Silent Hill 4: The Room |
-| `she_` | Silent Hill: The Escape |
-| `shh_` | Silent Hill: Homecoming |
+| `shte_` | Silent Hill: The Escape |
+| `shhc_` | Silent Hill: Homecoming |
 | `rw_` | RenderWare (shared engine) |
 | `inc_` | Include files (shared helpers) |
 | `ps1_` | PS1 system formats |
@@ -28,25 +28,26 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 ### Shared / System Formats
 | File | Description |
 |------|-------------|
+| `afs.bt` | CRI Middleware AFS archive format |
 | `CD-ROM Mode 1.bt` | CD-ROM Mode 1 sector format |
 | `CD-ROM Mode 2.bt` | CD-ROM Mode 2 sector format |
 | `CD-ROM XA Mode 2, Form 1.bt` | CD-ROM XA Mode 2 Form 1 sector format |
 | `CD-ROM XA Mode 2, Form 2.bt` | CD-ROM XA Mode 2 Form 2 sector format |
-| `afs.bt` | CRI Middleware AFS archive format |
 | `color.bt` | Color type definitions |
-| `vector.bt` | Vector type definitions |
 | `ps1_memory_card.bt` | PS1 memory card format |
 | `psx_exe.bt` | PSX executable header |
+| `vector.bt` | Vector type definitions |
 
 ### Include Files (Shared Helpers)
 | File | Description |
 |------|-------------|
 | `inc_fixed_point.bt` | Fixed-point math helpers |
 | `inc_rw.bt` | RenderWare include definitions |
-| `inc_sh1.bt` | Silent Hill 1 shared definitions |
 | `inc_sh1_exe.bt` | Silent Hill 1 executable definitions |
 | `inc_sh1_save.bt` | Silent Hill 1 save file definitions |
+| `inc_sh1.bt` | Silent Hill 1 shared definitions |
 | `inc_sh4_bin.bt` | Silent Hill 4 .bin archive definitions |
+| `inc_shhc_eiff.bt` | Silent Hill: Homecoming EIFF definitions |
 
 ### RenderWare Engine
 | File | Description |
@@ -57,6 +58,7 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 ### Silent Hill (1)
 | File | Description |
 |------|-------------|
+| `sh1_anm.bt` | Animation format |
 | `sh1_model.bt` | 3D model format (ILM/IPD/PLM) |
 | `sh1_overlay_bodyprog.bt` | BODYPROG.BIN overlay |
 | `sh1_overlays_maps.bt` | Map overlay files |
@@ -66,65 +68,63 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 ### Silent Hill 2
 | File | Description |
 |------|-------------|
-| `sh2_ map_hd.bt` | Map format (HD Collection) |
-| `sh2_map_pc.bt` | Map format (PC) |
-| `sh2_map_ps2.bt` | Map format (PS2) |
-| `sh2_tbn2_ps2.bt` | TBN2 format (PS2) |
-| `sh2_tex_ps2.bt` | Texture format (PS2) |
+| `sh2_ hd_map.bt` | Map format (HD Collection) |
+| `sh2_pc_map.bt` | Map format (PC) |
+| `sh2_ps2_map_.bt` | Map format (PS2) |
+| `sh2_sh3_ps2_tex_tbn2.bt` | TBN2 texture format (PS2) |
 
 ### Silent Hill 3
 | File | Description |
 |------|-------------|
-| `sh3_map_hd.bt` | Map format (HD Collection) |
-| `sh3_map_ps2.bt` | Map format (PS2) |
-| `sh3_tex_ps2.bt` | Texture format (PS2) |
+| `sh3_hd_map.bt` | Map format (HD Collection) |
+| `sh3_mfa.bt` | MFA animation format |
+| `sh3_ps2_map.bt` | Map format (PS2) |
 
 ### Silent Hill 4: The Room
 | File | Description |
 |------|-------------|
 | `sh4_animation.bt` | Animation format |
-| `sh4_bin_pc.bt` | .bin archive (PC) |
-| `sh4_bin_ps2.bt` | .bin archive (PS2) |
-| `sh4_bin_xbox.bt` | .bin archive (Xbox) |
 | `sh4_fog_data.bt` | Fog data |
+| `sh4_maphit.bt` | Map-hit/collision data |
 | `sh4_path_data.bt` | Path/navigation data |
-| `sh4_scene_data_pc.bt` | Scene data (PC) |
+| `sh4_pc_bin.bt` | .bin archive (PC) |
+| `sh4_pc_scene_data.bt` | Scene data (PC) |
+| `sh4_pc_skeletal_model.bt` | Skeletal model (PC) |
+| `sh4_pc_static_model.bt` | Static model (PC) |
+| `sh4_ps2_bin.bt` | .bin archive (PS2) |
 | `sh4_sh4.bt` | .sh4 archive format |
 | `sh4_shadow_model.bt` | Shadow model format |
-| `sh4_skeletal_model_pc.bt` | Skeletal model (PC) |
 | `sh4_slgt.bt` | SLGT lighting data |
-| `sh4_static_model_pc.bt` | Static model (PC) |
 | `sh4_textures.bt` | Texture format |
+| `sh4_xbox_bin.bt` | .bin archive (Xbox) |
 
 ### Silent Hill: The Escape
 | File | Description |
 |------|-------------|
-| `she_nom.bt` | NOM model format |
-| `she_not.bt` | NOT format |
-| `she_pvr.bt` | PVR texture format |
-| `she_smb.bt` | SMB format |
-| `she_sob.bt` | SOB format |
+| `shte_nom.bt` | NOM model format |
+| `shte_not.bt` | NOT format |
+| `shte_pvr.bt` | PVR texture format |
+| `shte_smb.bt` | SMB format |
+| `shte_sob.bt` | SOB format |
 
 ### Silent Hill: Homecoming
 | File | Description |
 |------|-------------|
-| `shh_assets_b_xml.bt` | Assets XML format |
-| `shh_collision_model_pc.bt` | Collision model (PC) |
-| `shh_eiff_pc.bt` | EIFF format (PC) |
-| `shh_mdl_ps3.bt` | Model format (PS3) |
-| `shh_pak.bt` | PAK archive format |
-| `shh_syt_pc.bt` | SYT format (PC) |
-| `shh_inc-lvlp_pc.bt` | LVLP include (PC) |
-| `shh_inc-modl_pc.bt` | MODL include (PC) |
-| `shh_inc-mtmc_pc.bt` | MTMC include (PC) |
-| `shh_inc-mysc_pc.bt` | MYSC include (PC) |
-| `shh_inc-navm_pc.bt` | NAVM include (PC) |
-| `shh_inc-pgpc_pc.bt` | PGPC include (PC) |
-| `shh_inc-ptmc_pc.bt` | PTMC include (PC) |
-| `shh_inc-sctr_pc.bt` | SCTR include (PC) |
+| `shhc_assets_b_xml.bt` | Assets XML format |
+| `shhc_mdl.bt` | Model format |
+| `shhc_mys.bt` | MYS format |
+| `shhc_mtm.bt` | MTM format |
+| `shhc_nvm.bt` | NVM navigation-mesh format |
+| `shhc_pak.bt` | PAK archive format |
+| `shhc_pgp.bt` | PGP format |
+| `shhc_ptm.bt` | PTM format |
+| `shhc_sct.bt` | SCT script format |
+| `shhc_ses.bt` | SES sound-event format |
+| `shhc_syt_pc_ps3.bt` | SYT format (PC/PS3) |
 
 ### Other
 | File | Description |
 |------|-------------|
 | `cmi_draft.bt` | CMI format (draft) |
+| `havok_hcl.bt` | Havok HCL animation container format |
 | `konami_skeletal_model_finder.bt` | Finder for Konami skeletal model format |
