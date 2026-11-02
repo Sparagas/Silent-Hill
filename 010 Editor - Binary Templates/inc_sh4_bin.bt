@@ -13,12 +13,12 @@
 //------------------------------------------------
 
 #include "sh4_animation.bt"
+#include "sh4_pc_skeletal_model.bt"
+#include "sh4_pc_static_model.bt"
 #include "sh4_fog_data.bt"
 #include "sh4_maphit.bt"
 #include "sh4_shadow_model.bt"
-#include "sh4_skeletal_model_pc.bt"
 #include "sh4_slgt.bt"
-#include "sh4_static_model_pc.bt"
 #include "sh4_path_data.bt"
 #include "sh4_textures.bt"
 

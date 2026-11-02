@@ -31,8 +31,6 @@ Plugins generally follow the pattern `<type>_<game>_<platform>_<format>.py`. In 
 | `fmt_sh4_pc_map_bin.py` | Silent Hill 4: The Room | PC | `.bin` | Map models |
 | `fmt_sh4_ps2_map_bin.py` | Silent Hill 4: The Room | PS2 | `.bin` | Map models |
 | `fmt_shte_ios_nom.py` | Silent Hill: The Escape | iOS | `.nom` | 3D models |
-| `fmt_shte_ios_not.py` | Silent Hill: The Escape | iOS | `.not` | NOT format |
-| `fmt_shte_ios_pvr.py` | Silent Hill: The Escape | iOS | `.pvr` | Textures |
 | `fmt_havok_hcl.py` | Silent Hill: Homecoming | Windows, Xbox 360, PS3 | `.hcl` | Havok collision data |
 | `fmt_rw_ps2_bsp.py` | Silent Hill: Origins | PS2 | `.bsp` | RenderWare map models |
 | `fmt_sho_ps2_map_bsp.py` | Silent Hill: Origins | PS2 | `.bsp` | BSP map models |
@@ -43,6 +41,8 @@ Plugins generally follow the pattern `<type>_<game>_<platform>_<format>.py`. In 
 | `tex_sh2_sh3_ps2_tex_tbn2.py` | Silent Hill 2 / 3 | PS2 | `.tex`, `.tbn2` | Textures |
 | `tex_sh4_bin.py` | Silent Hill 4: The Room | PS2, Xbox, PC | `.bin` | Textures from archives |
 | `tex_sh4_textures.py` | Silent Hill 4: The Room | PS2, Xbox, PC | `._sh4_textures` | Textures extracted from `.bin` archives |
+| `tex_shte_ios_not.py` | Silent Hill: The Escape | iOS | `.not` | NOT format |
+| `tex_shte_ios_pvr.py` | Silent Hill: The Escape | iOS | `.pvr` | Textures |
 
 ### Archive Plugins (`arc_`)
 | File | Game | Platform | Extensions | Description / Notes |

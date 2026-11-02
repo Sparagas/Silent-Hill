@@ -70,7 +70,7 @@ Files without a game prefix (e.g., `afs.bt`, `color.bt`, `vector.bt`) are shared
 |------|-------------|
 | `sh2_hd_map.bt` | Map format (HD Collection) |
 | `sh2_pc_map.bt` | Map format (PC) |
-| `sh2_ps2_map_.bt` | Map format (PS2) |
+| `sh2_ps2_map.bt` | Map format (PS2) |
 | `sh2_sh3_ps2_tex_tbn2.bt` | TBN2 texture format (PS2) |
 
 ### Silent Hill 3

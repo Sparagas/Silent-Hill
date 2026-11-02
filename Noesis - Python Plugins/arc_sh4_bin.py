@@ -1,6 +1,6 @@
 """Noesis Python Plugin
 
-      File: arc_sh4_sh4.py
+      File: arc_sh4_bin.py
    Authors: Laurynas Zubavičius (Sparagas)
             Hunter Stanton
    Purpose: Silent Hill 4: The Room (Microsoft - Xbox)
@@ -90,7 +90,7 @@ def extract_bin_archive(noe_file_name, noe_file_len, just_checking):
                 name = name + '._sh4_fog'
 
             else:
-                name = name + '.sh4_unknown'
+                name = name + '._sh4_unknown'
 
             rapi.exportArchiveFile(name, f.read(end_file[i] - ofs_file[i]))
     return 1
