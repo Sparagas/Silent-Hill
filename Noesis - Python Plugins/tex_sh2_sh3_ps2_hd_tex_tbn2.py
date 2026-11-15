@@ -1,9 +1,9 @@
 """Noesis Python Plugin
 
-      File: tex_sh2_sh3_ps2_tex_tbn2.py
+      File: tex_sh2_sh3_ps2_hd_tex_tbn2.py
    Authors: Laurynas Zubavičius (Sparagas)
             Rodolfo Nuñez (roocker666)
-   Purpose: Silent Hill 2 and Silent Hill 3 (Sony - PlayStation 2)
+   Purpose: Silent Hill 2 and Silent Hill 3 (Sony - PlayStation 2, Sony - PlayStation 3, Microsoft - Xbox 360)
   Category: Image
  File Mask: *.tex,*.tbn2
   ID Bytes: 
@@ -13,7 +13,7 @@ from inc_noesis import *
 
 
 def registerNoesisTypes():
-    handle = noesis.register("Silent Hill 2 / 3 (PS2) texture", ".tex;.tbn2")
+    handle = noesis.register("Silent Hill 2 / 3 (PS2, HD) texture", ".tex;.tbn2")
     noesis.setHandlerTypeCheck(handle, noepyCheckType)
     noesis.setHandlerLoadRGBA(handle, noepyLoadRGBA)
     return 1
@@ -22,11 +22,11 @@ def registerNoesisTypes():
 def noepyCheckType(data):
     bs = NoeBitStream(data)
     areaId = bs.readInt()
-    if areaId in (0, -1):
+    if areaId in (0, -1, 542327876):  # 542327876 = "DDS "
         return 1
     bs.seek(26, NOESEEK_REL)
     check = bs.readUShort()
-    if check == 0x9999:
+    if check in (0x9999, 0x0000):
         return 1
     return 0
 
@@ -138,6 +138,13 @@ def noepyLoadRGBA(data, tex_list):
     # for SH2 it is usualy like this, but some Sh3 files still have this header as a leftover
     areaId = bs.readInt()
     bs.seek(-4, NOESEEK_REL)
+    
+    if areaId == 542327876:
+        print("DDS")
+        tex = rapi.loadTexByHandler(data, ".dds")
+        tex_list.append(tex)
+        return 1
+    
     if areaId == 0:
         sh2AreaHead = Sh2AreaHead(bs)
         bs.seek(sh2AreaHead.GlobalTexHeadOffset, NOESEEK_ABS)

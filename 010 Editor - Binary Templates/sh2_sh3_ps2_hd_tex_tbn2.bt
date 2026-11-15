@@ -138,14 +138,14 @@ if (ReadString(0, 4) == "DDS ") {
 // Other SH HD files are identical to original PS2 versions. Not even endian flipped!
 
 // SH3 header and body
-if (!FEof() && ReadInt() == -1) {
+if (ReadInt() == -1) {
     Sh3AreaHead sh3AreaHead;
     Texture     texture[sh3AreaHead.texCount] <optimize=false, warn=false>;
 }
 
 // SH2 header
 // Some SH3 files still have this header as a leftover
-else if (ReadInt() == 0) {
+else if (ReadInt() == 0 && ReadInt(12) == 0xA7A7A7A7) {
     Sh2AreaHead sh2AreaHead;
     FSeek(sh2AreaHead.GlobalTexHeadOffset);
 }
